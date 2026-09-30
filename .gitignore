@@ -21,11 +21,11 @@ src/test/data/sandbox/
 .DS_Store
 docs/_site/
 
-# AI Agents
-AGENTS.md
-CLAUDE.md
-/.claude/
-/.codex/
+# AI Agents - now shared
+# AGENTS.md
+# CLAUDE.md
+# /.claude/
+# /.codex/
 
 # Temp files
 _temp/
