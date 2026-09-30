@@ -51,12 +51,13 @@ You can reach us at the email `e1525201@u.nus.edu`
 * Role: Developer
 * Responsibilities: Development and testing
 
-### James Doe
+### Ethan Lai
 
-<img src="images/johndoe.png" width="200px">
+<img src="images/ethanlaiii.png" width="200px">
 
-[[github](http://github.com/johndoe)]
+[[github](https://github.com/ethanlaiii)]
 [[portfolio](team/johndoe.md)]
 
 * Role: Developer
-* Responsibilities: UI
+* Responsibilities: All
+* About me: I am a Year 2 Computer science student minoring in entrepreneurship. I have an interest in cybersecurity.
