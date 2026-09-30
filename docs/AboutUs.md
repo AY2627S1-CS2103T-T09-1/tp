@@ -24,7 +24,7 @@ You can reach us at the email `e1525201@u.nus.edu`
 
 <img src="images/azora04.png" width="200px">
 
-[[github](http://github.com/johndoe)]
+[[github](http://github.com/Azora04)]
 [[portfolio](team/johndoe.md)]
 
 * Role: Developer
