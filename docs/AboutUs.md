@@ -16,7 +16,7 @@ You can reach us at the email `e1525201@u.nus.edu`
 [[github](https://github.com/adwaithanoop)]
 [[portfolio](team/adwaithanoop.md)]
 
-* Role: Project Advisor
+* Role: Team Lead
 
 ### Jane Doe
 
