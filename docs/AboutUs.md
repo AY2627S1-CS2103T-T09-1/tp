@@ -40,18 +40,7 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 * Responsibilities: All
 * About me: I am a Year 2 Computer Science student who actually loves coding and system design.
 
-### Ethan Lai
-
-<img src="images/ethanlaiii.png" width="200px">
-
-[[github](http://github.com/ethanlaiii)]
-[[portfolio](team/johndoe.md)]
-
-* Role: Developer
-* Responsibilities: All
-* About me: I am a Year 2 Computer Science student minoring in entrepreneurship. I am interested in cybersecurity.
-
-### James Doe
+### Jean Doe
 
 <img src="images/johndoe.png" width="200px">
 
@@ -59,4 +48,15 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 [[portfolio](team/johndoe.md)]
 
 * Role: Developer
-* Responsibilities: UI
+* Responsibilities: Dev Ops + Threading
+
+### Ethan Lai
+
+<img src="images/ethanlaiii.png" width="200px">
+
+[[github](https://github.com/ethanlaiii)]
+[[portfolio](team/johndoe.md)]
+
+* Role: Developer
+* Responsibilities: All
+* About me: I am a Year 2 Computer science student minoring in entrepreneurship. I have an interest in cybersecurity.
