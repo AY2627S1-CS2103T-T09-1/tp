@@ -17,6 +17,8 @@ You can reach us at the email `e1525201@u.nus.edu`
 [[portfolio](team/adwaithanoop.md)]
 
 * Role: Team Lead
+* Responsibilities: Ensure team is on track
+* About me: I am a Year 2 Computer Science student. I am interested in AI and take part in Judo and volleyball.
 
 ### Jane Doe
 
