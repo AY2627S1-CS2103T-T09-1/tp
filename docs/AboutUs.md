@@ -40,15 +40,14 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 * Responsibilities: All
 * About me: I am a Year 2 Computer Science student who actually loves coding and system design.
 
-### Jean Doe
+### Matthew
 
-<img src="images/johndoe.png" width="200px">
+<img src="images/matthewbiju.png" width="200px">
 
-[[github](http://github.com/johndoe)]
-[[portfolio](team/johndoe.md)]
+[[github](https://github.com/matthewbiju)]
 
 * Role: Developer
-* Responsibilities: Dev Ops + Threading
+* Responsibilities: DG User Stories
 
 ### James Doe
 
