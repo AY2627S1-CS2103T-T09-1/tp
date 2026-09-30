@@ -29,14 +29,16 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 * Role: Team Lead
 * Responsibilities: UI
 
-### Johnny Doe
+### Law Jia Kai
 
-<img src="images/johndoe.png" width="200px">
+<img src="images/lawjiakai11.png" width="200px">
 
-[[github](http://github.com/johndoe)] [[portfolio](team/johndoe.md)]
+[[github](https://github.com/lawjiakai11)] 
+[[portfolio](team/johndoe.md)]
 
 * Role: Developer
-* Responsibilities: Data
+* Responsibilities: All
+* About me: I am a Year 2 Computer Science student who actually loves coding and system design.
 
 ### Jean Doe
 
