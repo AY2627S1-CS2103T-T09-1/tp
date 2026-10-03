@@ -303,10 +303,21 @@ Remotes: `upstream` is the team repo, and `origin` is the member's fork. Check w
 1. Sync `master` with the team repo: `git switch master`, `git pull upstream master`, then `git push origin master`.
 1. Create a branch from `master` named after the issue, such as `12-add-agent-instructions`. See [Branches](#branches).
 1. Commit following the [Git conventions](#git-conventions), then push the branch to your fork: `git push origin <branch>`.
+1. Before the last commit of the issue, check the whole branch for bugs it introduces, not just the latest change:
+   * Run `git fetch upstream`, then read `git diff $(git merge-base upstream/master HEAD)`. This covers every commit on the branch plus uncommitted changes.
+   * Check each change against [Preventing bugs and feature flaws](#preventing-bugs-and-feature-flaws) and the [test checklist](#test-checklist), and confirm the UG matches the new behavior.
+   * Report each bug with its file, line, and the input that triggers it. Fix it on the same branch before the PR is opened.
 1. Open a PR from that branch to the team repo's `master`, following the rules below.
 1. Get a teammate to review the PR. Resolve every comment before merging.
 1. Merge only after approval, following [Merging](#merging).
 1. Close the issue, then repeat step 2 so your local repo and fork match the team repo.
+
+At the end of each weekly milestone, right before the milestone is closed, check everything merged during it for bugs:
+
+* Run `git fetch upstream` and list the merged PRs with `gh pr list --repo <team-repo> --state merged --search "milestone:<milestone>"`.
+* Review their combined changes on `upstream/master`. Look for bugs that a single-PR check misses: features that conflict with each other, UG and app mismatches, and data files from the previous milestone that no longer load.
+* Run the checks in [Before you push](#before-you-push) on an up-to-date `master`.
+* Report each bug with its file, line, and the input that triggers it, and draft an issue title for the member to create. Close the milestone only after each bug is fixed or its issue moves to the next milestone.
 
 Each member sends PRs for their own work, including their own part of the documentation. Do not commit a teammate's part for them.
 
