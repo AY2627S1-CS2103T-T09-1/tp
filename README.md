@@ -21,6 +21,12 @@ The current version supports the core contact-management workflow:
 
 See the [User Guide](docs/UserGuide.md) for command formats, examples, and the complete behavior of the current release.
 
+## Example usage
+
+* A tutor can keep a student's name, phone number, email address, home address, and relevant notes in one contact record.
+* A tutor can find a student quickly by name, such as while speaking with the student's guardian.
+* A tutor can update a student's details when they change and delete records that are no longer needed.
+
 ## Documentation
 
 * [User Guide](docs/UserGuide.md)
