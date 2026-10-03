@@ -3,7 +3,7 @@
 [![CI Status](https://github.com/AY2627S1-CS2103T-T09-1/tp/workflows/Java%20CI/badge.svg)](https://github.com/AY2627S1-CS2103T-T09-1/tp/actions)
 [![codecov](https://codecov.io/gh/AY2627S1-CS2103T-T09-1/tp/graph/badge.svg?token=IRAZVCSUXY)](https://codecov.io/gh/AY2627S1-CS2103T-T09-1/tp)
 
-TuteeBook3 is a desktop contact-management application for private tutors in Singapore. It is designed for tutors who manage many students across different schools, levels, and subjects, and who prefer fast typed commands to navigating a mouse-driven interface.
+TuteeBook3 is for full-time private tutors in Singapore who teach secondary school students one on one or in small groups. They run the business alone, have lots of students, classes, topics and lessons to keep track of on a weekly basis, almost everyday.
 
 The project is evolving from [AddressBook-Level3](https://se-education.org/addressbook-level3/) as part of the NUS CS2103T team project. Its goal is to keep student and guardian contacts, lesson details, and notes in one locally stored record that a tutor can retrieve quickly.
 
