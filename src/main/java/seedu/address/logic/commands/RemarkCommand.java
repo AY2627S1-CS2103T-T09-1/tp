@@ -5,6 +5,7 @@ import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
+import seedu.address.model.person.Remark;
 
 /**
  * Changes the remark of an existing person in the address book.
@@ -22,25 +23,25 @@ public class RemarkCommand extends Command {
             + "Example: " + COMMAND_WORD + " 1 "
             + "r/ Likes to swim.";
 
-        public static final String MESSAGE_NOT_IMPLEMENTED_YET =
-            "Remark command not implemented yet";
+    public static final String MESSAGE_NOT_IMPLEMENTED_YET =
+        "Remark command not implemented yet";
 
-        public static final String MESSAGE_ARGUMENTS = "Index: %1$d, Remark: %2$s";
+    public static final String MESSAGE_ARGUMENTS = "Index: %1$d, Remark: %2$s";
 
-        private final Index index;
-        private final String remark;
+    private final Index index;
+    private final Remark remark;
 
-        /**
-         * Creates a {@code RemarkCommand} that sets the remark of the person at {@code index}.
-         *
-         * @param index Index of the person in the filtered person list.
-         * @param remark Remark to set; an empty remark removes the existing one.
-         */
-        public RemarkCommand(Index index, String remark) {
-            requireAllNonNull(index, remark);
-            this.index = index;
-            this.remark = remark;
-        }
+    /**
+     * Creates a {@code RemarkCommand} that sets the remark of the person at {@code index}.
+     *
+     * @param index Index of the person in the filtered person list.
+     * @param remark Remark to set; an empty remark removes the existing one.
+     */
+    public RemarkCommand(Index index, Remark remark) {
+        requireAllNonNull(index, remark);
+        this.index = index;
+        this.remark = remark;
+    }
 
     @Override
     public CommandResult execute(Model model) throws CommandException{
