@@ -356,6 +356,7 @@ Applies to `docs/` (User Guide, Developer Guide) and all Markdown in the repo.
 * Follow the [Google developer documentation style guide](https://developers.google.com/style):
   * Use second person ("you"), active voice, and present tense.
   * Use sentence case for headings.
+  * Use American English spelling, such as "prioritize" and "color". Keep official names as written.
   * Put code, commands, and file names in `code font`. Put UI elements in **bold**.
   * Use the serial comma and descriptive link text (never "click here").
 * When a feature changes user-visible behavior, update `docs/UserGuide.md` in the same PR.
