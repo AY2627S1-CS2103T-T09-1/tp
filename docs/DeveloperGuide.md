@@ -316,11 +316,16 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 ### Non-Functional Requirements
 
-1.  Should work on any _mainstream OS_ as long as it has Java `25` or above installed.
-2.  Should be able to hold up to 1000 persons without noticeable sluggishness in performance for typical usage.
-3.  A user with above average typing speed for regular English text (i.e. not code, not system admin commands) should be able to accomplish most of the tasks faster using commands than using the mouse.
-
-*{More to be added}*
+1. Should run on any _mainstream OS_ with Java `25`, without an installer.
+2. Should respond to commands within two seconds with up to 1000 student records.
+3. Should allow all student and note commands to be entered and submitted using only the keyboard.
+4. Should support all student and note commands without an internet connection.
+5. Should save successful changes in local, human-editable files and retain them after restarting.
+6. Should reject invalid commands without crashing or changing records, and explain the error and how to correct it.
+7. Should keep all fields accessible at 1920 × 1080 at 100% and 125% scaling, and at 1280 × 720 at 150% scaling.
+8. Should keep student and guardian data on the tutor's computer and exclude personal details from diagnostic logs.
+9. Should preserve previously saved records and report an error if saving fails.
+10. A first-time tutor should be able to add, find, and view a student and add a note within ten minutes using the supplied help.
 
 ### Glossary
 
