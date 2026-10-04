@@ -318,36 +318,24 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 1. Should run on any _mainstream OS_ with only Java `25` installed, without OS-specific libraries or features.
 2. Should respond to commands within two seconds with up to 1000 student records.
-3. Should use typed commands as the primary input for tutors who prefer typing, with the GUI providing feedback and keyboard access to all student and note commands.
-4. Should support all student and note commands offline, without relying on a team-operated remote server.
+3. Should prioritize typed commands for tutors who prefer typing, with GUI feedback and keyboard access to all student and note commands.
+4. Should support all student and note commands offline, without a team-operated remote server.
 5. Should save successful changes in local, human-editable JSON files, without a DBMS, and retain them after restarting.
-6. Should reject invalid commands without crashing or changing records, and explain the error and how to correct it.
+6. Should reject invalid commands without crashing or changing records, and explain errors and corrections.
 7. Should work well at resolutions of 1920 × 1080 or higher at 100% and 125% scaling, and remain usable at 1280 × 720 or higher at 150% scaling.
-8. Should keep student and guardian data on the tutor's computer and exclude personal details from diagnostic logs.
-9. Should preserve previously saved records and report an error if saving fails.
+8. Should keep student and guardian data local and omit personal details from diagnostic logs.
+9. Should report save failures and preserve previously saved records.
 10. A first-time tutor should be able to add, find, and view a student and add a note within ten minutes using the supplied help.
 11. Should serve one tutor, without shared-computer accounts or shared data files between users.
 12. Should support manual data-file editing at least as well as AB3: load valid edits and report invalid files without crashing.
 13. Should use a primarily object-oriented design.
-14. Should use only teaching-team-approved, free, permissively licensed dependencies requiring no user installation; third-party libraries and frameworks must also be open source.
-15. Should require no installer and ship as one JAR no larger than 100 MB, or one ZIP if a single JAR is not possible.
-
-These product requirements incorporate the relevant [CS2103T project constraints](https://nus-cs2103-ay2627-s1.github.io/website/admin/tp-constraints.html). Brownfield development and incremental delivery are course-process constraints and are excluded from this list.
+14. Should use free, permissively licensed dependencies approved by the teaching team, with no user installation; libraries and frameworks must be open source.
+15. Should ship without an installer as one JAR (or one ZIP if necessary), no larger than 100 MB.
 
 ### Glossary
 
-* **Mainstream OS**: Windows, Linux, or macOS.
-* **Private contact detail**: A contact detail that is not meant to be shared with others.
-* **Student ID (SID)**: A permanent number identifying a student, independent of their position in the displayed list.
-* **Note ID (NID)**: The number identifying a note within one student's record.
-* **Guardian**: A parent or other person responsible for a student and listed as their contact.
-* **CLI (command-line interface)**: An interface that accepts typed commands.
-* **GUI (graphical user interface)**: The application window displaying command feedback, students, and their records.
-* **JSON (JavaScript Object Notation)**: The human-editable text format used to store application data.
-* **DBMS (database management system)**: Software used to store and manage a database.
-* **Object-oriented design**: A design that organizes data and behavior into collaborating objects.
-* **JAR (Java archive)**: A file that packages the Java application and its runtime dependencies.
-* **AB3 (AddressBook-Level3)**: The starter application that TuteeBook3 evolves from.
+* **Mainstream OS**: Windows, Linux, Unix, or macOS
+* **Private contact detail**: A contact detail that is not meant to be shared with others
 
 --------------------------------------------------------------------------------------------------------------------
 
