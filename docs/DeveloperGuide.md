@@ -277,16 +277,16 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 | Priority | As a …​                                    | I want to …​                     | So that I can…​                                                        |
 | -------- | ------------------------------------------ | ------------------------------ | ---------------------------------------------------------------------- |
 | `* * *` | new user | see a list of available commands | learn the app without reading a manual |
-| `* * *` | tutor taking a new student | add a student with their name, school, level and subjects | keep all their details in one place from the start |
+| `* * *` | tutor taking a new student | add a student with their name, school, level, and subjects | keep all their details in one place from the start |
 | `* * *` | tutor | record a student's own phone number | contact the student directly about lessons |
 | `* * *` | tutor | record a guardian's name and phone number on a student's record | know who to contact about that student |
 | `* * *` | tutor | see the guardian's name and number on the student's record | contact the guardian without searching separately |
 | `* * *` | tutor | list all my students | check every student I teach without searching for each one |
 | `* * *` | busy tutor | find a student by part of their name | pull up their record quickly while a guardian is on the phone |
 | `* * *` | tutor receiving unknown calls | find students by their guardian's phone number | identify the caller and see their children's records |
-| `* * *` | tutor planning lessons | filter students by school, level or subject | prepare lessons for students at the same school, level, or subject together |
+| `* * *` | tutor planning lessons | filter students by school, level, or subject | prepare lessons for students at the same school, level, or subject together |
 | `* * *` | busy tutor | view one student's full record on a single screen | avoid piecing it together from several places |
-| `* * *` | tutor | edit a student's details | keep records correct when they change school, level or phone number |
+| `* * *` | tutor | edit a student's details | keep records correct when they change school, level, or phone number |
 | `* * *` | tutor | remove a student I added by mistake | keep my list accurate |
 | `* * *` | busy tutor | add a short note to a student | tailor the next lesson to their weak topics |
 | `* * *` | tutor | delete a note about a student | keep the student's record focused on what matters now |
@@ -297,9 +297,9 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 | `* *` | tutor | edit a note | update a student's progress without deleting and retyping it |
 | `* *` | careless typist | undo my last command | recover from a mistyped delete |
 | `* *` | new user | clear all sample students | start with only my own students |
-| `* *` | tutor taking a first enquiry over the phone | add a student with only their name, level and guardian contact | record the lead before I know their school and subjects |
+| `* *` | tutor taking a first enquiry over the phone | add a student with only their name, level, and guardian contact | record the lead before I know their school and subjects |
 | `* *` | tutor | record a student's learning needs, such as dyslexia or needing extra time | adapt my lessons to how each student learns |
-| `* *` | tutor | record the subject band each subject is taken at (G1, G2 or G3) | pitch the material at the right difficulty |
+| `* *` | tutor | record the subject band or stream each subject is taken at (G1, G2, G3, Express, N(A), or N(T)) | pitch the material at the right difficulty |
 | `* *` | tutor | record a test or exam grade for a student's subject | have evidence of how they are actually doing |
 | `* *` | forgetful tutor | record a student's school exam dates | ramp up revision before the exams rather than after |
 | `* *` | expert user | use short aliases for commands | type commands faster once I know the app |
