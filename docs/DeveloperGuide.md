@@ -334,8 +334,42 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 ### Glossary
 
-* **Mainstream OS**: Windows, Linux, Unix, or macOS
-* **Private contact detail**: A contact detail that is not meant to be shared with others
+#### General
+
+* **GUI**: Graphical user interface. The windows, lists, and boxes that the user sees and clicks.
+* **Mainstream OS**: Windows, Linux, Unix, macOS.
+
+#### Tutoring terms
+
+* **Guardian**: A parent or other adult responsible for a student, whom the tutor contacts about the student's progress.
+* **Level**: A student's year of secondary school, from S1 (Secondary 1) to S5 (Secondary 5).
+* **Note**: A short piece of text that the tutor attaches to a student, such as "Weak in Geometry" or "WA2 Math: 36/50".
+* **Student**: A secondary school student whom the tutor teaches.
+* **Subject**: A school subject that the tutor teaches the student, such as "Mathematics" or "Chemistry".
+
+#### Commands and IDs
+
+* **Filter**: A prefix and value given to the `find` command, such as `lvl/S2`, that narrows down the student list.
+* **NID**: Note ID, a number that identifies a note within one student's record. It is never reused, even after the note is deleted. Different students can share an NID, but no two notes in one student's record can have the same NID.
+* **Prefix**: A short marker ending in `/`, such as `n/` or `sch/`, that labels the value after it in a command.
+* **SID**: Student ID, a unique number given to each student when they are added. It is never reused, even after the student is deleted.
+
+#### Screen layout
+
+* **Command box**: The text field at the top of the window where the user types commands.
+* **Detail pane**: The right side of the window, which shows everything about one student, including all their notes.
+* **Result display**: The area below the command box that tells the user whether their last command worked, and why not if it failed.
+* **Student card**: One student's entry in the student list.
+* **Student list**: The left side of the window, which lists students with their main details.
+
+#### Code
+
+* **AddressBook**: The class that holds every `Person` in the app.
+* **Logic**: The component that turns what the user typed into a command and runs it.
+* **Model**: The component that holds the app's data while it runs and applies every change to it.
+* **Parser**: A class that checks what the user typed and turns it into a `Command` object, for example `AddCommandParser` for the `add` command.
+* **Person**: The class that stores one student's details. The name is kept from AB3.
+* **Storage**: The component that loads the data file when the app starts and saves every change back to it.
 
 --------------------------------------------------------------------------------------------------------------------
 
