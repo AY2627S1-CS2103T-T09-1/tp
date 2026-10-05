@@ -261,13 +261,16 @@ _{Explain here how the data archiving feature will be implemented}_
 
 **Target user profile**:
 
-* has a need to manage a significant number of contacts
+* is a private tutor in Singapore who teaches secondary school students (levels S1 to S5)
+* manages their tutoring alone, on their own computer
+* teaches many students across different schools, levels, and subjects
+* contacts both students and their guardians, and often needs to find a student quickly while a guardian is on the phone
+* keeps notes on each student, such as weak topics and test results, to tailor lessons
 * prefers desktop apps over other types of applications
-* can type fast
-* prefers typing to mouse interactions
+* can type fast and prefers typing to mouse interactions
 * is reasonably comfortable using CLI apps
 
-**Value proposition**: Manage contacts faster than with a typical mouse-driven GUI application.
+**Value proposition**: Keep every student's contact details, guardian contact, school, level, subjects, and lesson notes in one place, and reach any of it with a short typed command, faster than with a mouse-driven app or a notebook.
 
 
 ### User stories
