@@ -336,7 +336,12 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 #### General
 
+* **AB3**: AddressBook-Level3, the sample project that TutorBook3 is built on.
+* **CLI**: Command-line interface. A way of using an app by typing commands instead of clicking.
+* **DBMS**: Database management system. Software, such as MySQL, that stores data in a database. TutorBook3 does not use one.
 * **GUI**: Graphical user interface. The windows, lists, and boxes that the user sees and clicks.
+* **JAR**: Java Archive. The single file that contains the whole app, which the user runs with Java.
+* **JSON**: JavaScript Object Notation. The text format that TutorBook3 uses to save data in a file that can be read and edited by hand.
 * **Mainstream OS**: Windows, Linux, Unix, macOS.
 
 #### Tutoring terms
@@ -344,8 +349,10 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 * **Guardian**: A parent or other adult responsible for a student, whom the tutor contacts about the student's progress.
 * **Level**: A student's year of secondary school, from S1 (Secondary 1) to S5 (Secondary 5).
 * **Note**: A short piece of text that the tutor attaches to a student, such as "Weak in Geometry" or "WA2 Math: 36/50".
+* **Stream**: In Singapore secondary schools, the course that the school assigned a student before Full Subject-Based Banding, which set the difficulty of most of their subjects. There are three streams: Express, the hardest; Normal (Academic), or N(A); and Normal (Technical), or N(T). Schools replaced streams with subject bands between 2020 and 2024, so every student who entered Secondary 1 from 2024 onward has subject bands instead.
 * **Student**: A secondary school student whom the tutor teaches.
 * **Subject**: A school subject that the tutor teaches the student, such as "Mathematics" or "Chemistry".
+* **Subject band**: In Singapore secondary schools, the difficulty that the school assigns a student for one subject under Full Subject-Based Banding: G1, G2, or G3, where G3 is the hardest. A student can have a different band for each subject, such as G3 Mathematics and G2 Science. Students who entered Secondary 1 before their school adopted banding have a stream instead: Express, N(A), or N(T). In commands, these are typed as `EXP`, `NA`, and `NT`. Not to be confused with level, which is the student's year of secondary school.
 
 #### Commands and IDs
 
