@@ -334,7 +334,6 @@ Each member sends PRs for their own work, including their own part of the docume
 * Description:
   * Write `Fixes #123` for a full fix or `Fixes part of #123` for a partial fix.
   * Add before-and-after screenshots for UI changes.
-  * Propose a merge commit message for a non-trivial multi-commit PR.
 * Assign the PR to the issue's milestone.
 * Open the PR as a draft. Mark it ready for review only after CI passes and you have read the full diff for unintended changes.
 
@@ -342,7 +341,6 @@ Each member sends PRs for their own work, including their own part of the docume
 
 * Never merge a PR while CI is failing.
 * Use a merge commit. Do not squash or rebase.
-* Merge commit subject: `Issue title #IssueNumber (#PrNumber)`, for example `Add tag command #42 (#57)`.
 * After merging, close the issue and sync `master` as in step 2 of [Workflow](#workflow).
 
 ## Documentation
