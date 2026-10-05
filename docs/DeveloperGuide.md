@@ -364,10 +364,10 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 #### Screen layout
 
 * **Command box**: The text field at the top of the window where the user types commands.
-* **Detail pane**: The right side of the window, which shows everything about one student, including all their notes.
+* **Detail view**: The view that shows everything about one student, including all their notes. It takes the place of the student list, so only one student is shown at a time. The user can return to the student list with `list` or `find`.
 * **Result display**: The area below the command box that tells the user whether their last command worked, and why not if it failed.
 * **Student card**: One student's entry in the student list.
-* **Student list**: The left side of the window, which lists students with their main details.
+* **Student list**: The view that lists students with their main details. It takes the place of the detail view when the user enters `list` or `find`.
 
 #### Code
 
