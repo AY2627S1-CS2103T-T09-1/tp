@@ -276,46 +276,48 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 | Priority | As a …​                                    | I want to …​                     | So that I can…​                                                        |
 | -------- | ------------------------------------------ | ------------------------------ | ---------------------------------------------------------------------- |
-| * * * | new user | see a list of available commands | learn the app without reading a manual |
-| * * * | tutor taking a new student | add a student with their name, school, level and subjects | keep all their details in one place from the start |
-| * * * | tutor | record a student's own phone number | contact the student directly about lessons |
-| * * * | tutor | record a guardian's name and phone number on a student's record | know who to contact about that student |
-| * * * | tutor | see the guardian's name and number on the student's record | contact the guardian without searching separately |
-| * * * | tutor | list all my students | check every student I teach without searching for each one |
-| * * * | busy tutor | find a student by part of their name | find a student even when I remember only part of their name |
-| * * * | fast typist | do every task using only the keyboard | work efficiently without reaching for the mouse |
-| * * * | tutor receiving unknown calls | find students by their guardian's phone number | know who is calling and which of their children the call is about |
-| * * * | tutor planning lessons | filter students by school, level or subject | prepare lessons for students at the same school, level, or subject together |
-| * * * | busy tutor | view one student's full record on a single screen | avoid piecing it together from several places |
-| * * * | tutor | edit a student's details | keep records correct when they change school, level or phone number |
-| * * * | tutor | remove a student | find current students without scrolling past ex-students |
-| * * * | busy tutor | add a short note to a student | store short valuable info to be recalled later |
-| * * * | tutor | delete a note about a student | keep the student's record focused on what matters now |
-| * * * | tutor | have my data saved automatically | avoid losing records when I close the app |
-| * * * | tutor | exit the app | end my session when I'm done |
-| * * | careless typist | confirm before a student is deleted | avoid erasing the wrong student's history after mistyping an ID |
-| * * | careless typist | be warned when I add a student who may already exist | avoid two records for the same student |
-| * * | tutor | edit a note | update a student's progress without deleting and retyping it |
-| * * | careless typist | undo my last command | recover from a mistyped delete |
-| * * | new user | clear all sample students | start with only my own students |
-| * * | tutor taking a first enquiry over the phone | add a student with only their name, level and guardian contact | record the lead before I know their school and subjects |
-| * * | tutor | record a student's learning needs, such as dyslexia or needing extra time | adapt my lessons to how each student learns |
-| * * | tutor | record the level each subject is taken at (G1, G2 or G3) | pitch the material at the right difficulty |
-| * * | tutor | record a test or exam grade for a student's subject | have evidence of how they are actually doing |
-| * * | forgetful tutor | record a student's school exam dates | ramp up revision before the exams rather than after |
-| * * | tutor | cancel a lesson | keep my schedule accurate when a student falls sick |
-| * * | expert user | use short aliases for commands | type commands faster once I know the app |
-| * | tutor updating a guardian on progress | see a student's grade history for a subject | show a guardian whether the tuition is working |
-| * | tutor with students on break | mark a student as inactive instead of deleting them | keep their history in case they come back |
-| * | tutor teaching siblings | link two students to the same guardian | update a shared guardian's details once for all their children |
-| * | busy tutor | flag a student as needing extra attention | give those students more time when I plan my week |
-| * | busy tutor | view all flagged students | attend to them first |
-| * | tutor in exam season | see which students have an exam within the next month | prioritize their revision |
-| * | tutor | find students whose notes contain a keyword, such as a topic | group students with the same weakness for revision |
-| * | tutor mid-lesson | flag a note as something to tell the guardian | remember to raise it when I next message them |
-| * | tutor running small groups | create a group and add students to it | handle a group class as one unit |
-| * | expert user | schedule a lesson for a whole group at once | avoid entering the same lesson once per student |
-| * | tutor | export a student's record | share it with a guardian |
+| `* * *` | new user | see a list of available commands | learn the app without reading a manual |
+| `* * *` | tutor taking a new student | add a student with their name, school, level and subjects | keep all their details in one place from the start |
+| `* * *` | tutor | record a student's own phone number | contact the student directly about lessons |
+| `* * *` | tutor | record a guardian's name and phone number on a student's record | know who to contact about that student |
+| `* * *` | tutor | see the guardian's name and number on the student's record | contact the guardian without searching separately |
+| `* * *` | tutor | list all my students | check every student I teach without searching for each one |
+| `* * *` | busy tutor | find a student by part of their name | pull up their record quickly while a guardian is on the phone |
+| `* * *` | tutor receiving unknown calls | find students by their guardian's phone number | identify the caller and see their children's records |
+| `* * *` | tutor planning lessons | filter students by school, level or subject | prepare lessons for students at the same school, level, or subject together |
+| `* * *` | busy tutor | view one student's full record on a single screen | avoid piecing it together from several places |
+| `* * *` | tutor | edit a student's details | keep records correct when they change school, level or phone number |
+| `* * *` | tutor | remove a student I added by mistake | keep my list accurate |
+| `* * *` | busy tutor | add a short note to a student | tailor the next lesson to their weak topics |
+| `* * *` | tutor | delete a note about a student | keep the student's record focused on what matters now |
+| `* * *` | tutor | have my data saved automatically | avoid losing records when I close the app |
+| `* * *` | tutor | exit the app | end my session when I'm done |
+| `* *` | careless typist | confirm before a student is deleted | avoid erasing the wrong student's history after mistyping an ID |
+| `* *` | careless typist | be warned when I add a student who may already exist | avoid two records for the same student |
+| `* *` | tutor | edit a note | update a student's progress without deleting and retyping it |
+| `* *` | careless typist | undo my last command | recover from a mistyped delete |
+| `* *` | new user | clear all sample students | start with only my own students |
+| `* *` | tutor taking a first enquiry over the phone | add a student with only their name, level and guardian contact | record the lead before I know their school and subjects |
+| `* *` | tutor | record a student's learning needs, such as dyslexia or needing extra time | adapt my lessons to how each student learns |
+| `* *` | tutor | record the subject band each subject is taken at (G1, G2 or G3) | pitch the material at the right difficulty |
+| `* *` | tutor | record a test or exam grade for a student's subject | have evidence of how they are actually doing |
+| `* *` | forgetful tutor | record a student's school exam dates | ramp up revision before the exams rather than after |
+| `* *` | expert user | use short aliases for commands | type commands faster once I know the app |
+| `*` | tutor updating a guardian on progress | see a student's grade history for a subject | show a guardian whether the tuition is working |
+| `*` | tutor with students on break | mark a student as inactive instead of deleting them | keep their history in case they come back |
+| `*` | tutor teaching siblings | link siblings to the same guardian | update a shared guardian's details once for all their children |
+| `*` | busy tutor | flag a student as needing extra attention | give those students more time when I plan my week |
+| `*` | busy tutor | view all flagged students | attend to them first |
+| `*` | tutor in exam season | see which students have an exam within the next month | prioritize their revision |
+| `*` | tutor | find students whose notes contain a keyword, such as a topic | group students with the same weakness for revision |
+| `*` | tutor mid-lesson | flag a note as something to tell the guardian | remember to raise it when I next message them |
+| `*` | tutor running small groups | create a group and add students to it | handle a group class as one unit |
+| `*` | tutor running small groups | schedule a lesson for a whole group at once | avoid entering the same lesson once per student |
+| `*` | tutor | export a student's record | share it with a guardian |
+| `*` | expert user | recall my previous command | fix a mistake in it quickly without retyping |
+| `*` | careless typist | confirm before a note is deleted | avoid deleting the wrong note after mistyping a note number |
+| `*` | fast typist | launch the app from the terminal | start the app without switching to the mouse |
+| `*` | tutor | cancel a lesson | keep my schedule accurate when a student falls sick |
 
 ### Use cases
 
