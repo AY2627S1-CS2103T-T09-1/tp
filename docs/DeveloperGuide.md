@@ -336,12 +336,12 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 #### General
 
-* **AB3**: AddressBook-Level3, the sample project that TutorBook3 is built on.
+* **AB3**: AddressBook-Level3, the sample project that TuteeBook3 is built on.
 * **CLI**: Command-line interface. A way of using an app by typing commands instead of clicking.
-* **DBMS**: Database management system. Software, such as MySQL, that stores data in a database. TutorBook3 does not use one.
+* **DBMS**: Database management system. Software, such as MySQL, that stores data in a database. TuteeBook3 does not use one.
 * **GUI**: Graphical user interface. The windows, lists, and boxes that the user sees and clicks.
 * **JAR**: Java Archive. The single file that contains the whole app, which the user runs with Java.
-* **JSON**: JavaScript Object Notation. The text format that TutorBook3 uses to save data in a file that can be read and edited by hand.
+* **JSON**: JavaScript Object Notation. The text format that TuteeBook3 uses to save data in a file that can be read and edited by hand.
 * **Mainstream OS**: Windows, Linux, Unix, macOS.
 
 #### Tutoring terms
