@@ -368,8 +368,49 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 ### Glossary
 
-* **Mainstream OS**: Windows, Linux, Unix, or macOS
-* **Private contact detail**: A contact detail that is not meant to be shared with others
+#### General
+
+* **AB3**: AddressBook-Level3, the sample project that TuteeBook3 is built on.
+* **CLI**: Command-line interface. A way of using an app by typing commands instead of clicking.
+* **DBMS**: Database management system. Software, such as MySQL, that stores data in a database. TuteeBook3 does not use one.
+* **GUI**: Graphical user interface. The windows, lists, and boxes that the user sees and clicks.
+* **JAR**: Java Archive. The single file that contains the whole app, which the user runs with Java.
+* **JSON**: JavaScript Object Notation. The text format that TuteeBook3 uses to save data in a file that can be read and edited by hand.
+* **Mainstream OS**: Windows, Linux, Unix, macOS.
+
+#### Tutoring terms
+
+* **Guardian**: A parent or other adult responsible for a student, whom the tutor contacts about the student's progress.
+* **Level**: A student's year of secondary school, from S1 (Secondary 1) to S5 (Secondary 5).
+* **Note**: A short piece of text that the tutor attaches to a student, such as "Weak in Geometry" or "WA2 Math: 36/50".
+* **Stream**: The older way Singapore secondary schools set subject difficulty: Express, Normal (Academic) or N(A), and Normal (Technical) or N(T). TuteeBook3 records it as the subject band. See subject band.
+* **Student**: A secondary school student whom the tutor teaches.
+* **Subject**: A school subject that the tutor teaches the student, such as "Mathematics" or "Chemistry".
+* **Subject band**: In Singapore secondary schools, the difficulty that the school assigns a student for one subject: G1, G2, or G3, where G3 is the hardest. A student can have a different band for each subject, such as G3 Mathematics and G2 Science. For students in the older streaming system, the band is their stream: Express, N(A), or N(T).
+
+#### Commands and IDs
+
+* **Filter**: A prefix and value given to the `find` command, such as `lvl/S2`, that narrows down the student list.
+* **NID**: Note ID, a number that identifies a note within one student's record. It is never reused, even after the note is deleted. Different students can share an NID, but no two notes in one student's record can have the same NID.
+* **Prefix**: A short marker ending in `/`, such as `n/` or `sch/`, that labels the value after it in a command.
+* **SID**: Student ID, a unique number given to each student when they are added. It is never reused, even after the student is deleted.
+
+#### Screen layout
+
+* **Command box**: The text field at the top of the window where the user types commands.
+* **Detail view**: The view that shows everything about one student, including all their notes. It takes the place of the student list, so only one student is shown at a time. The user can return to the student list with `list` or `find`.
+* **Result display**: The area below the command box that tells the user whether their last command worked, and why not if it failed.
+* **Student card**: One student's entry in the student list.
+* **Student list**: The view that lists students with their main details. It takes the place of the detail view when the user enters `list` or `find`.
+
+#### Code
+
+* **AddressBook**: The class that holds every `Person` in the app.
+* **Logic**: The component that turns what the user typed into a command and runs it.
+* **Model**: The component that holds the app's data while it runs and applies every change to it.
+* **Parser**: A class that checks what the user typed and turns it into a `Command` object, for example `AddCommandParser` for the `add` command.
+* **Person**: The class that stores one student's details. The name is kept from AB3.
+* **Storage**: The component that loads the data file when the app starts and saves every change back to it.
 
 --------------------------------------------------------------------------------------------------------------------
 
