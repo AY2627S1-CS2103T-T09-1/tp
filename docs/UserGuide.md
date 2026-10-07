@@ -82,8 +82,9 @@ Format: `add n/NAME p/PHONE_NUMBER e/EMAIL a/ADDRESS [t/TAG]…​`
 * The first person you add gets SID `1`. Each person after that gets the next number: `2`, `3`, and so on.
 * The SID appears on the person's card and in the success message, such as `Added student ID 3: Chloe Tan; Phone: …`.
 * SIDs are never reused. If you delete the person with SID `3`, the next person you add gets a new SID, not `3`.
-* If the `add` command fails, for example because the person already exists, no SID is used up.
 * The only exception is `clear`, which deletes everyone and restarts SIDs from `1`. See [Clearing all entries](#clearing-all-entries-clear).
+* If the `add` command fails, for example because the person already exists, no SID is used up.
+* The largest SID is `999999`. After SID `999999` is used, you cannot add more people, even if you delete some, and `add` shows the error `Student ID limit reached (999999). No more students can be added.`
 
 <div markdown="span" class="alert alert-primary">:bulb: **Tip:**
 A person can have any number of tags, including zero.
@@ -172,8 +173,8 @@ AddressBook data is saved automatically as a JSON file `[JAR file location]/data
 
 If you edit student IDs (SIDs) in the data file:
 
-* Each person's `studentId` must be a positive whole number without leading zeros, such as `"7"`. No two people can share a SID.
-* `nextStudentId` is the SID that the next added person gets. If it is missing, invalid, or not greater than the highest SID in the file, AddressBook replaces it with the highest SID + 1.
+* Each person's `studentId` must be a whole number from `1` to `999999` without leading zeros, such as `"7"`. No two people can share a SID.
+* `nextStudentId` is the SID that the next added person gets. It must be from `1` to `1000000`, where `1000000` means no SIDs are left. If it is missing, invalid, or not greater than the highest SID in the file, AddressBook replaces it with the highest SID + 1.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
 If your changes make the data file invalid, AddressBook starts with an empty address book at the next run. The invalid file remains on disk until you run a command (AddressBook saves after every command). Still, we recommend backing up the file before editing it.<br>
