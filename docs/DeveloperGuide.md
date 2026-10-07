@@ -158,14 +158,40 @@ This section describes some noteworthy details on how certain features are imple
 
 ### Student IDs
 
-Every `Person` has a `StudentId` (SID). `AddressBook` keeps a `nextStudentId` counter that starts at `1` and is saved in the data file with the persons.
+Every `Person` has a `StudentId` (SID) from `1` to `999999`. `AddressBook` keeps a `nextStudentId` counter that starts at `1` and is saved in the data file with the persons. The counter ranges from `1` to `1000000`, where `1000000` means every SID has been used. The counter is an `int` rather than a `StudentId` so that it can hold `1000000` without creating a SID above the limit.
 
-* `AddCommand` stores the parsed details without a SID. In `execute`, it builds the `Person` with `Model#getNextStudentId()`, runs the duplicate check, and only then calls `Model#addPerson`. A failed add does not use up a SID.
-* `AddressBook#addPerson` raises `nextStudentId` above the added person's SID. The counter never goes down, so deleting a person does not free their SID. The next SID is not computed as "highest SID + 1" at add time, because that would reuse the SID of a deleted person with the highest SID.
+* `AddCommand` assigns the SID during `execute`, not during parsing. It first checks that a SID is left, then checks for a duplicate, and only then adds the person. Any failure leaves the model unchanged and uses up no SID.
+* `AddressBook#addPerson` raises `nextStudentId` above the added person's SID. It works out the new value before adding the person to the list, so a failed add cannot leave the model half-updated. The counter never goes down, so deleting a person does not free their SID. The next SID is not computed as "highest SID + 1" at add time, because that would reuse the SID of a deleted person with the highest SID.
 * `EditCommand` copies the SID of the person being edited.
 * `Person#isSamePerson` does not compare SIDs, so the same student cannot be added twice under different SIDs.
 * `ClearCommand` replaces the data with a new `AddressBook`, so it also resets `nextStudentId` to `1`. This is intended: a user who clears the app starts over from SID `1`.
-* When loading, `JsonSerializableAddressBook` rejects a file where a person's SID is missing or invalid, or where two persons share a SID. If the saved `nextStudentId` is missing, invalid, or not greater than the highest SID, it uses the highest SID + 1 and logs a warning.
+* When loading, `JsonSerializableAddressBook` rejects a file where a person's SID is missing or invalid (including above `999999`), or where two persons share a SID. Data files saved before SIDs were added have no `studentId`, so they are rejected too; they are not converted. If the saved `nextStudentId` is missing, invalid (including above `1000000`), or not greater than the highest SID, it uses the highest SID + 1 and logs a warning.
+
+#### Design considerations:
+
+**Aspect: Where the next SID comes from:**
+
+* **Alternative 1 (current choice):** A counter in `AddressBook`, saved in the data file.
+  * Pros: SIDs are never reused, even after the student with the highest SID is deleted. The counter survives restarts.
+  * Cons: The counter must be kept in step with the persons list, and a hand-edited data file can make it wrong, so loading must check it.
+
+* **Alternative 2:** Compute the highest SID + 1 each time a student is added.
+  * Pros: Nothing extra to store or keep in step.
+  * Cons: Deleting the student with the highest SID frees that SID, so the next student reuses it.
+
+* **Alternative 3:** A static counter in `StudentId`.
+  * Pros: Simple to write.
+  * Cons: It resets on every restart, so SIDs are reused. It is also shared across all `AddressBook` objects, so tests affect each other.
+
+**Aspect: How students are stored:**
+
+* **Alternative 1 (current choice):** Keep students in `UniquePersonList`, and find a student by SID by searching the list.
+  * Pros: No change to the existing list, UI binding, or storage code.
+  * Cons: Finding a student by SID takes time proportional to the number of students, which is fine for one tutor's students.
+
+* **Alternative 2:** Store students in a map from SID to student.
+  * Pros: Faster lookup by SID.
+  * Cons: The UI and filtering code depend on an ordered `ObservableList`, so much of the existing code would need to change.
 
 ### \[Proposed\] Undo/redo feature
 
