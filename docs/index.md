@@ -10,8 +10,8 @@ title: TuteeBook3
 
 **TuteeBook3 is a desktop application for private tutors who teach secondary school students in Singapore.** It keeps every student's contact details, guardian contact, school, level, subjects, and lesson notes in one place. While it has a GUI, you do most things by typing short commands in a CLI (Command Line Interface).
 
-* If you are interested in using TuteeBook3, head over to the [_Quick Start_ section of the **User Guide**](UserGuide.html#quick-start).
-* If you are interested in developing TuteeBook3, the [**Developer Guide**](DeveloperGuide.html) is a good place to start.
+* If you are interested in using TuteeBook3, head over to the [_Quick Start_ section of the **User Guide**](UserGuide.md#quick-start).
+* If you are interested in developing TuteeBook3, the [**Developer Guide**](DeveloperGuide.md) is a good place to start.
 
 
 **Acknowledgements**
