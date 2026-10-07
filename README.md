@@ -19,8 +19,6 @@ The current version supports the core contact-management workflow:
 * Store contact data locally in a human-editable JSON file.
 * Operate through short typed commands while displaying results in a JavaFX interface.
 
-See the [User Guide](docs/UserGuide.md) for command formats, examples, and the complete behavior of the current release.
-
 ## Example usage
 
 * A tutor can keep a student's name, phone number, email address, home address, and relevant notes in one contact record.
@@ -29,9 +27,7 @@ See the [User Guide](docs/UserGuide.md) for command formats, examples, and the c
 
 ## Documentation
 
-* [User Guide](docs/UserGuide.md)
-* [Developer Guide](docs/DeveloperGuide.md)
-* [Project team](docs/AboutUs.md)
+For User Guide, Developer Guide and About Us, please refer to our [Project Website](https://ay2627s1-cs2103t-t09-1.github.io/tp/).
 
 ## Acknowledgements
 
