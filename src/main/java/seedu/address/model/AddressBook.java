@@ -91,10 +91,8 @@ public class AddressBook implements ReadOnlyAddressBook {
      * The next student ID is raised above the person's student ID if needed.
      */
     public void addPerson(Person p) {
-        // Worked out before the person is added, so a failure cannot leave the data half-updated
-        int newNextStudentId = Math.max(nextStudentId, p.getStudentId().value + 1);
         persons.add(p);
-        nextStudentId = newNextStudentId;
+        raiseNextStudentId(p.getStudentId().value + 1);
     }
 
     /**
