@@ -75,9 +75,15 @@ Format: `help`
 
 ### Adding a person: `add`
 
-Adds a person to the address book.
+Adds a person to the address book and gives them a student ID (SID).
 
 Format: `add n/NAME p/PHONE_NUMBER e/EMAIL a/ADDRESS [t/TAG]…​`
+
+* The first person you add gets SID `1`. Each person after that gets the next number: `2`, `3`, and so on.
+* The SID appears on the person's card and in the success message, such as `Added student ID 3: Chloe Tan; Phone: …`.
+* SIDs are never reused. If you delete the person with SID `3`, the next person you add gets a new SID, not `3`.
+* If the `add` command fails, for example because the person already exists, no SID is used up.
+* The only exception is `clear`, which deletes everyone and restarts SIDs from `1`. See [Clearing all entries](#clearing-all-entries-clear).
 
 <div markdown="span" class="alert alert-primary">:bulb: **Tip:**
 A person can have any number of tags, including zero.
@@ -142,9 +148,13 @@ Examples:
 
 ### Clearing all entries: `clear`
 
-Clears all entries from the address book.
+Clears all entries from the address book and restarts student IDs (SIDs) from `1`.
 
 Format: `clear`
+
+<div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
+After `clear`, the next person you add gets SID `1`, so SIDs from before the clear are used again. If you keep SIDs in your own records, such as lesson notes outside the app, update them after you clear.
+</div>
 
 ### Exiting the program: `exit`
 
@@ -159,6 +169,11 @@ AddressBook automatically saves data after every command. You do not need to sav
 ### Editing the data file
 
 AddressBook data is saved automatically as a JSON file `[JAR file location]/data/addressbook.json`. Advanced users are welcome to update data directly by editing that data file.
+
+If you edit student IDs (SIDs) in the data file:
+
+* Each person's `studentId` must be a positive whole number without leading zeros, such as `"7"`. No two people can share a SID.
+* `nextStudentId` is the SID that the next added person gets. If it is missing, invalid, or not greater than the highest SID in the file, AddressBook replaces it with the highest SID + 1.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
 If your changes make the data file invalid, AddressBook starts with an empty address book at the next run. The invalid file remains on disk until you run a command (AddressBook saves after every command). Still, we recommend backing up the file before editing it.<br>
