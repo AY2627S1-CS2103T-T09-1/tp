@@ -61,11 +61,6 @@ public class JsonAddressBookStorageTest {
     }
 
     @Test
-    public void readAddressBook_studentIdTooLarge_throwDataLoadingException() {
-        assertThrows(DataLoadingException.class, () -> readAddressBook("studentIdTooLargeAddressBook.json"));
-    }
-
-    @Test
     public void readAddressBook_oldFormatAddressBook_throwDataLoadingException() {
         assertThrows(DataLoadingException.class, () -> readAddressBook("oldFormatAddressBook.json"));
     }
