@@ -29,7 +29,7 @@ public class AddressBookTest {
     @Test
     public void constructor() {
         assertEquals(List.of(), addressBook.getPersonList());
-        assertEquals(new StudentId(1), addressBook.getNextStudentId());
+        assertEquals(1, addressBook.getNextStudentId());
     }
 
     @Test
@@ -46,9 +46,9 @@ public class AddressBookTest {
 
     @Test
     public void resetData_withNextStudentId_copiesNextStudentId() {
-        AddressBookStub newData = new AddressBookStub(List.of(ALICE), new StudentId(50));
+        AddressBookStub newData = new AddressBookStub(List.of(ALICE), 50);
         addressBook.resetData(newData);
-        assertEquals(new StudentId(50), addressBook.getNextStudentId());
+        assertEquals(50, addressBook.getNextStudentId());
     }
 
     @Test
@@ -57,7 +57,7 @@ public class AddressBookTest {
         Person editedAlice = new PersonBuilder(ALICE).withAddress(VALID_ADDRESS_BOB).withTags(VALID_TAG_HUSBAND)
                 .build();
         List<Person> newPersons = List.of(ALICE, editedAlice);
-        AddressBookStub newData = new AddressBookStub(newPersons, new StudentId(2));
+        AddressBookStub newData = new AddressBookStub(newPersons, 2);
 
         assertThrows(DuplicatePersonException.class, () -> addressBook.resetData(newData));
     }
@@ -90,11 +90,23 @@ public class AddressBookTest {
     public void addPerson_studentIds_raisesNextStudentIdOnly() {
         // CARL has student ID 3
         addressBook.addPerson(CARL);
-        assertEquals(new StudentId(4), addressBook.getNextStudentId());
+        assertEquals(4, addressBook.getNextStudentId());
 
         // ALICE has student ID 1, which must not lower the next student ID
         addressBook.addPerson(ALICE);
-        assertEquals(new StudentId(4), addressBook.getNextStudentId());
+        assertEquals(4, addressBook.getNextStudentId());
+    }
+
+    @Test
+    public void addPerson_maxStudentId_setsNextStudentIdToNoneLeft() {
+        addressBook.addPerson(new PersonBuilder(ALICE).withStudentId(StudentId.MAX_VALUE).build());
+        assertEquals(AddressBook.NEXT_STUDENT_ID_NONE_LEFT, addressBook.getNextStudentId());
+    }
+
+    @Test
+    public void raiseNextStudentId_aboveNoneLeft_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, AddressBook.MESSAGE_NEXT_STUDENT_ID_CONSTRAINTS, () ->
+                addressBook.raiseNextStudentId(AddressBook.NEXT_STUDENT_ID_NONE_LEFT + 1));
     }
 
     @Test
@@ -102,13 +114,13 @@ public class AddressBookTest {
         addressBook.addPerson(ALICE);
         addressBook.addPerson(CARL);
         addressBook.removePerson(CARL);
-        assertEquals(new StudentId(4), addressBook.getNextStudentId());
+        assertEquals(4, addressBook.getNextStudentId());
     }
 
     @Test
     public void equals_differentNextStudentId_returnsFalse() {
         AddressBook otherAddressBook = new AddressBook();
-        otherAddressBook.raiseNextStudentId(new StudentId(5));
+        otherAddressBook.raiseNextStudentId(5);
         assertFalse(addressBook.equals(otherAddressBook));
     }
 
@@ -129,9 +141,9 @@ public class AddressBookTest {
      */
     private static class AddressBookStub implements ReadOnlyAddressBook {
         private final ObservableList<Person> persons = FXCollections.observableArrayList();
-        private final StudentId nextStudentId;
+        private final int nextStudentId;
 
-        AddressBookStub(Collection<Person> persons, StudentId nextStudentId) {
+        AddressBookStub(Collection<Person> persons, int nextStudentId) {
             this.persons.setAll(persons);
             this.nextStudentId = nextStudentId;
         }
@@ -142,7 +154,7 @@ public class AddressBookTest {
         }
 
         @Override
-        public StudentId getNextStudentId() {
+        public int getNextStudentId() {
             return nextStudentId;
         }
     }

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.Messages;
+import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
@@ -43,7 +44,7 @@ public class AddCommandIntegrationTest {
 
         assertCommandSuccess(createAddCommand(expectedPerson), model,
                 "Added student ID 8: " + Messages.format(expectedPerson), expectedModel);
-        assertEquals(new StudentId(9), model.getNextStudentId());
+        assertEquals(9, model.getNextStudentId());
     }
 
     @Test
@@ -51,7 +52,19 @@ public class AddCommandIntegrationTest {
         Person personInList = model.getAddressBook().getPersonList().get(0);
         assertCommandFailure(createAddCommand(personInList), model,
                 AddCommand.MESSAGE_DUPLICATE_PERSON);
-        assertEquals(new StudentId(8), model.getNextStudentId());
+        assertEquals(8, model.getNextStudentId());
+    }
+
+    @Test
+    public void execute_noStudentIdsLeft_throwsCommandException() {
+        model = new ModelManager();
+        model.addPerson(new PersonBuilder(ALICE).withStudentId(StudentId.MAX_VALUE).build());
+
+        assertCommandFailure(createAddCommand(HOON), model, AddCommand.MESSAGE_STUDENT_ID_LIMIT_REACHED);
+        assertEquals("Student ID limit reached (999999). No more students can be added.",
+                AddCommand.MESSAGE_STUDENT_ID_LIMIT_REACHED);
+        assertEquals(1, model.getAddressBook().getPersonList().size());
+        assertEquals(AddressBook.NEXT_STUDENT_ID_NONE_LEFT, model.getNextStudentId());
     }
 
     @Test
@@ -65,7 +78,7 @@ public class AddCommandIntegrationTest {
         Person expectedPerson = new PersonBuilder(IDA).withStudentId(9).build();
         assertEquals("Added student ID 9: " + Messages.format(expectedPerson), commandResult.getFeedbackToUser());
         assertTrue(model.getAddressBook().getPersonList().contains(expectedPerson));
-        assertEquals(new StudentId(10), model.getNextStudentId());
+        assertEquals(10, model.getNextStudentId());
     }
 
 }

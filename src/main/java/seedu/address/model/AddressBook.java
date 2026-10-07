@@ -1,6 +1,7 @@
 package seedu.address.model;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.commons.util.AppUtil.checkArgument;
 
 import java.util.List;
 import java.util.Objects;
@@ -18,8 +19,13 @@ import seedu.address.model.person.UniquePersonList;
  */
 public class AddressBook implements ReadOnlyAddressBook {
 
+    /** The next student ID once every student ID has been used. No more persons can be added. */
+    public static final int NEXT_STUDENT_ID_NONE_LEFT = StudentId.MAX_VALUE + 1;
+    public static final String MESSAGE_NEXT_STUDENT_ID_CONSTRAINTS = "The next student ID should be from "
+            + StudentId.FIRST_VALUE + " to " + NEXT_STUDENT_ID_NONE_LEFT;
+
     private final UniquePersonList persons = new UniquePersonList();
-    private StudentId nextStudentId = new StudentId(StudentId.FIRST_VALUE);
+    private int nextStudentId = StudentId.FIRST_VALUE;
 
     public AddressBook() {}
 
@@ -53,14 +59,20 @@ public class AddressBook implements ReadOnlyAddressBook {
     }
 
     /**
-     * Raises the next student ID to {@code studentId} if it is higher.
+     * Returns true if a given number is a valid next student ID.
+     * {@link #NEXT_STUDENT_ID_NONE_LEFT} is valid and means no student IDs are left.
+     */
+    public static boolean isValidNextStudentId(int test) {
+        return test >= StudentId.FIRST_VALUE && test <= NEXT_STUDENT_ID_NONE_LEFT;
+    }
+
+    /**
+     * Raises the next student ID to {@code newNextStudentId} if it is higher.
      * The next student ID never goes down, so student IDs are never reused.
      */
-    public void raiseNextStudentId(StudentId studentId) {
-        requireNonNull(studentId);
-        if (studentId.value > nextStudentId.value) {
-            nextStudentId = studentId;
-        }
+    public void raiseNextStudentId(int newNextStudentId) {
+        checkArgument(isValidNextStudentId(newNextStudentId), MESSAGE_NEXT_STUDENT_ID_CONSTRAINTS);
+        nextStudentId = Math.max(nextStudentId, newNextStudentId);
     }
 
     //// person-level operations
@@ -79,8 +91,10 @@ public class AddressBook implements ReadOnlyAddressBook {
      * The next student ID is raised above the person's student ID if needed.
      */
     public void addPerson(Person p) {
+        // Worked out before the person is added, so a failure cannot leave the data half-updated
+        int newNextStudentId = Math.max(nextStudentId, p.getStudentId().value + 1);
         persons.add(p);
-        raiseNextStudentId(p.getStudentId().next());
+        nextStudentId = newNextStudentId;
     }
 
     /**
@@ -118,7 +132,7 @@ public class AddressBook implements ReadOnlyAddressBook {
     }
 
     @Override
-    public StudentId getNextStudentId() {
+    public int getNextStudentId() {
         return nextStudentId;
     }
 
@@ -134,7 +148,7 @@ public class AddressBook implements ReadOnlyAddressBook {
         }
 
         return persons.equals(otherAddressBook.persons)
-                && nextStudentId.equals(otherAddressBook.nextStudentId);
+                && nextStudentId == otherAddressBook.nextStudentId;
     }
 
     @Override

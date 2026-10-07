@@ -46,7 +46,7 @@ public class AddCommandTest {
         assertEquals("Added student ID 1: " + Messages.format(expectedPerson),
                 commandResult.getFeedbackToUser());
         assertEquals(List.of(expectedPerson), modelStub.personsAdded);
-        assertEquals(new StudentId(2), modelStub.getNextStudentId());
+        assertEquals(2, modelStub.getNextStudentId());
     }
 
     @Test
@@ -120,7 +120,7 @@ public class AddCommandTest {
         }
 
         @Override
-        public StudentId getNextStudentId() {
+        public int getNextStudentId() {
             throw new AssertionError("This method should not be called.");
         }
 
@@ -172,8 +172,8 @@ public class AddCommandTest {
         }
 
         @Override
-        public StudentId getNextStudentId() {
-            return person.getStudentId().next();
+        public int getNextStudentId() {
+            return person.getStudentId().value + 1;
         }
 
         @Override
@@ -188,7 +188,7 @@ public class AddCommandTest {
      */
     private class ModelStubAcceptingPersonAdded extends ModelStub {
         final ArrayList<Person> personsAdded = new ArrayList<>();
-        private StudentId nextStudentId = new StudentId(StudentId.FIRST_VALUE);
+        private int nextStudentId = StudentId.FIRST_VALUE;
 
         @Override
         public boolean hasPerson(Person person) {
@@ -200,11 +200,11 @@ public class AddCommandTest {
         public void addPerson(Person person) {
             requireNonNull(person);
             personsAdded.add(person);
-            nextStudentId = person.getStudentId().next();
+            nextStudentId = person.getStudentId().value + 1;
         }
 
         @Override
-        public StudentId getNextStudentId() {
+        public int getNextStudentId() {
             return nextStudentId;
         }
 

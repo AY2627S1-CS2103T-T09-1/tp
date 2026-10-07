@@ -48,6 +48,8 @@ public class AddCommand extends Command {
 
     public static final String MESSAGE_SUCCESS = "Added student ID %1$s: %2$s";
     public static final String MESSAGE_DUPLICATE_PERSON = "This person already exists in the address book.";
+    public static final String MESSAGE_STUDENT_ID_LIMIT_REACHED = "Student ID limit reached ("
+            + StudentId.MAX_VALUE + "). No more students can be added.";
 
     private final Name name;
     private final Phone phone;
@@ -76,7 +78,12 @@ public class AddCommand extends Command {
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
 
-        StudentId studentId = model.getNextStudentId();
+        int nextStudentId = model.getNextStudentId();
+        if (!StudentId.isValidStudentId(nextStudentId)) {
+            throw new CommandException(MESSAGE_STUDENT_ID_LIMIT_REACHED);
+        }
+
+        StudentId studentId = new StudentId(nextStudentId);
         Person toAdd = new Person(studentId, name, phone, email, address, tags);
         if (model.hasPerson(toAdd)) {
             throw new CommandException(MESSAGE_DUPLICATE_PERSON);

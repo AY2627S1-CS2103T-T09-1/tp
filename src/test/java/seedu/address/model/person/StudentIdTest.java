@@ -13,6 +13,7 @@ public class StudentIdTest {
     public void constructor_invalidStudentId_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class, () -> new StudentId(0));
         assertThrows(IllegalArgumentException.class, () -> new StudentId(-1));
+        assertThrows(IllegalArgumentException.class, () -> new StudentId(1000000));
     }
 
     @Test
@@ -30,17 +31,22 @@ public class StudentIdTest {
         assertFalse(StudentId.isValidStudentId("1.5")); // not a whole number
         assertFalse(StudentId.isValidStudentId("abc")); // non-numeric
         assertFalse(StudentId.isValidStudentId("1 2")); // spaces within digits
-        assertFalse(StudentId.isValidStudentId("99999999999999999999")); // too big for an int
+        assertFalse(StudentId.isValidStudentId("1000000")); // just above the limit
+        assertFalse(StudentId.isValidStudentId("2147483647")); // largest int
+        assertFalse(StudentId.isValidStudentId("99999999999")); // too big for an int
+        assertFalse(StudentId.isValidStudentId("99999999999999999999")); // far too big for an int
 
         // valid student IDs
         assertTrue(StudentId.isValidStudentId("1")); // smallest
         assertTrue(StudentId.isValidStudentId("42"));
-        assertTrue(StudentId.isValidStudentId("2147483647")); // largest int
+        assertTrue(StudentId.isValidStudentId("999999")); // largest
     }
 
     @Test
-    public void next() {
-        assertEquals(new StudentId(2), new StudentId(1).next());
+    public void isValidStudentId_int() {
+        assertTrue(StudentId.isValidStudentId(999999)); // largest
+        assertFalse(StudentId.isValidStudentId(1000000)); // just above the limit
+        assertFalse(StudentId.isValidStudentId(Integer.MAX_VALUE)); // largest int
     }
 
     @Test

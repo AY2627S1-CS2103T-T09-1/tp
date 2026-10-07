@@ -9,10 +9,13 @@ import static seedu.address.commons.util.AppUtil.checkArgument;
  */
 public class StudentId {
 
-    public static final String MESSAGE_CONSTRAINTS =
-            "Student IDs should be positive whole numbers without leading zeros, such as 1 or 42";
-    public static final String VALIDATION_REGEX = "[1-9]\\d*";
     public static final int FIRST_VALUE = 1;
+    public static final int MAX_VALUE = 999999;
+    public static final String MESSAGE_CONSTRAINTS = "Student IDs should be whole numbers from " + FIRST_VALUE
+            + " to " + MAX_VALUE + " without leading zeros, such as 1 or 42";
+    public static final String VALIDATION_REGEX = "[1-9]\\d*";
+
+    private static final int MAX_DIGITS = String.valueOf(MAX_VALUE).length();
 
     public final int value;
 
@@ -30,31 +33,17 @@ public class StudentId {
      * Returns true if a given number is a valid student ID.
      */
     public static boolean isValidStudentId(int test) {
-        return test >= FIRST_VALUE;
+        return test >= FIRST_VALUE && test <= MAX_VALUE;
     }
 
     /**
-     * Returns true if a given string is a valid student ID that fits in an {@code int}.
+     * Returns true if a given string is a valid student ID.
+     * The length is checked before parsing, so values too big for an {@code int} are rejected safely.
      */
     public static boolean isValidStudentId(String test) {
         requireNonNull(test);
-        if (!test.matches(VALIDATION_REGEX)) {
-            return false;
-        }
-        try {
-            Integer.parseInt(test);
-            return true;
-        } catch (NumberFormatException e) {
-            // Matches the regex but is too large for an int
-            return false;
-        }
-    }
-
-    /**
-     * Returns the student ID that comes right after this one.
-     */
-    public StudentId next() {
-        return new StudentId(value + 1);
+        boolean isWellFormed = test.matches(VALIDATION_REGEX) && test.length() <= MAX_DIGITS;
+        return isWellFormed && isValidStudentId(Integer.parseInt(test));
     }
 
     @Override

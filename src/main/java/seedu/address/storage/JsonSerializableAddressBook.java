@@ -28,6 +28,9 @@ class JsonSerializableAddressBook {
     public static final String MESSAGE_DUPLICATE_STUDENT_ID = "Persons list contains more than one person "
             + "with student ID %1$s.";
 
+    private static final int NEXT_STUDENT_ID_MAX_DIGITS =
+            String.valueOf(AddressBook.NEXT_STUDENT_ID_NONE_LEFT).length();
+
     private static final Logger logger = LogsCenter.getLogger(JsonSerializableAddressBook.class);
 
     private final List<JsonAdaptedPerson> persons = new ArrayList<>();
@@ -50,7 +53,7 @@ class JsonSerializableAddressBook {
      */
     public JsonSerializableAddressBook(ReadOnlyAddressBook source) {
         persons.addAll(source.getPersonList().stream().map(JsonAdaptedPerson::new).collect(Collectors.toList()));
-        nextStudentId = source.getNextStudentId().toString();
+        nextStudentId = String.valueOf(source.getNextStudentId());
     }
 
     /**
@@ -82,20 +85,30 @@ class JsonSerializableAddressBook {
      * the highest student ID is ignored with a warning.
      */
     private void restoreNextStudentId(AddressBook addressBook) {
-        StudentId lowestAllowed = addressBook.getNextStudentId();
-        if (nextStudentId == null || !StudentId.isValidStudentId(nextStudentId)) {
+        int lowestAllowed = addressBook.getNextStudentId();
+        if (!isValidNextStudentId(nextStudentId)) {
             logger.warning("Next student ID \"" + nextStudentId + "\" is missing or invalid. Using "
                     + lowestAllowed + " instead.");
             return;
         }
 
-        StudentId savedNextStudentId = new StudentId(Integer.parseInt(nextStudentId));
-        if (savedNextStudentId.value < lowestAllowed.value) {
+        int savedNextStudentId = Integer.parseInt(nextStudentId);
+        if (savedNextStudentId < lowestAllowed) {
             logger.warning("Next student ID " + savedNextStudentId + " is not above the highest student ID. Using "
                     + lowestAllowed + " instead.");
             return;
         }
         addressBook.raiseNextStudentId(savedNextStudentId);
+    }
+
+    /**
+     * Returns true if {@code value} is a valid saved next student ID.
+     * The length is checked before parsing, so values too big for an {@code int} are rejected safely.
+     */
+    private static boolean isValidNextStudentId(String value) {
+        boolean isWellFormed = value != null && value.matches(StudentId.VALIDATION_REGEX)
+                && value.length() <= NEXT_STUDENT_ID_MAX_DIGITS;
+        return isWellFormed && AddressBook.isValidNextStudentId(Integer.parseInt(value));
     }
 
 }
