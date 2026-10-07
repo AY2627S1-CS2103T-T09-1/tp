@@ -123,6 +123,7 @@ How the parsing works:
 The `Model` component,
 
 * stores the address book data i.e., all `Person` objects (which are contained in a `UniquePersonList` object).
+* stores the next student ID (SID) in `AddressBook`, so that each new `Person` gets a SID that was never used before. See [Student IDs](#student-ids).
 * stores the `Person` objects selected by the current filter, such as search results, in a separate _filtered_ list. It exposes this list as an unmodifiable `ObservableList<Person>` that the UI can observe and bind to, so the UI updates when the list changes.
 * stores a `UserPrefs` object that represents the user’s preferences (currently, just the GUI settings). This is exposed to the outside as a `ReadOnlyUserPrefs` object.
 * does not depend on any of the other three components (as the `Model` represents data entities of the domain, they should make sense on their own without depending on other components)
@@ -154,6 +155,17 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 ## **Implementation**
 
 This section describes some noteworthy details on how certain features are implemented.
+
+### Student IDs
+
+Every `Person` has a `StudentId` (SID). `AddressBook` keeps a `nextStudentId` counter that starts at `1` and is saved in the data file with the persons.
+
+* `AddCommand` stores the parsed details without a SID. In `execute`, it builds the `Person` with `Model#getNextStudentId()`, runs the duplicate check, and only then calls `Model#addPerson`. A failed add does not use up a SID.
+* `AddressBook#addPerson` raises `nextStudentId` above the added person's SID. The counter never goes down, so deleting a person does not free their SID. The next SID is not computed as "highest SID + 1" at add time, because that would reuse the SID of a deleted person with the highest SID.
+* `EditCommand` copies the SID of the person being edited.
+* `Person#isSamePerson` does not compare SIDs, so the same student cannot be added twice under different SIDs.
+* `ClearCommand` replaces the data with a new `AddressBook`, so it also resets `nextStudentId` to `1`. This is intended: a user who clears the app starts over from SID `1`.
+* When loading, `JsonSerializableAddressBook` rejects a file where a person's SID is missing or invalid, or where two persons share a SID. If the saved `nextStudentId` is missing, invalid, or not greater than the highest SID, it uses the highest SID + 1 and logs a warning.
 
 ### \[Proposed\] Undo/redo feature
 
@@ -396,7 +408,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 * **Filter**: A prefix and value given to the `find` command, such as `lvl/S2`, that narrows down the student list.
 * **NID**: Note ID, a number that identifies a note within one student's record. It is never reused, even after the note is deleted. Different students can share an NID, but no two notes in one student's record can have the same NID.
 * **Prefix**: A short marker ending in `/`, such as `n/` or `sch/`, that labels the value after it in a command.
-* **SID**: Student ID, a unique number given to each student when they are added. It is never reused, even after the student is deleted.
+* **SID**: Student ID, a unique number given to each student when they are added. It is never reused, even after the student is deleted. The only exception is the `clear` command, which deletes all students and restarts SIDs from 1.
 
 #### Screen layout
 

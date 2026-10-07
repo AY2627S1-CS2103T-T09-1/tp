@@ -18,6 +18,7 @@ Class Address
 Class Email
 Class Name
 Class Phone
+Class StudentId
 Class Tag
 
 Class I #FFFFFF
@@ -36,7 +37,9 @@ ModelManager -right-> "1" UserPrefs
 UserPrefs .up.|> ReadOnlyUserPrefs
 
 AddressBook *--> "1" UniquePersonList
-UniquePersonList --> "~* all" Person
+AddressBook --> "1" StudentId : next
+UniquePersonList --> "~*" Person : all
+Person *--> StudentId
 Person *--> Name
 Person *--> Phone
 Person *--> Email
@@ -50,5 +53,5 @@ Name -[hidden]right-> Phone
 Phone -[hidden]right-> Address
 Address -[hidden]right-> Email
 
-ModelManager --> "~* filtered" Person
+ModelManager --> "~*" Person : filtered
 @enduml
