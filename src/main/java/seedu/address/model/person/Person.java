@@ -17,6 +17,7 @@ import seedu.address.model.tag.Tag;
 public class Person {
 
     // Identity fields
+    private final StudentId studentId;
     private final Name name;
     private final Phone phone;
     private final Email email;
@@ -28,13 +29,18 @@ public class Person {
     /**
      * Every field must be present and not null.
      */
-    public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags) {
-        requireAllNonNull(name, phone, email, address, tags);
+    public Person(StudentId studentId, Name name, Phone phone, Email email, Address address, Set<Tag> tags) {
+        requireAllNonNull(studentId, name, phone, email, address, tags);
+        this.studentId = studentId;
         this.name = name;
         this.phone = phone;
         this.email = email;
         this.address = address;
         this.tags.addAll(tags);
+    }
+
+    public StudentId getStudentId() {
+        return studentId;
     }
 
     public Name getName() {
@@ -64,6 +70,7 @@ public class Person {
     /**
      * Returns true if both persons have the same name.
      * This defines a weaker notion of equality between two persons.
+     * Student IDs are not compared, so the same student cannot be added twice under different IDs.
      */
     public boolean isSamePerson(Person otherPerson) {
         if (otherPerson == this) {
@@ -89,7 +96,8 @@ public class Person {
             return false;
         }
 
-        return name.equals(otherPerson.name)
+        return studentId.equals(otherPerson.studentId)
+                && name.equals(otherPerson.name)
                 && phone.equals(otherPerson.phone)
                 && email.equals(otherPerson.email)
                 && address.equals(otherPerson.address)
@@ -99,12 +107,13 @@ public class Person {
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(name, phone, email, address, tags);
+        return Objects.hash(studentId, name, phone, email, address, tags);
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
+                .add("studentId", studentId)
                 .add("name", name)
                 .add("phone", phone)
                 .add("email", email)

@@ -37,7 +37,8 @@ public class EditCommandTest {
 
     @Test
     public void execute_allFieldsSpecifiedUnfilteredList_success() {
-        Person editedPerson = new PersonBuilder().build();
+        Person firstPerson = model.getFilteredPersonList().get(0);
+        Person editedPerson = new PersonBuilder().withStudentId(firstPerson.getStudentId().value).build();
         EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder(editedPerson).build();
         EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON, descriptor);
 
@@ -68,6 +69,18 @@ public class EditCommandTest {
         expectedModel.setPerson(lastPerson, editedPerson);
 
         assertCommandSuccess(editCommand, model, expectedMessage, expectedModel);
+    }
+
+    @Test
+    public void execute_editName_keepsStudentId() throws Exception {
+        Person secondPerson = model.getFilteredPersonList().get(INDEX_SECOND_PERSON.getZeroBased());
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withName(VALID_NAME_BOB).build();
+
+        new EditCommand(INDEX_SECOND_PERSON, descriptor).execute(model);
+
+        Person editedPerson = model.getAddressBook().getPersonList().get(INDEX_SECOND_PERSON.getZeroBased());
+        assertEquals(VALID_NAME_BOB, editedPerson.getName().fullName);
+        assertEquals(secondPerson.getStudentId(), editedPerson.getStudentId());
     }
 
     @Test

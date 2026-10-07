@@ -6,7 +6,7 @@ import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 
 /**
- * Clears the address book.
+ * Clears the address book, including its next student ID, so student IDs start from 1 again.
  */
 public class ClearCommand extends Command {
 

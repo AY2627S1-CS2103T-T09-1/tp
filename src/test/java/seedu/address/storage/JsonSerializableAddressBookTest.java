@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.commons.util.JsonUtil;
 import seedu.address.model.AddressBook;
+import seedu.address.model.person.StudentId;
 import seedu.address.testutil.TypicalPersons;
 
 public class JsonSerializableAddressBookTest {
@@ -19,6 +20,14 @@ public class JsonSerializableAddressBookTest {
     private static final Path TYPICAL_PERSONS_FILE = TEST_DATA_FOLDER.resolve("typicalPersonsAddressBook.json");
     private static final Path INVALID_PERSON_FILE = TEST_DATA_FOLDER.resolve("invalidPersonAddressBook.json");
     private static final Path DUPLICATE_PERSON_FILE = TEST_DATA_FOLDER.resolve("duplicatePersonAddressBook.json");
+    private static final Path DUPLICATE_STUDENT_ID_FILE =
+            TEST_DATA_FOLDER.resolve("duplicateStudentIdAddressBook.json");
+    private static final Path MISSING_NEXT_STUDENT_ID_FILE =
+            TEST_DATA_FOLDER.resolve("missingNextStudentIdAddressBook.json");
+    private static final Path LOW_NEXT_STUDENT_ID_FILE = TEST_DATA_FOLDER.resolve("lowNextStudentIdAddressBook.json");
+    private static final Path INVALID_NEXT_STUDENT_ID_FILE =
+            TEST_DATA_FOLDER.resolve("invalidNextStudentIdAddressBook.json");
+    private static final Path GAP_NEXT_STUDENT_ID_FILE = TEST_DATA_FOLDER.resolve("gapNextStudentIdAddressBook.json");
 
     @Test
     public void toModelType_typicalPersonsFile_success() throws Exception {
@@ -42,6 +51,42 @@ public class JsonSerializableAddressBookTest {
                 JsonSerializableAddressBook.class).get();
         assertThrows(IllegalValueException.class, JsonSerializableAddressBook.MESSAGE_DUPLICATE_PERSON,
                 dataFromFile::toModelType);
+    }
+
+    @Test
+    public void toModelType_duplicateStudentIds_throwsIllegalValueException() throws Exception {
+        JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(DUPLICATE_STUDENT_ID_FILE,
+                JsonSerializableAddressBook.class).get();
+        assertThrows(IllegalValueException.class,
+                String.format(JsonSerializableAddressBook.MESSAGE_DUPLICATE_STUDENT_ID, 1),
+                dataFromFile::toModelType);
+    }
+
+    @Test
+    public void toModelType_missingNextStudentId_usesHighestPlusOne() throws Exception {
+        // The file holds student IDs 1 and 3
+        assertEquals(new StudentId(4), readNextStudentId(MISSING_NEXT_STUDENT_ID_FILE));
+    }
+
+    @Test
+    public void toModelType_nextStudentIdNotAboveHighest_usesHighestPlusOne() throws Exception {
+        assertEquals(new StudentId(4), readNextStudentId(LOW_NEXT_STUDENT_ID_FILE));
+    }
+
+    @Test
+    public void toModelType_invalidNextStudentId_usesHighestPlusOne() throws Exception {
+        assertEquals(new StudentId(4), readNextStudentId(INVALID_NEXT_STUDENT_ID_FILE));
+    }
+
+    @Test
+    public void toModelType_nextStudentIdAboveHighest_keepsSavedValue() throws Exception {
+        assertEquals(new StudentId(10), readNextStudentId(GAP_NEXT_STUDENT_ID_FILE));
+    }
+
+    private static StudentId readNextStudentId(Path filePath) throws Exception {
+        JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(filePath,
+                JsonSerializableAddressBook.class).get();
+        return dataFromFile.toModelType().getNextStudentId();
     }
 
 }

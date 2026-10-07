@@ -26,6 +26,15 @@ public class PersonUtil {
     }
 
     /**
+     * Returns an {@code AddCommand} that adds a person with the {@code person}'s details.
+     * The student ID of {@code person} is not used, as {@code AddCommand} assigns its own.
+     */
+    public static AddCommand createAddCommand(Person person) {
+        return new AddCommand(person.getName(), person.getPhone(), person.getEmail(), person.getAddress(),
+                person.getTags());
+    }
+
+    /**
      * Returns the part of command string for the given {@code person}'s details.
      */
     public static String getPersonDetails(Person person) {

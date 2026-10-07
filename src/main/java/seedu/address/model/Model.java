@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 import javafx.collections.ObservableList;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.StudentId;
 
 /**
  * The API of the Model component.
@@ -50,8 +51,14 @@ public interface Model {
     /**
      * Adds the given person.
      * {@code person} must not already exist in the address book.
+     * The next student ID is raised above the person's student ID if needed.
      */
     void addPerson(Person person);
+
+    /**
+     * Returns the student ID that the next added student will get.
+     */
+    StudentId getNextStudentId();
 
     /**
      * Replaces the given person {@code target} with {@code editedPerson}.
