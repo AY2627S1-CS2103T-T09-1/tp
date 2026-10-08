@@ -44,7 +44,7 @@ public class ViewCommand extends Command {
         }
 
         Person personToView = lastShownList.get(targetIndex.getZeroBased());
-        model.updateFilteredPersonList(personToView::equals);
+        model.updateFilteredPersonList(personToView::isSamePerson);
         return new CommandResult(String.format(MESSAGE_VIEW_PERSON_SUCCESS, personToView.getName()));
     }
 
