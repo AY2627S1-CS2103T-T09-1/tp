@@ -1,6 +1,5 @@
 package seedu.address.logic.parser;
 
-import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailure;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSuccess;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
@@ -26,7 +25,33 @@ public class DeleteCommandParserTest {
     }
 
     @Test
-    public void parse_invalidArgs_throwsParseException() {
-        assertParseFailure(parser, "a", String.format(MESSAGE_INVALID_COMMAND_FORMAT, DeleteCommand.MESSAGE_USAGE));
+    public void parse_validArgsWithWhitespace_returnsDeleteCommand() {
+        assertParseSuccess(parser, "   1   ", new DeleteCommand(INDEX_FIRST_PERSON));
+    }
+
+    @Test
+    public void parse_notPositiveWholeNumber_throwsParseException() {
+        assertParseFailure(parser, "0", DeleteCommand.MESSAGE_INVALID_FORMAT);
+        assertParseFailure(parser, "-1", DeleteCommand.MESSAGE_INVALID_FORMAT);
+        assertParseFailure(parser, "3.5", DeleteCommand.MESSAGE_INVALID_FORMAT);
+        assertParseFailure(parser, "abc", DeleteCommand.MESSAGE_INVALID_FORMAT);
+        assertParseFailure(parser, "Chloe Tan", DeleteCommand.MESSAGE_INVALID_FORMAT);
+    }
+
+    @Test
+    public void parse_emptyArgs_throwsParseException() {
+        assertParseFailure(parser, "", DeleteCommand.MESSAGE_INVALID_FORMAT);
+        assertParseFailure(parser, "   ", DeleteCommand.MESSAGE_INVALID_FORMAT);
+    }
+
+    @Test
+    public void parse_extraArgs_throwsParseException() {
+        assertParseFailure(parser, "3 extra", DeleteCommand.MESSAGE_INVALID_FORMAT);
+    }
+
+    @Test
+    public void parse_numberTooBigForInt_throwsParseException() {
+        assertParseFailure(parser, "99999999999",
+                String.format(DeleteCommand.MESSAGE_STUDENT_NOT_FOUND, "99999999999"));
     }
 }
