@@ -286,8 +286,6 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 | `* * *` | tutor | see the guardian's name and number on the student's record | contact the guardian without searching separately                           |
 | `* * *` | tutor | list all my students | check every student I teach without searching for each one                  |
 | `* * *` | busy tutor | find a student by part of their name | pull up their record quickly while a guardian is on the phone               |
-| `* * *` | tutor receiving unknown calls | find students by their guardian's phone number | identify the caller and see their children's records                        |
-| `* * *` | tutor planning lessons | filter students by school, level, or subject | prepare lessons for students at the same school, level, or subject together |
 | `* * *` | busy tutor | view one student's full record on a single screen | avoid piecing it together from several places                               |
 | `* * *` | tutor | edit a student's details | keep records correct when they change school, level, or phone number        |
 | `* * *` | tutor | remove a student I added by mistake | keep my list accurate                                                       |
@@ -295,45 +293,95 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 | `* * *` | tutor | delete a note about a student | keep the student's record focused on what matters now                       |
 | `* * *` | tutor | have my data saved automatically | avoid losing records when I close the app                                   |
 | `* * *` | tutor | exit the app | end my session when I'm done                                                |
+| `* * *` | new user | clear all sample students | start with only my own students                                             |
+| `* * *` | tutor | record the subject band or stream each subject is taken at (G1, G2, G3, Express, N(A), or N(T)) | pitch the material at the right difficulty                                  |
+| `* *` | tutor receiving unknown calls | find students by their guardian's phone number | identify the caller and see their children's records                        |
+| `* *` | tutor planning lessons | filter students by school, level, or subject | prepare lessons for students at the same school, level, or subject together |
 | `* *` | careless typist | confirm before a student is deleted | avoid erasing the wrong student's history after mistyping an ID             |
-| `* *` | careless typist | be warned when I add a student who may already exist | avoid two records for the same student                                      |
+| `* *` | forgetful tutor | be stopped by the app from adding students I already added who have the exact same name | avoid duplicate records                                                     |
 | `* *` | tutor | edit a note | update a student's progress without deleting and retyping it                |
 | `* *` | careless typist | undo my last command | recover from a mistyped delete                                              |
-| `* *` | new user | clear all sample students | start with only my own students                                             |
-| `* *` | tutor taking a first enquiry over the phone | add a student with only their name, level, and guardian contact | record the lead before I know their school and subjects                     |
-| `* *` | tutor | record a student's learning needs, such as dyslexia or needing extra time | adapt my lessons to how each student learns                                 |
-| `* *` | tutor | record the subject band or stream each subject is taken at (G1, G2, G3, Express, N(A), or N(T)) | pitch the material at the right difficulty                                  |
-| `* *` | tutor | record a test or exam grade for a student's subject | have evidence of how they are actually doing                                |
-| `* *` | forgetful tutor | record a student's school exam dates | ramp up revision before the exams rather than after                         |
-| `* *` | expert user | use short aliases for commands | type commands faster once I know the app                                    |
-| `*` | tutor updating a guardian on progress | see a student's grade history for a subject | show a guardian whether the tuition is working                              |
+| `* *` | tutor | find students whose notes contain a keyword, such as a topic | group students with the same weakness for revision                          |
+| `*` | expert user | use short aliases for commands | type commands faster once I know the app                                    |
 | `*` | tutor with students on break | mark a student as inactive instead of deleting them | keep their history in case they come back                                   |
 | `*` | tutor teaching siblings | link siblings to the same guardian | update a shared guardian's details once for all their children              |
-| `*` | busy tutor | flag a student as needing extra attention | give those students more time when I plan my week                           |
-| `*` | busy tutor | view all flagged students | attend to them first                                                        |
-| `*` | tutor in exam season | see which students have an exam within the next month | prioritize their revision                                                   |
-| `*` | tutor | find students whose notes contain a keyword, such as a topic | group students with the same weakness for revision                          |
-| `*` | tutor mid-lesson | flag a note as something to tell the guardian | remember to raise it when I next message them                               |
 | `*` | tutor running small groups | create a group and add students to it | handle a group class as one unit                                            |
-| `*` | tutor running small groups | schedule a lesson for a whole group at once | avoid entering the same lesson once per student                             |
-| `*` | tutor | export a student's record | share it with a guardian                                                    |
 | `*` | expert user | recall my previous command | fix a mistake in it quickly without retyping                                |
 | `*` | careless typist | confirm before a note is deleted | avoid deleting the wrong note after mistyping a note number                 |
 | `*` | fast typist | launch the app from the terminal | start the app without switching to the mouse                                |
-| `*` | tutor | cancel a lesson | keep my schedule accurate when a student falls sick                         |
 
 ### Use cases
 
 (For all use cases below, the **System** is the `AddressBook` and the **Actor** is the `user`, unless specified otherwise)
 
-**Use case: Delete a person**
+**Use case: UC1 - Add a student**
 
 **MSS**
 
-1.  User requests to list persons
-2.  AddressBook shows a list of persons
-3.  User requests to delete a specific person in the list
-4.  AddressBook deletes the person
+1.  Tutor requests to add a student, giving the name, school, level, at least one subject in the format subject band-subject (for example G3-Chemistry), and optionally a phone number and guardian details
+2.  TuteeBook3 validates the details
+3.  TuteeBook3 saves the student
+4.  TuteeBook3 shows the student list with the new student selected
+
+    Use case ends.
+
+**Extensions**
+
+* 2a. A required detail is missing or invalid.
+
+    * 2a1. TuteeBook3 shows an error message stating which detail is wrong.
+
+    * 2a2. Tutor enters the corrected details.
+
+      Steps 2a1-2a2 are repeated until the details are valid.
+
+      Use case resumes at step 3.
+
+* 2b. Only one of guardian name and guardian phone is given.
+
+    * 2b1. TuteeBook3 shows an error message that both must be provided together.
+
+    * 2b2. Tutor enters the corrected details.
+
+      Steps 2b1-2b2 are repeated until the details are valid.
+
+      Use case resumes at step 3.
+
+* 2c. More than 8 subjects are given, or the same subject is given more than once (even with a different subject band).
+
+    * 2c1. TuteeBook3 shows an error message stating the problem.
+
+    * 2c2. Tutor enters the corrected details.
+
+      Steps 2c1-2c2 are repeated until the details are valid.
+
+      Use case resumes at step 3.
+
+* 2d. A subject is not in the format subject band-subject, or its subject band is not G1, G2 or G3.
+
+    * 2d1. TuteeBook3 shows an error message stating the expected format.
+
+    * 2d2. Tutor enters the corrected details.
+
+      Steps 2d1-2d2 are repeated until the details are valid.
+
+      Use case resumes at step 3.
+
+* 2e. The student is a duplicate of an existing student.
+
+    * 2e1. TuteeBook3 shows an error message identifying the existing student and does not add the student.
+
+      Use case ends.
+
+**Use case: UC2 - Edit a student's details**
+
+**MSS**
+
+1.  Tutor requests to list students
+2.  TuteeBook3 shows a list of students
+3.  Tutor requests to edit a specific student by index, giving the new values for the details to change
+4.  TuteeBook3 validates and updates the student
+5.  TuteeBook3 shows the updated student record
 
     Use case ends.
 
@@ -345,10 +393,99 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 * 3a. The given index is invalid.
 
-    * 3a1. AddressBook shows an error message.
+    * 3a1. TuteeBook3 shows an error message.
 
       Use case resumes at step 2.
 
+* 3b. No detail is given to change, or a new value is invalid.
+
+    * 3b1. TuteeBook3 shows an error message.
+
+    * 3b2. Tutor enters the corrected command.
+
+      Steps 3b1-3b2 are repeated until the command is valid.
+
+      Use case resumes at step 4.
+
+* 3c. The edit would make the student a duplicate of another student.
+
+    * 3c1. TuteeBook3 shows an error message and leaves the student unchanged.
+
+      Use case ends.
+
+**Use case: UC3 - Delete a student**
+
+**MSS**
+
+1.  Tutor requests to list students
+2.  TuteeBook3 shows a list of students
+3.  Tutor requests to delete a specific student by index
+4.  TuteeBook3 asks Tutor to confirm the deletion
+5.  Tutor confirms the deletion
+6.  TuteeBook3 deletes the student and all of the student's notes, and shows the remaining roster
+
+    Use case ends.
+
+**Extensions**
+
+* 2a. The list is empty.
+
+  Use case ends.
+
+* 3a. The given index is invalid.
+
+    * 3a1. TuteeBook3 shows an error message.
+
+      Use case resumes at step 2.
+
+* 5a. Tutor cancels the deletion.
+
+    * 5a1. TuteeBook3 discards the pending deletion request and keeps the student.
+
+      Use case ends.
+
+* 5b. Tutor enters any other command instead of confirming or cancelling.
+
+    * 5b1. TuteeBook3 discards the pending deletion request, then processes the new command as normal.
+
+      Use case ends.
+
+* 5c. Tutor's confirmation does not match the pending request.
+
+    * 5c1. TuteeBook3 discards the pending request and shows an error message that there is no matching deletion request.
+
+      Use case resumes at step 3.
+
+* 6a. TuteeBook3 fails to save the change.
+
+    * 6a1. TuteeBook3 shows an error message and no data is changed.
+
+      Use case ends.
+
+**Use case: UC4 - Find students by name**
+
+**MSS**
+
+1.  Tutor requests to find students, giving part of a student's name
+2.  TuteeBook3 shows the list of students whose names contain every word of the given name, ignoring case.
+
+    Use case ends.
+
+**Extensions**
+
+* 1a. The name is missing or invalid.
+
+    * 1a1. TuteeBook3 shows an error message.
+    * 1a2. Tutor enters the corrected command.
+
+      Steps 1a1-1a2 are repeated until the command is valid.
+
+      Use case resumes at step 2.
+
+* 2a. No students match the name.
+
+  Use case ends.
+  
 ## Use case: UC5 - View a student's record
 
 **MSS**
@@ -383,19 +520,19 @@ Use case ends.
 
 **Extensions**
 
-- 1a. The keyword is blank or invalid.
-  - 1a1. TuteeBook3 shows an error message.
-  - 1a2. Tutor enters a corrected keyword.
+* 1a. The keyword is blank or invalid.
+  * 1a1. TuteeBook3 shows an error message.
+  * 1a2. Tutor enters a corrected keyword.
 
   Steps 1a1-1a2 are repeated until the keyword is valid. Use case resumes at step 2.
 
-- 2a. No student's notes contain the keyword.
-  - 2a1. TuteeBook3 informs Tutor that no students match.
+* 2a. No student's notes contain the keyword.
+  * 2a1. TuteeBook3 informs Tutor that no students match.
 
   Use case ends.
 
-- 3a. The given index is invalid.
-  - 3a1. TuteeBook3 shows an error message.
+* 3a. The given index is invalid.
+  * 3a1. TuteeBook3 shows an error message.
 
   Use case resumes at step 2.
   
