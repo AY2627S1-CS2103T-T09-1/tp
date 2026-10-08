@@ -36,6 +36,8 @@ public class SchoolTest {
         assertEquals(school, variant);
         assertEquals(school.hashCode(), variant.hashCode());
         assertEquals("Bedok Green Secondary School", school.toString());
+        assertFalse(school.equals(null));
+        assertFalse(school.equals("Bedok Green Secondary School"));
         assertFalse(school.equals(new School("Victoria School")));
     }
 }
