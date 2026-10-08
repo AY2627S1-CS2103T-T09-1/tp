@@ -326,14 +326,74 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 (For all use cases below, the **System** is the `AddressBook` and the **Actor** is the `user`, unless specified otherwise)
 
-**Use case: Delete a person**
+**Use case: UC1 - Add a student**
 
 **MSS**
 
-1.  User requests to list persons
-2.  AddressBook shows a list of persons
-3.  User requests to delete a specific person in the list
-4.  AddressBook deletes the person
+1.  Tutor requests to add a student, giving the name, school, level, at least one subject in the format subject band-subject (for example G3-Chemistry), and optionally a phone number and guardian details
+2.  TuteeBook3 validates the details
+3.  TuteeBook3 saves the student
+4.  TuteeBook3 shows the student list with the new student selected
+
+    Use case ends.
+
+**Extensions**
+
+* 2a. A required detail is missing or invalid.
+
+    * 2a1. TuteeBook3 shows an error message stating which detail is wrong.
+
+    * 2a2. Tutor enters the corrected details.
+
+      Steps 2a1-2a2 are repeated until the details are valid.
+
+      Use case resumes at step 3.
+
+* 2b. Only one of guardian name and guardian phone is given.
+
+    * 2b1. TuteeBook3 shows an error message that both must be provided together.
+
+    * 2b2. Tutor enters the corrected details.
+
+      Steps 2b1-2b2 are repeated until the details are valid.
+
+      Use case resumes at step 3.
+
+* 2c. More than 8 subjects are given, or the same subject is given more than once (even with a different subject band).
+
+    * 2c1. TuteeBook3 shows an error message stating the problem.
+
+    * 2c2. Tutor enters the corrected details.
+
+      Steps 2c1-2c2 are repeated until the details are valid.
+
+      Use case resumes at step 3.
+
+* 2d. A subject is not in the format subject band-subject, or its subject band is not G1, G2 or G3.
+
+    * 2d1. TuteeBook3 shows an error message stating the expected format.
+
+    * 2d2. Tutor enters the corrected details.
+
+      Steps 2d1-2d2 are repeated until the details are valid.
+
+      Use case resumes at step 3.
+
+* 2e. The student is a duplicate of an existing student.
+
+    * 2e1. TuteeBook3 shows an error message identifying the existing student and does not add the student.
+
+      Use case ends.
+
+**Use case: UC2 - Edit a student's details**
+
+**MSS**
+
+1.  Tutor requests to list students
+2.  TuteeBook3 shows a list of students
+3.  Tutor requests to edit a specific student by index, giving the new values for the details to change
+4.  TuteeBook3 validates and updates the student
+5.  TuteeBook3 shows the updated student record
 
     Use case ends.
 
@@ -345,11 +405,25 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 * 3a. The given index is invalid.
 
-    * 3a1. AddressBook shows an error message.
+    * 3a1. TuteeBook3 shows an error message.
 
       Use case resumes at step 2.
 
-*{More to be added}*
+* 3b. No detail is given to change, or a new value is invalid.
+
+    * 3b1. TuteeBook3 shows an error message.
+
+    * 3b2. Tutor enters the corrected command.
+
+      Steps 3b1-3b2 are repeated until the command is valid.
+
+      Use case resumes at step 4.
+
+* 3c. The edit would make the student a duplicate of another student.
+
+    * 3c1. TuteeBook3 shows an error message and leaves the student unchanged.
+
+      Use case ends.
 
 ### Non-Functional Requirements
 
