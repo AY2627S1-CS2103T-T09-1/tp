@@ -50,7 +50,6 @@ public class AddNoteCommand extends Command {
                 person.getAddress(), person.getTags(), notes);
 
         model.setPerson(person, editedPerson);
-        model.updateFilteredPersonList(editedPerson::equals);
         return new CommandResult(String.format(MESSAGE_SUCCESS, editedPerson.getName(), note));
     }
 
