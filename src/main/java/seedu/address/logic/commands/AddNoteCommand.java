@@ -53,4 +53,18 @@ public class AddNoteCommand extends Command {
         model.updateFilteredPersonList(editedPerson::equals);
         return new CommandResult(String.format(MESSAGE_SUCCESS, editedPerson.getName(), note));
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == this) {
+            return true;
+        }
+
+        if (!(other instanceof AddNoteCommand otherAddNoteCommand)) {
+            return false;
+        }
+
+        return targetIndex.equals(otherAddNoteCommand.targetIndex)
+                && note.equals(otherAddNoteCommand.note);
+    }
 }
