@@ -386,6 +386,30 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case ends.
 
+**Use case: UC4 - Find students by name**
+
+**MSS**
+
+1.  Tutor requests to find students, giving part of a student's name
+2.  TuteeBook3 shows the list of students whose names contain every word of the given name, ignoring case.
+
+    Use case ends.
+
+**Extensions**
+
+* 1a. The name is missing or invalid.
+
+    * 1a1. TuteeBook3 shows an error message.
+    * 1a2. Tutor enters the corrected command.
+
+      Steps 1a1-1a2 are repeated until the command is valid.
+
+      Use case resumes at step 2.
+
+* 2a. No students match the name.
+
+  Use case ends.
+
 *{More to be added}*
 
 ### Non-Functional Requirements
