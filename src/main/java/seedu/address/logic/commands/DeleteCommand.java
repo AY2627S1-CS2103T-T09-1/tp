@@ -23,11 +23,11 @@ public class DeleteCommand extends Command {
             + "Parameters: INDEX (must be a positive integer)\n"
             + "Example: " + COMMAND_WORD + " 1";
 
-    public static final String MESSAGE_DELETE_STUDENT_SUCCESS = "Deleted student ID %1$d: %2$s.";
+    public static final String MESSAGE_DELETE_STUDENT_SUCCESS = "Deleted student: %1$s.";
 
     public static final String MESSAGE_INVALID_FORMAT = "Invalid format. Usage: " + COMMAND_WORD + " INDEX";
 
-    public static final String MESSAGE_STUDENT_NOT_FOUND = "Student ID %1$s was not found.";
+    public static final String MESSAGE_INVALID_STUDENT_INDEX = "The student index provided is invalid.";
 
     private final Index targetIndex;
 
@@ -41,14 +41,13 @@ public class DeleteCommand extends Command {
         List<Person> lastShownList = model.getFilteredPersonList();
 
         if (targetIndex.getZeroBased() >= lastShownList.size()) {
-            throw new CommandException(String.format(MESSAGE_STUDENT_NOT_FOUND, targetIndex.getOneBased()));
+            throw new CommandException(MESSAGE_INVALID_STUDENT_INDEX);
         }
 
         Person personToDelete = lastShownList.get(targetIndex.getZeroBased());
         model.deletePerson(personToDelete);
         model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
-        return new CommandResult(String.format(MESSAGE_DELETE_STUDENT_SUCCESS,
-                targetIndex.getOneBased(), personToDelete.getName()));
+        return new CommandResult(String.format(MESSAGE_DELETE_STUDENT_SUCCESS, personToDelete.getName()));
     }
 
     @Override

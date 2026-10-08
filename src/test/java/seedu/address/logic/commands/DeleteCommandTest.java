@@ -33,7 +33,7 @@ public class DeleteCommandTest {
         DeleteCommand deleteCommand = new DeleteCommand(INDEX_FIRST_PERSON);
 
         String expectedMessage = String.format(DeleteCommand.MESSAGE_DELETE_STUDENT_SUCCESS,
-                INDEX_FIRST_PERSON.getOneBased(), personToDelete.getName());
+                personToDelete.getName());
 
         ModelManager expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.deletePerson(personToDelete);
@@ -46,8 +46,7 @@ public class DeleteCommandTest {
         Index outOfBoundIndex = Index.fromOneBased(model.getFilteredPersonList().size() + 1);
         DeleteCommand deleteCommand = new DeleteCommand(outOfBoundIndex);
 
-        assertCommandFailure(deleteCommand, model,
-                String.format(DeleteCommand.MESSAGE_STUDENT_NOT_FOUND, outOfBoundIndex.getOneBased()));
+        assertCommandFailure(deleteCommand, model, DeleteCommand.MESSAGE_INVALID_STUDENT_INDEX);
     }
 
     @Test
@@ -58,7 +57,7 @@ public class DeleteCommandTest {
         DeleteCommand deleteCommand = new DeleteCommand(INDEX_FIRST_PERSON);
 
         String expectedMessage = String.format(DeleteCommand.MESSAGE_DELETE_STUDENT_SUCCESS,
-                INDEX_FIRST_PERSON.getOneBased(), personToDelete.getName());
+                personToDelete.getName());
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.deletePerson(personToDelete);
@@ -89,8 +88,7 @@ public class DeleteCommandTest {
 
         DeleteCommand deleteCommand = new DeleteCommand(outOfBoundIndex);
 
-        assertCommandFailure(deleteCommand, model,
-                String.format(DeleteCommand.MESSAGE_STUDENT_NOT_FOUND, outOfBoundIndex.getOneBased()));
+        assertCommandFailure(deleteCommand, model, DeleteCommand.MESSAGE_INVALID_STUDENT_INDEX);
     }
 
     @Test

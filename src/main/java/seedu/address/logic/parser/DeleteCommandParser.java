@@ -29,17 +29,17 @@ public class DeleteCommandParser implements Parser<DeleteCommand> {
 
     /**
      * Returns the error for an index that could not be parsed.
-     * A positive whole number too big to store cannot match any student, so it is reported as not found.
+     * A positive whole number too big to store cannot match any student, so it is reported as an invalid index.
      */
     private static ParseException createParseException(String trimmedArgs, ParseException cause) {
         if (!trimmedArgs.matches(DIGITS_REGEX)) {
             return new ParseException(DeleteCommand.MESSAGE_INVALID_FORMAT, cause);
         }
-        BigInteger studentId = new BigInteger(trimmedArgs);
-        if (studentId.signum() == 0) {
+        boolean isZero = new BigInteger(trimmedArgs).signum() == 0;
+        if (isZero) {
             return new ParseException(DeleteCommand.MESSAGE_INVALID_FORMAT, cause);
         }
-        return new ParseException(String.format(DeleteCommand.MESSAGE_STUDENT_NOT_FOUND, studentId), cause);
+        return new ParseException(DeleteCommand.MESSAGE_INVALID_STUDENT_INDEX, cause);
     }
 
 }

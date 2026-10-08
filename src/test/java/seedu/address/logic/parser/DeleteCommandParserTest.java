@@ -51,7 +51,6 @@ public class DeleteCommandParserTest {
 
     @Test
     public void parse_numberTooBigForInt_throwsParseException() {
-        assertParseFailure(parser, "99999999999",
-                String.format(DeleteCommand.MESSAGE_STUDENT_NOT_FOUND, "99999999999"));
+        assertParseFailure(parser, "99999999999", DeleteCommand.MESSAGE_INVALID_STUDENT_INDEX);
     }
 }
