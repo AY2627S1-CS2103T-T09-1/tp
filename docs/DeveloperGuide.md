@@ -413,6 +413,79 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case ends.
 
+**Use case: UC3 - Delete a student**
+
+**MSS**
+
+1.  Tutor requests to list students
+2.  TuteeBook3 shows a list of students
+3.  Tutor requests to delete a specific student by index
+4.  TuteeBook3 asks Tutor to confirm the deletion
+5.  Tutor confirms the deletion
+6.  TuteeBook3 deletes the student and all of the student's notes, and shows the remaining roster
+
+    Use case ends.
+
+**Extensions**
+
+* 2a. The list is empty.
+
+  Use case ends.
+
+* 3a. The given index is invalid.
+
+    * 3a1. TuteeBook3 shows an error message.
+
+      Use case resumes at step 2.
+
+* 5a. Tutor cancels the deletion.
+
+    * 5a1. TuteeBook3 discards the pending deletion request and keeps the student.
+
+      Use case ends.
+
+* 5b. Tutor enters any other command instead of confirming or cancelling.
+
+    * 5b1. TuteeBook3 discards the pending deletion request, then processes the new command as normal.
+
+      Use case ends.
+
+* 5c. Tutor's confirmation does not match the pending request.
+
+    * 5c1. TuteeBook3 discards the pending request and shows an error message that there is no matching deletion request.
+
+      Use case resumes at step 3.
+
+* 6a. TuteeBook3 fails to save the change.
+
+    * 6a1. TuteeBook3 shows an error message and no data is changed.
+
+      Use case ends.
+
+**Use case: UC4 - Find students by name**
+
+**MSS**
+
+1.  Tutor requests to find students, giving part of a student's name
+2.  TuteeBook3 shows the list of students whose names contain every word of the given name, ignoring case.
+
+    Use case ends.
+
+**Extensions**
+
+* 1a. The name is missing or invalid.
+
+    * 1a1. TuteeBook3 shows an error message.
+    * 1a2. Tutor enters the corrected command.
+
+      Steps 1a1-1a2 are repeated until the command is valid.
+
+      Use case resumes at step 2.
+
+* 2a. No students match the name.
+
+  Use case ends.
+
 ### Non-Functional Requirements
 
 1. Should run on any _mainstream OS_ with only Java `25` installed, without OS-specific libraries or features.
