@@ -25,25 +25,28 @@ public class Person {
 
     // Data fields
     private final Address address;
+    private final School school;
     private final Set<Tag> tags = new HashSet<>();
     private final List<String> notes = new ArrayList<>();
 
     /**
      * Every field must be present and not null.
      */
-    public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags) {
-        this(name, phone, email, address, tags, List.of());
+    public Person(Name name, Phone phone, Email email, Address address, School school, Set<Tag> tags) {
+        this(name, phone, email, address, school, tags, List.of());
     }
 
     /**
      * Every field must be present and not null.
      */
-    public Person(Name name, Phone phone, Email email, Address address, Set<Tag> tags, List<String> notes) {
-        requireAllNonNull(name, phone, email, address, tags, notes);
+    public Person(Name name, Phone phone, Email email, Address address, School school, Set<Tag> tags,
+            List<String> notes) {
+        requireAllNonNull(name, phone, email, address, school, tags, notes);
         this.name = name;
         this.phone = phone;
         this.email = email;
         this.address = address;
+        this.school = school;
         this.tags.addAll(tags);
         this.notes.addAll(notes);
     }
@@ -62,6 +65,10 @@ public class Person {
 
     public Address getAddress() {
         return address;
+    }
+
+    public School getSchool() {
+        return school;
     }
 
     /**
@@ -108,6 +115,7 @@ public class Person {
                 && phone.equals(otherPerson.phone)
                 && email.equals(otherPerson.email)
                 && address.equals(otherPerson.address)
+                && school.equals(otherPerson.school)
                 && tags.equals(otherPerson.tags)
                 && notes.equals(otherPerson.notes);
     }
@@ -115,7 +123,7 @@ public class Person {
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(name, phone, email, address, tags, notes);
+        return Objects.hash(name, phone, email, address, school, tags, notes);
     }
 
     @Override
@@ -125,6 +133,7 @@ public class Person {
                 .add("phone", phone)
                 .add("email", email)
                 .add("address", address)
+                .add("school", school)
                 .add("tags", tags)
                 .toString();
     }

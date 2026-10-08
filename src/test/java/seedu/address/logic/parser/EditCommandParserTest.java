@@ -42,6 +42,7 @@ import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Phone;
+import seedu.address.model.person.School;
 import seedu.address.model.tag.Tag;
 import seedu.address.testutil.EditPersonDescriptorBuilder;
 
@@ -53,6 +54,21 @@ public class EditCommandParserTest {
             String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditCommand.MESSAGE_USAGE);
 
     private EditCommandParser parser = new EditCommandParser();
+
+    @Test
+    public void parse_schoolOnly_success() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withSchool("St. John's Secondary School").build();
+        assertParseSuccess(parser, "1 sch/  St. John's Secondary School  ",
+                new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
+    public void parse_invalidSchool_failure() {
+        assertParseFailure(parser, "1 sch/  ", School.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1 sch/School sch/Other School",
+                Messages.getErrorMessageForDuplicatePrefixes(CliSyntax.PREFIX_SCHOOL));
+    }
 
     @Test
     public void parse_missingParts_failure() {
