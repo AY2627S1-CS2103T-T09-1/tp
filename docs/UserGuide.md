@@ -93,6 +93,18 @@ Shows a list of all persons in the address book.
 
 Format: `list`
 
+### Viewing a student: `view`
+
+Shows only the student at the specified index in the currently displayed list.
+
+Format: `view INDEX`
+
+* The index refers to the index number shown in the displayed student list.
+* The index must be a positive integer, such as 1, 2, or 3.
+* Enter `list` to return to the full student list.
+
+Example: `view 2` shows the second student in the currently displayed list.
+
 ### Editing a person: `edit`
 
 Edits an existing person in the address book.
