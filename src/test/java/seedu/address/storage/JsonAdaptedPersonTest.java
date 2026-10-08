@@ -60,7 +60,8 @@ public class JsonAdaptedPersonTest {
     @Test
     public void toModelType_personWithNotes_roundTripsThroughJson() throws Exception {
         Person bensonWithNotes = new Person(BENSON.getName(), BENSON.getPhone(), BENSON.getEmail(),
-                BENSON.getAddress(), BENSON.getTags(), List.of("Weak in algebra", "WA2 Math: 36/50"));
+                BENSON.getAddress(), BENSON.getSchool(), BENSON.getTags(),
+                List.of("Weak in algebra", "WA2 Math: 36/50"));
         String json = JsonUtil.toJsonString(new JsonAdaptedPerson(bensonWithNotes));
 
         assertEquals(bensonWithNotes, JsonUtil.fromJsonString(json, JsonAdaptedPerson.class).toModelType());
