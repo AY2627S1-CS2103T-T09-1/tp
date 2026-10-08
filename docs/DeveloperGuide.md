@@ -373,6 +373,8 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case ends.
 
+---
+
 **Use case: UC2 - Edit a student's details**
 
 **MSS**
@@ -412,6 +414,8 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
     * 3c1. TuteeBook3 shows an error message and leaves the student unchanged.
 
       Use case ends.
+
+---
 
 **Use case: UC3 - Delete a student**
 
@@ -462,6 +466,8 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case ends.
 
+---
+
 **Use case: UC4 - Find students by name**
 
 **MSS**
@@ -486,6 +492,185 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
   Use case ends.
 
+---
+  
+## Use case: UC5 - View a student's record
+
+**MSS**
+
+1. Tutor requests to view a specific student by index.
+2. TuteeBook3 opens the student's card, showing all of the student's details, including all notes.
+
+Use case ends.
+
+**Extensions**
+
+- 1a. The given index is invalid.
+  - 1a1. TuteeBook3 shows an error message.
+
+  Use case resumes at step 1.
+
+- 2a. The student has no notes.
+  - 2a1. TuteeBook3 shows the card with an empty notes section.
+
+  Use case ends.
+
+---
+
+## Use case: UC6 - Find students by a keyword in their notes
+
+**MSS**
+
+1. Tutor requests to find students whose notes contain a keyword.
+2. TuteeBook3 shows the matching students, with the notes that match.
+3. Tutor requests to view one of them by index.
+4. TuteeBook3 shows the student's full record.
+
+Use case ends.
+
+**Extensions**
+
+* 1a. The keyword is blank or invalid.
+  * 1a1. TuteeBook3 shows an error message.
+  * 1a2. Tutor enters a corrected keyword.
+
+  Steps 1a1-1a2 are repeated until the keyword is valid. Use case resumes at step 2.
+
+* 2a. No student's notes contain the keyword.
+  * 2a1. TuteeBook3 informs Tutor that no students match.
+
+  Use case ends.
+
+* 3a. The given index is invalid.
+  * 3a1. TuteeBook3 shows an error message.
+
+  Use case resumes at step 2.
+
+---
+  
+**Use case: UC7 - Add a note to a student**
+
+**MSS**
+
+1.  Tutor requests to list students
+2.  TuteeBook3 shows a list of students with their indexes
+3.  Tutor requests to add a note to a specific student, giving the student's index and the note text
+4.  TuteeBook3 saves the note with the next note number for that student and today's date
+5.  TuteeBook3 shows the student's record including the new note
+
+    Use case ends.
+
+**Extensions**
+
+* 2a. The list is empty.
+
+    Use case ends.
+
+* 3a. The given index is invalid.
+
+    * 3a1. TuteeBook3 shows an error message.
+
+      Use case resumes at step 2.
+
+* 3b. The note text is blank, longer than 500 characters, or the text prefix is given more than once.
+
+    * 3b1. TuteeBook3 shows an error message.
+
+    * 3b2. Tutor enters the corrected command.
+
+      Steps 3b1-3b2 are repeated until the command is valid.
+
+      Use case resumes at step 4.
+
+---
+
+**Use case: UC8 - Edit a note**
+
+**MSS**
+
+1.  Tutor requests to view a specific student by index
+2.  TuteeBook3 shows the student's record with numbered notes
+3.  Tutor requests to edit a specific note, giving the student's index, note number and new text
+4.  TuteeBook3 validates the text and replaces the note's text
+5.  TuteeBook3 shows the updated record
+
+    Use case ends.
+
+**Extensions**
+
+* 1a. The given index is invalid.
+
+    * 1a1. TuteeBook3 shows an error message.
+
+      Use case ends.
+
+* 2a. The student has no notes.
+
+    Use case ends.
+
+* 3a. The given note number does not exist for that student.
+
+    * 3a1. TuteeBook3 shows an error message.
+
+      Use case resumes at step 2.
+
+* 3b. The new text is blank or too long.
+
+    * 3b1. TuteeBook3 shows an error message.
+
+    * 3b2. Tutor enters the corrected text.
+
+      Steps 3b1-3b2 are repeated until the text is valid.
+
+      Use case resumes at step 4.
+
+---
+
+**Use case: UC9 - Delete a note from a student**
+
+**MSS**
+
+1.  Tutor requests to view a specific student by index
+2.  TuteeBook3 shows the student's record with numbered notes
+3.  Tutor requests to delete a specific note, giving the student's index and note number
+4.  TuteeBook3 asks Tutor to confirm the deletion
+5.  Tutor confirms the deletion
+6.  TuteeBook3 deletes the note, leaves the remaining notes' numbers unchanged, and shows a confirmation message
+
+    Use case ends.
+
+**Extensions**
+
+* 1a. The given index is invalid.
+
+    * 1a1. TuteeBook3 shows an error message.
+
+      Use case ends.
+
+* 2a. The student has no notes.
+
+    Use case ends.
+
+* 3a. The given index or note number is invalid, or the student has no such note.
+
+    * 3a1. TuteeBook3 shows an error message.
+
+      Use case resumes at step 2.
+
+* 5a. Tutor cancels the deletion.
+
+    * 5a1. TuteeBook3 discards the pending deletion request and keeps the note.
+
+      Use case ends.
+
+* 5b. Tutor enters any other command instead of confirming or cancelling.
+
+    * 5b1. TuteeBook3 discards the pending deletion request, then processes the new command as normal.
+
+      Use case ends.
+
+---
+
 **Use case: UC10 - View help**
 
 **MSS**
@@ -506,6 +691,8 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case resumes at step 3.
 
+---
+
 **Use case: UC11 - Undo the last command**
 
 **MSS**
@@ -525,6 +712,8 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
     * 3a1. TuteeBook3 informs Tutor that there is nothing to undo.
 
       Use case ends.
+
+---
 
 **Use case: UC12 - Clear all students**
 
