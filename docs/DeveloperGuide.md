@@ -486,6 +486,64 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
   Use case ends.
 
+**Use case: UC10 - View help**
+
+**MSS**
+
+1.  Tutor requests help
+2.  TuteeBook3 opens a help window with a link to the user guide and a button to copy the link
+3.  Tutor clicks the copy button
+4.  TuteeBook3 copies the link to the clipboard
+5.  Tutor pastes the link into a browser to read the user guide
+
+    Use case ends.
+
+**Extensions**
+
+* 1a. The help window is already open or minimized.
+
+    * 1a1. TuteeBook3 brings the existing help window to the front instead of opening another.
+
+      Use case resumes at step 3.
+
+**Use case: UC11 - Undo the last command**
+
+**MSS**
+
+1.  Tutor enters a command that changes data, such as deleting a student
+2.  TuteeBook3 executes the command
+3.  Tutor realizes the command was a mistake and requests to undo
+4.  TuteeBook3 reverts the most recent data-changing command
+5.  TuteeBook3 shows the restored data
+
+    Use case ends.
+
+**Extensions**
+
+* 3a. There is no data-changing command to undo.
+
+    * 3a1. TuteeBook3 informs Tutor that there is nothing to undo.
+
+      Use case ends.
+
+**Use case: UC12 - Clear all students**
+
+**MSS**
+
+1.  Tutor requests to list students
+2.  TuteeBook3 shows the students, including the sample students
+3.  Tutor requests to clear all students
+4.  TuteeBook3 removes all students and their notes
+5.  TuteeBook3 shows an empty roster
+
+    Use case ends.
+
+**Extensions**
+
+* 2a. The list is already empty.
+
+  Use case ends.
+
 ### Non-Functional Requirements
 
 1. Should run on any _mainstream OS_ with only Java `25` installed, without OS-specific libraries or features.
