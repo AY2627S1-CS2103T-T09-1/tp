@@ -485,6 +485,58 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 * 2a. No students match the name.
 
   Use case ends.
+  
+## Use case: UC5 - View a student's record
+
+**MSS**
+
+1. Tutor requests to view a specific student by index.
+2. TuteeBook3 opens the student's card, showing all of the student's details, including all notes.
+
+Use case ends.
+
+**Extensions**
+
+- 1a. The given index is invalid.
+  - 1a1. TuteeBook3 shows an error message.
+
+  Use case resumes at step 1.
+
+- 2a. The student has no notes.
+  - 2a1. TuteeBook3 shows the card with an empty notes section.
+
+  Use case ends.
+
+## Use case: UC6 - Find students by a keyword in their notes
+
+**MSS**
+
+1. Tutor requests to find students whose notes contain a keyword.
+2. TuteeBook3 shows the matching students, with the notes that match.
+3. Tutor requests to view one of them by index.
+4. TuteeBook3 shows the student's full record.
+
+Use case ends.
+
+**Extensions**
+
+* 1a. The keyword is blank or invalid.
+  * 1a1. TuteeBook3 shows an error message.
+  * 1a2. Tutor enters a corrected keyword.
+
+  Steps 1a1-1a2 are repeated until the keyword is valid. Use case resumes at step 2.
+
+* 2a. No student's notes contain the keyword.
+  * 2a1. TuteeBook3 informs Tutor that no students match.
+
+  Use case ends.
+
+* 3a. The given index is invalid.
+  * 3a1. TuteeBook3 shows an error message.
+
+  Use case resumes at step 2.
+  
+*{More to be added}*
 
 ### Non-Functional Requirements
 
