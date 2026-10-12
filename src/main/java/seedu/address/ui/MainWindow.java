@@ -1,6 +1,7 @@
 package seedu.address.ui;
 
 import java.nio.file.Path;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import javafx.event.ActionEvent;
@@ -31,11 +32,11 @@ public class MainWindow extends UiPart<Stage> {
     private Stage primaryStage;
     private Logic logic;
     private Path dataFilePath;
+    private Consumer<String> urlOpener;
 
     // Independent Ui parts residing in this Ui container
     private PersonListPanel personListPanel;
     private ResultDisplay resultDisplay;
-    private HelpWindow helpWindow;
 
     @FXML
     private StackPane commandBoxPlaceholder;
@@ -54,22 +55,21 @@ public class MainWindow extends UiPart<Stage> {
 
     /**
      * Creates a {@code MainWindow} with the given {@code Stage}, {@code Logic},
-     * and the data file path to show in the status bar.
+     * data file path to show in the status bar, and URL opener.
      */
-    public MainWindow(Stage primaryStage, Logic logic, Path dataFilePath) {
+    public MainWindow(Stage primaryStage, Logic logic, Path dataFilePath, Consumer<String> urlOpener) {
         super(FXML, primaryStage);
 
         // Set dependencies
         this.primaryStage = primaryStage;
         this.logic = logic;
         this.dataFilePath = dataFilePath;
+        this.urlOpener = urlOpener;
 
         // Configure the UI
         setWindowDefaultSize(logic.getGuiSettings());
 
         setAccelerators();
-
-        helpWindow = new HelpWindow();
     }
 
     public Stage getPrimaryStage() {
@@ -98,8 +98,8 @@ public class MainWindow extends UiPart<Stage> {
          * not work when the focus is in them because the key event is consumed by
          * the TextInputControl(s).
          *
-         * For now, we add the following event filter to capture such key events and open
-         * the help window purposely so as to support accelerators even when focus is
+         * For now, we add the following event filter to capture such key events and show
+         * help purposely so as to support accelerators even when focus is
          * in CommandBox or ResultDisplay.
          */
         getRoot().addEventFilter(KeyEvent.KEY_PRESSED, event -> {
@@ -117,7 +117,7 @@ public class MainWindow extends UiPart<Stage> {
         personListPanel = new PersonListPanel(logic.getFilteredPersonList());
         personListPanelPlaceholder.getChildren().add(personListPanel.getRoot());
 
-        resultDisplay = new ResultDisplay();
+        resultDisplay = new ResultDisplay(urlOpener);
         resultDisplayPlaceholder.getChildren().add(resultDisplay.getRoot());
 
         StatusBarFooter statusBarFooter = new StatusBarFooter(dataFilePath);
@@ -140,15 +140,11 @@ public class MainWindow extends UiPart<Stage> {
     }
 
     /**
-     * Opens the help window or focuses on it if it's already opened.
+     * Shows help in the result display.
      */
     @FXML
     public void handleHelp() {
-        if (!helpWindow.isShowing()) {
-            helpWindow.show();
-        } else {
-            helpWindow.focus();
-        }
+        resultDisplay.showHelp();
     }
 
     void show() {
@@ -163,7 +159,6 @@ public class MainWindow extends UiPart<Stage> {
         GuiSettings guiSettings = new GuiSettings(primaryStage.getWidth(), primaryStage.getHeight(),
                 (int) primaryStage.getX(), (int) primaryStage.getY());
         logic.setGuiSettings(guiSettings);
-        helpWindow.hide();
         primaryStage.hide();
     }
 
@@ -180,10 +175,10 @@ public class MainWindow extends UiPart<Stage> {
         try {
             CommandResult commandResult = logic.execute(commandText);
             logger.info("Result: " + commandResult.getFeedbackToUser());
-            resultDisplay.setFeedbackToUser(commandResult.getFeedbackToUser());
-
             if (commandResult.isShowHelp()) {
-                handleHelp();
+                resultDisplay.showHelp();
+            } else {
+                resultDisplay.setFeedbackToUser(commandResult.getFeedbackToUser());
             }
 
             if (commandResult.isExit()) {

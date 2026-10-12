@@ -676,18 +676,17 @@ Use case ends.
 **MSS**
 
 1.  Tutor requests help
-2.  TuteeBook3 opens a help window with a link to the user guide and a button to copy the link
-3.  Tutor clicks the copy button
-4.  TuteeBook3 copies the link to the clipboard
-5.  Tutor pastes the link into a browser to read the user guide
+2.  TuteeBook3 shows the available commands, examples, and a link to the user guide in the feedback box
+3.  Tutor clicks the user guide link
+4.  TuteeBook3 opens the user guide in the tutor's browser
 
     Use case ends.
 
 **Extensions**
 
-* 1a. The help window is already open or minimized.
+* 1a. Help is already shown in the feedback box.
 
-    * 1a1. TuteeBook3 brings the existing help window to the front instead of opening another.
+    * 1a1. TuteeBook3 reuses the feedback box and returns the help content to the top.
 
       Use case resumes at step 3.
 
