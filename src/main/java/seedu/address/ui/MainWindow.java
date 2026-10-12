@@ -1,7 +1,6 @@
 package seedu.address.ui;
 
 import java.nio.file.Path;
-import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import javafx.event.ActionEvent;
@@ -16,6 +15,7 @@ import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.logic.Logic;
 import seedu.address.logic.commands.CommandResult;
+import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.exceptions.ParseException;
 
@@ -32,7 +32,6 @@ public class MainWindow extends UiPart<Stage> {
     private Stage primaryStage;
     private Logic logic;
     private Path dataFilePath;
-    private Consumer<String> urlOpener;
 
     // Independent Ui parts residing in this Ui container
     private PersonListPanel personListPanel;
@@ -55,16 +54,15 @@ public class MainWindow extends UiPart<Stage> {
 
     /**
      * Creates a {@code MainWindow} with the given {@code Stage}, {@code Logic},
-     * data file path to show in the status bar, and URL opener.
+     * and the data file path to show in the status bar.
      */
-    public MainWindow(Stage primaryStage, Logic logic, Path dataFilePath, Consumer<String> urlOpener) {
+    public MainWindow(Stage primaryStage, Logic logic, Path dataFilePath) {
         super(FXML, primaryStage);
 
         // Set dependencies
         this.primaryStage = primaryStage;
         this.logic = logic;
         this.dataFilePath = dataFilePath;
-        this.urlOpener = urlOpener;
 
         // Configure the UI
         setWindowDefaultSize(logic.getGuiSettings());
@@ -117,7 +115,7 @@ public class MainWindow extends UiPart<Stage> {
         personListPanel = new PersonListPanel(logic.getFilteredPersonList());
         personListPanelPlaceholder.getChildren().add(personListPanel.getRoot());
 
-        resultDisplay = new ResultDisplay(urlOpener);
+        resultDisplay = new ResultDisplay();
         resultDisplayPlaceholder.getChildren().add(resultDisplay.getRoot());
 
         StatusBarFooter statusBarFooter = new StatusBarFooter(dataFilePath);
@@ -144,7 +142,7 @@ public class MainWindow extends UiPart<Stage> {
      */
     @FXML
     public void handleHelp() {
-        resultDisplay.showHelp();
+        resultDisplay.setFeedbackToUser(HelpCommand.SHOWING_HELP_MESSAGE);
     }
 
     void show() {
@@ -175,11 +173,7 @@ public class MainWindow extends UiPart<Stage> {
         try {
             CommandResult commandResult = logic.execute(commandText);
             logger.info("Result: " + commandResult.getFeedbackToUser());
-            if (commandResult.isShowHelp()) {
-                resultDisplay.showHelp();
-            } else {
-                resultDisplay.setFeedbackToUser(commandResult.getFeedbackToUser());
-            }
+            resultDisplay.setFeedbackToUser(commandResult.getFeedbackToUser());
 
             if (commandResult.isExit()) {
                 handleExit();

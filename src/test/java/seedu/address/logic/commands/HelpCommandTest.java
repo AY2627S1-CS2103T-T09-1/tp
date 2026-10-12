@@ -69,7 +69,7 @@ public class HelpCommandTest {
             "    - exit",
             "",
             "For a more detailed explanation, please refer to:",
-            "TuteeBook3 User Guide");
+            "https://ay2627s1-cs2103t-t09-1.github.io/tp/UserGuide.html");
 
     private Model model = new ModelManager();
     private Model expectedModel = new ModelManager();

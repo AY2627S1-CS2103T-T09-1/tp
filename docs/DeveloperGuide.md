@@ -676,9 +676,9 @@ Use case ends.
 **MSS**
 
 1.  Tutor requests help
-2.  TuteeBook3 shows the available commands, examples, and a link to the user guide in the feedback box
-3.  Tutor clicks the user guide link
-4.  TuteeBook3 opens the user guide in the tutor's browser
+2.  TuteeBook3 shows the available commands, examples, and the user guide URL in the feedback box
+3.  Tutor copies the user guide URL into a browser
+4.  Tutor reads the user guide
 
     Use case ends.
 

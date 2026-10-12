@@ -11,12 +11,11 @@ public class HelpCommand extends Command {
 
     public static final String USER_GUIDE_URL =
             "https://ay2627s1-cs2103t-t09-1.github.io/tp/UserGuide.html";
-    public static final String USER_GUIDE_LABEL = "TuteeBook3 User Guide";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD + ": Shows program usage instructions.\n"
             + "Example: " + COMMAND_WORD;
 
-    public static final String HELP_MESSAGE_BEFORE_LINK = String.join(System.lineSeparator(),
+    public static final String SHOWING_HELP_MESSAGE = String.join(System.lineSeparator(),
             "Available commands:",
             "",
             "help",
@@ -74,9 +73,7 @@ public class HelpCommand extends Command {
             "    - exit",
             "",
             "For a more detailed explanation, please refer to:",
-            "");
-
-    public static final String SHOWING_HELP_MESSAGE = HELP_MESSAGE_BEFORE_LINK + USER_GUIDE_LABEL;
+            USER_GUIDE_URL);
 
     @Override
     public CommandResult execute(Model model) {

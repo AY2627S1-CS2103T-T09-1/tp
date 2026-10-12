@@ -1,7 +1,6 @@
 package seedu.address.ui;
 
 import java.nio.file.Path;
-import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 import javafx.application.Platform;
@@ -26,17 +25,15 @@ public class UiManager implements Ui {
 
     private Logic logic;
     private Path dataFilePath;
-    private Consumer<String> urlOpener;
     private MainWindow mainWindow;
 
     /**
-     * Creates a {@code UiManager} with the given {@code Logic}, data file path
-     * to show in the status bar, and URL opener.
+     * Creates a {@code UiManager} with the given {@code Logic} and the data file path
+     * to show in the status bar.
      */
-    public UiManager(Logic logic, Path dataFilePath, Consumer<String> urlOpener) {
+    public UiManager(Logic logic, Path dataFilePath) {
         this.logic = logic;
         this.dataFilePath = dataFilePath;
-        this.urlOpener = urlOpener;
     }
 
     @Override
@@ -47,7 +44,7 @@ public class UiManager implements Ui {
         primaryStage.getIcons().add(getImage(ICON_APPLICATION));
 
         try {
-            mainWindow = new MainWindow(primaryStage, logic, dataFilePath, urlOpener);
+            mainWindow = new MainWindow(primaryStage, logic, dataFilePath);
             mainWindow.show(); //This should be called before creating other UI parts
             mainWindow.fillInnerParts();
 
