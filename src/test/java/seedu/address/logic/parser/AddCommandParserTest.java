@@ -72,6 +72,16 @@ public class AddCommandParserTest {
     public void parse_allFieldsPresent_success() {
         Person expectedPerson = new PersonBuilder(BOB).withTags(VALID_TAG_FRIEND).build();
         String details = NAME_DESC_BOB + PHONE_DESC_BOB + EMAIL_DESC_BOB + ADDRESS_DESC_BOB + SCHOOL_DESC_BOB;
+        String[] names = {"Mathematics", "English", "Science", "History", "Geography", "Literature",
+            "Physics", "Chemistry"};
+        Subject[] subjects = new Subject[names.length];
+        String eightSubjectsCommand = details;
+        for (int i = 0; i < names.length; i++) {
+            subjects[i] = new Subject(names[i], Band.G1);
+            eightSubjectsCommand += " sub/" + names[i] + " band/G1";
+        }
+        assertParseSuccess(parser, eightSubjectsCommand,
+                new AddCommand(new PersonBuilder(BOB).withTags().withSubjects(subjects).build()));
         Person withSubjects = new PersonBuilder(BOB).withTags().withSubjects(
                 new Subject("Mathematics", Band.G1), new Subject("Additional Mathematics", Band.G3)).build();
         assertParseSuccess(parser, details + " sub/Mathematics band/g1 sub/Additional Mathematics band/g3",

@@ -80,6 +80,13 @@ public class JsonAdaptedPersonTest {
         JsonAdaptedPerson oldRecord = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, VALID_EMAIL, VALID_ADDRESS,
                 VALID_SCHOOL, null, VALID_TAGS);
         assertThrows(IllegalValueException.class, Person.MESSAGE_MISSING_SUBJECT, oldRecord::toModelType);
+        JsonAdaptedPerson invalidSubject = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, VALID_EMAIL, VALID_ADDRESS,
+                VALID_SCHOOL, List.of(new JsonAdaptedSubject("123", "G1")), VALID_TAGS);
+        assertThrows(IllegalValueException.class, Subject.MESSAGE_CONSTRAINTS, invalidSubject::toModelType);
+        JsonAdaptedPerson repeatedSubject = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, VALID_EMAIL, VALID_ADDRESS,
+                VALID_SCHOOL, List.of(new JsonAdaptedSubject("English", "G1"),
+                        new JsonAdaptedSubject("english", "G2")), VALID_TAGS);
+        assertThrows(IllegalValueException.class, "Subject is repeated: english.", repeatedSubject::toModelType);
     }
 
     @Test

@@ -12,6 +12,9 @@ import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.BOB;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import seedu.address.testutil.PersonBuilder;
@@ -25,6 +28,13 @@ public class PersonTest {
         assertThrows(UnsupportedOperationException.class, () -> person.getSubjects().clear());
         assertThrows(IllegalArgumentException.class, Person.MESSAGE_MISSING_SUBJECT, () -> new PersonBuilder()
                 .withSubjects().build());
+        List<Subject> subjects = new ArrayList<>(person.getSubjects());
+        Person copy = new Person(person.getName(), person.getPhone(), person.getEmail(), person.getAddress(),
+                person.getSchool(), subjects, person.getTags());
+        subjects.clear();
+        assertEquals(person.getSubjects(), copy.getSubjects());
+        assertThrows(IllegalArgumentException.class, "Subject is repeated: mathematics.", () -> new PersonBuilder()
+                .withSubjects(new Subject("Mathematics", Band.G1), new Subject("mathematics", Band.G2)).build());
     }
 
     @Test
