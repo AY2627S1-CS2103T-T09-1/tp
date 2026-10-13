@@ -62,7 +62,11 @@ public class Person {
         this.notes.addAll(notes);
     }
 
-    private static void validateSubjects(List<Subject> subjects) {
+    /**
+     * Validates the subject count and rejects repeated subject names, regardless of band.
+     */
+    public static void validateSubjects(List<Subject> subjects) {
+        requireAllNonNull(subjects);
         checkArgument(!subjects.isEmpty(), MESSAGE_MISSING_SUBJECT);
         checkArgument(subjects.size() <= MAX_SUBJECTS, MESSAGE_TOO_MANY_SUBJECTS);
         List<Subject> uniqueSubjects = new ArrayList<>();

@@ -22,6 +22,9 @@ public class PersonTest {
     public void asObservableList_modifyList_throwsUnsupportedOperationException() {
         Person person = new PersonBuilder().build();
         assertThrows(UnsupportedOperationException.class, () -> person.getTags().remove(0));
+        assertThrows(UnsupportedOperationException.class, () -> person.getSubjects().clear());
+        assertThrows(IllegalArgumentException.class, Person.MESSAGE_MISSING_SUBJECT, () -> new PersonBuilder()
+                .withSubjects().build());
     }
 
     @Test
@@ -56,6 +59,12 @@ public class PersonTest {
 
     @Test
     public void equals() {
+        Subject maths = new Subject("Mathematics", Band.G1);
+        Subject mathsCopy = new Subject(" mathematics ", Band.G1);
+        assertEquals(maths, mathsCopy);
+        assertEquals(maths.hashCode(), mathsCopy.hashCode());
+        assertFalse(maths.equals(new Subject("Mathematics", Band.G2)));
+        assertFalse(maths.equals(null));
         // same values -> returns true
         Person aliceCopy = new PersonBuilder(ALICE).build();
         assertTrue(ALICE.equals(aliceCopy));
@@ -76,6 +85,9 @@ public class PersonTest {
         // different name -> returns false
         Person editedAlice = new PersonBuilder(ALICE).withName(VALID_NAME_BOB).build();
         assertFalse(ALICE.equals(editedAlice));
+
+        assertFalse(ALICE.equals(new PersonBuilder(ALICE)
+                .withSubjects(new Subject("Mathematics", Band.G2)).build()));
 
         // different phone -> returns false
         editedAlice = new PersonBuilder(ALICE).withPhone(VALID_PHONE_BOB).build();
@@ -101,7 +113,7 @@ public class PersonTest {
     public void toStringMethod() {
         String expected = Person.class.getCanonicalName() + "{name=" + ALICE.getName() + ", phone="
                 + ALICE.getPhone() + ", email=" + ALICE.getEmail() + ", address=" + ALICE.getAddress() + ", school="
-                + ALICE.getSchool() + ", tags=" + ALICE.getTags() + "}";
+                + ALICE.getSchool() + ", subjects=" + ALICE.getSubjects() + ", tags=" + ALICE.getTags() + "}";
         assertEquals(expected, ALICE.toString());
     }
 }
