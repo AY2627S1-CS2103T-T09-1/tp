@@ -1,5 +1,6 @@
 package seedu.address.model.person;
 
+import static seedu.address.commons.util.AppUtil.checkArgument;
 import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
 import java.util.ArrayList;
@@ -18,6 +19,11 @@ import seedu.address.model.tag.Tag;
  */
 public class Person {
 
+    public static final int MAX_SUBJECTS = 8;
+    public static final String MESSAGE_MISSING_SUBJECT = "A student must have at least one subject.";
+    public static final String MESSAGE_TOO_MANY_SUBJECTS = "A student may have at most 8 subjects.";
+    public static final String MESSAGE_REPEATED_SUBJECT = "Subject is repeated: %s.";
+
     // Identity fields
     private final Name name;
     private final Phone phone;
@@ -26,29 +32,45 @@ public class Person {
     // Data fields
     private final Address address;
     private final School school;
+    private final List<Subject> subjects;
     private final Set<Tag> tags = new HashSet<>();
     private final List<String> notes = new ArrayList<>();
 
     /**
      * Every field must be present and not null.
      */
-    public Person(Name name, Phone phone, Email email, Address address, School school, Set<Tag> tags) {
-        this(name, phone, email, address, school, tags, List.of());
+    public Person(Name name, Phone phone, Email email, Address address, School school,
+            List<Subject> subjects, Set<Tag> tags) {
+        this(name, phone, email, address, school, subjects, tags, List.of());
     }
 
     /**
      * Every field must be present and not null.
      */
-    public Person(Name name, Phone phone, Email email, Address address, School school, Set<Tag> tags,
-            List<String> notes) {
-        requireAllNonNull(name, phone, email, address, school, tags, notes);
+    public Person(Name name, Phone phone, Email email, Address address, School school,
+            List<Subject> subjects, Set<Tag> tags, List<String> notes) {
+        requireAllNonNull(name, phone, email, address, school, subjects, tags, notes);
+        List<Subject> validatedSubjects = List.copyOf(subjects);
+        validateSubjects(validatedSubjects);
         this.name = name;
         this.phone = phone;
         this.email = email;
         this.address = address;
         this.school = school;
+        this.subjects = validatedSubjects;
         this.tags.addAll(tags);
         this.notes.addAll(notes);
+    }
+
+    private static void validateSubjects(List<Subject> subjects) {
+        checkArgument(!subjects.isEmpty(), MESSAGE_MISSING_SUBJECT);
+        checkArgument(subjects.size() <= MAX_SUBJECTS, MESSAGE_TOO_MANY_SUBJECTS);
+        List<Subject> uniqueSubjects = new ArrayList<>();
+        for (Subject subject : subjects) {
+            boolean isRepeated = uniqueSubjects.stream().anyMatch(subject::hasSameName);
+            checkArgument(!isRepeated, String.format(MESSAGE_REPEATED_SUBJECT, subject.getName()));
+            uniqueSubjects.add(subject);
+        }
     }
 
     public Name getName() {
@@ -69,6 +91,10 @@ public class Person {
 
     public School getSchool() {
         return school;
+    }
+
+    public List<Subject> getSubjects() {
+        return subjects;
     }
 
     /**
@@ -116,6 +142,7 @@ public class Person {
                 && email.equals(otherPerson.email)
                 && address.equals(otherPerson.address)
                 && school.equals(otherPerson.school)
+                && subjects.equals(otherPerson.subjects)
                 && tags.equals(otherPerson.tags)
                 && notes.equals(otherPerson.notes);
     }
@@ -123,7 +150,7 @@ public class Person {
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(name, phone, email, address, school, tags, notes);
+        return Objects.hash(name, phone, email, address, school, subjects, tags, notes);
     }
 
     @Override
@@ -134,6 +161,7 @@ public class Person {
                 .add("email", email)
                 .add("address", address)
                 .add("school", school)
+                .add("subjects", subjects)
                 .add("tags", tags)
                 .toString();
     }
