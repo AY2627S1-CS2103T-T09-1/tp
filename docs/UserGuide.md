@@ -95,15 +95,21 @@ Format: `list`
 
 ### Viewing a student: `view`
 
-Shows only the student at the specified index in the currently displayed list.
+Shows the full record of the student at the specified index in the main content area.
+
+The detail panel contains the student's name, school, level, subject-band pairs, student phone number, guardian name, guardian phone number, and notes. Fields that are not yet available in an older data model are shown as `Not provided`.
 
 Format: `view INDEX`
 
 * The index refers to the index number shown in the displayed student list.
 * The index must be a positive integer, such as 1, 2, or 3.
-* Enter `list` to return to the full student list.
+* The current search results are preserved while you view the student.
+* Entering `view` again replaces the current student record instead of opening another panel.
+* Enter `list` to return to the full student list, or `find` to display new search results.
+* Commands that add, edit, delete, or clear students return to the student list after they succeed.
+* Help and invalid commands leave the student record visible.
 
-Example: `view 2` shows the second student in the currently displayed list.
+Example: `view 2` shows the full record of the second student in the currently displayed list.
 
 ### Editing a person: `edit`
 

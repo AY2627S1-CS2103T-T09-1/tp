@@ -47,7 +47,7 @@ public class DeleteCommand extends Command {
         Person personToDelete = lastShownList.get(targetIndex.getZeroBased());
         model.deletePerson(personToDelete);
         model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
-        return new CommandResult(String.format(MESSAGE_DELETE_STUDENT_SUCCESS, personToDelete.getName()));
+        return CommandResult.showList(String.format(MESSAGE_DELETE_STUDENT_SUCCESS, personToDelete.getName()));
     }
 
     @Override

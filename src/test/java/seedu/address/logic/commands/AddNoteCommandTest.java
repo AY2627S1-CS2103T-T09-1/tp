@@ -2,6 +2,7 @@ package seedu.address.logic.commands;
 
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
+import static seedu.address.logic.commands.CommandTestUtil.showPersonAtIndex;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
@@ -37,8 +38,8 @@ public class AddNoteCommandTest {
     }
 
     @Test
-    public void execute_afterView_keepsStudentShown() throws Exception {
-        new ViewCommand(INDEX_SECOND_PERSON).execute(model);
+    public void execute_filteredList_keepsStudentShown() {
+        showPersonAtIndex(model, INDEX_SECOND_PERSON);
         Person person = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
         Person editedPerson = new Person(person.getName(), person.getPhone(), person.getEmail(),
                 person.getAddress(), person.getSchool(), person.getTags(), List.of(NOTE));

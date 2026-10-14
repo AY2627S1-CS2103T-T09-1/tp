@@ -132,6 +132,28 @@
     -fx-text-fill: #010504;
 }
 
+.student-detail-panel {
+    -fx-background-color: derive(#1d1d1d, 20%);
+}
+
+.student-detail-heading {
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 22px;
+    -fx-text-fill: white;
+}
+
+.student-detail-field-name {
+    -fx-font-family: "Segoe UI Semibold";
+    -fx-font-size: 14px;
+    -fx-text-fill: #b8b8b8;
+}
+
+.student-detail-field-value {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 14px;
+    -fx-text-fill: white;
+}
+
 .stack-pane {
      -fx-background-color: derive(#1d1d1d, 20%);
 }
