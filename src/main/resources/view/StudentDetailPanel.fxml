@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<ScrollPane fitToWidth="true" hbarPolicy="NEVER" pannable="true"
+<ScrollPane fitToWidth="true" hbarPolicy="NEVER" pannable="true" styleClass="student-detail-scroll-pane"
             xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
   <VBox spacing="16" styleClass="student-detail-panel">
     <padding>

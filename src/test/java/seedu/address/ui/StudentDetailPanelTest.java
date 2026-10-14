@@ -17,6 +17,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import seedu.address.model.person.Person;
@@ -35,6 +36,7 @@ public class StudentDetailPanelTest {
         container = new StackPane();
         persons = FXCollections.observableArrayList(ALICE);
         stage.setScene(new Scene(container));
+        stage.getScene().getStylesheets().add(getClass().getResource("/view/DarkTheme.css").toExternalForm());
         stage.show();
     }
 
@@ -85,6 +87,7 @@ public class StudentDetailPanelTest {
             assertLabelWraps("#guardianName");
             assertLabelWraps("#guardianPhone");
             assertLabelWraps("#notes");
+            assertViewportMatchesPanelBackground();
         });
     }
 
@@ -113,5 +116,11 @@ public class StudentDetailPanelTest {
 
     private void assertLabelWraps(String query) {
         assertTrue(((Label) container.lookup(query)).isWrapText());
+    }
+
+    private void assertViewportMatchesPanelBackground() {
+        Region viewport = (Region) container.lookup(".student-detail-scroll-pane > .viewport");
+        Region panel = (Region) container.lookup(".student-detail-panel");
+        assertEquals(panel.getBackground(), viewport.getBackground());
     }
 }
