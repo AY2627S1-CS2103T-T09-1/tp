@@ -119,7 +119,7 @@ Adds a note to the end of a student's notes.
 Format: `addnote INDEX c/TEXT`
 
 * `INDEX` is the index number shown in the displayed student list. It must be a positive integer, such as 1, 2, or 3.
-* `TEXT` must be 1 to 500 characters long. Spaces before and after the text are removed and not counted.
+* `TEXT` must be 1 to 500 characters long, including spaces between words. Spaces before and after the text are removed and not counted.
 * `TEXT` can contain any characters, including digits, punctuation, and slashes, such as `WA2 Math: 36/50` or `Rajesh s/o Kumar`.
 * You can add the same note text more than once.
 * New notes appear on the student's card after the existing notes.
