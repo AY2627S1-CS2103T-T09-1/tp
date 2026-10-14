@@ -44,7 +44,8 @@ public class MainWindowTest {
             mainWindow.handleHelp();
             TextArea resultDisplay = (TextArea) mainWindow.getRoot().getScene()
                     .lookup(".result-display");
-            assertEquals(SHOWING_HELP_MESSAGE, resultDisplay.getText());
+            assertEquals(SHOWING_HELP_MESSAGE.lines().toList(),
+                    resultDisplay.getText().lines().toList());
         });
     }
 
