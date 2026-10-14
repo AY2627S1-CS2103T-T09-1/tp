@@ -9,6 +9,9 @@ import org.junit.jupiter.api.Test;
 
 public class NoteTest {
 
+    // One emoji is two UTF-16 chars but one character to the user
+    private static final String EMOJI = "😀";
+
     @Test
     public void constructor_null_throwsNullPointerException() {
         assertThrows(NullPointerException.class, () -> new Note(null));
@@ -19,6 +22,11 @@ public class NoteTest {
         assertThrows(IllegalArgumentException.class, Note.MESSAGE_BLANK, () -> new Note(""));
         assertThrows(IllegalArgumentException.class, Note.MESSAGE_BLANK, () -> new Note("   "));
         assertThrows(IllegalArgumentException.class, Note.MESSAGE_BLANK, () -> new Note("\t"));
+    }
+
+    @Test
+    public void constructor_tooLongText_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, Note.MESSAGE_TOO_LONG, () -> new Note("a".repeat(501)));
     }
 
     @Test
@@ -43,6 +51,19 @@ public class NoteTest {
 
         // leading and trailing whitespace -> returns true
         assertTrue(Note.isValidNote("  Weak in algebra  "));
+
+        // exactly 500 characters -> returns true
+        assertTrue(Note.isValidNote("a".repeat(500)));
+
+        // 500 characters with padding -> returns true, padding is not counted
+        assertTrue(Note.isValidNote("  " + "a".repeat(500) + "  "));
+
+        // 500 emoji -> returns true, each emoji counts as one character
+        assertTrue(Note.isValidNote(EMOJI.repeat(500)));
+
+        // 501 characters -> returns false
+        assertFalse(Note.isValidNote("a".repeat(501)));
+        assertFalse(Note.isValidNote(EMOJI.repeat(501)));
     }
 
     @Test

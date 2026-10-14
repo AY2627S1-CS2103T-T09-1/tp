@@ -99,6 +99,12 @@ public class ParserUtilTest {
     }
 
     @Test
+    public void parseNote_tooLongValue_throwsParseException() {
+        String tooLongNote = "a".repeat(501);
+        assertThrows(ParseException.class, Note.MESSAGE_TOO_LONG, () -> ParserUtil.parseNote(tooLongNote));
+    }
+
+    @Test
     public void parseNote_validValueWithWhitespace_returnsTrimmedNote() throws Exception {
         String noteWithWhitespace = WHITESPACE + VALID_NOTE + WHITESPACE;
         assertEquals(VALID_NOTE, ParserUtil.parseNote(noteWithWhitespace).value);

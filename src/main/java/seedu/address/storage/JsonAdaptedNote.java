@@ -40,7 +40,7 @@ class JsonAdaptedNote {
      */
     public Note toModelType() throws IllegalValueException {
         if (!Note.isValidNote(text)) {
-            throw new IllegalValueException(Note.MESSAGE_BLANK);
+            throw new IllegalValueException(Note.getConstraintMessage(text));
         }
         return new Note(text);
     }

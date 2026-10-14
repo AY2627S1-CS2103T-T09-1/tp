@@ -34,6 +34,13 @@ public class AddNoteCommandParserTest {
     }
 
     @Test
+    public void parse_maxLengthNote_returnsAddNoteCommand() {
+        String maxLengthText = "a".repeat(500);
+        assertParseSuccess(parser, "1 c/" + maxLengthText,
+                new AddNoteCommand(INDEX_FIRST_PERSON, new Note(maxLengthText)));
+    }
+
+    @Test
     public void parse_missingIndexOrPrefix_throwsParseException() {
         String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddNoteCommand.MESSAGE_USAGE);
 
@@ -56,12 +63,18 @@ public class AddNoteCommandParserTest {
         assertParseFailure(parser, " 0 c/", MESSAGE_INVALID_INDEX);
         assertParseFailure(parser, " abc c/   ", MESSAGE_INVALID_INDEX);
         assertParseFailure(parser, " 0 c/a c/b", MESSAGE_INVALID_INDEX);
+        assertParseFailure(parser, " 0 c/" + "a".repeat(501), MESSAGE_INVALID_INDEX);
     }
 
     @Test
     public void parse_blankNote_throwsParseException() {
         assertParseFailure(parser, " 1 c/", Note.MESSAGE_BLANK);
         assertParseFailure(parser, " 1 c/   ", Note.MESSAGE_BLANK);
+    }
+
+    @Test
+    public void parse_tooLongNote_throwsParseException() {
+        assertParseFailure(parser, " 1 c/" + "a".repeat(501), Note.MESSAGE_TOO_LONG);
     }
 
     @Test

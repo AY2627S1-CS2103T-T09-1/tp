@@ -9,7 +9,9 @@ import static seedu.address.commons.util.AppUtil.checkArgument;
  */
 public class Note {
 
+    public static final int MAX_LENGTH = 500;
     public static final String MESSAGE_BLANK = "Note text cannot be blank.";
+    public static final String MESSAGE_TOO_LONG = "Note text must be at most " + MAX_LENGTH + " characters.";
 
     public final String value;
 
@@ -20,15 +22,34 @@ public class Note {
      */
     public Note(String text) {
         requireNonNull(text);
-        checkArgument(isValidNote(text), MESSAGE_BLANK);
+        checkArgument(isValidNote(text), getConstraintMessage(text));
         value = text.strip();
     }
 
     /**
-     * Returns true if {@code test} contains at least one character that is not whitespace.
+     * Returns true if {@code test} has 1 to {@value #MAX_LENGTH} characters,
+     * ignoring leading and trailing whitespace.
      */
     public static boolean isValidNote(String test) {
-        return !test.isBlank();
+        return !test.isBlank() && !isTooLong(test);
+    }
+
+    /**
+     * Returns the message that explains why {@code invalidText} is not valid note text.
+     * The result is only meaningful if {@code invalidText} fails {@link #isValidNote(String)}.
+     */
+    public static String getConstraintMessage(String invalidText) {
+        return invalidText.isBlank() ? MESSAGE_BLANK : MESSAGE_TOO_LONG;
+    }
+
+    /**
+     * Returns true if {@code test} has more than {@value #MAX_LENGTH} characters,
+     * ignoring leading and trailing whitespace.
+     * Counts code points, so an emoji counts as one character.
+     */
+    private static boolean isTooLong(String test) {
+        String strippedTest = test.strip();
+        return strippedTest.codePointCount(0, strippedTest.length()) > MAX_LENGTH;
     }
 
     @Override
