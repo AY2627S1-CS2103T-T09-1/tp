@@ -28,7 +28,7 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 
    * `list` : Lists all contacts.
 
-   * `add n/John Doe p/98765432 e/johnd@example.com a/John street, block 123, #01-01` : Adds a contact named `John Doe` to the Address Book.
+   * `add n/John Doe p/98765432 sch/Victoria School` : Adds a contact named `John Doe` to the Address Book.
 
    * `delete 3` : Deletes the 3rd contact shown in the current list.
 
@@ -78,7 +78,7 @@ Format: `add n/NAME p/PHONE_NUMBER sch/SCHOOL`
 
 Examples:
 * `add n/John Doe p/98765432 sch/Victoria School`
-* `add n/Betsy Crowe sch/Bedok Green Secondary School p/1234567`
+* `add n/Betsy Crowe sch/Bedok Green Secondary School p/81234567`
 
 ### Listing all persons: `list`
 
@@ -192,7 +192,7 @@ _Details coming soon ..._
 
 Action | Format, Examples
 --------|------------------
-**Add** | `add n/NAME p/PHONE_NUMBER sch/SCHOOL` <br> e.g., `add n/James Ho p/22224444 sch/Victoria School`
+**Add** | `add n/NAME p/PHONE_NUMBER sch/SCHOOL` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School`
 **Clear** | `clear`
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [sch/SCHOOL]`<br> e.g., `edit 2 n/James Lee sch/Victoria School`
