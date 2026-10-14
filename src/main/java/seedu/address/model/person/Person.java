@@ -27,7 +27,7 @@ public class Person {
     private final Address address;
     private final School school;
     private final Set<Tag> tags = new HashSet<>();
-    private final List<String> notes = new ArrayList<>();
+    private final List<Note> notes = new ArrayList<>();
 
     /**
      * Every field must be present and not null.
@@ -40,7 +40,7 @@ public class Person {
      * Every field must be present and not null.
      */
     public Person(Name name, Phone phone, Email email, Address address, School school, Set<Tag> tags,
-            List<String> notes) {
+            List<Note> notes) {
         requireAllNonNull(name, phone, email, address, school, tags, notes);
         this.name = name;
         this.phone = phone;
@@ -79,7 +79,7 @@ public class Person {
         return Collections.unmodifiableSet(tags);
     }
 
-    public List<String> getNotes() {
+    public List<Note> getNotes() {
         return Collections.unmodifiableList(notes);
     }
 

@@ -1,6 +1,7 @@
 package seedu.address.ui;
 
 import java.util.Comparator;
+import java.util.stream.Collectors;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -60,6 +61,8 @@ public class PersonCard extends UiPart<Region> {
         person.getTags().stream()
                 .sorted(Comparator.comparing(tag -> tag.tagName))
                 .forEach(tag -> tags.getChildren().add(new Label(tag.tagName)));
-        notes.setText(String.join("\n", person.getNotes()));
+        notes.setText(person.getNotes().stream()
+                .map(note -> note.value)
+                .collect(Collectors.joining("\n")));
     }
 }

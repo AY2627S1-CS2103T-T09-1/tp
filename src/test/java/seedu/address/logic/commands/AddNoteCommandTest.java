@@ -1,12 +1,12 @@
 package seedu.address.logic.commands;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
-
-import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -15,19 +15,23 @@ import seedu.address.logic.Messages;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
+import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
+import seedu.address.testutil.PersonBuilder;
 
 public class AddNoteCommandTest {
 
-    private static final String NOTE = "Weak in algebra";
+    private static final String NOTE_TEXT = "Weak in algebra";
+    private static final String OTHER_NOTE_TEXT = "WA2 Math: 36/50";
+    private static final Note NOTE = new Note(NOTE_TEXT);
+    private static final Note OTHER_NOTE = new Note(OTHER_NOTE_TEXT);
 
     private final Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
 
     @Test
     public void execute_validIndex_addsNote() {
         Person person = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
-        Person editedPerson = new Person(person.getName(), person.getPhone(), person.getEmail(),
-                person.getAddress(), person.getSchool(), person.getTags(), List.of(NOTE));
+        Person editedPerson = new PersonBuilder(person).withNotes(NOTE_TEXT).build();
         String expectedMessage = String.format(AddNoteCommand.MESSAGE_SUCCESS, person.getName(), NOTE);
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
@@ -37,11 +41,36 @@ public class AddNoteCommandTest {
     }
 
     @Test
+    public void execute_existingNotes_appendsNoteAtEnd() {
+        Person person = addNotesToFirstPerson(NOTE_TEXT);
+        Person editedPerson = new PersonBuilder(person).withNotes(NOTE_TEXT, OTHER_NOTE_TEXT).build();
+        String expectedMessage = String.format(AddNoteCommand.MESSAGE_SUCCESS, person.getName(), OTHER_NOTE);
+
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        expectedModel.setPerson(person, editedPerson);
+
+        assertCommandSuccess(new AddNoteCommand(INDEX_FIRST_PERSON, OTHER_NOTE), model, expectedMessage,
+                expectedModel);
+    }
+
+    @Test
+    public void execute_duplicateNote_keepsBothNotes() {
+        Person person = addNotesToFirstPerson(NOTE_TEXT);
+        Person editedPerson = new PersonBuilder(person).withNotes(NOTE_TEXT, NOTE_TEXT).build();
+        String expectedMessage = String.format(AddNoteCommand.MESSAGE_SUCCESS, person.getName(), NOTE);
+
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        expectedModel.setPerson(person, editedPerson);
+
+        assertCommandSuccess(new AddNoteCommand(INDEX_FIRST_PERSON, NOTE), model, expectedMessage,
+                expectedModel);
+    }
+
+    @Test
     public void execute_afterView_keepsStudentShown() throws Exception {
         new ViewCommand(INDEX_SECOND_PERSON).execute(model);
         Person person = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
-        Person editedPerson = new Person(person.getName(), person.getPhone(), person.getEmail(),
-                person.getAddress(), person.getSchool(), person.getTags(), List.of(NOTE));
+        Person editedPerson = new PersonBuilder(person).withNotes(NOTE_TEXT).build();
         String expectedMessage = String.format(AddNoteCommand.MESSAGE_SUCCESS, person.getName(), NOTE);
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
@@ -57,5 +86,46 @@ public class AddNoteCommandTest {
 
         assertCommandFailure(new AddNoteCommand(outOfBoundsIndex, NOTE), model,
                 Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+    }
+
+    @Test
+    public void execute_indexOutsideViewedList_throwsCommandException() throws Exception {
+        new ViewCommand(INDEX_FIRST_PERSON).execute(model);
+
+        assertCommandFailure(new AddNoteCommand(INDEX_SECOND_PERSON, NOTE), model,
+                Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+    }
+
+    @Test
+    public void equals_sameAndDifferentValues_returnsExpectedResult() {
+        AddNoteCommand addNoteCommand = new AddNoteCommand(INDEX_FIRST_PERSON, NOTE);
+
+        // same object -> returns true
+        assertTrue(addNoteCommand.equals(addNoteCommand));
+
+        // same values -> returns true
+        assertTrue(addNoteCommand.equals(new AddNoteCommand(INDEX_FIRST_PERSON, new Note(NOTE_TEXT))));
+
+        // different index -> returns false
+        assertFalse(addNoteCommand.equals(new AddNoteCommand(INDEX_SECOND_PERSON, NOTE)));
+
+        // different note -> returns false
+        assertFalse(addNoteCommand.equals(new AddNoteCommand(INDEX_FIRST_PERSON, OTHER_NOTE)));
+
+        // null -> returns false
+        assertFalse(addNoteCommand.equals(null));
+
+        // different type -> returns false
+        assertFalse(addNoteCommand.equals(new ClearCommand()));
+    }
+
+    /**
+     * Replaces the first person in {@code model} with a copy that has {@code notes}, and returns the copy.
+     */
+    private Person addNotesToFirstPerson(String... notes) {
+        Person person = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Person personWithNotes = new PersonBuilder(person).withNotes(notes).build();
+        model.setPerson(person, personWithNotes);
+        return personWithNotes;
     }
 }

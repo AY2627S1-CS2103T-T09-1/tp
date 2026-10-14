@@ -13,6 +13,7 @@ import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
+import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
@@ -24,6 +25,8 @@ import seedu.address.model.tag.Tag;
 class JsonAdaptedPerson {
 
     public static final String MISSING_FIELD_MESSAGE_FORMAT = "Person's %s field is missing!";
+    public static final String NULL_NOTES_MESSAGE = "Person's notes field cannot be null!";
+    public static final String NULL_NOTE_MESSAGE = "Person's notes field cannot contain a null note!";
 
     private final String name;
     private final String phone;
@@ -64,7 +67,9 @@ class JsonAdaptedPerson {
         tags.addAll(source.getTags().stream()
                 .map(JsonAdaptedTag::new)
                 .collect(Collectors.toList()));
-        notes.addAll(source.getNotes());
+        notes.addAll(source.getNotes().stream()
+                .map(note -> note.value)
+                .collect(Collectors.toList()));
     }
 
     /**
@@ -116,7 +121,33 @@ class JsonAdaptedPerson {
         final School modelSchool = new School(school);
 
         final Set<Tag> modelTags = new HashSet<>(personTags);
-        return new Person(modelName, modelPhone, modelEmail, modelAddress, modelSchool, modelTags, notes);
+        final List<Note> modelNotes = toModelNotes();
+        return new Person(modelName, modelPhone, modelEmail, modelAddress, modelSchool, modelTags,
+                modelNotes);
+    }
+
+    /**
+     * Converts the stored note text into the model's {@code Note} objects.
+     *
+     * @throws IllegalValueException if the notes field is null, or contains a null or invalid note.
+     */
+    private List<Note> toModelNotes() throws IllegalValueException {
+        // Jackson replaces the default empty list with null when the file has "notes": null
+        if (notes == null) {
+            throw new IllegalValueException(NULL_NOTES_MESSAGE);
+        }
+
+        final List<Note> modelNotes = new ArrayList<>();
+        for (String note : notes) {
+            if (note == null) {
+                throw new IllegalValueException(NULL_NOTE_MESSAGE);
+            }
+            if (!Note.isValidNote(note)) {
+                throw new IllegalValueException(Note.MESSAGE_BLANK);
+            }
+            modelNotes.add(new Note(note));
+        }
+        return modelNotes;
     }
 
 }
