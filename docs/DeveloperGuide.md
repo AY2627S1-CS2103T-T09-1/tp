@@ -553,10 +553,10 @@ Use case ends.
 **MSS**
 
 1.  Tutor requests to list students
-2.  TuteeBook3 shows a list of students with their indexes
-3.  Tutor requests to add a note to a specific student, giving the student's index and the note text
-4.  TuteeBook3 saves the note with the next note number for that student and today's date
-5.  TuteeBook3 shows the student's record including the new note
+2.  TuteeBook3 shows a list of students
+3.  Tutor requests to add a note to a specific student in the list
+4.  TuteeBook3 adds the note to the student's notes
+5.  TuteeBook3 confirms that the note is added
 
     Use case ends.
 
@@ -572,7 +572,7 @@ Use case ends.
 
       Use case resumes at step 2.
 
-* 3b. The note text is blank, longer than 500 characters, or the text prefix is given more than once.
+* 3b. The note text is blank or too long.
 
     * 3b1. TuteeBook3 shows an error message.
 
