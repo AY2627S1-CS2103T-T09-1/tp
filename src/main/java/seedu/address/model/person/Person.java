@@ -4,13 +4,10 @@ import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import seedu.address.commons.util.ToStringBuilder;
-import seedu.address.model.tag.Tag;
 
 /**
  * Represents a Person in the address book.
@@ -21,33 +18,26 @@ public class Person {
     // Identity fields
     private final Name name;
     private final Phone phone;
-    private final Email email;
 
     // Data fields
-    private final Address address;
     private final School school;
-    private final Set<Tag> tags = new HashSet<>();
     private final List<Note> notes = new ArrayList<>();
 
     /**
      * Every field must be present and not null.
      */
-    public Person(Name name, Phone phone, Email email, Address address, School school, Set<Tag> tags) {
-        this(name, phone, email, address, school, tags, List.of());
+    public Person(Name name, Phone phone, School school) {
+        this(name, phone, school, List.of());
     }
 
     /**
      * Every field must be present and not null.
      */
-    public Person(Name name, Phone phone, Email email, Address address, School school, Set<Tag> tags,
-            List<Note> notes) {
-        requireAllNonNull(name, phone, email, address, school, tags, notes);
+    public Person(Name name, Phone phone, School school, List<Note> notes) {
+        requireAllNonNull(name, phone, school, notes);
         this.name = name;
         this.phone = phone;
-        this.email = email;
-        this.address = address;
         this.school = school;
-        this.tags.addAll(tags);
         this.notes.addAll(notes);
     }
 
@@ -59,24 +49,8 @@ public class Person {
         return phone;
     }
 
-    public Email getEmail() {
-        return email;
-    }
-
-    public Address getAddress() {
-        return address;
-    }
-
     public School getSchool() {
         return school;
-    }
-
-    /**
-     * Returns an immutable tag set, which throws {@code UnsupportedOperationException}
-     * if modification is attempted.
-     */
-    public Set<Tag> getTags() {
-        return Collections.unmodifiableSet(tags);
     }
 
     public List<Note> getNotes() {
@@ -113,17 +87,14 @@ public class Person {
 
         return name.equals(otherPerson.name)
                 && phone.equals(otherPerson.phone)
-                && email.equals(otherPerson.email)
-                && address.equals(otherPerson.address)
                 && school.equals(otherPerson.school)
-                && tags.equals(otherPerson.tags)
                 && notes.equals(otherPerson.notes);
     }
 
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(name, phone, email, address, school, tags, notes);
+        return Objects.hash(name, phone, school, notes);
     }
 
     @Override
@@ -131,10 +102,7 @@ public class Person {
         return new ToStringBuilder(this)
                 .add("name", name)
                 .add("phone", phone)
-                .add("email", email)
-                .add("address", address)
                 .add("school", school)
-                .add("tags", tags)
                 .toString();
     }
 
