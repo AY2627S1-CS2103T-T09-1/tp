@@ -1,5 +1,5 @@
 {
-  "_comment": "Save file from before email, address and tags were removed. Loads as TypicalPersons#getTypicalAddressBook()",
+  "_comment": "Save file from before email, address and tags were removed. Loads as TypicalPersons#getTypicalAddressBook() without levels",
   "persons" : [ {
     "name" : "Alice Pauline",
     "phone" : "94351253",

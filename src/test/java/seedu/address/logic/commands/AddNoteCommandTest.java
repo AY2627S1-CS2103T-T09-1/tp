@@ -27,7 +27,7 @@ public class AddNoteCommandTest {
     public void execute_validIndex_addsNote() {
         Person person = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
         Person editedPerson = new Person(person.getName(), person.getPhone().orElse(null), person.getSchool(),
-                List.of(NOTE));
+                person.getLevel().orElse(null), List.of(NOTE));
         String expectedMessage = String.format(AddNoteCommand.MESSAGE_SUCCESS, person.getName(), NOTE);
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
@@ -41,7 +41,7 @@ public class AddNoteCommandTest {
         new ViewCommand(INDEX_SECOND_PERSON).execute(model);
         Person person = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
         Person editedPerson = new Person(person.getName(), person.getPhone().orElse(null), person.getSchool(),
-                List.of(NOTE));
+                person.getLevel().orElse(null), List.of(NOTE));
         String expectedMessage = String.format(AddNoteCommand.MESSAGE_SUCCESS, person.getName(), NOTE);
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());

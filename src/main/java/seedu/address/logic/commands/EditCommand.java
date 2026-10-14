@@ -1,6 +1,7 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
@@ -16,6 +17,7 @@ import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
+import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
@@ -35,10 +37,12 @@ public class EditCommand extends Command {
             + "Parameters: INDEX (must be a positive integer) "
             + "[" + PREFIX_NAME + "NAME] "
             + "[" + PREFIX_PHONE + "PHONE] "
-            + "[" + PREFIX_SCHOOL + "SCHOOL]\n"
+            + "[" + PREFIX_SCHOOL + "SCHOOL] "
+            + "[" + PREFIX_LEVEL + "LEVEL]\n"
             + "Example: " + COMMAND_WORD + " 1 "
             + PREFIX_PHONE + "91234567 "
-            + PREFIX_SCHOOL + "Victoria School";
+            + PREFIX_SCHOOL + "Victoria School "
+            + PREFIX_LEVEL + "S3";
 
     public static final String MESSAGE_EDIT_PERSON_SUCCESS = "Edited person: %1$s";
     public static final String MESSAGE_NOT_EDITED = "At least one field to edit must be provided.";
@@ -92,8 +96,9 @@ public class EditCommand extends Command {
                 ? null
                 : editPersonDescriptor.getPhone().orElse(personToEdit.getPhone().orElse(null));
         School updatedSchool = editPersonDescriptor.getSchool().orElse(personToEdit.getSchool());
+        Level updatedLevel = editPersonDescriptor.getLevel().orElse(personToEdit.getLevel().orElse(null));
 
-        return new Person(updatedName, updatedPhone, updatedSchool, personToEdit.getNotes());
+        return new Person(updatedName, updatedPhone, updatedSchool, updatedLevel, personToEdit.getNotes());
     }
 
     @Override
@@ -128,6 +133,7 @@ public class EditCommand extends Command {
         private Phone phone;
         private boolean isPhoneRemoved;
         private School school;
+        private Level level;
 
         public EditPersonDescriptor() {}
 
@@ -139,13 +145,14 @@ public class EditCommand extends Command {
             setPhone(toCopy.phone);
             isPhoneRemoved = toCopy.isPhoneRemoved;
             setSchool(toCopy.school);
+            setLevel(toCopy.level);
         }
 
         /**
          * Returns true if at least one field is edited.
          */
         public boolean isAnyFieldEdited() {
-            return CollectionUtil.isAnyNonNull(name, phone, school) || isPhoneRemoved;
+            return CollectionUtil.isAnyNonNull(name, phone, school, level) || isPhoneRemoved;
         }
 
         public void setName(Name name) {
@@ -184,6 +191,14 @@ public class EditCommand extends Command {
             return Optional.ofNullable(school);
         }
 
+        public void setLevel(Level level) {
+            this.level = level;
+        }
+
+        public Optional<Level> getLevel() {
+            return Optional.ofNullable(level);
+        }
+
         @Override
         public boolean equals(Object other) {
             if (other == this) {
@@ -198,7 +213,8 @@ public class EditCommand extends Command {
             return Objects.equals(name, otherEditPersonDescriptor.name)
                     && Objects.equals(phone, otherEditPersonDescriptor.phone)
                     && isPhoneRemoved == otherEditPersonDescriptor.isPhoneRemoved
-                    && Objects.equals(school, otherEditPersonDescriptor.school);
+                    && Objects.equals(school, otherEditPersonDescriptor.school)
+                    && Objects.equals(level, otherEditPersonDescriptor.level);
         }
 
         @Override
@@ -208,6 +224,7 @@ public class EditCommand extends Command {
                     .add("phone", phone)
                     .add("isPhoneRemoved", isPhoneRemoved)
                     .add("school", school)
+                    .add("level", level)
                     .toString();
         }
     }

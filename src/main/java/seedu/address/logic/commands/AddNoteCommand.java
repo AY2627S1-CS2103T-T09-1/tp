@@ -46,7 +46,8 @@ public class AddNoteCommand extends Command {
         Person person = lastShownList.get(targetIndex.getZeroBased());
         List<String> notes = new ArrayList<>(person.getNotes());
         notes.add(note);
-        Person editedPerson = new Person(person.getName(), person.getPhone().orElse(null), person.getSchool(), notes);
+        Person editedPerson = new Person(person.getName(), person.getPhone().orElse(null), person.getSchool(),
+                person.getLevel().orElse(null), notes);
 
         model.setPerson(person, editedPerson);
         return new CommandResult(String.format(MESSAGE_SUCCESS, editedPerson.getName(), note));

@@ -1,5 +1,6 @@
 package seedu.address.testutil;
 
+import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
@@ -28,6 +29,7 @@ public class PersonUtil {
         sb.append(PREFIX_NAME + person.getName().fullName + " ");
         person.getPhone().ifPresent(phone -> sb.append(PREFIX_PHONE + phone.value + " "));
         sb.append(PREFIX_SCHOOL + person.getSchool().value + " ");
+        person.getLevel().ifPresent(level -> sb.append(PREFIX_LEVEL + level.name() + " "));
         return sb.toString();
     }
 
@@ -42,6 +44,7 @@ public class PersonUtil {
             sb.append(PREFIX_PHONE).append(" ");
         }
         descriptor.getSchool().ifPresent(school -> sb.append(PREFIX_SCHOOL).append(school.value).append(" "));
+        descriptor.getLevel().ifPresent(level -> sb.append(PREFIX_LEVEL).append(level.name()).append(" "));
         return sb.toString();
     }
 }

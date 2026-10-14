@@ -45,6 +45,10 @@ public class EditPersonDescriptorTest {
         editedAmy = new EditPersonDescriptorBuilder(DESC_AMY).withSchool("Other School").build();
         assertFalse(DESC_AMY.equals(editedAmy));
 
+        // different level -> returns false
+        editedAmy = new EditPersonDescriptorBuilder(DESC_AMY).withLevel("S5").build();
+        assertFalse(DESC_AMY.equals(editedAmy));
+
         // phone removed -> returns false
         editedAmy = new EditPersonDescriptorBuilder(DESC_AMY).withPhoneRemoved().build();
         assertFalse(DESC_AMY.equals(editedAmy));
@@ -57,7 +61,8 @@ public class EditPersonDescriptorTest {
                 + editPersonDescriptor.getName().orElse(null) + ", phone="
                 + editPersonDescriptor.getPhone().orElse(null) + ", isPhoneRemoved="
                 + editPersonDescriptor.isPhoneRemoved() + ", school="
-                + editPersonDescriptor.getSchool().orElse(null) + "}";
+                + editPersonDescriptor.getSchool().orElse(null) + ", level="
+                + editPersonDescriptor.getLevel().orElse(null) + "}";
         assertEquals(expected, editPersonDescriptor.toString());
     }
 }

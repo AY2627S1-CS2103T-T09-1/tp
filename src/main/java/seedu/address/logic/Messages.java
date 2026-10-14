@@ -40,6 +40,7 @@ public class Messages {
         person.getPhone().ifPresent(phone -> builder.append("; Phone: ").append(phone));
         builder.append("; School: ")
                 .append(person.getSchool());
+        person.getLevel().ifPresent(level -> builder.append("; Level: ").append(level));
         return builder.toString();
     }
 

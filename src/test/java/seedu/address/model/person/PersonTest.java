@@ -81,6 +81,10 @@ public class PersonTest {
         editedAlice = new PersonBuilder(ALICE).withSchool(VALID_SCHOOL_BOB).build();
         assertFalse(ALICE.equals(editedAlice));
 
+        // different level -> returns false
+        editedAlice = new PersonBuilder(ALICE).withLevel("S5").build();
+        assertFalse(ALICE.equals(editedAlice));
+
         // no phone -> returns false
         editedAlice = new PersonBuilder(ALICE).withoutPhone().build();
         assertFalse(ALICE.equals(editedAlice));
@@ -89,13 +93,21 @@ public class PersonTest {
     @Test
     public void format_noPhone_omitsPhone() {
         Person aliceWithoutPhone = new PersonBuilder(ALICE).withoutPhone().build();
-        assertEquals(ALICE.getName() + "; School: " + ALICE.getSchool(), Messages.format(aliceWithoutPhone));
+        assertEquals(ALICE.getName() + "; School: " + ALICE.getSchool() + "; Level: S1",
+                Messages.format(aliceWithoutPhone));
+    }
+
+    @Test
+    public void format_withLevel_includesLevel() {
+        assertEquals(ALICE.getName() + "; Phone: " + ALICE.getPhone().get() + "; School: " + ALICE.getSchool()
+                + "; Level: S1", Messages.format(ALICE));
     }
 
     @Test
     public void toStringMethod() {
         String expected = Person.class.getCanonicalName() + "{name=" + ALICE.getName() + ", phone="
-                + ALICE.getPhone().get() + ", school=" + ALICE.getSchool() + "}";
+                + ALICE.getPhone().get() + ", school=" + ALICE.getSchool() + ", level=" + ALICE.getLevel().get()
+                + "}";
         assertEquals(expected, ALICE.toString());
     }
 }

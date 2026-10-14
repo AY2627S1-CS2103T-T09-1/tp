@@ -34,6 +34,8 @@ public class PersonCard extends UiPart<Region> {
     @FXML
     private Label school;
     @FXML
+    private Label level;
+    @FXML
     private Label notes;
 
     /**
@@ -49,6 +51,10 @@ public class PersonCard extends UiPart<Region> {
             phone.setManaged(false);
         });
         school.setText(person.getSchool().value);
+        person.getLevel().ifPresentOrElse(l -> level.setText(l.name()), () -> {
+            level.setVisible(false);
+            level.setManaged(false);
+        });
         notes.setText(String.join("\n", person.getNotes()));
     }
 }
