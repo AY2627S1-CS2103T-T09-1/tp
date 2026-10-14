@@ -27,7 +27,7 @@ public class JsonAdaptedPersonTest {
     private static final String VALID_NAME = BENSON.getName().toString();
     private static final String VALID_PHONE = BENSON.getPhone().get().toString();
     private static final String VALID_SCHOOL = BENSON.getSchool().toString();
-    private static final String VALID_LEVEL = BENSON.getLevel().get().name();
+    private static final String VALID_LEVEL = BENSON.getLevel().name();
 
     @Test
     public void toModelType_invalidSchool_throwsIllegalValueException() {
@@ -50,7 +50,7 @@ public class JsonAdaptedPersonTest {
     @Test
     public void toModelType_personWithNotes_roundTripsThroughJson() throws Exception {
         Person bensonWithNotes = new Person(BENSON.getName(), BENSON.getPhone().orElse(null), BENSON.getSchool(),
-                BENSON.getLevel().get(),
+                BENSON.getLevel(),
                 List.of("Weak in algebra", "WA2 Math: 36/50"));
         String json = JsonUtil.toJsonString(new JsonAdaptedPerson(bensonWithNotes));
 
@@ -102,9 +102,10 @@ public class JsonAdaptedPersonTest {
     }
 
     @Test
-    public void toModelType_nullLevel_returnsPersonWithoutLevel() throws Exception {
+    public void toModelType_nullLevel_throwsIllegalValueException() {
         JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, VALID_SCHOOL, null);
-        assertEquals(new PersonBuilder(BENSON).withoutLevel().build(), person.toModelType());
+        String expectedMessage = String.format(MISSING_FIELD_MESSAGE_FORMAT, Level.class.getSimpleName());
+        assertThrows(IllegalValueException.class, expectedMessage, person::toModelType);
     }
 
 }

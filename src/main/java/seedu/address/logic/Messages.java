@@ -39,8 +39,9 @@ public class Messages {
         builder.append(person.getName());
         person.getPhone().ifPresent(phone -> builder.append("; Phone: ").append(phone));
         builder.append("; School: ")
-                .append(person.getSchool());
-        person.getLevel().ifPresent(level -> builder.append("; Level: ").append(level));
+                .append(person.getSchool())
+                .append("; Level: ")
+                .append(person.getLevel());
         return builder.toString();
     }
 

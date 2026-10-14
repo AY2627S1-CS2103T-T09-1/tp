@@ -26,8 +26,6 @@ class JsonAdaptedPerson {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private final String phone;
     private final String school;
-    // Left out of the file when the level is not recorded
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final String level;
     // Set by Jackson directly, so files without notes still load
     private final List<String> notes = new ArrayList<>();
@@ -51,7 +49,7 @@ class JsonAdaptedPerson {
         name = source.getName().fullName;
         phone = source.getPhone().map(p -> p.value).orElse(null);
         school = source.getSchool().value;
-        level = source.getLevel().map(Level::name).orElse(null);
+        level = source.getLevel().name();
         notes.addAll(source.getNotes());
     }
 
@@ -80,10 +78,12 @@ class JsonAdaptedPerson {
         }
         final School modelSchool = new School(school);
 
-        // Files saved before levels were added have no level, so those persons load without one
+        if (level == null) {
+            throw new IllegalValueException(String.format(MISSING_FIELD_MESSAGE_FORMAT, Level.class.getSimpleName()));
+        }
         final Level modelLevel;
         try {
-            modelLevel = level == null ? null : Level.fromString(level);
+            modelLevel = Level.fromString(level);
         } catch (IllegalArgumentException e) {
             throw new IllegalValueException(Level.MESSAGE_CONSTRAINTS);
         }

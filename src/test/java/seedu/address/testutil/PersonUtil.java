@@ -29,7 +29,7 @@ public class PersonUtil {
         sb.append(PREFIX_NAME + person.getName().fullName + " ");
         person.getPhone().ifPresent(phone -> sb.append(PREFIX_PHONE + phone.value + " "));
         sb.append(PREFIX_SCHOOL + person.getSchool().value + " ");
-        person.getLevel().ifPresent(level -> sb.append(PREFIX_LEVEL + level.name() + " "));
+        sb.append(PREFIX_LEVEL + person.getLevel().name() + " ");
         return sb.toString();
     }
 

@@ -30,7 +30,7 @@ public class EditPersonDescriptorBuilder {
         descriptor.setName(person.getName());
         person.getPhone().ifPresentOrElse(descriptor::setPhone, descriptor::setPhoneRemoved);
         descriptor.setSchool(person.getSchool());
-        person.getLevel().ifPresent(descriptor::setLevel);
+        descriptor.setLevel(person.getLevel());
     }
 
     /**

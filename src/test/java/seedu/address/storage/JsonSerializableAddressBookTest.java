@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.commons.util.JsonUtil;
 import seedu.address.model.AddressBook;
-import seedu.address.testutil.PersonBuilder;
 import seedu.address.testutil.TypicalPersons;
 
 public class JsonSerializableAddressBookTest {
@@ -37,10 +36,7 @@ public class JsonSerializableAddressBookTest {
         JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(OLD_FORMAT_TYPICAL_PERSONS_FILE,
                 JsonSerializableAddressBook.class).get();
         AddressBook addressBookFromFile = dataFromFile.toModelType();
-        // The old file also has no levels, so its persons load without one
-        AddressBook typicalPersonsAddressBook = new AddressBook();
-        TypicalPersons.getTypicalPersons().forEach(person ->
-                typicalPersonsAddressBook.addPerson(new PersonBuilder(person).withoutLevel().build()));
+        AddressBook typicalPersonsAddressBook = TypicalPersons.getTypicalAddressBook();
         assertEquals(typicalPersonsAddressBook, addressBookFromFile);
     }
 

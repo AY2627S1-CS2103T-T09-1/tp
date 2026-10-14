@@ -38,7 +38,7 @@ public class PersonBuilder {
         name = personToCopy.getName();
         phone = personToCopy.getPhone().orElse(null);
         school = personToCopy.getSchool();
-        level = personToCopy.getLevel().orElse(null);
+        level = personToCopy.getLevel();
     }
 
     /**
@@ -78,14 +78,6 @@ public class PersonBuilder {
      */
     public PersonBuilder withLevel(String level) {
         this.level = Level.fromString(level);
-        return this;
-    }
-
-    /**
-     * Removes the {@code Level} of the {@code Person} that we are building.
-     */
-    public PersonBuilder withoutLevel() {
-        this.level = null;
         return this;
     }
 

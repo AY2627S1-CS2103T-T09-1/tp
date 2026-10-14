@@ -12,7 +12,7 @@ import seedu.address.commons.util.ToStringBuilder;
 
 /**
  * Represents a Person in the address book.
- * Guarantees: details except phone and level are present and not null, field values are validated, immutable.
+ * Guarantees: details except phone are present and not null, field values are validated, immutable.
  */
 public class Person {
 
@@ -26,21 +26,19 @@ public class Person {
     private final List<String> notes = new ArrayList<>();
 
     /**
-     * Every field except {@code phone} and {@code level} must be present and not null.
+     * Every field except {@code phone} must be present and not null.
      * A null {@code phone} means the person has no phone number.
-     * A null {@code level} means the level is not recorded, as in data files saved before levels were added.
      */
     public Person(Name name, Phone phone, School school, Level level) {
         this(name, phone, school, level, List.of());
     }
 
     /**
-     * Every field except {@code phone} and {@code level} must be present and not null.
+     * Every field except {@code phone} must be present and not null.
      * A null {@code phone} means the person has no phone number.
-     * A null {@code level} means the level is not recorded, as in data files saved before levels were added.
      */
     public Person(Name name, Phone phone, School school, Level level, List<String> notes) {
-        requireAllNonNull(name, school, notes);
+        requireAllNonNull(name, school, level, notes);
         this.name = name;
         this.phone = phone;
         this.school = school;
@@ -60,8 +58,8 @@ public class Person {
         return school;
     }
 
-    public Optional<Level> getLevel() {
-        return Optional.ofNullable(level);
+    public Level getLevel() {
+        return level;
     }
 
     public List<String> getNotes() {
@@ -99,7 +97,7 @@ public class Person {
         return name.equals(otherPerson.name)
                 && Objects.equals(phone, otherPerson.phone)
                 && school.equals(otherPerson.school)
-                && Objects.equals(level, otherPerson.level)
+                && level.equals(otherPerson.level)
                 && notes.equals(otherPerson.notes);
     }
 

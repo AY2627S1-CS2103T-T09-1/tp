@@ -51,10 +51,7 @@ public class PersonCard extends UiPart<Region> {
             phone.setManaged(false);
         });
         school.setText(person.getSchool().value);
-        person.getLevel().ifPresentOrElse(l -> level.setText(l.name()), () -> {
-            level.setVisible(false);
-            level.setManaged(false);
-        });
+        level.setText(person.getLevel().name());
         notes.setText(String.join("\n", person.getNotes()));
     }
 }
