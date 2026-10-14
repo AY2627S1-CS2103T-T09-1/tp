@@ -27,7 +27,7 @@ class JsonAdaptedPerson {
     private final String phone;
     private final String school;
     // Set by Jackson directly, so files without notes still load
-    private final List<String> notes = new ArrayList<>();
+    private final List<JsonAdaptedNote> notes = new ArrayList<>();
 
     /**
      * Constructs a {@code JsonAdaptedPerson} with the given person details.
@@ -48,7 +48,7 @@ class JsonAdaptedPerson {
         phone = source.getPhone().value;
         school = source.getSchool().value;
         notes.addAll(source.getNotes().stream()
-                .map(note -> note.value)
+                .map(JsonAdaptedNote::new)
                 .collect(Collectors.toList()));
     }
 
@@ -84,7 +84,7 @@ class JsonAdaptedPerson {
     }
 
     /**
-     * Converts the stored note text into the model's {@code Note} objects.
+     * Converts the adapted notes into the model's {@code Note} objects.
      *
      * @throws IllegalValueException if the notes field is null, or contains a null or invalid note.
      */
@@ -95,14 +95,12 @@ class JsonAdaptedPerson {
         }
 
         final List<Note> modelNotes = new ArrayList<>();
-        for (String note : notes) {
+        for (JsonAdaptedNote note : notes) {
+            // Jackson adds a null entry for each null in the list without calling JsonAdaptedNote
             if (note == null) {
                 throw new IllegalValueException(NULL_NOTE_MESSAGE);
             }
-            if (!Note.isValidNote(note)) {
-                throw new IllegalValueException(Note.MESSAGE_BLANK);
-            }
-            modelNotes.add(new Note(note));
+            modelNotes.add(note.toModelType());
         }
         return modelNotes;
     }
