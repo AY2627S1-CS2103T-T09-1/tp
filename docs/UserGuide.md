@@ -112,6 +112,41 @@ Examples:
 *  `edit 1 p/91234567 sch/Victoria School` Edits the phone number and school of the 1st person to be `91234567` and `Victoria School` respectively.
 *  `edit 2 n/Betsy Crower` Edits the name of the 2nd person to be `Betsy Crower`.
 
+### Adding a note to a student: `addnote`
+
+Adds a note to the end of a student's notes.
+
+Format: `addnote INDEX c/TEXT`
+
+* `INDEX` is the index number shown in the displayed student list. It must be a positive integer, such as 1, 2, or 3.
+* `TEXT` must be 1 to 500 characters long. Spaces before and after the text are removed and not counted.
+* `TEXT` can contain any characters, including digits, punctuation, and slashes, such as `WA2 Math: 36/50` or `Rajesh s/o Kumar`.
+* You can add the same note text more than once.
+* New notes appear on the student's card after the existing notes.
+* Adding a note does not change which students are shown.
+* After `view`, the student you are viewing is number 1, so use `addnote 1` to add a note to them.
+* If you edit the data file, each note must follow the same `TEXT` rules. Otherwise, the app starts with an empty student list.
+
+<div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
+`TEXT` cannot contain `c/` right after a space, because the app reads it as a second `c/` parameter. For example, `addnote 1 c/Call Mrs Tan c/o school` shows an error. Write `care of` instead of `c/o`.
+</div>
+
+Examples:
+
+* `addnote 1 c/Weak in algebra` adds the note `Weak in algebra` to the 1st student in the displayed list.
+* `view 2` followed by `addnote 1 c/WA2 Math: 36/50` adds the note to the student shown by `view 2`.
+
+If the command is wrong, `addnote` shows one of these messages and does not change any student. If `INDEX` is not a positive integer, `addnote` reports that first, even if `TEXT` is also wrong.
+
+Problem | Message
+--------|--------
+`INDEX` is not a positive integer, such as `0` or `abc` | `Index must be a positive integer.`
+`INDEX` is larger than the number of students shown | `The person index provided is invalid.`
+`TEXT` is empty or only spaces | `Note text cannot be blank.`
+`TEXT` is longer than 500 characters | `Note text must be at most 500 characters.`
+`c/` appears more than once | `Multiple values specified for the following single-valued field(s): c/`
+`INDEX` or `c/TEXT` is missing, or there is no space before `c/` | `Invalid command format!` followed by how to use `addnote`
+
 ### Locating persons by name: `find`
 
 Finds persons whose names contain any of the given keywords.
@@ -193,6 +228,7 @@ _Details coming soon ..._
 Action | Format, Examples
 --------|------------------
 **Add** | `add n/NAME p/PHONE_NUMBER sch/SCHOOL` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School`
+**Add note** | `addnote INDEX c/TEXT`<br> e.g., `addnote 1 c/Weak in algebra`
 **Clear** | `clear`
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [sch/SCHOOL]`<br> e.g., `edit 2 n/James Lee sch/Victoria School`
