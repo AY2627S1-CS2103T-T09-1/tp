@@ -147,6 +147,21 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_emptyPhone_removesPhone() {
+        Index targetIndex = INDEX_FIRST_PERSON;
+
+        // phone only
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withPhoneRemoved().build();
+        assertParseSuccess(parser, targetIndex.getOneBased() + " " + PREFIX_PHONE,
+                new EditCommand(targetIndex, descriptor));
+
+        // phone removed together with another field
+        descriptor = new EditPersonDescriptorBuilder().withPhoneRemoved().withName(VALID_NAME_AMY).build();
+        assertParseSuccess(parser, targetIndex.getOneBased() + " " + PREFIX_PHONE + NAME_DESC_AMY,
+                new EditCommand(targetIndex, descriptor));
+    }
+
+    @Test
     public void parse_multipleRepeatedFields_failure() {
         // More extensive testing of duplicate parameter detections is done in
         // AddCommandParserTest#parse_repeatedValue_failure()

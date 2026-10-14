@@ -36,10 +36,9 @@ public class Messages {
      */
     public static String format(Person person) {
         final StringBuilder builder = new StringBuilder();
-        builder.append(person.getName())
-                .append("; Phone: ")
-                .append(person.getPhone())
-                .append("; School: ")
+        builder.append(person.getName());
+        person.getPhone().ifPresent(phone -> builder.append("; Phone: ").append(phone));
+        builder.append("; School: ")
                 .append(person.getSchool());
         return builder.toString();
     }

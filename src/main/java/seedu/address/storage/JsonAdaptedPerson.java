@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import seedu.address.commons.exceptions.IllegalValueException;
@@ -20,6 +21,8 @@ class JsonAdaptedPerson {
     public static final String MISSING_FIELD_MESSAGE_FORMAT = "Person's %s field is missing!";
 
     private final String name;
+    // Left out of the file when the person has no phone
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final String phone;
     private final String school;
     // Set by Jackson directly, so files without notes still load
@@ -41,7 +44,7 @@ class JsonAdaptedPerson {
      */
     public JsonAdaptedPerson(Person source) {
         name = source.getName().fullName;
-        phone = source.getPhone().value;
+        phone = source.getPhone().map(p -> p.value).orElse(null);
         school = source.getSchool().value;
         notes.addAll(source.getNotes());
     }
@@ -60,13 +63,11 @@ class JsonAdaptedPerson {
         }
         final Name modelName = new Name(name);
 
-        if (phone == null) {
-            throw new IllegalValueException(String.format(MISSING_FIELD_MESSAGE_FORMAT, Phone.class.getSimpleName()));
-        }
-        if (!Phone.isValidPhone(phone)) {
+        // Phone is optional, so a missing phone means the person has no phone
+        if (phone != null && !Phone.isValidPhone(phone)) {
             throw new IllegalValueException(Phone.MESSAGE_CONSTRAINTS);
         }
-        final Phone modelPhone = new Phone(phone);
+        final Phone modelPhone = phone == null ? null : new Phone(phone);
 
         if (!School.isValidSchool(school)) {
             throw new IllegalValueException(School.MESSAGE_CONSTRAINTS);

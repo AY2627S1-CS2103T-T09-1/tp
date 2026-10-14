@@ -6,12 +6,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import seedu.address.commons.util.ToStringBuilder;
 
 /**
  * Represents a Person in the address book.
- * Guarantees: details are present and not null, field values are validated, immutable.
+ * Guarantees: details except phone are present and not null, field values are validated, immutable.
  */
 public class Person {
 
@@ -24,17 +25,19 @@ public class Person {
     private final List<String> notes = new ArrayList<>();
 
     /**
-     * Every field must be present and not null.
+     * Every field except {@code phone} must be present and not null.
+     * A null {@code phone} means the person has no phone number.
      */
     public Person(Name name, Phone phone, School school) {
         this(name, phone, school, List.of());
     }
 
     /**
-     * Every field must be present and not null.
+     * Every field except {@code phone} must be present and not null.
+     * A null {@code phone} means the person has no phone number.
      */
     public Person(Name name, Phone phone, School school, List<String> notes) {
-        requireAllNonNull(name, phone, school, notes);
+        requireAllNonNull(name, school, notes);
         this.name = name;
         this.phone = phone;
         this.school = school;
@@ -45,8 +48,8 @@ public class Person {
         return name;
     }
 
-    public Phone getPhone() {
-        return phone;
+    public Optional<Phone> getPhone() {
+        return Optional.ofNullable(phone);
     }
 
     public School getSchool() {
@@ -86,7 +89,7 @@ public class Person {
         }
 
         return name.equals(otherPerson.name)
-                && phone.equals(otherPerson.phone)
+                && Objects.equals(phone, otherPerson.phone)
                 && school.equals(otherPerson.school)
                 && notes.equals(otherPerson.notes);
     }

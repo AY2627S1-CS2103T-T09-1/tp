@@ -1,6 +1,7 @@
 package seedu.address.storage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static seedu.address.storage.JsonAdaptedPerson.MISSING_FIELD_MESSAGE_FORMAT;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.BENSON;
@@ -22,7 +23,7 @@ public class JsonAdaptedPersonTest {
     private static final String INVALID_PHONE = "+651234";
 
     private static final String VALID_NAME = BENSON.getName().toString();
-    private static final String VALID_PHONE = BENSON.getPhone().toString();
+    private static final String VALID_PHONE = BENSON.getPhone().get().toString();
     private static final String VALID_SCHOOL = BENSON.getSchool().toString();
 
     @Test
@@ -45,7 +46,7 @@ public class JsonAdaptedPersonTest {
 
     @Test
     public void toModelType_personWithNotes_roundTripsThroughJson() throws Exception {
-        Person bensonWithNotes = new Person(BENSON.getName(), BENSON.getPhone(), BENSON.getSchool(),
+        Person bensonWithNotes = new Person(BENSON.getName(), BENSON.getPhone().orElse(null), BENSON.getSchool(),
                 List.of("Weak in algebra", "WA2 Math: 36/50"));
         String json = JsonUtil.toJsonString(new JsonAdaptedPerson(bensonWithNotes));
 
@@ -76,10 +77,18 @@ public class JsonAdaptedPersonTest {
     }
 
     @Test
-    public void toModelType_nullPhone_throwsIllegalValueException() {
+    public void toModelType_nullPhone_returnsPersonWithoutPhone() throws Exception {
         JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, null, VALID_SCHOOL);
-        String expectedMessage = String.format(MISSING_FIELD_MESSAGE_FORMAT, Phone.class.getSimpleName());
-        assertThrows(IllegalValueException.class, expectedMessage, person::toModelType);
+        assertEquals(new PersonBuilder(BENSON).withoutPhone().build(), person.toModelType());
+    }
+
+    @Test
+    public void toModelType_personWithoutPhone_roundTripsThroughJson() throws Exception {
+        Person bensonWithoutPhone = new PersonBuilder(BENSON).withoutPhone().build();
+        String json = JsonUtil.toJsonString(new JsonAdaptedPerson(bensonWithoutPhone));
+
+        assertFalse(json.contains("phone"));
+        assertEquals(bensonWithoutPhone, JsonUtil.fromJsonString(json, JsonAdaptedPerson.class).toModelType());
     }
 
 }

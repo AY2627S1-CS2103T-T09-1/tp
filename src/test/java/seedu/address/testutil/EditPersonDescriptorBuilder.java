@@ -27,7 +27,7 @@ public class EditPersonDescriptorBuilder {
     public EditPersonDescriptorBuilder(Person person) {
         descriptor = new EditPersonDescriptor();
         descriptor.setName(person.getName());
-        descriptor.setPhone(person.getPhone());
+        person.getPhone().ifPresentOrElse(descriptor::setPhone, descriptor::setPhoneRemoved);
         descriptor.setSchool(person.getSchool());
     }
 
@@ -44,6 +44,14 @@ public class EditPersonDescriptorBuilder {
      */
     public EditPersonDescriptorBuilder withPhone(String phone) {
         descriptor.setPhone(new Phone(phone));
+        return this;
+    }
+
+    /**
+     * Marks the {@code Phone} to be removed in the {@code EditPersonDescriptor} that we are building.
+     */
+    public EditPersonDescriptorBuilder withPhoneRemoved() {
+        descriptor.setPhoneRemoved();
         return this;
     }
 

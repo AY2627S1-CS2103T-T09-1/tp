@@ -26,7 +26,7 @@ public class PersonUtil {
     public static String getPersonDetails(Person person) {
         StringBuilder sb = new StringBuilder();
         sb.append(PREFIX_NAME + person.getName().fullName + " ");
-        sb.append(PREFIX_PHONE + person.getPhone().value + " ");
+        person.getPhone().ifPresent(phone -> sb.append(PREFIX_PHONE + phone.value + " "));
         sb.append(PREFIX_SCHOOL + person.getSchool().value + " ");
         return sb.toString();
     }
@@ -38,6 +38,9 @@ public class PersonUtil {
         StringBuilder sb = new StringBuilder();
         descriptor.getName().ifPresent(name -> sb.append(PREFIX_NAME).append(name.fullName).append(" "));
         descriptor.getPhone().ifPresent(phone -> sb.append(PREFIX_PHONE).append(phone.value).append(" "));
+        if (descriptor.isPhoneRemoved()) {
+            sb.append(PREFIX_PHONE).append(" ");
+        }
         descriptor.getSchool().ifPresent(school -> sb.append(PREFIX_SCHOOL).append(school.value).append(" "));
         return sb.toString();
     }
