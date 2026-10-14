@@ -16,7 +16,7 @@ public class HelpCommandTest {
             "",
             "help - Shows this list of available commands.",
             "clear - Clears all students from TuteeBook3.",
-            "add - Adds a student with their personal, school, subject, and contact details.",
+            "add - Adds a student with their name, school, subject, and contact details.",
             "delete - Removes a student of the given index.",
             "find - Finds students using partial name matching.",
             "view - Shows a student's full record on a single screen.",
