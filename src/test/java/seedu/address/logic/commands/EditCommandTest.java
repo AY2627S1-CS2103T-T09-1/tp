@@ -152,6 +152,20 @@ public class EditCommandTest {
     }
 
     @Test
+    public void execute_guardianRemovedNoGuardian_failure() {
+        EditCommand command = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withGuardianRemoved().build());
+        assertCommandFailure(command, model, EditCommand.MESSAGE_NO_GUARDIAN_TO_REMOVE);
+    }
+
+    @Test
+    public void execute_otherFieldsAndGuardianRemovedNoGuardian_failure() {
+        EditCommand command = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withName(VALID_NAME_BOB).withGuardianRemoved().build());
+        assertCommandFailure(command, model, EditCommand.MESSAGE_NO_GUARDIAN_TO_REMOVE);
+    }
+
+    @Test
     public void execute_otherFieldExistingGuardian_keepsGuardian() {
         Person withGuardian = addGuardianToFirstPerson();
         Person edited = new PersonBuilder(withGuardian).withSchool(VALID_SCHOOL_BOB).build();

@@ -62,6 +62,7 @@ public class EditCommand extends Command {
             + PREFIX_GUARDIAN_NAME + " " + PREFIX_GUARDIAN_PHONE + " with no values.";
     public static final String MESSAGE_GUARDIAN_INCOMPLETE = "This person has no guardian yet. Give both "
             + PREFIX_GUARDIAN_NAME + " and " + PREFIX_GUARDIAN_PHONE + " to add one.";
+    public static final String MESSAGE_NO_GUARDIAN_TO_REMOVE = "This person has no guardian to remove.";
 
     private final Index index;
     private final EditPersonDescriptor editPersonDescriptor;
@@ -124,11 +125,15 @@ public class EditCommand extends Command {
      * Returns the guardian after applying the guardian edits in {@code editPersonDescriptor}
      * to {@code currentGuardian}, or null if the person has no guardian afterwards.
      *
-     * @throws CommandException if the person has no guardian and only one of name and phone is given.
+     * @throws CommandException if the person has no guardian, and the guardian is to be removed
+     *     or only one of name and phone is given.
      */
     private static Guardian createEditedGuardian(Optional<Guardian> currentGuardian,
             EditPersonDescriptor editPersonDescriptor) throws CommandException {
         if (editPersonDescriptor.isGuardianRemoved()) {
+            if (currentGuardian.isEmpty()) {
+                throw new CommandException(MESSAGE_NO_GUARDIAN_TO_REMOVE);
+            }
             return null;
         }
         Optional<Name> guardianName = editPersonDescriptor.getGuardianName();

@@ -35,10 +35,10 @@ public class EditPersonDescriptorBuilder {
         descriptor.setSchool(person.getSchool());
         descriptor.setLevel(person.getLevel());
         descriptor.setSubjects(person.getSubjects());
-        person.getGuardian().ifPresentOrElse(guardian -> {
+        person.getGuardian().ifPresent(guardian -> {
             descriptor.setGuardianName(guardian.getName());
             descriptor.setGuardianPhone(guardian.getPhone());
-        }, descriptor::setGuardianRemoved);
+        });
     }
 
     /**
