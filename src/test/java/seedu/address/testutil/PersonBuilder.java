@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
@@ -19,10 +20,12 @@ public class PersonBuilder {
     public static final String DEFAULT_NAME = "Amy Bee";
     public static final String DEFAULT_PHONE = "85355255";
     public static final String DEFAULT_SCHOOL = "ABC Secondary School";
+    public static final String DEFAULT_LEVEL = "S3";
 
     private Name name;
     private Phone phone;
     private School school;
+    private Level level;
     private List<Note> notes;
 
     /**
@@ -32,6 +35,7 @@ public class PersonBuilder {
         name = new Name(DEFAULT_NAME);
         phone = new Phone(DEFAULT_PHONE);
         school = new School(DEFAULT_SCHOOL);
+        level = Level.fromString(DEFAULT_LEVEL);
         notes = new ArrayList<>();
     }
 
@@ -40,8 +44,9 @@ public class PersonBuilder {
      */
     public PersonBuilder(Person personToCopy) {
         name = personToCopy.getName();
-        phone = personToCopy.getPhone();
+        phone = personToCopy.getPhone().orElse(null);
         school = personToCopy.getSchool();
+        level = personToCopy.getLevel();
         notes = new ArrayList<>(personToCopy.getNotes());
     }
 
@@ -58,6 +63,14 @@ public class PersonBuilder {
      */
     public PersonBuilder withPhone(String phone) {
         this.phone = new Phone(phone);
+        return this;
+    }
+
+    /**
+     * Removes the {@code Phone} of the {@code Person} that we are building.
+     */
+    public PersonBuilder withoutPhone() {
+        this.phone = null;
         return this;
     }
 
@@ -79,8 +92,16 @@ public class PersonBuilder {
         return this;
     }
 
+    /**
+     * Sets the {@code Level} of the {@code Person} that we are building.
+     */
+    public PersonBuilder withLevel(String level) {
+        this.level = Level.fromString(level);
+        return this;
+    }
+
     public Person build() {
-        return new Person(name, phone, school, notes);
+        return new Person(name, phone, school, level, notes);
     }
 
 }

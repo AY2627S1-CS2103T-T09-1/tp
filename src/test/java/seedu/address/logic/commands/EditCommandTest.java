@@ -64,6 +64,30 @@ public class EditCommandTest {
     }
 
     @Test
+    public void execute_levelOnly_preservesOtherFields() {
+        Person original = model.getFilteredPersonList().get(0);
+        Person edited = new PersonBuilder(original).withLevel("S5").build();
+        EditCommand command = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withLevel("S5").build());
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(original, edited);
+        assertCommandSuccess(command, model,
+                String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited)), expectedModel);
+    }
+
+    @Test
+    public void execute_phoneRemoved_removesOnlyPhone() {
+        Person original = model.getFilteredPersonList().get(0);
+        Person edited = new PersonBuilder(original).withoutPhone().build();
+        EditCommand command = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withPhoneRemoved().build());
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(original, edited);
+        assertCommandSuccess(command, model,
+                String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited)), expectedModel);
+    }
+
+    @Test
     public void execute_allFieldsSpecifiedUnfilteredList_success() {
         Person editedPerson = new PersonBuilder().build();
         EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder(editedPerson).build();

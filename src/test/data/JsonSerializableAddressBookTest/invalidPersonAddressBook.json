@@ -1,6 +1,7 @@
 {
   "persons": [ {
     "name": "Hans Muster",
-    "phone": "948a2424"
+    "phone": "948a2424",
+    "level": "S1"
   } ]
 }

@@ -1,6 +1,7 @@
 package seedu.address.testutil;
 
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
+import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
@@ -27,8 +28,9 @@ public class EditPersonDescriptorBuilder {
     public EditPersonDescriptorBuilder(Person person) {
         descriptor = new EditPersonDescriptor();
         descriptor.setName(person.getName());
-        descriptor.setPhone(person.getPhone());
+        person.getPhone().ifPresentOrElse(descriptor::setPhone, descriptor::setPhoneRemoved);
         descriptor.setSchool(person.getSchool());
+        descriptor.setLevel(person.getLevel());
     }
 
     /**
@@ -48,10 +50,26 @@ public class EditPersonDescriptorBuilder {
     }
 
     /**
+     * Marks the {@code Phone} to be removed in the {@code EditPersonDescriptor} that we are building.
+     */
+    public EditPersonDescriptorBuilder withPhoneRemoved() {
+        descriptor.setPhoneRemoved();
+        return this;
+    }
+
+    /**
      * Sets the {@code School} of the {@code EditPersonDescriptor} that we are building.
      */
     public EditPersonDescriptorBuilder withSchool(String school) {
         descriptor.setSchool(new School(school));
+        return this;
+    }
+
+    /**
+     * Sets the {@code Level} of the {@code EditPersonDescriptor} that we are building.
+     */
+    public EditPersonDescriptorBuilder withLevel(String level) {
+        descriptor.setLevel(Level.fromString(level));
         return this;
     }
 

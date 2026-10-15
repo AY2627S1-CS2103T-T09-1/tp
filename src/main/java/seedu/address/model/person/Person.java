@@ -6,12 +6,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import seedu.address.commons.util.ToStringBuilder;
 
 /**
  * Represents a Person in the address book.
- * Guarantees: details are present and not null, field values are validated, immutable.
+ * Guarantees: details except phone are present and not null, field values are validated, immutable.
  */
 public class Person {
 
@@ -21,23 +22,27 @@ public class Person {
 
     // Data fields
     private final School school;
+    private final Level level;
     private final List<Note> notes = new ArrayList<>();
 
     /**
-     * Every field must be present and not null.
+     * Every field except {@code phone} must be present and not null.
+     * A null {@code phone} means the person has no phone number.
      */
-    public Person(Name name, Phone phone, School school) {
-        this(name, phone, school, List.of());
+    public Person(Name name, Phone phone, School school, Level level) {
+        this(name, phone, school, level, List.of());
     }
 
     /**
-     * Every field must be present and not null.
+     * Every field except {@code phone} must be present and not null.
+     * A null {@code phone} means the person has no phone number.
      */
-    public Person(Name name, Phone phone, School school, List<Note> notes) {
-        requireAllNonNull(name, phone, school, notes);
+    public Person(Name name, Phone phone, School school, Level level, List<Note> notes) {
+        requireAllNonNull(name, school, level, notes);
         this.name = name;
         this.phone = phone;
         this.school = school;
+        this.level = level;
         this.notes.addAll(notes);
     }
 
@@ -45,12 +50,16 @@ public class Person {
         return name;
     }
 
-    public Phone getPhone() {
-        return phone;
+    public Optional<Phone> getPhone() {
+        return Optional.ofNullable(phone);
     }
 
     public School getSchool() {
         return school;
+    }
+
+    public Level getLevel() {
+        return level;
     }
 
     public List<Note> getNotes() {
@@ -86,15 +95,16 @@ public class Person {
         }
 
         return name.equals(otherPerson.name)
-                && phone.equals(otherPerson.phone)
+                && Objects.equals(phone, otherPerson.phone)
                 && school.equals(otherPerson.school)
+                && level.equals(otherPerson.level)
                 && notes.equals(otherPerson.notes);
     }
 
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(name, phone, school, notes);
+        return Objects.hash(name, phone, school, level, notes);
     }
 
     @Override
@@ -103,6 +113,7 @@ public class Person {
                 .add("name", name)
                 .add("phone", phone)
                 .add("school", school)
+                .add("level", level)
                 .toString();
     }
 

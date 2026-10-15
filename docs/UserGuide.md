@@ -23,12 +23,12 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
    A GUI similar to the one below should appear in a few seconds. Note how the app contains some sample data.<br>
    ![Ui](images/Ui.png)
 
-1. Type a command in the command box and press Enter to execute it. For example, type **`help`** and press Enter to open the help window.<br>
+1. Type a command in the command box and press Enter to execute it. For example, type **`help`** and press Enter to show the available commands in the feedback box.<br>
    Some example commands you can try:
 
    * `list` : Lists all contacts.
 
-   * `add n/John Doe p/98765432 sch/Victoria School` : Adds a contact named `John Doe` to the Address Book.
+   * `add n/John Doe p/98765432 sch/Victoria School lvl/S3` : Adds a contact named `John Doe` to the Address Book.
 
    * `delete 3` : Deletes the 3rd contact shown in the current list.
 
@@ -63,9 +63,7 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 
 ### Viewing help: `help`
 
-Shows a message explaining how to access the help page.
-
-![help message](images/helpMessage.png)
+Shows a one-line summary of each available command and the URL of the TuteeBook3 User Guide directly in the feedback box. You can also show the same help using the **Help** menu or the F1 keyboard shortcut. Repeated requests reuse the feedback box instead of opening additional panels or windows.
 
 Format: `help`
 
@@ -74,11 +72,15 @@ Format: `help`
 
 Adds a person to the address book.
 
-Format: `add n/NAME p/PHONE_NUMBER sch/SCHOOL`
+Format: `add n/NAME [p/PHONE_NUMBER] sch/SCHOOL lvl/LEVEL`
+
+* The phone number is optional, since younger students may not have their own phone.
+* `LEVEL` must be one of `S1`, `S2`, `S3`, `S4` or `S5`. It is not case-sensitive, so `s3` also works.
 
 Examples:
-* `add n/John Doe p/98765432 sch/Victoria School`
-* `add n/Betsy Crowe sch/Bedok Green Secondary School p/81234567`
+* `add n/John Doe p/98765432 sch/Victoria School lvl/S3`
+* `add n/Betsy Crowe lvl/S1 sch/Bedok Green Secondary School p/81234567`
+* `add n/Tim Tan sch/Victoria School lvl/S2` adds a student without a phone number.
 
 ### Listing all persons: `list`
 
@@ -102,15 +104,18 @@ Example: `view 2` shows the second student in the currently displayed list.
 
 Edits an existing person in the address book.
 
-Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL]`
+Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL]`
 
 * Edits the person at the specified `INDEX`. The index refers to the index number shown in the displayed person list. The index **must be a positive integer** 1, 2, 3, …​
 * At least one of the optional fields must be provided.
 * Existing values will be updated to the input values.
+* You can remove a person's phone number by typing `p/` without specifying any number after it.
 
 Examples:
 *  `edit 1 p/91234567 sch/Victoria School` Edits the phone number and school of the 1st person to be `91234567` and `Victoria School` respectively.
 *  `edit 2 n/Betsy Crower` Edits the name of the 2nd person to be `Betsy Crower`.
+*  `edit 3 p/` Removes the phone number of the 3rd person.
+*  `edit 1 lvl/S4` Edits the level of the 1st person to be `S4`.
 
 ### Adding a note to a student: `addnote`
 
@@ -219,7 +224,6 @@ _Details coming soon ..._
 ## Known issues
 
 1. **When using multiple screens**, if you move the application to a secondary screen, and later switch to using only the primary screen, the GUI will open off-screen. The remedy is to delete the `preferences.json` file created by the application before running the application again.
-2. **If you minimize the Help Window** and then run the `help` command (or use the `Help` menu, or the keyboard shortcut `F1`) again, the original Help Window will remain minimized, and no new Help Window will appear. The remedy is to manually restore the minimized Help Window.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -227,11 +231,11 @@ _Details coming soon ..._
 
 Action | Format, Examples
 --------|------------------
-**Add** | `add n/NAME p/PHONE_NUMBER sch/SCHOOL` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School`
+**Add** | `add n/NAME [p/PHONE_NUMBER] sch/SCHOOL lvl/LEVEL` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School lvl/S2`
 **Add note** | `addnote INDEX c/TEXT`<br> e.g., `addnote 1 c/Weak in algebra`
 **Clear** | `clear`
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
-**Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [sch/SCHOOL]`<br> e.g., `edit 2 n/James Lee sch/Victoria School`
+**Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [sch/SCHOOL] [lvl/LEVEL]`<br> e.g., `edit 2 n/James Lee sch/Victoria School`
 **Find** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
 **List** | `list`
 **Help** | `help`

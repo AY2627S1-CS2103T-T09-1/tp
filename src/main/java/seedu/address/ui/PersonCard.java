@@ -36,6 +36,8 @@ public class PersonCard extends UiPart<Region> {
     @FXML
     private Label school;
     @FXML
+    private Label level;
+    @FXML
     private Label notes;
 
     /**
@@ -46,8 +48,12 @@ public class PersonCard extends UiPart<Region> {
         this.person = person;
         id.setText(displayedIndex + ". ");
         name.setText(person.getName().fullName);
-        phone.setText(person.getPhone().value);
+        person.getPhone().ifPresentOrElse(p -> phone.setText(p.value), () -> {
+            phone.setVisible(false);
+            phone.setManaged(false);
+        });
         school.setText(person.getSchool().value);
+        level.setText(person.getLevel().name());
         notes.setText(person.getNotes().stream()
                 .map(note -> note.value)
                 .collect(Collectors.joining("\n")));

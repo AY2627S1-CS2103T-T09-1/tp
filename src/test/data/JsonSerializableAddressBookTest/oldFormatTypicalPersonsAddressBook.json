@@ -1,11 +1,12 @@
 {
-  "_comment": "Save file from before email, address and tags were removed. Loads as TypicalPersons#getTypicalAddressBook()",
+  "_comment": "Save file that still has the removed email, address and tags fields. Loads as TypicalPersons#getTypicalAddressBook()",
   "persons" : [ {
     "name" : "Alice Pauline",
     "phone" : "94351253",
     "email" : "alice@example.com",
     "address" : "123, Jurong West Ave 6, #08-111",
     "school" : "Maplewood Secondary School",
+    "level" : "S1",
     "tags" : [ "friends" ]
   }, {
     "name" : "Benson Meier",
@@ -13,6 +14,7 @@
     "email" : "johnd@example.com",
     "address" : "311, Clementi Ave 2, #02-25",
     "school" : "Northvale Primary School",
+    "level" : "S2",
     "tags" : [ "owesMoney", "friends" ]
   }, {
     "name" : "Carl Kurz",
@@ -20,6 +22,7 @@
     "email" : "heinz@example.com",
     "address" : "wall street",
     "school" : "Silvercrest High School",
+    "level" : "S3",
     "tags" : [ ]
   }, {
     "name" : "Daniel Meier",
@@ -27,6 +30,7 @@
     "email" : "cornelia@example.com",
     "address" : "10th street",
     "school" : "ABC Secondary School",
+    "level" : "S4",
     "tags" : [ "friends" ]
   }, {
     "name" : "Elle Meyer",
@@ -34,6 +38,7 @@
     "email" : "werner@example.com",
     "address" : "michegan ave",
     "school" : "Greenhaven Secondary School",
+    "level" : "S5",
     "tags" : [ ]
   }, {
     "name" : "Fiona Kunz",
@@ -41,6 +46,7 @@
     "email" : "lydia@example.com",
     "address" : "little tokyo",
     "school" : "ABC Secondary School",
+    "level" : "S1",
     "tags" : [ ]
   }, {
     "name" : "George Best",
@@ -48,6 +54,7 @@
     "email" : "anna@example.com",
     "address" : "4th street",
     "school" : "Sunrise Junior College",
+    "level" : "S2",
     "tags" : [ ]
   } ]
 }
