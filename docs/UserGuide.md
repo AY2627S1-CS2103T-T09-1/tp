@@ -166,6 +166,7 @@ Format: `addnote INDEX c/TEXT`
 * `TEXT` can contain any characters, including digits, punctuation, and slashes, such as `WA2 Math: 36/50` or `Rajesh s/o Kumar`.
 * You can add the same note text more than once.
 * New notes appear on the student's card after the existing notes.
+* Notes are numbered in the order you added them, such as `1. Weak in algebra`.
 * Adding a note does not change which students are shown.
 * After `view`, the student you are viewing is number 1, so use `addnote 1` to add a note to them.
 * If you edit the data file, each note must follow the same `TEXT` rules. Otherwise, the app starts with an empty student list.
