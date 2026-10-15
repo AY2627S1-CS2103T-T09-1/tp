@@ -2,6 +2,8 @@ package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
@@ -13,6 +15,7 @@ import java.util.stream.Stream;
 
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
@@ -33,14 +36,15 @@ public class AddCommandParser implements Parser<AddCommand> {
     public AddCommand parse(String args) throws ParseException {
         ArgumentMultimap argMultimap =
                 ArgumentTokenizer.tokenize(args, PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_LEVEL,
-                        PREFIX_SUBJECT, PREFIX_BAND);
+                        PREFIX_SUBJECT, PREFIX_BAND, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE);
 
         if (!arePrefixesPresent(argMultimap, PREFIX_NAME, PREFIX_SCHOOL, PREFIX_LEVEL)
                 || !argMultimap.getPreamble().isEmpty()) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddCommand.MESSAGE_USAGE));
         }
 
-        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_LEVEL);
+        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_LEVEL,
+                PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE);
         Name name = ParserUtil.parseName(argMultimap.getValue(PREFIX_NAME).get());
         // Phone is optional; a person added without p/ has no phone
         Phone phone = argMultimap.getValue(PREFIX_PHONE).isPresent()
@@ -50,7 +54,9 @@ public class AddCommandParser implements Parser<AddCommand> {
         Level level = ParserUtil.parseLevel(argMultimap.getValue(PREFIX_LEVEL).get());
 
         List<Subject> subjects = ParserUtil.parseSubjects(argMultimap);
-        Person person = new Person(name, phone, school, level, subjects);
+        // Guardian is optional; gn/ and gp/ must be given together
+        Guardian guardian = ParserUtil.parseGuardian(argMultimap).orElse(null);
+        Person person = new Person(name, phone, school, level, subjects, List.of(), guardian);
 
         return new AddCommand(person);
     }

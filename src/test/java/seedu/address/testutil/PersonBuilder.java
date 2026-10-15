@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import seedu.address.model.person.Band;
+import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Note;
@@ -30,6 +31,7 @@ public class PersonBuilder {
     private Level level;
     private List<Subject> subjects;
     private List<Note> notes;
+    private Guardian guardian;
 
     /**
      * Creates a {@code PersonBuilder} with the default details.
@@ -53,6 +55,7 @@ public class PersonBuilder {
         level = personToCopy.getLevel();
         subjects = personToCopy.getSubjects();
         notes = new ArrayList<>(personToCopy.getNotes());
+        guardian = personToCopy.getGuardian().orElse(null);
     }
 
     /**
@@ -113,8 +116,24 @@ public class PersonBuilder {
         return this;
     }
 
+    /**
+     * Sets the guardian of the {@code Person} that we are building.
+     */
+    public PersonBuilder withGuardian(String guardianName, String guardianPhone) {
+        this.guardian = new Guardian(new Name(guardianName), new Phone(guardianPhone));
+        return this;
+    }
+
+    /**
+     * Removes the guardian of the {@code Person} that we are building.
+     */
+    public PersonBuilder withoutGuardian() {
+        this.guardian = null;
+        return this;
+    }
+
     public Person build() {
-        return new Person(name, phone, school, level, subjects, notes);
+        return new Person(name, phone, school, level, subjects, notes, guardian);
     }
 
 }
