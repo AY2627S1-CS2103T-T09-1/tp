@@ -195,8 +195,8 @@ Format: `find KEYWORD [MORE_KEYWORDS]`
 
 Examples:
 * `find John` returns `john` and `John Doe`
-* `find alex david` returns `Alex Yeoh`, `David Li`<br>
-  ![result for 'find alex david'](images/findAlexDavidResult.png)
+* `find chloe marcus` returns `Chloe Tan` and `Marcus Lim` from the sample student list.<br>
+  ![Results for find chloe marcus](images/findChloeMarcusResult.png)
 
 ### Deleting a person: `delete`
 
