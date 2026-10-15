@@ -473,7 +473,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 **MSS**
 
 1.  Tutor requests to find students, giving part of a student's name
-2.  TuteeBook3 shows the list of students whose names contain every word of the given name, ignoring case.
+2.  TuteeBook3 shows the list of students whose names contain that part of a name, ignoring case.
 
     Use case ends.
 

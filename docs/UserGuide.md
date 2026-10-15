@@ -112,22 +112,25 @@ Examples:
 *  `edit 1 p/91234567 sch/Victoria School` Edits the phone number and school of the 1st person to be `91234567` and `Victoria School` respectively.
 *  `edit 2 n/Betsy Crower` Edits the name of the 2nd person to be `Betsy Crower`.
 
-### Locating persons by name: `find`
+### Finding students by name: `find`
 
-Finds persons whose names contain any of the given keywords.
+Shows the students whose names contain the given text.
 
-Format: `find KEYWORD [MORE_KEYWORDS]`
+Format: `find n/NAME`
 
-* The search is case-insensitive; for example, `hans` matches `Hans`.
-* Keyword order does not matter; for example, `Hans Bo` matches `Bo Hans`.
-* The search considers only names.
-* Only full words match; for example, `Han` does not match `Hans`.
-* Persons matching at least one keyword are returned (an `OR` search); for example, `Hans Bo` returns `Hans Gruber` and `Bo Yang`.
+* `NAME` can be any part of a name, even part of a word. For example, `avi` matches `David Lim`.
+* The search is not case-sensitive. For example, `n/DAVID` matches `David Lim`.
+* `NAME` is matched as one piece of text, including its spaces. For example, `n/david lim` matches `David Lim`, but `n/lim david` does not.
+* Extra spaces in `NAME` are ignored. For example, `n/david   lim` is the same as `n/david lim`.
+* Give `n/` only once.
+* The search checks names only.
+* If no student matches, the student list is empty and a message tells you how to see all students again.
+* Enter `list` to return to the full student list.
 
 Examples:
-* `find John` returns `john` and `John Doe`
-* `find alex david` returns `Alex Yeoh`, `David Li`<br>
-  ![result for 'find alex david'](images/findAlexDavidResult.png)
+* `find n/tan` shows `Chloe Tan` and `Javier Tan`.
+* `find n/avi` shows `David Lim`, `Javier Tan` and `Travis Ng`.<br>
+  ![result for 'find n/avi'](images/findAviResult.png)
 
 ### Deleting a person: `delete`
 
@@ -141,7 +144,7 @@ Format: `delete INDEX`
 
 Examples:
 * `list` followed by `delete 2` deletes the 2nd person in the address book.
-* `find Betsy` followed by `delete 1` deletes the 1st person in the results of the `find` command.
+* `find n/Betsy` followed by `delete 1` deletes the 1st person in the results of the `find` command.
 
 ### Clearing all entries: `clear`
 
@@ -196,6 +199,6 @@ Action | Format, Examples
 **Clear** | `clear`
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [sch/SCHOOL]`<br> e.g., `edit 2 n/James Lee sch/Victoria School`
-**Find** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
+**Find** | `find n/NAME`<br> e.g., `find n/avi`
 **List** | `list`
 **Help** | `help`
