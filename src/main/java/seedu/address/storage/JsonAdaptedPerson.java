@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
@@ -59,7 +60,7 @@ class JsonAdaptedPerson {
         phone = source.getPhone().map(p -> p.value).orElse(null);
         school = source.getSchool().value;
         level = source.getLevel().name();
-        subjects.addAll(source.getSubjects().stream().map(JsonAdaptedSubject::new).toList());      
+        subjects.addAll(source.getSubjects().stream().map(JsonAdaptedSubject::new).toList());
         notes.addAll(source.getNotes().stream()
             .map(JsonAdaptedNote::new).collect(Collectors.toList()));
     }
@@ -106,7 +107,7 @@ class JsonAdaptedPerson {
             }
             modelSubjects.add(subject.toModelType());
         }
-        
+
         final List<Note> modelNotes = toModelNotes();
         try {
             return new Person(modelName, modelPhone, modelSchool, modelLevel, modelSubjects, modelNotes);

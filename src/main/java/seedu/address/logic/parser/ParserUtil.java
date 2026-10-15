@@ -13,8 +13,8 @@ import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Band;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
-import seedu.address.model.person.Person;
 import seedu.address.model.person.Note;
+import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
 import seedu.address.model.person.Subject;
@@ -156,6 +156,7 @@ public class ParserUtil {
         }
     }
 
+    /**
      * Parses a {@code String note} into a {@code Note}.
      * Leading and trailing whitespaces will be trimmed.
      *
