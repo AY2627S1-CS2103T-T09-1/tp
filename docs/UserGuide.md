@@ -167,14 +167,14 @@ Adds a note to the end of a student's notes.
 
 Format: `addnote INDEX c/TEXT`
 
-* `INDEX` is the index number shown in the displayed student list. It must be a positive integer, such as 1, 2, or 3.
+* `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
 * `TEXT` must be 1 to 500 characters long, including spaces between words. Spaces before and after the text are removed and not counted.
 * `TEXT` can contain any characters, including digits, punctuation, and slashes, such as `WA2 Math: 36/50` or `Rajesh s/o Kumar`.
 * You can add the same note text more than once.
 * New notes appear on the student's card after the existing notes.
 * Notes are numbered in the order you added them, such as `1. Weak in algebra`.
 * Adding a note does not change which students are shown.
-* After `view`, the student you are viewing is number 1, so use `addnote 1` to add a note to them.
+* After `view`, use the index shown at the top of the student detail view when running `addnote`.
 * If you edit the data file, each note must follow the same `TEXT` rules. Otherwise, the app starts with an empty student list.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
@@ -184,7 +184,7 @@ Format: `addnote INDEX c/TEXT`
 Examples:
 
 * `addnote 1 c/Weak in algebra` adds the note `Weak in algebra` to the 1st student in the displayed list.
-* `view 2` followed by `addnote 1 c/WA2 Math: 36/50` adds the note to the student shown by `view 2`.
+* `view 2` followed by `addnote 2 c/WA2 Math: 36/50` adds the note to the student shown by `view 2`.
 
 If the command is wrong, `addnote` shows one of these messages and does not change any student. If `INDEX` is not a positive integer, `addnote` reports that first, even if `TEXT` is also wrong.
 
