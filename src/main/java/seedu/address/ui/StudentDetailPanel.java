@@ -8,6 +8,7 @@ import javafx.collections.WeakListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import seedu.address.commons.core.index.Index;
 import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
@@ -29,7 +30,7 @@ public class StudentDetailPanel extends UiPart<Region> {
             new WeakListChangeListener<>(sourceListListener);
 
     @FXML
-    private Label heading;
+    private Label studentIndex;
 
     @FXML
     private Label name;
@@ -53,7 +54,7 @@ public class StudentDetailPanel extends UiPart<Region> {
     private Label guardianPhone;
 
     @FXML
-    private Label notes;
+    private VBox noteCards;
 
     /**
      * Creates a panel for {@code person}, using their index in {@code sourceList}.
@@ -74,7 +75,7 @@ public class StudentDetailPanel extends UiPart<Region> {
     }
 
     private void showPerson(Person person) {
-        heading.setText(String.format("Student %d from current results", displayedIndex.getOneBased()));
+        studentIndex.setText(String.format("Index: %d", displayedIndex.getOneBased()));
         name.setText(person.getName().fullName);
         school.setText(person.getSchool().value);
         level.setText(person.getLevel().toString());
@@ -83,10 +84,29 @@ public class StudentDetailPanel extends UiPart<Region> {
         guardianName.setText(NOT_PROVIDED_MESSAGE);
         guardianPhone.setText(NOT_PROVIDED_MESSAGE);
 
-        String formattedNotes = person.getNotes().stream()
-                .map(Note::toString)
-                .collect(joining(System.lineSeparator()));
-        notes.setText(formattedNotes.isEmpty() ? NO_NOTES_MESSAGE : formattedNotes);
+        showNotes(person);
+    }
+
+    private void showNotes(Person person) {
+        if (person.getNotes().isEmpty()) {
+            Label emptyNotes = new Label(NO_NOTES_MESSAGE);
+            emptyNotes.setId("emptyNotes");
+            emptyNotes.getStyleClass().add("student-detail-empty-notes");
+            noteCards.getChildren().setAll(emptyNotes);
+            return;
+        }
+
+        noteCards.getChildren().setAll(person.getNotes().stream()
+                .map(this::createNoteCard)
+                .toList());
+    }
+
+    private Label createNoteCard(Note note) {
+        Label noteCard = new Label(note.toString());
+        noteCard.setWrapText(true);
+        noteCard.setMaxWidth(Double.MAX_VALUE);
+        noteCard.getStyleClass().add("student-detail-note-card");
+        return noteCard;
     }
 
     private String formatSubjects(Person person) {

@@ -1,9 +1,12 @@
 package seedu.address.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalPersons.ALICE;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -50,7 +53,7 @@ public class StudentDetailPanelTest {
             container.getChildren().setAll(panel.getRoot());
             container.applyCss();
 
-            assertLabelText("#heading", "Student 1 from current results");
+            assertLabelText(".student-detail-heading", "Index: 1");
             assertLabelText("#name", ALICE.getName().fullName);
             assertLabelText("#school", ALICE.getSchool().value);
             assertLabelText("#level", ALICE.getLevel().toString());
@@ -58,7 +61,8 @@ public class StudentDetailPanelTest {
             assertLabelText("#phone", ALICE.getPhone().orElseThrow().value);
             assertLabelText("#guardianName", "Not provided");
             assertLabelText("#guardianPhone", "Not provided");
-            assertLabelText("#notes", "Strong in algebra" + System.lineSeparator() + "Revise geometry");
+            assertNull(container.lookup("#heading"));
+            assertNoteCardTexts("Strong in algebra", "Revise geometry");
         });
     }
 
@@ -69,14 +73,15 @@ public class StudentDetailPanelTest {
             container.getChildren().setAll(panel.getRoot());
             container.applyCss();
 
-            assertLabelText("#notes", "No notes recorded.");
+            assertLabelText("#emptyNotes", "No notes recorded.");
         });
     }
 
     @Test
     public void constructor_longValues_enablesTextWrapping(FxRobot robot) {
         robot.interact(() -> {
-            StudentDetailPanel panel = new StudentDetailPanel(ALICE, INDEX_FIRST_PERSON, persons);
+            Person personWithLongNote = new PersonBuilder(ALICE).withNotes("A long note").build();
+            StudentDetailPanel panel = new StudentDetailPanel(personWithLongNote, INDEX_FIRST_PERSON, persons);
             container.getChildren().setAll(panel.getRoot());
             container.applyCss();
 
@@ -87,7 +92,7 @@ public class StudentDetailPanelTest {
             assertLabelWraps("#phone");
             assertLabelWraps("#guardianName");
             assertLabelWraps("#guardianPhone");
-            assertLabelWraps("#notes");
+            assertLabelWraps(".student-detail-note-card");
             assertViewportMatchesPanelBackground();
         });
     }
@@ -102,7 +107,7 @@ public class StudentDetailPanelTest {
 
             persons.set(INDEX_FIRST_PERSON.getZeroBased(), updatedPerson);
 
-            assertLabelText("#notes", "New note");
+            assertNoteCardTexts("New note");
         });
     }
 
@@ -112,6 +117,14 @@ public class StudentDetailPanelTest {
 
     private void assertLabelWraps(String query) {
         assertTrue(((Label) container.lookup(query)).isWrapText());
+    }
+
+    private void assertNoteCardTexts(String... expectedTexts) {
+        List<String> noteTexts = container.lookupAll(".student-detail-note-card").stream()
+                .map(Label.class::cast)
+                .map(Label::getText)
+                .toList();
+        assertEquals(List.of(expectedTexts), noteTexts);
     }
 
     private void assertViewportMatchesPanelBackground() {
