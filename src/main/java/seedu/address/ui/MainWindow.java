@@ -36,6 +36,7 @@ public class MainWindow extends UiPart<Stage> {
 
     // Independent Ui parts residing in this Ui container
     private PersonListPanel personListPanel;
+    private StudentDetailPanel studentDetailPanel;
     private ResultDisplay resultDisplay;
 
     @FXML
@@ -195,7 +196,7 @@ public class MainWindow extends UiPart<Stage> {
         if (displayMode == DisplayMode.SHOW_LIST) {
             showPersonList();
         } else if (displayMode == DisplayMode.SHOW_STUDENT) {
-            StudentDetailPanel studentDetailPanel = new StudentDetailPanel(
+            studentDetailPanel = new StudentDetailPanel(
                     commandResult.getPersonToDisplay().orElseThrow(),
                     commandResult.getDisplayedIndex().orElseThrow(),
                     logic.getFilteredPersonList());
@@ -204,6 +205,7 @@ public class MainWindow extends UiPart<Stage> {
     }
 
     private void showPersonList() {
+        studentDetailPanel = null;
         contentPanelPlaceholder.getChildren().setAll(personListPanel.getRoot());
     }
 }

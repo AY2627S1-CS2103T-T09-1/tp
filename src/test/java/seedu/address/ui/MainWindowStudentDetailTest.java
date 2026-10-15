@@ -8,6 +8,7 @@ import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.BENSON;
 
 import java.nio.file.Path;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +30,7 @@ import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Person;
+import seedu.address.testutil.PersonBuilder;
 
 /**
  * Tests student detail behavior in {@link MainWindow}.
@@ -92,6 +94,20 @@ public class MainWindowStudentDetailTest {
         assertSame(originalDetails, getOnlyContentNode());
     }
 
+    @Test
+    public void execute_commandUpdatesViewedStudent_refreshesStudentDetails(FxRobot robot) {
+        enterCommand(robot, "view 1");
+
+        enterCommand(robot, "addnote 1 c/New note");
+
+        List<String> noteTexts = mainWindow.getRoot().getScene().getRoot()
+                .lookupAll(".student-detail-note-card").stream()
+                .map(Label.class::cast)
+                .map(Label::getText)
+                .toList();
+        assertEquals(List.of("New note"), noteTexts);
+    }
+
     private void enterCommand(FxRobot robot, String command) {
         robot.interact(() -> {
             TextField commandTextField =
@@ -119,10 +135,19 @@ public class MainWindowStudentDetailTest {
                 case "view 1" -> CommandResult.showStudent("Viewing Alice", ALICE, INDEX_FIRST_PERSON);
                 case "view 2" -> CommandResult.showStudent("Viewing Benson", BENSON, INDEX_SECOND_PERSON);
                 case "list" -> CommandResult.showList("Listed all students");
+                case "addnote 1 c/New note" -> addNoteToFirstPerson();
                 case "keep" -> new CommandResult("No display change");
                 case "fail" -> throw new CommandException("Invalid command");
                 default -> throw new AssertionError("Unexpected command: " + commandText);
             };
+        }
+
+        private CommandResult addNoteToFirstPerson() {
+            Person updatedPerson = new PersonBuilder(persons.get(INDEX_FIRST_PERSON.getZeroBased()))
+                    .withNotes("New note")
+                    .build();
+            persons.set(INDEX_FIRST_PERSON.getZeroBased(), updatedPerson);
+            return new CommandResult("Added note");
         }
 
         @Override
