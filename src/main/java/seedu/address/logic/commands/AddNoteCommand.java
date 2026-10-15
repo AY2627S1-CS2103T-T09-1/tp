@@ -9,6 +9,7 @@ import seedu.address.commons.core.index.Index;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
+import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 
 /**
@@ -25,12 +26,12 @@ public class AddNoteCommand extends Command {
     public static final String MESSAGE_SUCCESS = "Added note to %1$s: %2$s";
 
     private final Index targetIndex;
-    private final String note;
+    private final Note note;
 
     /**
      * Creates an {@code AddNoteCommand} to add {@code note} to the person at {@code targetIndex}.
      */
-    public AddNoteCommand(Index targetIndex, String note) {
+    public AddNoteCommand(Index targetIndex, Note note) {
         this.targetIndex = targetIndex;
         this.note = note;
     }
@@ -44,10 +45,10 @@ public class AddNoteCommand extends Command {
         }
 
         Person person = lastShownList.get(targetIndex.getZeroBased());
-        List<String> notes = new ArrayList<>(person.getNotes());
+        List<Note> notes = new ArrayList<>(person.getNotes());
         notes.add(note);
-        Person editedPerson = new Person(person.getName(), person.getPhone(), person.getEmail(),
-                person.getAddress(), person.getSchool(), person.getTags(), notes);
+        Person editedPerson = new Person(person.getName(), person.getPhone().orElse(null), person.getSchool(),
+                person.getLevel(), person.getSubjects(), notes);
 
         model.setPerson(person, editedPerson);
         return new CommandResult(String.format(MESSAGE_SUCCESS, editedPerson.getName(), note));

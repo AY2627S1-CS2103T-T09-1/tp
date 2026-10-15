@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
@@ -21,6 +19,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import seedu.address.model.person.Person;
+import seedu.address.testutil.PersonBuilder;
 
 /**
  * Tests {@link StudentDetailPanel}.
@@ -42,7 +41,9 @@ public class StudentDetailPanelTest {
 
     @Test
     public void constructor_studentWithDetails_displaysCompleteRecord(FxRobot robot) {
-        Person personWithNotes = copyWithNotes(ALICE, List.of("Strong in algebra", "Revise geometry"));
+        Person personWithNotes = new PersonBuilder(ALICE)
+                .withNotes("Strong in algebra", "Revise geometry")
+                .build();
 
         robot.interact(() -> {
             StudentDetailPanel panel = new StudentDetailPanel(personWithNotes, INDEX_FIRST_PERSON, persons);
@@ -52,9 +53,9 @@ public class StudentDetailPanelTest {
             assertLabelText("#heading", "Student 1 from current results");
             assertLabelText("#name", ALICE.getName().fullName);
             assertLabelText("#school", ALICE.getSchool().value);
-            assertLabelText("#level", "Not provided");
-            assertLabelText("#subjects", "Not provided");
-            assertLabelText("#phone", ALICE.getPhone().value);
+            assertLabelText("#level", ALICE.getLevel().toString());
+            assertLabelText("#subjects", "Mathematics (G1)");
+            assertLabelText("#phone", ALICE.getPhone().orElseThrow().value);
             assertLabelText("#guardianName", "Not provided");
             assertLabelText("#guardianPhone", "Not provided");
             assertLabelText("#notes", "Strong in algebra" + System.lineSeparator() + "Revise geometry");
@@ -97,17 +98,12 @@ public class StudentDetailPanelTest {
             StudentDetailPanel panel = new StudentDetailPanel(ALICE, INDEX_FIRST_PERSON, persons);
             container.getChildren().setAll(panel.getRoot());
             container.applyCss();
-            Person updatedPerson = copyWithNotes(ALICE, List.of("New note"));
+            Person updatedPerson = new PersonBuilder(ALICE).withNotes("New note").build();
 
             persons.set(INDEX_FIRST_PERSON.getZeroBased(), updatedPerson);
 
             assertLabelText("#notes", "New note");
         });
-    }
-
-    private static Person copyWithNotes(Person person, List<String> notes) {
-        return new Person(person.getName(), person.getPhone(), person.getEmail(), person.getAddress(),
-                person.getSchool(), person.getTags(), notes);
     }
 
     private void assertLabelText(String query, String expectedText) {

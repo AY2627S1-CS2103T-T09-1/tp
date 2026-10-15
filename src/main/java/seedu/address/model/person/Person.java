@@ -1,85 +1,96 @@
 package seedu.address.model.person;
 
+import static seedu.address.commons.util.AppUtil.checkArgument;
 import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
+import java.util.Optional;
 
 import seedu.address.commons.util.ToStringBuilder;
-import seedu.address.model.tag.Tag;
 
 /**
  * Represents a Person in the address book.
- * Guarantees: details are present and not null, field values are validated, immutable.
+ * Guarantees: details except phone are present and not null, field values are validated, immutable.
  */
 public class Person {
+
+    public static final int MAX_SUBJECTS = 8;
+    public static final String MESSAGE_MISSING_SUBJECT = "A student must have at least one subject.";
+    public static final String MESSAGE_TOO_MANY_SUBJECTS = "A student may have at most 8 subjects.";
+    public static final String MESSAGE_REPEATED_SUBJECT = "Subject is repeated: %s.";
 
     // Identity fields
     private final Name name;
     private final Phone phone;
-    private final Email email;
 
     // Data fields
-    private final Address address;
     private final School school;
-    private final Set<Tag> tags = new HashSet<>();
-    private final List<String> notes = new ArrayList<>();
+    private final Level level;
+    private final List<Subject> subjects;
+    private final List<Note> notes = new ArrayList<>();
 
     /**
-     * Every field must be present and not null.
+     * Every field except {@code phone} must be present and not null.
+     * A null {@code phone} means the person has no phone number.
      */
-    public Person(Name name, Phone phone, Email email, Address address, School school, Set<Tag> tags) {
-        this(name, phone, email, address, school, tags, List.of());
+    public Person(Name name, Phone phone, School school, Level level, List<Subject> subjects) {
+        this(name, phone, school, level, subjects, List.of());
     }
 
     /**
-     * Every field must be present and not null.
+     * Every field except {@code phone} must be present and not null.
+     * A null {@code phone} means the person has no phone number.
      */
-    public Person(Name name, Phone phone, Email email, Address address, School school, Set<Tag> tags,
-            List<String> notes) {
-        requireAllNonNull(name, phone, email, address, school, tags, notes);
+    public Person(Name name, Phone phone, School school, Level level, List<Subject> subjects, List<Note> notes) {
+        requireAllNonNull(name, school, level, subjects, notes);
+        List<Subject> validatedSubjects = List.copyOf(subjects);
+        validateSubjects(validatedSubjects);
         this.name = name;
         this.phone = phone;
-        this.email = email;
-        this.address = address;
         this.school = school;
-        this.tags.addAll(tags);
+        this.level = level;
+        this.subjects = validatedSubjects;
         this.notes.addAll(notes);
+    }
+
+    /**
+     * Validates the subject count and rejects repeated subject names, regardless of band.
+     */
+    public static void validateSubjects(List<Subject> subjects) {
+        requireAllNonNull(subjects);
+        checkArgument(!subjects.isEmpty(), MESSAGE_MISSING_SUBJECT);
+        checkArgument(subjects.size() <= MAX_SUBJECTS, MESSAGE_TOO_MANY_SUBJECTS);
+        List<Subject> uniqueSubjects = new ArrayList<>();
+        for (Subject subject : subjects) {
+            boolean isRepeated = uniqueSubjects.stream().anyMatch(subject::hasSameName);
+            checkArgument(!isRepeated, String.format(MESSAGE_REPEATED_SUBJECT, subject.getName()));
+            uniqueSubjects.add(subject);
+        }
     }
 
     public Name getName() {
         return name;
     }
 
-    public Phone getPhone() {
-        return phone;
-    }
-
-    public Email getEmail() {
-        return email;
-    }
-
-    public Address getAddress() {
-        return address;
+    public Optional<Phone> getPhone() {
+        return Optional.ofNullable(phone);
     }
 
     public School getSchool() {
         return school;
     }
 
-    /**
-     * Returns an immutable tag set, which throws {@code UnsupportedOperationException}
-     * if modification is attempted.
-     */
-    public Set<Tag> getTags() {
-        return Collections.unmodifiableSet(tags);
+    public Level getLevel() {
+        return level;
     }
 
-    public List<String> getNotes() {
+    public List<Subject> getSubjects() {
+        return subjects;
+    }
+    public List<Note> getNotes() {
         return Collections.unmodifiableList(notes);
     }
 
@@ -112,18 +123,17 @@ public class Person {
         }
 
         return name.equals(otherPerson.name)
-                && phone.equals(otherPerson.phone)
-                && email.equals(otherPerson.email)
-                && address.equals(otherPerson.address)
+                && Objects.equals(phone, otherPerson.phone)
                 && school.equals(otherPerson.school)
-                && tags.equals(otherPerson.tags)
+                && level.equals(otherPerson.level)
+                && subjects.equals(otherPerson.subjects)
                 && notes.equals(otherPerson.notes);
     }
 
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(name, phone, email, address, school, tags, notes);
+        return Objects.hash(name, phone, school, level, subjects, notes);
     }
 
     @Override
@@ -131,10 +141,9 @@ public class Person {
         return new ToStringBuilder(this)
                 .add("name", name)
                 .add("phone", phone)
-                .add("email", email)
-                .add("address", address)
                 .add("school", school)
-                .add("tags", tags)
+                .add("level", level)
+                .add("subjects", subjects)
                 .toString();
     }
 

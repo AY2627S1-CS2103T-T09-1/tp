@@ -21,6 +21,7 @@ public class ArgumentMultimap {
 
     /** Prefixes mapped to their respective arguments */
     private final Map<Prefix, List<String>> argMultimap = new HashMap<>();
+    private final List<Prefix> prefixes = new ArrayList<>();
 
     /**
      * Associates the specified argument value with {@code prefix} key in this map.
@@ -33,6 +34,14 @@ public class ArgumentMultimap {
         List<String> argValues = getAllValues(prefix);
         argValues.add(argValue);
         argMultimap.put(prefix, argValues);
+        prefixes.add(prefix);
+    }
+
+    /**
+     * Returns the prefixes in their original input order, including repeated prefixes.
+     */
+    public List<Prefix> getPrefixes() {
+        return List.copyOf(prefixes);
     }
 
     /**

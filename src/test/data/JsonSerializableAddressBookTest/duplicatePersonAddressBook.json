@@ -2,13 +2,12 @@
   "persons": [ {
     "name": "Alice Pauline",
     "phone": "94351253",
-    "email": "alice@example.com",
-    "address": "123, Jurong West Ave 6, #08-111",
-    "tags": [ "friends" ]
+    "level": "S1",
+    "subjects" : [{ "name" : "Mathematics", "band" : "G1" }]
   }, {
     "name": "Alice Pauline",
     "phone": "94351253",
-    "email": "pauline@example.com",
-    "address": "4th street"
+    "level": "S1",
+    "subjects" : [{ "name" : "Mathematics", "band" : "G1" }]
   } ]
 }

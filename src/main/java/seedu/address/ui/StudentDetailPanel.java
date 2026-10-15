@@ -1,5 +1,7 @@
 package seedu.address.ui;
 
+import static java.util.stream.Collectors.joining;
+
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.WeakListChangeListener;
@@ -7,7 +9,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 import seedu.address.commons.core.index.Index;
+import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.Subject;
 
 /**
  * Panel containing the full record of one student.
@@ -73,13 +77,21 @@ public class StudentDetailPanel extends UiPart<Region> {
         heading.setText(String.format("Student %d from current results", displayedIndex.getOneBased()));
         name.setText(person.getName().fullName);
         school.setText(person.getSchool().value);
-        level.setText(NOT_PROVIDED_MESSAGE);
-        subjects.setText(NOT_PROVIDED_MESSAGE);
-        phone.setText(person.getPhone().value);
+        level.setText(person.getLevel().toString());
+        subjects.setText(formatSubjects(person));
+        phone.setText(person.getPhone().map(Object::toString).orElse(NOT_PROVIDED_MESSAGE));
         guardianName.setText(NOT_PROVIDED_MESSAGE);
         guardianPhone.setText(NOT_PROVIDED_MESSAGE);
 
-        String formattedNotes = String.join(System.lineSeparator(), person.getNotes());
+        String formattedNotes = person.getNotes().stream()
+                .map(Note::toString)
+                .collect(joining(System.lineSeparator()));
         notes.setText(formattedNotes.isEmpty() ? NO_NOTES_MESSAGE : formattedNotes);
+    }
+
+    private String formatSubjects(Person person) {
+        return person.getSubjects().stream()
+                .map(Subject::toString)
+                .collect(joining(System.lineSeparator()));
     }
 }

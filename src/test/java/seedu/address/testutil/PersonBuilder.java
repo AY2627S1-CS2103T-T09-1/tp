@@ -1,16 +1,18 @@
 package seedu.address.testutil;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import seedu.address.model.person.Address;
-import seedu.address.model.person.Email;
+import seedu.address.model.person.Band;
+import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
+import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
-import seedu.address.model.tag.Tag;
-import seedu.address.model.util.SampleDataUtil;
+import seedu.address.model.person.Subject;
 
 /**
  * A utility class to help with building Person objects.
@@ -19,16 +21,15 @@ public class PersonBuilder {
 
     public static final String DEFAULT_NAME = "Amy Bee";
     public static final String DEFAULT_PHONE = "85355255";
-    public static final String DEFAULT_EMAIL = "amy@gmail.com";
-    public static final String DEFAULT_ADDRESS = "123, Jurong West Ave 6, #08-111";
     public static final String DEFAULT_SCHOOL = "ABC Secondary School";
+    public static final String DEFAULT_LEVEL = "S3";
 
     private Name name;
     private Phone phone;
-    private Email email;
-    private Address address;
     private School school;
-    private Set<Tag> tags;
+    private Level level;
+    private List<Subject> subjects;
+    private List<Note> notes;
 
     /**
      * Creates a {@code PersonBuilder} with the default details.
@@ -36,10 +37,10 @@ public class PersonBuilder {
     public PersonBuilder() {
         name = new Name(DEFAULT_NAME);
         phone = new Phone(DEFAULT_PHONE);
-        email = new Email(DEFAULT_EMAIL);
-        address = new Address(DEFAULT_ADDRESS);
         school = new School(DEFAULT_SCHOOL);
-        tags = new HashSet<>();
+        level = Level.fromString(DEFAULT_LEVEL);
+        subjects = List.of(new Subject("Mathematics", Band.G1));
+        notes = new ArrayList<>();
     }
 
     /**
@@ -47,11 +48,11 @@ public class PersonBuilder {
      */
     public PersonBuilder(Person personToCopy) {
         name = personToCopy.getName();
-        phone = personToCopy.getPhone();
-        email = personToCopy.getEmail();
-        address = personToCopy.getAddress();
+        phone = personToCopy.getPhone().orElse(null);
         school = personToCopy.getSchool();
-        tags = new HashSet<>(personToCopy.getTags());
+        level = personToCopy.getLevel();
+        subjects = personToCopy.getSubjects();
+        notes = new ArrayList<>(personToCopy.getNotes());
     }
 
     /**
@@ -59,22 +60,6 @@ public class PersonBuilder {
      */
     public PersonBuilder withName(String name) {
         this.name = new Name(name);
-        return this;
-    }
-
-    /**
-     * Parses the {@code tags} into a {@code Set<Tag>} and sets it to the {@code Person} that we are building.
-     */
-    public PersonBuilder withTags(String ... tags) {
-        this.tags = SampleDataUtil.getTagSet(tags);
-        return this;
-    }
-
-    /**
-     * Sets the {@code Address} of the {@code Person} that we are building.
-     */
-    public PersonBuilder withAddress(String address) {
-        this.address = new Address(address);
         return this;
     }
 
@@ -87,10 +72,10 @@ public class PersonBuilder {
     }
 
     /**
-     * Sets the {@code Email} of the {@code Person} that we are building.
+     * Removes the {@code Phone} of the {@code Person} that we are building.
      */
-    public PersonBuilder withEmail(String email) {
-        this.email = new Email(email);
+    public PersonBuilder withoutPhone() {
+        this.phone = null;
         return this;
     }
 
@@ -102,8 +87,34 @@ public class PersonBuilder {
         return this;
     }
 
+    /**
+     * Parses the {@code notes} into a {@code List<Note>} and sets it to the {@code Person} being built.
+     */
+    public PersonBuilder withNotes(String ... notes) {
+        this.notes = Arrays.stream(notes)
+                .map(Note::new)
+                .collect(Collectors.toList());
+        return this;
+    }
+
+    /**
+     * Sets the {@code Level} of the {@code Person} that we are building.
+     */
+    public PersonBuilder withLevel(String level) {
+        this.level = Level.fromString(level);
+        return this;
+    }
+
+    /**
+     * Sets the subjects of the person being built.
+     */
+    public PersonBuilder withSubjects(Subject... subjects) {
+        this.subjects = List.of(subjects);
+        return this;
+    }
+
     public Person build() {
-        return new Person(name, phone, email, address, school, tags);
+        return new Person(name, phone, school, level, subjects, notes);
     }
 
 }
