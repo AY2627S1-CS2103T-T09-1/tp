@@ -1,9 +1,12 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
 import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
 import java.util.List;
@@ -16,10 +19,12 @@ import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
+import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
+import seedu.address.model.person.Subject;
 
 /**
  * Edits the details of an existing person in the address book.
@@ -30,14 +35,18 @@ public class EditCommand extends Command {
 
     public static final String MESSAGE_USAGE = COMMAND_WORD + ": Edits the details of the person identified "
             + "by the index number used in the displayed person list. "
-            + "Existing values will be overwritten by the input values.\n"
+            + "Existing values will be overwritten by the input values. "
+            + "Use " + PREFIX_PHONE + " with no number to remove the phone.\n"
             + "Parameters: INDEX (must be a positive integer) "
             + "[" + PREFIX_NAME + "NAME] "
             + "[" + PREFIX_PHONE + "PHONE] "
-            + "[" + PREFIX_SCHOOL + "SCHOOL]\n"
+            + "[" + PREFIX_SCHOOL + "SCHOOL] "
+            + "[" + PREFIX_LEVEL + "LEVEL] "
+            + "[" + PREFIX_SUBJECT + "SUBJECT " + PREFIX_BAND + "BAND]...\n"
             + "Example: " + COMMAND_WORD + " 1 "
             + PREFIX_PHONE + "91234567 "
-            + PREFIX_SCHOOL + "Victoria School";
+            + PREFIX_SCHOOL + "Victoria School "
+            + PREFIX_LEVEL + "S3";
 
     public static final String MESSAGE_EDIT_PERSON_SUCCESS = "Edited person: %1$s";
     public static final String MESSAGE_NOT_EDITED = "At least one field to edit must be provided.";
@@ -87,10 +96,15 @@ public class EditCommand extends Command {
         assert personToEdit != null;
 
         Name updatedName = editPersonDescriptor.getName().orElse(personToEdit.getName());
-        Phone updatedPhone = editPersonDescriptor.getPhone().orElse(personToEdit.getPhone());
+        Phone updatedPhone = editPersonDescriptor.isPhoneRemoved()
+                ? null
+                : editPersonDescriptor.getPhone().orElse(personToEdit.getPhone().orElse(null));
         School updatedSchool = editPersonDescriptor.getSchool().orElse(personToEdit.getSchool());
+        Level updatedLevel = editPersonDescriptor.getLevel().orElse(personToEdit.getLevel());
 
-        return new Person(updatedName, updatedPhone, updatedSchool, personToEdit.getNotes());
+        List<Subject> updatedSubjects = editPersonDescriptor.getSubjects().orElse(personToEdit.getSubjects());
+        return new Person(updatedName, updatedPhone, updatedSchool, updatedLevel,
+                updatedSubjects, personToEdit.getNotes());
     }
 
     @Override
@@ -123,7 +137,10 @@ public class EditCommand extends Command {
     public static class EditPersonDescriptor {
         private Name name;
         private Phone phone;
+        private boolean isPhoneRemoved;
         private School school;
+        private Level level;
+        private List<Subject> subjects;
 
         public EditPersonDescriptor() {}
 
@@ -133,14 +150,17 @@ public class EditCommand extends Command {
         public EditPersonDescriptor(EditPersonDescriptor toCopy) {
             setName(toCopy.name);
             setPhone(toCopy.phone);
+            isPhoneRemoved = toCopy.isPhoneRemoved;
             setSchool(toCopy.school);
+            setLevel(toCopy.level);
+            setSubjects(toCopy.subjects);
         }
 
         /**
          * Returns true if at least one field is edited.
          */
         public boolean isAnyFieldEdited() {
-            return CollectionUtil.isAnyNonNull(name, phone, school);
+            return CollectionUtil.isAnyNonNull(name, phone, school, level, subjects) || isPhoneRemoved;
         }
 
         public void setName(Name name) {
@@ -155,6 +175,18 @@ public class EditCommand extends Command {
             this.phone = phone;
         }
 
+        /**
+         * Marks the phone to be removed from the person.
+         */
+        public void setPhoneRemoved() {
+            this.phone = null;
+            this.isPhoneRemoved = true;
+        }
+
+        public boolean isPhoneRemoved() {
+            return isPhoneRemoved;
+        }
+
         public Optional<Phone> getPhone() {
             return Optional.ofNullable(phone);
         }
@@ -165,6 +197,28 @@ public class EditCommand extends Command {
 
         public Optional<School> getSchool() {
             return Optional.ofNullable(school);
+        }
+
+        public void setLevel(Level level) {
+            this.level = level;
+        }
+
+        public Optional<Level> getLevel() {
+            return Optional.ofNullable(level);
+        }
+
+        /**
+         * Sets a defensive copy of the validated replacement subjects.
+         */
+        public void setSubjects(List<Subject> subjects) {
+            if (subjects != null) {
+                Person.validateSubjects(subjects);
+            }
+            this.subjects = subjects == null ? null : List.copyOf(subjects);
+        }
+
+        public Optional<List<Subject>> getSubjects() {
+            return Optional.ofNullable(subjects);
         }
 
         @Override
@@ -180,7 +234,10 @@ public class EditCommand extends Command {
 
             return Objects.equals(name, otherEditPersonDescriptor.name)
                     && Objects.equals(phone, otherEditPersonDescriptor.phone)
-                    && Objects.equals(school, otherEditPersonDescriptor.school);
+                    && isPhoneRemoved == otherEditPersonDescriptor.isPhoneRemoved
+                    && Objects.equals(school, otherEditPersonDescriptor.school)
+                    && Objects.equals(level, otherEditPersonDescriptor.level)
+                    && Objects.equals(subjects, otherEditPersonDescriptor.subjects);
         }
 
         @Override
@@ -188,7 +245,10 @@ public class EditCommand extends Command {
             return new ToStringBuilder(this)
                     .add("name", name)
                     .add("phone", phone)
+                    .add("isPhoneRemoved", isPhoneRemoved)
                     .add("school", school)
+                    .add("level", level)
+                    .add("subjects", subjects)
                     .toString();
         }
     }

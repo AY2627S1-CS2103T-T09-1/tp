@@ -1,0 +1,73 @@
+package seedu.address.model.person;
+
+import static java.util.Objects.requireNonNull;
+import static seedu.address.commons.util.AppUtil.checkArgument;
+
+import java.util.Objects;
+
+/**
+ * Represents an immutable subject name and its mandatory band.
+ */
+public final class Subject {
+
+    public static final String MESSAGE_CONSTRAINTS =
+            "Subjects must be 1-40 characters using only letters, spaces and hyphens, with at least one letter.";
+    public static final int MAX_LENGTH = 40;
+    public static final String VALIDATION_REGEX = "(?=.*\\p{L})[\\p{L} -]+";
+
+    private final String name;
+    private final Band band;
+    private final String comparisonName;
+
+    /**
+     * Constructs a subject with a valid name and a non-null band.
+     */
+    public Subject(String name, Band band) {
+        requireNonNull(name);
+        requireNonNull(band);
+        checkArgument(isValidSubject(name), MESSAGE_CONSTRAINTS);
+        this.name = name;
+        this.band = band;
+        comparisonName = name.trim().replaceAll(" +", " ").toLowerCase();
+    }
+
+    /**
+     * Returns true if the given name satisfies the subject restrictions.
+     */
+    public static boolean isValidSubject(String name) {
+        return name.codePointCount(0, name.length()) <= MAX_LENGTH && name.matches(VALIDATION_REGEX);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Band getBand() {
+        return band;
+    }
+
+    /**
+     * Returns true if the subjects have the same normalized name, regardless of band.
+     */
+    public boolean hasSameName(Subject other) {
+        return other != null && comparisonName.equals(other.comparisonName);
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (!(other instanceof Subject otherSubject)) {
+            return false;
+        }
+        return hasSameName(otherSubject) && band == otherSubject.band;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(comparisonName, band);
+    }
+
+    @Override
+    public String toString() {
+        return name + " (" + band + ")";
+    }
+}

@@ -11,6 +11,8 @@ import static seedu.address.logic.commands.CommandTestUtil.VALID_PHONE_BOB;
 import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
+import seedu.address.model.person.Band;
+import seedu.address.model.person.Subject;
 import seedu.address.testutil.EditPersonDescriptorBuilder;
 
 public class EditPersonDescriptorTest {
@@ -44,6 +46,19 @@ public class EditPersonDescriptorTest {
         // different school -> returns false
         editedAmy = new EditPersonDescriptorBuilder(DESC_AMY).withSchool("Other School").build();
         assertFalse(DESC_AMY.equals(editedAmy));
+
+        // different level -> returns false
+        editedAmy = new EditPersonDescriptorBuilder(DESC_AMY).withLevel("S5").build();
+        assertFalse(DESC_AMY.equals(editedAmy));
+
+        // different subjects -> returns false
+        editedAmy = new EditPersonDescriptorBuilder(DESC_AMY)
+                .withSubjects(new Subject("English", Band.G2)).build();
+        assertFalse(DESC_AMY.equals(editedAmy));
+
+        // phone removed -> returns false
+        editedAmy = new EditPersonDescriptorBuilder(DESC_AMY).withPhoneRemoved().build();
+        assertFalse(DESC_AMY.equals(editedAmy));
     }
 
     @Test
@@ -51,8 +66,11 @@ public class EditPersonDescriptorTest {
         EditPersonDescriptor editPersonDescriptor = new EditPersonDescriptor();
         String expected = EditPersonDescriptor.class.getCanonicalName() + "{name="
                 + editPersonDescriptor.getName().orElse(null) + ", phone="
-                + editPersonDescriptor.getPhone().orElse(null) + ", school="
-                + editPersonDescriptor.getSchool().orElse(null) + "}";
+                + editPersonDescriptor.getPhone().orElse(null) + ", isPhoneRemoved="
+                + editPersonDescriptor.isPhoneRemoved() + ", school="
+                + editPersonDescriptor.getSchool().orElse(null) + ", level="
+                + editPersonDescriptor.getLevel().orElse(null) + ", subjects="
+                + editPersonDescriptor.getSubjects().orElse(null) + "}";
         assertEquals(expected, editPersonDescriptor.toString());
     }
 }

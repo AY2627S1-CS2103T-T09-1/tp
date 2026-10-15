@@ -1,18 +1,22 @@
 package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.logic.commands.CommandTestUtil.INVALID_LEVEL_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_NAME_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_PHONE_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_SCHOOL_DESC;
+import static seedu.address.logic.commands.CommandTestUtil.LEVEL_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.NAME_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.PHONE_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.PHONE_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.SCHOOL_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.SCHOOL_DESC_BOB;
+import static seedu.address.logic.commands.CommandTestUtil.VALID_LEVEL_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_NAME_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_PHONE_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_PHONE_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_SCHOOL_AMY;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailure;
@@ -27,9 +31,12 @@ import seedu.address.commons.core.index.Index;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
+import seedu.address.model.person.Band;
+import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
+import seedu.address.model.person.Subject;
 import seedu.address.testutil.EditPersonDescriptorBuilder;
 
 public class EditCommandParserTest {
@@ -88,6 +95,8 @@ public class EditCommandParserTest {
 
     @Test
     public void parse_invalidValue_failure() {
+        assertParseFailure(parser, "1 sub/English", ParserUtil.MESSAGE_SUBJECT_BAND_PAIR);
+        assertParseFailure(parser, "1 sub/English band/G4", Band.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, "1" + INVALID_NAME_DESC, Name.MESSAGE_CONSTRAINTS); // invalid name
         assertParseFailure(parser, "1" + INVALID_PHONE_DESC, Phone.MESSAGE_CONSTRAINTS); // invalid phone
         assertParseFailure(parser, "1" + INVALID_SCHOOL_DESC, School.MESSAGE_CONSTRAINTS); // invalid school
@@ -126,6 +135,8 @@ public class EditCommandParserTest {
 
     @Test
     public void parse_oneFieldSpecified_success() {
+        assertParseSuccess(parser, "1 sub/English band/g2", new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withSubjects(new Subject("English", Band.G2)).build()));
         // name
         Index targetIndex = INDEX_THIRD_PERSON;
         String userInput = targetIndex.getOneBased() + NAME_DESC_AMY;
@@ -144,6 +155,35 @@ public class EditCommandParserTest {
         descriptor = new EditPersonDescriptorBuilder().withSchool(VALID_SCHOOL_AMY).build();
         expectedCommand = new EditCommand(targetIndex, descriptor);
         assertParseSuccess(parser, userInput, expectedCommand);
+    }
+
+    @Test
+    public void parse_levelOnly_success() {
+        Index targetIndex = INDEX_FIRST_PERSON;
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withLevel(VALID_LEVEL_AMY).build();
+        assertParseSuccess(parser, targetIndex.getOneBased() + LEVEL_DESC_AMY,
+                new EditCommand(targetIndex, descriptor));
+    }
+
+    @Test
+    public void parse_invalidLevel_failure() {
+        assertParseFailure(parser, "1" + INVALID_LEVEL_DESC, Level.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1 " + PREFIX_LEVEL + "S9", Level.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_emptyPhone_removesPhone() {
+        Index targetIndex = INDEX_FIRST_PERSON;
+
+        // phone only
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withPhoneRemoved().build();
+        assertParseSuccess(parser, targetIndex.getOneBased() + " " + PREFIX_PHONE,
+                new EditCommand(targetIndex, descriptor));
+
+        // phone removed together with another field
+        descriptor = new EditPersonDescriptorBuilder().withPhoneRemoved().withName(VALID_NAME_AMY).build();
+        assertParseSuccess(parser, targetIndex.getOneBased() + " " + PREFIX_PHONE + NAME_DESC_AMY,
+                new EditCommand(targetIndex, descriptor));
     }
 
     @Test

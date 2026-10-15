@@ -9,10 +9,28 @@ public class HelpCommand extends Command {
 
     public static final String COMMAND_WORD = "help";
 
+    public static final String USER_GUIDE_URL =
+            "https://ay2627s1-cs2103t-t09-1.github.io/tp/UserGuide.html";
+
     public static final String MESSAGE_USAGE = COMMAND_WORD + ": Shows program usage instructions.\n"
             + "Example: " + COMMAND_WORD;
 
-    public static final String SHOWING_HELP_MESSAGE = "Opened help window.";
+    public static final String SHOWING_HELP_MESSAGE = String.join(System.lineSeparator(),
+            "Available commands:",
+            "",
+            "help - Shows this list of available commands.",
+            "clear - Clears all students from TuteeBook3.",
+            "add - Adds a student with their name, school, subject, and contact details.",
+            "delete - Removes a student of the given index.",
+            "find - Finds students using partial name matching.",
+            "view - Shows a student's full record on a single screen.",
+            "list - Shows the entire student roster.",
+            "addnote - Adds a note about a student.",
+            "deletenote - Removes a note of the given index from a student of the given index.",
+            "exit - Exits TuteeBook3.",
+            "",
+            "For a more detailed explanation, please refer to:",
+            USER_GUIDE_URL);
 
     @Override
     public CommandResult execute(Model model) {

@@ -1,5 +1,7 @@
 package seedu.address.ui;
 
+import java.util.stream.Collectors;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -34,6 +36,10 @@ public class PersonCard extends UiPart<Region> {
     @FXML
     private Label school;
     @FXML
+    private Label level;
+    @FXML
+    private Label subjects;
+    @FXML
     private Label notes;
 
     /**
@@ -44,8 +50,15 @@ public class PersonCard extends UiPart<Region> {
         this.person = person;
         id.setText(displayedIndex + ". ");
         name.setText(person.getName().fullName);
-        phone.setText(person.getPhone().value);
+        person.getPhone().ifPresentOrElse(p -> phone.setText(p.value), () -> {
+            phone.setVisible(false);
+            phone.setManaged(false);
+        });
         school.setText(person.getSchool().value);
-        notes.setText(String.join("\n", person.getNotes()));
+        level.setText(person.getLevel().name());
+        subjects.setText(person.getSubjects().stream().map(Object::toString).collect(Collectors.joining(", ")));
+        notes.setText(person.getNotes().stream()
+                .map(note -> note.value)
+                .collect(Collectors.joining("\n")));
     }
 }
