@@ -1,10 +1,14 @@
 package seedu.address.testutil;
 
+import java.util.List;
+
+import seedu.address.model.person.Band;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
+import seedu.address.model.person.Subject;
 
 /**
  * A utility class to help with building Person objects.
@@ -20,6 +24,7 @@ public class PersonBuilder {
     private Phone phone;
     private School school;
     private Level level;
+    private List<Subject> subjects;
 
     /**
      * Creates a {@code PersonBuilder} with the default details.
@@ -29,6 +34,7 @@ public class PersonBuilder {
         phone = new Phone(DEFAULT_PHONE);
         school = new School(DEFAULT_SCHOOL);
         level = Level.fromString(DEFAULT_LEVEL);
+        subjects = List.of(new Subject("Mathematics", Band.G1));
     }
 
     /**
@@ -39,6 +45,7 @@ public class PersonBuilder {
         phone = personToCopy.getPhone().orElse(null);
         school = personToCopy.getSchool();
         level = personToCopy.getLevel();
+        subjects = personToCopy.getSubjects();
     }
 
     /**
@@ -81,8 +88,16 @@ public class PersonBuilder {
         return this;
     }
 
+    /**
+     * Sets the subjects of the person being built.
+     */
+    public PersonBuilder withSubjects(Subject... subjects) {
+        this.subjects = List.of(subjects);
+        return this;
+    }
+
     public Person build() {
-        return new Person(name, phone, school, level);
+        return new Person(name, phone, school, level, subjects);
     }
 
 }

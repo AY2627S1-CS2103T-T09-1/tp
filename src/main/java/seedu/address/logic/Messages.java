@@ -44,7 +44,9 @@ public class Messages {
                 .append("; School: ")
                 .append(person.getSchool())
                 .append("; Level: ")
-                .append(person.getLevel());
+                .append(person.getLevel())
+                .append("; Subjects: ")
+                .append(person.getSubjects());
         return builder.toString();
     }
 

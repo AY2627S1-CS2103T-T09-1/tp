@@ -1,9 +1,11 @@
 package seedu.address.testutil;
 
+import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
 
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
@@ -30,6 +32,8 @@ public class PersonUtil {
         person.getPhone().ifPresent(phone -> sb.append(PREFIX_PHONE + phone.value + " "));
         sb.append(PREFIX_SCHOOL + person.getSchool().value + " ");
         sb.append(PREFIX_LEVEL + person.getLevel().name() + " ");
+        person.getSubjects().forEach(subject -> sb.append(PREFIX_SUBJECT).append(subject.getName()).append(" ")
+                .append(PREFIX_BAND).append(subject.getBand()).append(" "));
         return sb.toString();
     }
 
@@ -45,6 +49,9 @@ public class PersonUtil {
         }
         descriptor.getSchool().ifPresent(school -> sb.append(PREFIX_SCHOOL).append(school.value).append(" "));
         descriptor.getLevel().ifPresent(level -> sb.append(PREFIX_LEVEL).append(level.name()).append(" "));
+        descriptor.getSubjects().ifPresent(subjects -> subjects.forEach(subject ->
+                sb.append(PREFIX_SUBJECT).append(subject.getName()).append(" ")
+                        .append(PREFIX_BAND).append(subject.getBand()).append(" ")));
         return sb.toString();
     }
 }

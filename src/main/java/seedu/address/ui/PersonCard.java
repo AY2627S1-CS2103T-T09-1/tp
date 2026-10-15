@@ -1,5 +1,7 @@
 package seedu.address.ui;
 
+import java.util.stream.Collectors;
+
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -36,6 +38,8 @@ public class PersonCard extends UiPart<Region> {
     @FXML
     private Label level;
     @FXML
+    private Label subjects;
+    @FXML
     private Label notes;
 
     /**
@@ -52,6 +56,7 @@ public class PersonCard extends UiPart<Region> {
         });
         school.setText(person.getSchool().value);
         level.setText(person.getLevel().name());
+        subjects.setText(person.getSubjects().stream().map(Object::toString).collect(Collectors.joining(", ")));
         notes.setText(String.join("\n", person.getNotes()));
     }
 }

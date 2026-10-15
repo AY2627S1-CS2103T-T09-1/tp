@@ -1,11 +1,14 @@
 package seedu.address.testutil;
 
+import java.util.List;
+
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
+import seedu.address.model.person.Subject;
 
 /**
  * A utility class to help with building EditPersonDescriptor objects.
@@ -31,6 +34,7 @@ public class EditPersonDescriptorBuilder {
         person.getPhone().ifPresentOrElse(descriptor::setPhone, descriptor::setPhoneRemoved);
         descriptor.setSchool(person.getSchool());
         descriptor.setLevel(person.getLevel());
+        descriptor.setSubjects(person.getSubjects());
     }
 
     /**
@@ -70,6 +74,14 @@ public class EditPersonDescriptorBuilder {
      */
     public EditPersonDescriptorBuilder withLevel(String level) {
         descriptor.setLevel(Level.fromString(level));
+        return this;
+    }
+
+    /**
+     * Sets the subjects in the descriptor being built.
+     */
+    public EditPersonDescriptorBuilder withSubjects(Subject... subjects) {
+        descriptor.setSubjects(List.of(subjects));
         return this;
     }
 

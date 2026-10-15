@@ -10,6 +10,9 @@ import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.BOB;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.Messages;
@@ -21,6 +24,16 @@ public class PersonTest {
     public void asObservableList_modifyList_throwsUnsupportedOperationException() {
         Person person = new PersonBuilder().build();
         assertThrows(UnsupportedOperationException.class, () -> person.getNotes().remove(0));
+        assertThrows(UnsupportedOperationException.class, () -> person.getSubjects().clear());
+        assertThrows(IllegalArgumentException.class, Person.MESSAGE_MISSING_SUBJECT, () -> new PersonBuilder()
+                .withSubjects().build());
+        List<Subject> subjects = new ArrayList<>(person.getSubjects());
+        Person copy = new Person(person.getName(), person.getPhone().orElse(null), person.getSchool(),
+                person.getLevel(), subjects);
+        subjects.clear();
+        assertEquals(person.getSubjects(), copy.getSubjects());
+        assertThrows(IllegalArgumentException.class, "Subject is repeated: mathematics.", () -> new PersonBuilder()
+                .withSubjects(new Subject("Mathematics", Band.G1), new Subject("mathematics", Band.G2)).build());
     }
 
     @Test
@@ -52,6 +65,13 @@ public class PersonTest {
 
     @Test
     public void equals() {
+        Subject maths = new Subject("Mathematics", Band.G1);
+        Subject mathsCopy = new Subject(" mathematics ", Band.G1);
+        assertEquals(maths, mathsCopy);
+        assertEquals(maths.hashCode(), mathsCopy.hashCode());
+        assertFalse(maths.equals(new Subject("Mathematics", Band.G2)));
+        assertFalse(maths.equals(null));
+
         // same values -> returns true
         Person aliceCopy = new PersonBuilder(ALICE).build();
         assertTrue(ALICE.equals(aliceCopy));
@@ -72,6 +92,9 @@ public class PersonTest {
         // different name -> returns false
         Person editedAlice = new PersonBuilder(ALICE).withName(VALID_NAME_BOB).build();
         assertFalse(ALICE.equals(editedAlice));
+
+        assertFalse(ALICE.equals(new PersonBuilder(ALICE)
+                .withSubjects(new Subject("Mathematics", Band.G2)).build()));
 
         // different phone -> returns false
         editedAlice = new PersonBuilder(ALICE).withPhone(VALID_PHONE_BOB).build();
@@ -94,20 +117,21 @@ public class PersonTest {
     public void format_noPhone_showsNotProvided() {
         Person aliceWithoutPhone = new PersonBuilder(ALICE).withoutPhone().build();
         assertEquals(ALICE.getName() + "; Phone: " + Messages.MESSAGE_PHONE_NOT_PROVIDED + "; School: "
-                + ALICE.getSchool() + "; Level: S1",
+                + ALICE.getSchool() + "; Level: S1; Subjects: " + ALICE.getSubjects(),
                 Messages.format(aliceWithoutPhone));
     }
 
     @Test
     public void format_withLevel_includesLevel() {
         assertEquals(ALICE.getName() + "; Phone: " + ALICE.getPhone().get() + "; School: " + ALICE.getSchool()
-                + "; Level: S1", Messages.format(ALICE));
+                + "; Level: S1; Subjects: " + ALICE.getSubjects(), Messages.format(ALICE));
     }
 
     @Test
     public void toStringMethod() {
         String expected = Person.class.getCanonicalName() + "{name=" + ALICE.getName() + ", phone="
                 + ALICE.getPhone().get() + ", school=" + ALICE.getSchool() + ", level=" + ALICE.getLevel()
+                + ", subjects=" + ALICE.getSubjects()
                 + "}";
         assertEquals(expected, ALICE.toString());
     }
