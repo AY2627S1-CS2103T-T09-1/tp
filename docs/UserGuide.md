@@ -92,11 +92,11 @@ Examples:
 * `add n/Betsy Crowe lvl/S1 sch/Bedok Green Secondary School p/81234567 sub/Mathematics band/G1`
 * `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1` adds a student without a phone number.
 * `add n/Chloe Tan sch/Bedok Green Secondary School lvl/S2 sub/Mathematics band/G1 sub/English band/G3` adds a student taking two subjects at different bands.
-* `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Tan gp/91234567` adds a student with guardian Mary Tan, shown on the student's card as `Guardian: Mary Tan (91234567)`.
+* `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Tan gp/91234567` adds a student with guardian Mary Tan. Use `view INDEX` to see the guardian details.
 
 ### Listing all persons: `list`
 
-Shows a list of all persons in the address book.
+Shows a list of all persons in the address book. Each entry shows the student's index, name, phone number (if provided), school, and level. Use `view INDEX` to see the remaining details.
 
 Format: `list`
 
@@ -171,7 +171,7 @@ Format: `addnote INDEX c/TEXT`
 * `TEXT` must be 1 to 500 characters long, including spaces between words. Spaces before and after the text are removed and not counted.
 * `TEXT` can contain any characters, including digits, punctuation, and slashes, such as `WA2 Math: 36/50` or `Rajesh s/o Kumar`.
 * You can add the same note text more than once.
-* New notes appear on the student's card after the existing notes.
+* New notes appear in the student detail view after the existing notes.
 * Notes are numbered in the order you added them, such as `1. Weak in algebra`.
 * Adding a note does not change which students are shown.
 * After `view`, use the index shown at the top of the student detail view when running `addnote`.

@@ -105,7 +105,7 @@ public class MainWindowStudentDetailTest {
                 .map(Label.class::cast)
                 .map(Label::getText)
                 .toList();
-        assertEquals(List.of("New note"), noteTexts);
+        assertEquals(List.of("1. New note"), noteTexts);
     }
 
     private void enterCommand(FxRobot robot, String command) {

@@ -70,7 +70,7 @@ public class StudentDetailPanelTest {
             assertGridRow("#guardianName", 5);
             assertGridRow("#guardianPhone", 6);
             assertNull(container.lookup("#heading"));
-            assertNoteCardTexts("Strong in algebra", "Revise geometry");
+            assertNoteCardTexts("1. Strong in algebra", "2. Revise geometry");
         });
     }
 
@@ -131,7 +131,7 @@ public class StudentDetailPanelTest {
 
             persons.set(INDEX_FIRST_PERSON.getZeroBased(), updatedPerson);
 
-            assertNoteCardTexts("New note");
+            assertNoteCardTexts("1. New note");
         });
     }
 

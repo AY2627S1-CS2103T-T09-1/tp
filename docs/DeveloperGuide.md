@@ -505,7 +505,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 **MSS**
 
 1. Tutor requests to view a specific student by index.
-2. TuteeBook3 opens the student's card, showing all of the student's details, including all notes.
+2. TuteeBook3 opens the student detail view, showing all of the student's details, including all notes.
 
 Use case ends.
 
@@ -852,20 +852,20 @@ testers are expected to do more *exploratory* testing.
 1. Adding a student with a guardian
 
    1. Test case: `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Tan gp/91234567`<br>
-      Expected: Tim Tan is added. His card shows `Guardian: Mary Tan (91234567)`.
+      Expected: Tim Tan is added. Viewing his student details shows guardian Mary Tan with phone number `91234567`.
 
    1. Test case: `add n/Ken Lim sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Lim`<br>
       Expected: No student is added. The status message shows `Guardian name (gn/) and guardian phone (gp/) must be given together.`
 
    1. Test case: `add n/Ken Lim sch/Victoria School lvl/S2 sub/Mathematics band/G1`<br>
-      Expected: Ken Lim is added. His card has no guardian line.
+      Expected: Ken Lim is added. Viewing his student details shows `Not provided` for both guardian fields.
 
 1. Editing a guardian
 
    1. Prerequisites: Tim Tan and Ken Lim were added as above. Use `find n/Tim` or `find n/Ken` so that the student is first in the list.
 
    1. Test case: `edit 1 gp/98765432` on Tim Tan<br>
-      Expected: Only the guardian's phone changes. The card shows `Guardian: Mary Tan (98765432)`.
+      Expected: Only the guardian's phone changes. Viewing Tim Tan's student details shows guardian Mary Tan with phone number `98765432`.
 
    1. Test case: `edit 1 gn/Peter Lim` on Ken Lim<br>
       Expected: Ken Lim is unchanged. The status message shows `This person has no guardian yet. Give both gn/ and gp/ to add one.`

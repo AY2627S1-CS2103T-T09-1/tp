@@ -2,6 +2,9 @@ package seedu.address.ui;
 
 import static java.util.stream.Collectors.joining;
 
+import java.util.List;
+import java.util.stream.IntStream;
+
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.WeakListChangeListener;
@@ -100,13 +103,14 @@ public class StudentDetailPanel extends UiPart<Region> {
             return;
         }
 
-        noteCards.getChildren().setAll(person.getNotes().stream()
-                .map(this::createNoteCard)
+        List<Note> notes = person.getNotes();
+        noteCards.getChildren().setAll(IntStream.range(0, notes.size())
+                .mapToObj(i -> createNoteCard(notes.get(i), i + 1))
                 .toList());
     }
 
-    private Label createNoteCard(Note note) {
-        Label noteCard = new Label(note.toString());
+    private Label createNoteCard(Note note, int displayedIndex) {
+        Label noteCard = new Label(displayedIndex + ". " + note);
         noteCard.setWrapText(true);
         noteCard.setMaxWidth(Double.MAX_VALUE);
         noteCard.getStyleClass().add("student-detail-note-card");
