@@ -1,7 +1,13 @@
 package seedu.address.testutil;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
+import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
@@ -20,6 +26,7 @@ public class PersonBuilder {
     private Phone phone;
     private School school;
     private Level level;
+    private List<Note> notes;
 
     /**
      * Creates a {@code PersonBuilder} with the default details.
@@ -29,6 +36,7 @@ public class PersonBuilder {
         phone = new Phone(DEFAULT_PHONE);
         school = new School(DEFAULT_SCHOOL);
         level = Level.fromString(DEFAULT_LEVEL);
+        notes = new ArrayList<>();
     }
 
     /**
@@ -39,6 +47,7 @@ public class PersonBuilder {
         phone = personToCopy.getPhone().orElse(null);
         school = personToCopy.getSchool();
         level = personToCopy.getLevel();
+        notes = new ArrayList<>(personToCopy.getNotes());
     }
 
     /**
@@ -74,6 +83,16 @@ public class PersonBuilder {
     }
 
     /**
+     * Parses the {@code notes} into a {@code List<Note>} and sets it to the {@code Person} being built.
+     */
+    public PersonBuilder withNotes(String ... notes) {
+        this.notes = Arrays.stream(notes)
+                .map(Note::new)
+                .collect(Collectors.toList());
+        return this;
+    }
+
+    /**
      * Sets the {@code Level} of the {@code Person} that we are building.
      */
     public PersonBuilder withLevel(String level) {
@@ -82,7 +101,7 @@ public class PersonBuilder {
     }
 
     public Person build() {
-        return new Person(name, phone, school, level);
+        return new Person(name, phone, school, level, notes);
     }
 
 }

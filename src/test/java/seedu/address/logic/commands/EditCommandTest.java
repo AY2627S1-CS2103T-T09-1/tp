@@ -48,6 +48,22 @@ public class EditCommandTest {
     }
 
     @Test
+    public void execute_personWithNotes_keepsNotes() {
+        Person original = model.getFilteredPersonList().get(0);
+        Person personWithNotes = new PersonBuilder(original)
+                .withNotes("Weak in algebra", "WA2 Math: 36/50").build();
+        model.setPerson(original, personWithNotes);
+        Person edited = new PersonBuilder(personWithNotes).withPhone(VALID_PHONE_BOB).build();
+        EditCommand command = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withPhone(VALID_PHONE_BOB).build());
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(personWithNotes, edited);
+        String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS,
+                Messages.format(edited));
+        assertCommandSuccess(command, model, expectedMessage, expectedModel);
+    }
+
+    @Test
     public void execute_levelOnly_preservesOtherFields() {
         Person original = model.getFilteredPersonList().get(0);
         Person edited = new PersonBuilder(original).withLevel("S5").build();

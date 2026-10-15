@@ -23,7 +23,7 @@ public class Person {
     // Data fields
     private final School school;
     private final Level level;
-    private final List<String> notes = new ArrayList<>();
+    private final List<Note> notes = new ArrayList<>();
 
     /**
      * Every field except {@code phone} must be present and not null.
@@ -37,7 +37,7 @@ public class Person {
      * Every field except {@code phone} must be present and not null.
      * A null {@code phone} means the person has no phone number.
      */
-    public Person(Name name, Phone phone, School school, Level level, List<String> notes) {
+    public Person(Name name, Phone phone, School school, Level level, List<Note> notes) {
         requireAllNonNull(name, school, level, notes);
         this.name = name;
         this.phone = phone;
@@ -62,7 +62,7 @@ public class Person {
         return level;
     }
 
-    public List<String> getNotes() {
+    public List<Note> getNotes() {
         return Collections.unmodifiableList(notes);
     }
 
