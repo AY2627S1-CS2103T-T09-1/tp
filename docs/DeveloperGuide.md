@@ -72,7 +72,7 @@ The **API** of this component is specified in [`Ui.java`](https://github.com/se-
 
 ![Structure of the UI Component](images/UiClassDiagram.png)
 
-The UI consists of a `MainWindow` and its parts, such as `CommandBox`, `ResultDisplay`, `PersonListPanel`, and `StatusBarFooter`. All of these, including `MainWindow`, inherit from the abstract `UiPart` class, which captures common behavior among classes that represent visible GUI parts.
+The UI consists of a `MainWindow` and its parts, such as `CommandBox`, `ResultDisplay`, `PersonListPanel`, `StudentDetailPanel`, and `StatusBarFooter`. `MainWindow` replaces the list panel with a student detail panel when a `view` command succeeds, so only one main content panel is visible at a time. All of these classes inherit from the abstract `UiPart` class, which captures common behavior among classes that represent visible GUI parts.
 
 The `UI` component uses the JavaFX UI framework. The layouts of these UI parts are defined in matching `.fxml` files in `src/main/resources/view`. For example, [`MainWindow.fxml`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/resources/view/MainWindow.fxml) specifies the layout of [`MainWindow`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/ui/MainWindow.java).
 
@@ -505,7 +505,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 **MSS**
 
 1. Tutor requests to view a specific student by index.
-2. TuteeBook3 opens the student's card, showing all of the student's details, including all notes.
+2. TuteeBook3 opens the student detail view, showing all of the student's details, including all notes.
 
 Use case ends.
 
@@ -641,7 +641,7 @@ Use case ends.
 3.  Tutor requests to delete a specific note, giving the student's index and note number
 4.  TuteeBook3 asks Tutor to confirm the deletion
 5.  Tutor confirms the deletion
-6.  TuteeBook3 deletes the note, leaves the remaining notes' numbers unchanged, and shows a confirmation message
+6.  TuteeBook3 deletes the note, renumbers the remaining notes, and shows a confirmation message
 
     Use case ends.
 
@@ -781,7 +781,6 @@ Use case ends.
 #### Commands and IDs
 
 * **Filter**: A prefix and value given to the `find` command, such as `lvl/S2`, that narrows down the student list.
-* **NID**: Note ID, a number that identifies a note within one student's record. It is never reused, even after the note is deleted. Different students can share an NID, but no two notes in one student's record can have the same NID.
 * **Prefix**: A short marker ending in `/`, such as `n/` or `sch/`, that labels the value after it in a command.
 * **SID**: Student ID, a unique number given to each student when they are added. It is never reused, even after the student is deleted.
 
@@ -853,20 +852,20 @@ testers are expected to do more *exploratory* testing.
 1. Adding a student with a guardian
 
    1. Test case: `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Tan gp/91234567`<br>
-      Expected: Tim Tan is added. His card shows `Guardian: Mary Tan (91234567)`.
+      Expected: Tim Tan is added. Viewing his student details shows guardian Mary Tan with phone number `91234567`.
 
    1. Test case: `add n/Ken Lim sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Lim`<br>
       Expected: No student is added. The status message shows `Guardian name (gn/) and guardian phone (gp/) must be given together.`
 
    1. Test case: `add n/Ken Lim sch/Victoria School lvl/S2 sub/Mathematics band/G1`<br>
-      Expected: Ken Lim is added. His card has no guardian line.
+      Expected: Ken Lim is added. Viewing his student details shows `Not provided` for both guardian fields.
 
 1. Editing a guardian
 
    1. Prerequisites: Tim Tan and Ken Lim were added as above. Use `find n/Tim` or `find n/Ken` so that the student is first in the list.
 
    1. Test case: `edit 1 gp/98765432` on Tim Tan<br>
-      Expected: Only the guardian's phone changes. The card shows `Guardian: Mary Tan (98765432)`.
+      Expected: Only the guardian's phone changes. Viewing Tim Tan's student details shows guardian Mary Tan with phone number `98765432`.
 
    1. Test case: `edit 1 gn/Peter Lim` on Ken Lim<br>
       Expected: Ken Lim is unchanged. The status message shows `This person has no guardian yet. Give both gn/ and gp/ to add one.`
@@ -875,7 +874,7 @@ testers are expected to do more *exploratory* testing.
       Expected: Tim Tan is unchanged. The status message says that guardian name and guardian phone cannot be empty.
 
    1. Test case: `edit 1 gn/ gp/` on Tim Tan<br>
-      Expected: The guardian is removed, and the card no longer shows a guardian line.
+      Expected: The guardian is removed, and viewing the student's details shows `Not provided` for both guardian name and guardian phone.
 
    1. Test case: `edit 1 gn/ gp/` on Ken Lim<br>
       Expected: Ken Lim is unchanged. The status message shows `This person has no guardian to remove.`

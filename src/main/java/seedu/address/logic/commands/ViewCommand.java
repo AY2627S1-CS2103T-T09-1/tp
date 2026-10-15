@@ -12,7 +12,7 @@ import seedu.address.model.Model;
 import seedu.address.model.person.Person;
 
 /**
- * Shows only the person identified using their displayed index.
+ * Shows the details of the person identified using their displayed index.
  */
 public class ViewCommand extends Command {
 
@@ -44,8 +44,8 @@ public class ViewCommand extends Command {
         }
 
         Person personToView = lastShownList.get(targetIndex.getZeroBased());
-        model.updateFilteredPersonList(personToView::isSamePerson);
-        return new CommandResult(String.format(MESSAGE_VIEW_PERSON_SUCCESS, personToView.getName()));
+        return CommandResult.showStudent(
+                String.format(MESSAGE_VIEW_PERSON_SUCCESS, personToView.getName()), personToView, targetIndex);
     }
 
     @Override

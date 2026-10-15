@@ -92,11 +92,11 @@ Examples:
 * `add n/Betsy Crowe lvl/S1 sch/Bedok Green Secondary School p/81234567 sub/Mathematics band/G1`
 * `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1` adds a student without a phone number.
 * `add n/Chloe Tan sch/Bedok Green Secondary School lvl/S2 sub/Mathematics band/G1 sub/English band/G3` adds a student taking two subjects at different bands.
-* `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Tan gp/91234567` adds a student with guardian Mary Tan, shown on the student's card as `Guardian: Mary Tan (91234567)`.
+* `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Tan gp/91234567` adds a student with guardian Mary Tan. Use `view INDEX` to see the guardian details.
 
 ### Listing all persons: `list`
 
-Shows a list of all persons in the address book.
+Shows a list of all persons in the address book. Each entry shows the student's index, name, phone number (if provided), school, and level. Use `view INDEX` to see the remaining details.
 
 Format: `list`
 
@@ -104,15 +104,21 @@ The command does not accept additional arguments.
 
 ### Viewing a student: `view`
 
-Shows only the student at the specified index in the currently displayed list.
+Shows the full record of the student at the specified index in the main content area.
+
+The detail panel contains the student's name, school, level, subject-band pairs, student phone number, guardian name, guardian phone number, and notes. Optional fields without a recorded value, such as the student phone number or guardian details, are shown as `Not provided`.
 
 Format: `view INDEX`
 
 * The index refers to the index number shown in the displayed student list.
 * The index must be a positive integer, such as 1, 2, or 3.
-* Enter `list` to return to the full student list.
+* The current search results are preserved while you view the student.
+* Entering `view` again replaces the current student record instead of opening another panel.
+* Enter `list` to return to the full student list, or `find` to display new search results.
+* Commands that add, edit, delete, or clear students return to the student list after they succeed.
+* Help and invalid commands leave the student record visible.
 
-Example: `view 2` shows the second student in the currently displayed list.
+Example: `view 2` shows the full record of the second student in the currently displayed list.
 
 ### Editing a person: `edit`
 
@@ -161,13 +167,14 @@ Adds a note to the end of a student's notes.
 
 Format: `addnote INDEX c/TEXT`
 
-* `INDEX` is the index number shown in the displayed student list. It must be a positive integer, such as 1, 2, or 3.
+* `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
 * `TEXT` must be 1 to 500 characters long, including spaces between words. Spaces before and after the text are removed and not counted.
 * `TEXT` can contain any characters, including digits, punctuation, and slashes, such as `WA2 Math: 36/50` or `Rajesh s/o Kumar`.
 * You can add the same note text more than once.
-* New notes appear on the student's card after the existing notes.
+* New notes appear in the student detail view after the existing notes.
+* Notes are numbered in the order you added them, such as `1. Weak in algebra`.
 * Adding a note does not change which students are shown.
-* After `view`, the student you are viewing is number 1, so use `addnote 1` to add a note to them.
+* After `view`, use the index shown at the top of the student detail view when running `addnote`.
 * If you edit the data file, each note must follow the same `TEXT` rules. Otherwise, the app starts with an empty student list.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
@@ -177,7 +184,7 @@ Format: `addnote INDEX c/TEXT`
 Examples:
 
 * `addnote 1 c/Weak in algebra` adds the note `Weak in algebra` to the 1st student in the displayed list.
-* `view 2` followed by `addnote 1 c/WA2 Math: 36/50` adds the note to the student shown by `view 2`.
+* `view 2` followed by `addnote 2 c/WA2 Math: 36/50` adds the note to the student shown by `view 2`.
 
 If the command is wrong, `addnote` shows one of these messages and does not change any student. If `INDEX` is not a positive integer, `addnote` reports that first, even if `TEXT` is also wrong.
 
