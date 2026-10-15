@@ -56,7 +56,9 @@ public class PersonCard extends UiPart<Region> {
         });
         school.setText(person.getSchool().value);
         level.setText(person.getLevel().name());
-        subjects.setText(person.getSubjects().stream().map(Object::toString).collect(Collectors.joining(", ")));
-        notes.setText(String.join("\n", person.getNotes()));
+        subjects.setText(person.getSubjects().stream().map(Object::toString).collect(Collectors.joining(", ")));      
+        notes.setText(person.getNotes().stream()
+                .map(note -> note.value)
+                .collect(Collectors.joining("\n")));
     }
 }

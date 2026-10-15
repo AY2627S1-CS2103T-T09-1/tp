@@ -37,6 +37,12 @@ public class PersonTest {
     }
 
     @Test
+    public void getNotes_modifyList_throwsUnsupportedOperationException() {
+        Person person = new PersonBuilder().withNotes("Weak in algebra").build();
+        assertThrows(UnsupportedOperationException.class, () -> person.getNotes().remove(0));
+    }
+
+    @Test
     public void isSamePerson() {
         // same object -> returns true
         assertTrue(ALICE.isSamePerson(ALICE));
@@ -102,6 +108,10 @@ public class PersonTest {
 
         // different school -> returns false
         editedAlice = new PersonBuilder(ALICE).withSchool(VALID_SCHOOL_BOB).build();
+        assertFalse(ALICE.equals(editedAlice));
+
+        // different notes -> returns false
+        editedAlice = new PersonBuilder(ALICE).withNotes("Weak in algebra").build();
         assertFalse(ALICE.equals(editedAlice));
 
         // different level -> returns false

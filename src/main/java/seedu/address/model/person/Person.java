@@ -29,8 +29,8 @@ public class Person {
     // Data fields
     private final School school;
     private final Level level;
-    private final List<Subject> subjects;
-    private final List<String> notes = new ArrayList<>();
+    private final List<Subject> subjects;  
+    private final List<Note> notes = new ArrayList<>();
 
     /**
      * Every field except {@code phone} must be present and not null.
@@ -44,7 +44,7 @@ public class Person {
      * Every field except {@code phone} must be present and not null.
      * A null {@code phone} means the person has no phone number.
      */
-    public Person(Name name, Phone phone, School school, Level level, List<Subject> subjects, List<String> notes) {
+    public Person(Name name, Phone phone, School school, Level level, List<Subject> subjects, List<Note> notes) {
         requireAllNonNull(name, school, level, subjects, notes);
         List<Subject> validatedSubjects = List.copyOf(subjects);
         validateSubjects(validatedSubjects);
@@ -90,8 +90,7 @@ public class Person {
     public List<Subject> getSubjects() {
         return subjects;
     }
-
-    public List<String> getNotes() {
+    public List<Note> getNotes() {
         return Collections.unmodifiableList(notes);
     }
 

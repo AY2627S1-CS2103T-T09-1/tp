@@ -2,6 +2,7 @@ package seedu.address.storage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
+import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
@@ -20,6 +22,8 @@ import seedu.address.model.person.Subject;
 class JsonAdaptedPerson {
 
     public static final String MISSING_FIELD_MESSAGE_FORMAT = "Person's %s field is missing!";
+    public static final String NULL_NOTES_MESSAGE = "Person's notes field cannot be null!";
+    public static final String NULL_NOTE_MESSAGE = "Person's notes field cannot contain a null note!";
 
     private final String name;
     // Left out of the file when the person has no phone
@@ -29,7 +33,7 @@ class JsonAdaptedPerson {
     private final String level;
     private final List<JsonAdaptedSubject> subjects = new ArrayList<>();
     // Set by Jackson directly, so files without notes still load
-    private final List<String> notes = new ArrayList<>();
+    private final List<JsonAdaptedNote> notes = new ArrayList<>();
 
     /**
      * Constructs a {@code JsonAdaptedPerson} with the given person details.
@@ -55,8 +59,9 @@ class JsonAdaptedPerson {
         phone = source.getPhone().map(p -> p.value).orElse(null);
         school = source.getSchool().value;
         level = source.getLevel().name();
-        subjects.addAll(source.getSubjects().stream().map(JsonAdaptedSubject::new).toList());
-        notes.addAll(source.getNotes());
+        subjects.addAll(source.getSubjects().stream().map(JsonAdaptedSubject::new).toList());      
+        notes.addAll(source.getNotes().stream()
+            .map(JsonAdaptedNote::new).collect(Collectors.toList()));
     }
 
     /**
@@ -101,11 +106,35 @@ class JsonAdaptedPerson {
             }
             modelSubjects.add(subject.toModelType());
         }
+        
+        final List<Note> modelNotes = toModelNotes();
         try {
-            return new Person(modelName, modelPhone, modelSchool, modelLevel, modelSubjects, notes);
+            return new Person(modelName, modelPhone, modelSchool, modelLevel, modelSubjects, modelNotes);
         } catch (IllegalArgumentException e) {
             throw new IllegalValueException(e.getMessage(), e);
         }
+    }
+
+    /**
+     * Converts the adapted notes into the model's {@code Note} objects.
+     *
+     * @throws IllegalValueException if the notes field is null, or contains a null or invalid note.
+     */
+    private List<Note> toModelNotes() throws IllegalValueException {
+        // Jackson replaces the default empty list with null when the file has "notes": null
+        if (notes == null) {
+            throw new IllegalValueException(NULL_NOTES_MESSAGE);
+        }
+
+        final List<Note> modelNotes = new ArrayList<>();
+        for (JsonAdaptedNote note : notes) {
+            // Jackson adds a null entry for each null in the list without calling JsonAdaptedNote
+            if (note == null) {
+                throw new IllegalValueException(NULL_NOTE_MESSAGE);
+            }
+            modelNotes.add(note.toModelType());
+        }
+        return modelNotes;
     }
 
 }

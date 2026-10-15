@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Name;
+import seedu.address.model.person.Note;
 import seedu.address.model.person.Phone;
 
 public class ParserUtilTest {
@@ -17,6 +18,7 @@ public class ParserUtilTest {
 
     private static final String VALID_NAME = "Rachel Walker";
     private static final String VALID_PHONE = "123456";
+    private static final String VALID_NOTE = "WA2 Math: 36/50";
 
     private static final String WHITESPACE = " \t\r\n";
 
@@ -84,5 +86,27 @@ public class ParserUtilTest {
         String phoneWithWhitespace = WHITESPACE + VALID_PHONE + WHITESPACE;
         Phone expectedPhone = new Phone(VALID_PHONE);
         assertEquals(expectedPhone, ParserUtil.parsePhone(phoneWithWhitespace));
+    }
+
+    @Test
+    public void parseNote_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> ParserUtil.parseNote(null));
+    }
+
+    @Test
+    public void parseNote_blankValue_throwsParseException() {
+        assertThrows(ParseException.class, Note.MESSAGE_BLANK, () -> ParserUtil.parseNote(WHITESPACE));
+    }
+
+    @Test
+    public void parseNote_tooLongValue_throwsParseException() {
+        String tooLongNote = "a".repeat(501);
+        assertThrows(ParseException.class, Note.MESSAGE_TOO_LONG, () -> ParserUtil.parseNote(tooLongNote));
+    }
+
+    @Test
+    public void parseNote_validValueWithWhitespace_returnsTrimmedNote() throws Exception {
+        String noteWithWhitespace = WHITESPACE + VALID_NOTE + WHITESPACE;
+        assertEquals(VALID_NOTE, ParserUtil.parseNote(noteWithWhitespace).value);
     }
 }

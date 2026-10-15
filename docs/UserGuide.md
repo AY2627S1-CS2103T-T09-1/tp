@@ -23,7 +23,7 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
    A GUI similar to the one below should appear in a few seconds. Note how the app contains some sample data.<br>
    ![Ui](images/Ui.png)
 
-1. Type a command in the command box and press Enter to execute it. For example, type **`help`** and press Enter to open the help window.<br>
+1. Type a command in the command box and press Enter to execute it. For example, type **`help`** and press Enter to show the available commands in the feedback box.<br>
    Some example commands you can try:
 
    * `list` : Lists all contacts.
@@ -55,17 +55,16 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 * Parameters can be in any order.<br>
   For example, if the command specifies `n/NAME p/PHONE_NUMBER`, `p/PHONE_NUMBER n/NAME` is also acceptable.
 
-* Extraneous parameters for commands that take no parameters, such as `help`, `list`, `exit`, and `clear`, are ignored.<br>
+* Extraneous parameters for commands that take no parameters, such as `help`, `exit`, and `clear`, are ignored.<br>
   For example, `help 123` is interpreted as `help`.
+* The `list` command does not accept additional arguments. For example, `list 3` is rejected.
 
 * If you are using a PDF version of this document, be careful when copying and pasting commands that span multiple lines as space characters surrounding line-breaks may be omitted when copied over to the application.
 </div>
 
 ### Viewing help: `help`
 
-Shows a message explaining how to access the help page.
-
-![help message](images/helpMessage.png)
+Shows a one-line summary of each available command and the URL of the TuteeBook3 User Guide directly in the feedback box. You can also show the same help using the **Help** menu or the F1 keyboard shortcut. Repeated requests reuse the feedback box instead of opening additional panels or windows.
 
 Format: `help`
 
@@ -90,6 +89,8 @@ Examples:
 Shows a list of all persons in the address book.
 
 Format: `list`
+
+The command does not accept additional arguments.
 
 ### Viewing a student: `view`
 
@@ -121,6 +122,41 @@ Examples:
 *  `edit 3 p/` Removes the phone number of the 3rd person.
 *  `edit 1 sub/English band/G2` Replaces the first student's subjects with English at G2.
 *  `edit 1 lvl/S4` Edits the level of the 1st person to be `S4`.
+
+### Adding a note to a student: `addnote`
+
+Adds a note to the end of a student's notes.
+
+Format: `addnote INDEX c/TEXT`
+
+* `INDEX` is the index number shown in the displayed student list. It must be a positive integer, such as 1, 2, or 3.
+* `TEXT` must be 1 to 500 characters long, including spaces between words. Spaces before and after the text are removed and not counted.
+* `TEXT` can contain any characters, including digits, punctuation, and slashes, such as `WA2 Math: 36/50` or `Rajesh s/o Kumar`.
+* You can add the same note text more than once.
+* New notes appear on the student's card after the existing notes.
+* Adding a note does not change which students are shown.
+* After `view`, the student you are viewing is number 1, so use `addnote 1` to add a note to them.
+* If you edit the data file, each note must follow the same `TEXT` rules. Otherwise, the app starts with an empty student list.
+
+<div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
+`TEXT` cannot contain `c/` right after a space, because the app reads it as a second `c/` parameter. For example, `addnote 1 c/Call Mrs Tan c/o school` shows an error. Write `care of` instead of `c/o`.
+</div>
+
+Examples:
+
+* `addnote 1 c/Weak in algebra` adds the note `Weak in algebra` to the 1st student in the displayed list.
+* `view 2` followed by `addnote 1 c/WA2 Math: 36/50` adds the note to the student shown by `view 2`.
+
+If the command is wrong, `addnote` shows one of these messages and does not change any student. If `INDEX` is not a positive integer, `addnote` reports that first, even if `TEXT` is also wrong.
+
+Problem | Message
+--------|--------
+`INDEX` is not a positive integer, such as `0` or `abc` | `Index must be a positive integer.`
+`INDEX` is larger than the number of students shown | `The person index provided is invalid.`
+`TEXT` is empty or only spaces | `Note text cannot be blank.`
+`TEXT` is longer than 500 characters | `Note text must be at most 500 characters.`
+`c/` appears more than once | `Multiple values specified for the following single-valued field(s): c/`
+`INDEX` or `c/TEXT` is missing, or there is no space before `c/` | `Invalid command format!` followed by how to use `addnote`
 
 ### Locating persons by name: `find`
 
@@ -194,7 +230,6 @@ _Details coming soon ..._
 ## Known issues
 
 1. **When using multiple screens**, if you move the application to a secondary screen, and later switch to using only the primary screen, the GUI will open off-screen. The remedy is to delete the `preferences.json` file created by the application before running the application again.
-2. **If you minimize the Help Window** and then run the `help` command (or use the `Help` menu, or the keyboard shortcut `F1`) again, the original Help Window will remain minimized, and no new Help Window will appear. The remedy is to manually restore the minimized Help Window.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -203,6 +238,7 @@ _Details coming soon ..._
 Action | Format, Examples
 --------|------------------
 **Add** | `add n/NAME [p/PHONE_NUMBER] sch/SCHOOL lvl/LEVEL sub/Mathematics band/G1` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School lvl/S2 sub/Mathematics band/G1`
+**Add note** | `addnote INDEX c/TEXT`<br> e.g., `addnote 1 c/Weak in algebra`
 **Clear** | `clear`
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [sch/SCHOOL] [lvl/LEVEL]`<br> e.g., `edit 2 n/James Lee sch/Victoria School`

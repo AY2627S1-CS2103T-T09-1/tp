@@ -6,8 +6,6 @@ import static seedu.address.storage.JsonAdaptedPerson.MISSING_FIELD_MESSAGE_FORM
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.BENSON;
 
-import java.util.List;
-
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.exceptions.IllegalValueException;
@@ -53,9 +51,8 @@ public class JsonAdaptedPersonTest {
 
     @Test
     public void toModelType_personWithNotes_roundTripsThroughJson() throws Exception {
-        Person bensonWithNotes = new Person(BENSON.getName(), BENSON.getPhone().orElse(null), BENSON.getSchool(),
-                BENSON.getLevel(), BENSON.getSubjects(),
-                List.of("Weak in algebra", "WA2 Math: 36/50"));
+        Person bensonWithNotes = new PersonBuilder(BENSON)
+                .withNotes("Weak in algebra", "WA2 Math: 36/50").build();
         String json = JsonUtil.toJsonString(new JsonAdaptedPerson(bensonWithNotes));
 
         assertEquals(bensonWithNotes, JsonUtil.fromJsonString(json, JsonAdaptedPerson.class).toModelType());
