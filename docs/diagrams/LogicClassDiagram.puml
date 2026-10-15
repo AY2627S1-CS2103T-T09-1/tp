@@ -10,6 +10,7 @@ package "Parser Classes" as ParserClasses{
 }
 Class XYZCommand
 Class CommandResult
+Enum DisplayMode
 Class "{abstract}\nCommand" as Command
 
 
@@ -44,4 +45,5 @@ note right of XYZCommand: XYZCommand = AddCommand, \nFindCommand, etc
 Logic ..> CommandResult
 LogicManager .down.> CommandResult
 Command .up.> CommandResult : <<create>>
+CommandResult *--> "1" DisplayMode
 @enduml

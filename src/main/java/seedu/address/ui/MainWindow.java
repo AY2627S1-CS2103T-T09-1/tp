@@ -15,6 +15,7 @@ import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.logic.Logic;
 import seedu.address.logic.commands.CommandResult;
+import seedu.address.logic.commands.CommandResult.DisplayMode;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.exceptions.ParseException;
@@ -35,6 +36,7 @@ public class MainWindow extends UiPart<Stage> {
 
     // Independent Ui parts residing in this Ui container
     private PersonListPanel personListPanel;
+    private StudentDetailPanel studentDetailPanel;
     private ResultDisplay resultDisplay;
 
     @FXML
@@ -44,7 +46,7 @@ public class MainWindow extends UiPart<Stage> {
     private MenuItem helpMenuItem;
 
     @FXML
-    private StackPane personListPanelPlaceholder;
+    private StackPane contentPanelPlaceholder;
 
     @FXML
     private StackPane resultDisplayPlaceholder;
@@ -113,7 +115,7 @@ public class MainWindow extends UiPart<Stage> {
      */
     void fillInnerParts() {
         personListPanel = new PersonListPanel(logic.getFilteredPersonList());
-        personListPanelPlaceholder.getChildren().add(personListPanel.getRoot());
+        showPersonList();
 
         resultDisplay = new ResultDisplay();
         resultDisplayPlaceholder.getChildren().add(resultDisplay.getRoot());
@@ -175,6 +177,8 @@ public class MainWindow extends UiPart<Stage> {
             logger.info("Result: " + commandResult.getFeedbackToUser());
             resultDisplay.setFeedbackToUser(commandResult.getFeedbackToUser());
 
+            updateMainContent(commandResult);
+
             if (commandResult.isExit()) {
                 handleExit();
             }
@@ -185,5 +189,23 @@ public class MainWindow extends UiPart<Stage> {
             resultDisplay.setFeedbackToUser(e.getMessage());
             throw e;
         }
+    }
+
+    private void updateMainContent(CommandResult commandResult) {
+        DisplayMode displayMode = commandResult.getDisplayMode();
+        if (displayMode == DisplayMode.SHOW_LIST) {
+            showPersonList();
+        } else if (displayMode == DisplayMode.SHOW_STUDENT) {
+            studentDetailPanel = new StudentDetailPanel(
+                    commandResult.getPersonToDisplay().orElseThrow(),
+                    commandResult.getDisplayedIndex().orElseThrow(),
+                    logic.getFilteredPersonList());
+            contentPanelPlaceholder.getChildren().setAll(studentDetailPanel.getRoot());
+        }
+    }
+
+    private void showPersonList() {
+        studentDetailPanel = null;
+        contentPanelPlaceholder.getChildren().setAll(personListPanel.getRoot());
     }
 }
