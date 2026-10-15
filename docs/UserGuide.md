@@ -205,7 +205,7 @@ Format: `find n/NAME`
 
 * `NAME` can be any part of a name, even part of a word. For example, `avi` matches `David Lim`.
 * The search is not case-sensitive. For example, `n/DAVID` matches `David Lim`.
-* `NAME` is matched as one piece of text, including its spaces. For example, `n/david lim` matches `David Lim`, but `n/lim david` does not.
+* `NAME` is matched as one contiguous piece of text, including its spaces. Separate words are not treated as alternatives: `n/david lim` matches `David Lim`, but `n/lim david` and `n/chloe marcus` do not match the sample names.
 * Extra spaces in `NAME` are ignored. For example, `n/david   lim` is the same as `n/david lim`.
 * Give `n/` only once.
 * The search checks names only.
@@ -214,8 +214,8 @@ Format: `find n/NAME`
 
 Examples:
 * `find n/loe tan` returns `Chloe Tan`
-* `find n/chloe marcus` returns `Chloe Tan` and `Marcus Lim` from the sample student list.<br>
-  ![Results for find n/chloe marcus](images/findChloeMarcusResult.png)
+* `find n/c` returns `Chloe Tan` and `Marcus Lim` from the sample student list.<br>
+  ![Results for find c](images/findChloeMarcusResult.png)
 
 ### Deleting a person: `delete`
 
