@@ -1,9 +1,11 @@
 {
   "persons": [ {
     "name": "Alice Pauline",
-    "phone": "94351253"
+    "phone": "94351253",
+    "level": "S1"
   }, {
     "name": "Alice Pauline",
-    "phone": "94351253"
+    "phone": "94351253",
+    "level": "S1"
   } ]
 }

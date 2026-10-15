@@ -1,5 +1,6 @@
 package seedu.address.testutil;
 
+import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
@@ -13,10 +14,12 @@ public class PersonBuilder {
     public static final String DEFAULT_NAME = "Amy Bee";
     public static final String DEFAULT_PHONE = "85355255";
     public static final String DEFAULT_SCHOOL = "ABC Secondary School";
+    public static final String DEFAULT_LEVEL = "S3";
 
     private Name name;
     private Phone phone;
     private School school;
+    private Level level;
 
     /**
      * Creates a {@code PersonBuilder} with the default details.
@@ -25,6 +28,7 @@ public class PersonBuilder {
         name = new Name(DEFAULT_NAME);
         phone = new Phone(DEFAULT_PHONE);
         school = new School(DEFAULT_SCHOOL);
+        level = Level.fromString(DEFAULT_LEVEL);
     }
 
     /**
@@ -34,6 +38,7 @@ public class PersonBuilder {
         name = personToCopy.getName();
         phone = personToCopy.getPhone().orElse(null);
         school = personToCopy.getSchool();
+        level = personToCopy.getLevel();
     }
 
     /**
@@ -68,8 +73,16 @@ public class PersonBuilder {
         return this;
     }
 
+    /**
+     * Sets the {@code Level} of the {@code Person} that we are building.
+     */
+    public PersonBuilder withLevel(String level) {
+        this.level = Level.fromString(level);
+        return this;
+    }
+
     public Person build() {
-        return new Person(name, phone, school);
+        return new Person(name, phone, school, level);
     }
 
 }

@@ -5,6 +5,7 @@ import static java.util.Objects.requireNonNull;
 import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.StringUtil;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
@@ -72,6 +73,21 @@ public class ParserUtil {
             throw new ParseException(School.MESSAGE_CONSTRAINTS);
         }
         return new School(trimmedSchool);
+    }
+
+    /**
+     * Parses a {@code String level} into a {@code Level}.
+     * Leading and trailing whitespaces will be trimmed, and case is ignored.
+     *
+     * @throws ParseException if the given {@code level} is invalid.
+     */
+    public static Level parseLevel(String level) throws ParseException {
+        requireNonNull(level);
+        try {
+            return Level.fromString(level);
+        } catch (IllegalArgumentException e) {
+            throw new ParseException(Level.MESSAGE_CONSTRAINTS);
+        }
     }
 
 }

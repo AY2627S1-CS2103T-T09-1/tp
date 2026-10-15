@@ -1,8 +1,11 @@
 package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.logic.commands.CommandTestUtil.INVALID_LEVEL_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_NAME_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_PHONE_DESC;
+import static seedu.address.logic.commands.CommandTestUtil.LEVEL_DESC_AMY;
+import static seedu.address.logic.commands.CommandTestUtil.LEVEL_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.NAME_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.NAME_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.PHONE_DESC_AMY;
@@ -13,6 +16,7 @@ import static seedu.address.logic.commands.CommandTestUtil.SCHOOL_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.SCHOOL_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_NAME_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_PHONE_BOB;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
@@ -24,6 +28,7 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.AddCommand;
+import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
@@ -35,7 +40,7 @@ public class AddCommandParserTest {
 
     @Test
     public void parse_invalidSchool_failure() {
-        String person = NAME_DESC_BOB + PHONE_DESC_BOB;
+        String person = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB;
         String missingSchoolMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddCommand.MESSAGE_USAGE);
         assertParseFailure(parser, person, missingSchoolMessage);
         assertParseFailure(parser, person + "sch/Victoria School", missingSchoolMessage);
@@ -49,23 +54,33 @@ public class AddCommandParserTest {
         Person expectedPerson = BOB;
 
         // whitespace only preamble
-        assertParseSuccess(parser, PREAMBLE_WHITESPACE + SCHOOL_DESC_BOB + NAME_DESC_BOB + PHONE_DESC_BOB,
+        assertParseSuccess(parser, PREAMBLE_WHITESPACE + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + NAME_DESC_BOB
+                + PHONE_DESC_BOB,
                 new AddCommand(expectedPerson));
 
         // fields in a different order
-        assertParseSuccess(parser, NAME_DESC_BOB + PHONE_DESC_BOB + SCHOOL_DESC_BOB,
+        assertParseSuccess(parser, NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB,
                 new AddCommand(expectedPerson));
     }
 
     @Test
     public void parse_phoneMissing_success() {
         Person expectedPerson = new PersonBuilder(BOB).withoutPhone().build();
-        assertParseSuccess(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB, new AddCommand(expectedPerson));
+        assertParseSuccess(parser, NAME_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB, new AddCommand(expectedPerson));
+    }
+
+    @Test
+    public void parse_emptyPhone_failure() {
+        // p/ with no number is rejected; leave out p/ to add a student without a phone
+        assertParseFailure(parser, NAME_DESC_BOB + " " + PREFIX_PHONE + LEVEL_DESC_BOB + SCHOOL_DESC_BOB,
+                Phone.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, NAME_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + " " + PREFIX_PHONE + "  ",
+                Phone.MESSAGE_CONSTRAINTS);
     }
 
     @Test
     public void parse_repeatedValue_failure() {
-        String validExpectedPersonString = NAME_DESC_BOB + PHONE_DESC_BOB + SCHOOL_DESC_BOB;
+        String validExpectedPersonString = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB;
 
         // multiple names
         assertParseFailure(parser, NAME_DESC_AMY + validExpectedPersonString,
@@ -75,6 +90,10 @@ public class AddCommandParserTest {
         assertParseFailure(parser, PHONE_DESC_AMY + validExpectedPersonString,
                 Messages.getErrorMessageForDuplicatePrefixes(PREFIX_PHONE));
 
+        // multiple levels
+        assertParseFailure(parser, LEVEL_DESC_AMY + validExpectedPersonString,
+                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_LEVEL));
+
         // multiple schools
         assertParseFailure(parser, SCHOOL_DESC_AMY + validExpectedPersonString,
                 Messages.getErrorMessageForDuplicatePrefixes(PREFIX_SCHOOL));
@@ -82,7 +101,7 @@ public class AddCommandParserTest {
         // multiple fields repeated
         assertParseFailure(parser,
                 validExpectedPersonString + PHONE_DESC_AMY + NAME_DESC_AMY + validExpectedPersonString,
-                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL));
+                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_LEVEL));
 
         // invalid value followed by valid value
 
@@ -110,7 +129,10 @@ public class AddCommandParserTest {
         String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddCommand.MESSAGE_USAGE);
 
         // missing name prefix
-        assertParseFailure(parser, SCHOOL_DESC_BOB + VALID_NAME_BOB + PHONE_DESC_BOB, expectedMessage);
+        assertParseFailure(parser, LEVEL_DESC_BOB + SCHOOL_DESC_BOB + VALID_NAME_BOB + PHONE_DESC_BOB, expectedMessage);
+
+        // missing level prefix
+        assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + SCHOOL_DESC_BOB, expectedMessage);
 
         // all prefixes missing
         assertParseFailure(parser, VALID_NAME_BOB + VALID_PHONE_BOB, expectedMessage);
@@ -119,27 +141,34 @@ public class AddCommandParserTest {
     @Test
     public void parse_invalidValue_failure() {
         // invalid name
-        assertParseFailure(parser, SCHOOL_DESC_BOB + INVALID_NAME_DESC + PHONE_DESC_BOB,
+        assertParseFailure(parser, LEVEL_DESC_BOB + SCHOOL_DESC_BOB + INVALID_NAME_DESC + PHONE_DESC_BOB,
                 Name.MESSAGE_CONSTRAINTS);
 
         // invalid phone
-        assertParseFailure(parser, SCHOOL_DESC_BOB + NAME_DESC_BOB + INVALID_PHONE_DESC,
+        assertParseFailure(parser, LEVEL_DESC_BOB + SCHOOL_DESC_BOB + NAME_DESC_BOB + INVALID_PHONE_DESC,
                 Phone.MESSAGE_CONSTRAINTS);
 
+        // invalid level
+        assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + INVALID_LEVEL_DESC + SCHOOL_DESC_BOB,
+                Level.MESSAGE_CONSTRAINTS);
+
         // two invalid values, only first invalid value reported
-        assertParseFailure(parser, SCHOOL_DESC_BOB + INVALID_NAME_DESC + INVALID_PHONE_DESC,
+        assertParseFailure(parser, LEVEL_DESC_BOB + SCHOOL_DESC_BOB + INVALID_NAME_DESC + INVALID_PHONE_DESC,
                 Name.MESSAGE_CONSTRAINTS);
 
         // removed prefixes are no longer recognized, so their text joins the preceding value
-        assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + SCHOOL_DESC_BOB + " e/bob@example.com",
+        assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB
+                + " e/bob@example.com",
                 School.MESSAGE_CONSTRAINTS);
-        assertParseFailure(parser, NAME_DESC_BOB + " a/Clementi Road" + PHONE_DESC_BOB + SCHOOL_DESC_BOB,
+        assertParseFailure(parser, NAME_DESC_BOB + " a/Clementi Road" + PHONE_DESC_BOB + LEVEL_DESC_BOB
+                + SCHOOL_DESC_BOB,
                 Name.MESSAGE_CONSTRAINTS);
-        assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + SCHOOL_DESC_BOB + " t/friend",
+        assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + " t/friend",
                 School.MESSAGE_CONSTRAINTS);
 
         // non-empty preamble
-        assertParseFailure(parser, PREAMBLE_NON_EMPTY + NAME_DESC_BOB + PHONE_DESC_BOB + SCHOOL_DESC_BOB,
+        assertParseFailure(parser, PREAMBLE_NON_EMPTY + NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB
+                + SCHOOL_DESC_BOB,
                 String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddCommand.MESSAGE_USAGE));
     }
 }

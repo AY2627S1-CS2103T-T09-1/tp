@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 
 import seedu.address.logic.parser.Prefix;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.Phone;
 
 /**
  * Container for user visible messages.
@@ -16,6 +17,7 @@ public class Messages {
     public static final String MESSAGE_INVALID_COMMAND_FORMAT = "Invalid command format!\n%1$s";
     public static final String MESSAGE_INVALID_PERSON_DISPLAYED_INDEX = "The person index provided is invalid.";
     public static final String MESSAGE_PERSONS_LISTED_OVERVIEW = "%1$d person(s) listed!";
+    public static final String MESSAGE_PHONE_NOT_PROVIDED = "Not provided";
     public static final String MESSAGE_DUPLICATE_FIELDS =
                 "Multiple values specified for the following single-valued field(s): ";
 
@@ -36,10 +38,13 @@ public class Messages {
      */
     public static String format(Person person) {
         final StringBuilder builder = new StringBuilder();
-        builder.append(person.getName());
-        person.getPhone().ifPresent(phone -> builder.append("; Phone: ").append(phone));
-        builder.append("; School: ")
-                .append(person.getSchool());
+        builder.append(person.getName())
+                .append("; Phone: ")
+                .append(person.getPhone().map(Phone::toString).orElse(MESSAGE_PHONE_NOT_PROVIDED))
+                .append("; School: ")
+                .append(person.getSchool())
+                .append("; Level: ")
+                .append(person.getLevel());
         return builder.toString();
     }
 

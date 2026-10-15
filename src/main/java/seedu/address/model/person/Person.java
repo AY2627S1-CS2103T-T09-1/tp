@@ -22,25 +22,27 @@ public class Person {
 
     // Data fields
     private final School school;
+    private final Level level;
     private final List<String> notes = new ArrayList<>();
 
     /**
      * Every field except {@code phone} must be present and not null.
      * A null {@code phone} means the person has no phone number.
      */
-    public Person(Name name, Phone phone, School school) {
-        this(name, phone, school, List.of());
+    public Person(Name name, Phone phone, School school, Level level) {
+        this(name, phone, school, level, List.of());
     }
 
     /**
      * Every field except {@code phone} must be present and not null.
      * A null {@code phone} means the person has no phone number.
      */
-    public Person(Name name, Phone phone, School school, List<String> notes) {
-        requireAllNonNull(name, school, notes);
+    public Person(Name name, Phone phone, School school, Level level, List<String> notes) {
+        requireAllNonNull(name, school, level, notes);
         this.name = name;
         this.phone = phone;
         this.school = school;
+        this.level = level;
         this.notes.addAll(notes);
     }
 
@@ -54,6 +56,10 @@ public class Person {
 
     public School getSchool() {
         return school;
+    }
+
+    public Level getLevel() {
+        return level;
     }
 
     public List<String> getNotes() {
@@ -91,13 +97,14 @@ public class Person {
         return name.equals(otherPerson.name)
                 && Objects.equals(phone, otherPerson.phone)
                 && school.equals(otherPerson.school)
+                && level.equals(otherPerson.level)
                 && notes.equals(otherPerson.notes);
     }
 
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(name, phone, school, notes);
+        return Objects.hash(name, phone, school, level, notes);
     }
 
     @Override
@@ -106,6 +113,7 @@ public class Person {
                 .add("name", name)
                 .add("phone", phone)
                 .add("school", school)
+                .add("level", level)
                 .toString();
     }
 

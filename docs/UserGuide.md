@@ -28,7 +28,7 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 
    * `list` : Lists all contacts.
 
-   * `add n/John Doe p/98765432 sch/Victoria School` : Adds a contact named `John Doe` to the Address Book.
+   * `add n/John Doe p/98765432 sch/Victoria School lvl/S3` : Adds a contact named `John Doe` to the Address Book.
 
    * `delete 3` : Deletes the 3rd contact shown in the current list.
 
@@ -74,14 +74,15 @@ Format: `help`
 
 Adds a person to the address book.
 
-Format: `add n/NAME [p/PHONE_NUMBER] sch/SCHOOL`
+Format: `add n/NAME [p/PHONE_NUMBER] sch/SCHOOL lvl/LEVEL`
 
 * The phone number is optional, since younger students may not have their own phone.
+* `LEVEL` must be one of `S1`, `S2`, `S3`, `S4` or `S5`. It is not case-sensitive, so `s3` also works.
 
 Examples:
-* `add n/John Doe p/98765432 sch/Victoria School`
-* `add n/Betsy Crowe sch/Bedok Green Secondary School p/81234567`
-* `add n/Tim Tan sch/Victoria School` adds a student without a phone number.
+* `add n/John Doe p/98765432 sch/Victoria School lvl/S3`
+* `add n/Betsy Crowe lvl/S1 sch/Bedok Green Secondary School p/81234567`
+* `add n/Tim Tan sch/Victoria School lvl/S2` adds a student without a phone number.
 
 ### Listing all persons: `list`
 
@@ -105,7 +106,7 @@ Example: `view 2` shows the second student in the currently displayed list.
 
 Edits an existing person in the address book.
 
-Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL]`
+Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL]`
 
 * Edits the person at the specified `INDEX`. The index refers to the index number shown in the displayed person list. The index **must be a positive integer** 1, 2, 3, …​
 * At least one of the optional fields must be provided.
@@ -116,6 +117,7 @@ Examples:
 *  `edit 1 p/91234567 sch/Victoria School` Edits the phone number and school of the 1st person to be `91234567` and `Victoria School` respectively.
 *  `edit 2 n/Betsy Crower` Edits the name of the 2nd person to be `Betsy Crower`.
 *  `edit 3 p/` Removes the phone number of the 3rd person.
+*  `edit 1 lvl/S4` Edits the level of the 1st person to be `S4`.
 
 ### Locating persons by name: `find`
 
@@ -197,10 +199,10 @@ _Details coming soon ..._
 
 Action | Format, Examples
 --------|------------------
-**Add** | `add n/NAME [p/PHONE_NUMBER] sch/SCHOOL` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School`
+**Add** | `add n/NAME [p/PHONE_NUMBER] sch/SCHOOL lvl/LEVEL` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School lvl/S2`
 **Clear** | `clear`
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
-**Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [sch/SCHOOL]`<br> e.g., `edit 2 n/James Lee sch/Victoria School`
+**Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [sch/SCHOOL] [lvl/LEVEL]`<br> e.g., `edit 2 n/James Lee sch/Victoria School`
 **Find** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
 **List** | `list`
 **Help** | `help`
