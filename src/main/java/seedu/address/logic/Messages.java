@@ -47,6 +47,7 @@ public class Messages {
                 .append(person.getLevel())
                 .append("; Subjects: ")
                 .append(person.getSubjects());
+        person.getGuardian().ifPresent(guardian -> builder.append("; Guardian: ").append(guardian));
         return builder.toString();
     }
 
