@@ -2,10 +2,12 @@
   "persons": [ {
     "name": "Alice Pauline",
     "phone": "94351253",
-    "level": "S1"
+    "level": "S1",
+    "subjects" : [{ "name" : "Mathematics", "band" : "G1" }]
   }, {
     "name": "Alice Pauline",
     "phone": "94351253",
-    "level": "S1"
+    "level": "S1",
+    "subjects" : [{ "name" : "Mathematics", "band" : "G1" }]
   } ]
 }

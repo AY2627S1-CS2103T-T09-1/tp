@@ -5,12 +5,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import seedu.address.model.person.Band;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
+import seedu.address.model.person.Subject;
 
 /**
  * A utility class to help with building Person objects.
@@ -26,6 +28,7 @@ public class PersonBuilder {
     private Phone phone;
     private School school;
     private Level level;
+    private List<Subject> subjects;
     private List<Note> notes;
 
     /**
@@ -36,6 +39,7 @@ public class PersonBuilder {
         phone = new Phone(DEFAULT_PHONE);
         school = new School(DEFAULT_SCHOOL);
         level = Level.fromString(DEFAULT_LEVEL);
+        subjects = List.of(new Subject("Mathematics", Band.G1));
         notes = new ArrayList<>();
     }
 
@@ -47,6 +51,7 @@ public class PersonBuilder {
         phone = personToCopy.getPhone().orElse(null);
         school = personToCopy.getSchool();
         level = personToCopy.getLevel();
+        subjects = personToCopy.getSubjects();
         notes = new ArrayList<>(personToCopy.getNotes());
     }
 
@@ -100,8 +105,16 @@ public class PersonBuilder {
         return this;
     }
 
+    /**
+     * Sets the subjects of the person being built.
+     */
+    public PersonBuilder withSubjects(Subject... subjects) {
+        this.subjects = List.of(subjects);
+        return this;
+    }
+
     public Person build() {
-        return new Person(name, phone, school, level, notes);
+        return new Person(name, phone, school, level, subjects, notes);
     }
 
 }

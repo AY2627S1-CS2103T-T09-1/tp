@@ -1,20 +1,31 @@
 package seedu.address.logic.parser;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.StringUtil;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.person.Band;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
+import seedu.address.model.person.Person;
 import seedu.address.model.person.Note;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
+import seedu.address.model.person.Subject;
 
 /**
  * Contains utility methods used for parsing strings in the various *Parser classes.
  */
 public class ParserUtil {
+
+    public static final String MESSAGE_SUBJECT_BAND_PAIR =
+            "Each sub/ must be immediately followed by one band/.";
 
     public static final String MESSAGE_INVALID_INDEX = "Index must be a positive integer.";
 
@@ -92,6 +103,59 @@ public class ParserUtil {
     }
 
     /**
+     * Parses a subject name and its mandatory band, trimming surrounding spaces.
+     */
+    public static Subject parseSubject(String name, String band) throws ParseException {
+        requireNonNull(name);
+        requireNonNull(band);
+        try {
+            return new Subject(name.trim(), Band.fromString(band));
+        } catch (IllegalArgumentException e) {
+            throw new ParseException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Parses ordered subject-band pairs and validates their count and uniqueness.
+     */
+    public static List<Subject> parseSubjects(ArgumentMultimap arguments) throws ParseException {
+        if (arguments.getAllValues(PREFIX_SUBJECT).isEmpty()) {
+            throw new ParseException("Missing required parameter: sub/.");
+        }
+        validateSubjectBandPairs(arguments.getPrefixes());
+        List<String> names = arguments.getAllValues(PREFIX_SUBJECT);
+        if (names.size() > Person.MAX_SUBJECTS) {
+            throw new ParseException(Person.MESSAGE_TOO_MANY_SUBJECTS);
+        }
+        List<String> bands = arguments.getAllValues(PREFIX_BAND);
+        List<Subject> subjects = new ArrayList<>();
+        for (int i = 0; i < names.size(); i++) {
+            subjects.add(ParserUtil.parseSubject(names.get(i), bands.get(i)));
+        }
+        try {
+            Person.validateSubjects(subjects);
+        } catch (IllegalArgumentException e) {
+            throw new ParseException(e.getMessage(), e);
+        }
+        return subjects;
+    }
+
+    /**
+     * Rejects unmatched or non-adjacent subject and band prefixes.
+     */
+    private static void validateSubjectBandPairs(List<Prefix> prefixes) throws ParseException {
+        for (int i = 0; i < prefixes.size(); i++) {
+            if (PREFIX_SUBJECT.equals(prefixes.get(i))) {
+                if (i + 1 >= prefixes.size() || !PREFIX_BAND.equals(prefixes.get(i + 1))) {
+                    throw new ParseException(MESSAGE_SUBJECT_BAND_PAIR);
+                }
+                i++;
+            } else if (PREFIX_BAND.equals(prefixes.get(i))) {
+                throw new ParseException(MESSAGE_SUBJECT_BAND_PAIR);
+            }
+        }
+    }
+
      * Parses a {@code String note} into a {@code Note}.
      * Leading and trailing whitespaces will be trimmed.
      *

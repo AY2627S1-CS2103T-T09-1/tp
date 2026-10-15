@@ -1,10 +1,12 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
 import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
 import java.util.List;
@@ -22,6 +24,7 @@ import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
+import seedu.address.model.person.Subject;
 
 /**
  * Edits the details of an existing person in the address book.
@@ -38,7 +41,8 @@ public class EditCommand extends Command {
             + "[" + PREFIX_NAME + "NAME] "
             + "[" + PREFIX_PHONE + "PHONE] "
             + "[" + PREFIX_SCHOOL + "SCHOOL] "
-            + "[" + PREFIX_LEVEL + "LEVEL]\n"
+            + "[" + PREFIX_LEVEL + "LEVEL] "
+            + "[" + PREFIX_SUBJECT + "SUBJECT " + PREFIX_BAND + "BAND]...\n"
             + "Example: " + COMMAND_WORD + " 1 "
             + PREFIX_PHONE + "91234567 "
             + PREFIX_SCHOOL + "Victoria School "
@@ -98,7 +102,9 @@ public class EditCommand extends Command {
         School updatedSchool = editPersonDescriptor.getSchool().orElse(personToEdit.getSchool());
         Level updatedLevel = editPersonDescriptor.getLevel().orElse(personToEdit.getLevel());
 
-        return new Person(updatedName, updatedPhone, updatedSchool, updatedLevel, personToEdit.getNotes());
+        List<Subject> updatedSubjects = editPersonDescriptor.getSubjects().orElse(personToEdit.getSubjects());
+        return new Person(updatedName, updatedPhone, updatedSchool, updatedLevel,
+                updatedSubjects, personToEdit.getNotes());
     }
 
     @Override
@@ -134,6 +140,7 @@ public class EditCommand extends Command {
         private boolean isPhoneRemoved;
         private School school;
         private Level level;
+        private List<Subject> subjects;
 
         public EditPersonDescriptor() {}
 
@@ -146,13 +153,14 @@ public class EditCommand extends Command {
             isPhoneRemoved = toCopy.isPhoneRemoved;
             setSchool(toCopy.school);
             setLevel(toCopy.level);
+            setSubjects(toCopy.subjects);
         }
 
         /**
          * Returns true if at least one field is edited.
          */
         public boolean isAnyFieldEdited() {
-            return CollectionUtil.isAnyNonNull(name, phone, school, level) || isPhoneRemoved;
+            return CollectionUtil.isAnyNonNull(name, phone, school, level, subjects) || isPhoneRemoved;
         }
 
         public void setName(Name name) {
@@ -199,6 +207,20 @@ public class EditCommand extends Command {
             return Optional.ofNullable(level);
         }
 
+        /**
+         * Sets a defensive copy of the validated replacement subjects.
+         */
+        public void setSubjects(List<Subject> subjects) {
+            if (subjects != null) {
+                Person.validateSubjects(subjects);
+            }
+            this.subjects = subjects == null ? null : List.copyOf(subjects);
+        }
+
+        public Optional<List<Subject>> getSubjects() {
+            return Optional.ofNullable(subjects);
+        }
+
         @Override
         public boolean equals(Object other) {
             if (other == this) {
@@ -214,7 +236,8 @@ public class EditCommand extends Command {
                     && Objects.equals(phone, otherEditPersonDescriptor.phone)
                     && isPhoneRemoved == otherEditPersonDescriptor.isPhoneRemoved
                     && Objects.equals(school, otherEditPersonDescriptor.school)
-                    && Objects.equals(level, otherEditPersonDescriptor.level);
+                    && Objects.equals(level, otherEditPersonDescriptor.level)
+                    && Objects.equals(subjects, otherEditPersonDescriptor.subjects);
         }
 
         @Override
@@ -225,6 +248,7 @@ public class EditCommand extends Command {
                     .add("isPhoneRemoved", isPhoneRemoved)
                     .add("school", school)
                     .add("level", level)
+                    .add("subjects", subjects)
                     .toString();
         }
     }
