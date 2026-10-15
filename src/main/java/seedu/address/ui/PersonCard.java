@@ -41,6 +41,8 @@ public class PersonCard extends UiPart<Region> {
     private Label subjects;
     @FXML
     private Label notes;
+    @FXML
+    private Label guardian;
 
     /**
      * Creates a {@code PersonCard} with the given {@code Person} and index to display.
@@ -53,6 +55,10 @@ public class PersonCard extends UiPart<Region> {
         person.getPhone().ifPresentOrElse(p -> phone.setText(p.value), () -> {
             phone.setVisible(false);
             phone.setManaged(false);
+        });
+        person.getGuardian().ifPresentOrElse(g -> guardian.setText("Guardian: " + g), () -> {
+            guardian.setVisible(false);
+            guardian.setManaged(false);
         });
         school.setText(person.getSchool().value);
         level.setText(person.getLevel().name());

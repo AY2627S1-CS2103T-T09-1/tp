@@ -42,6 +42,20 @@ public class AddNoteCommandTest {
     }
 
     @Test
+    public void execute_personWithGuardian_keepsGuardian() {
+        Person original = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Person person = new PersonBuilder(original).withGuardian("Mary Tan", "91234567").build();
+        model.setPerson(original, person);
+        Person editedPerson = new PersonBuilder(person).withNotes(NOTE_TEXT).build();
+        String expectedMessage = String.format(AddNoteCommand.MESSAGE_SUCCESS, person.getName(), NOTE);
+
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        expectedModel.setPerson(person, editedPerson);
+
+        assertCommandSuccess(new AddNoteCommand(INDEX_FIRST_PERSON, NOTE), model, expectedMessage, expectedModel);
+    }
+
+    @Test
     public void execute_existingNotes_appendsNoteAtEnd() {
         Person person = addNotesToFirstPerson(NOTE_TEXT);
         Person editedPerson = new PersonBuilder(person).withNotes(NOTE_TEXT, OTHER_NOTE_TEXT).build();

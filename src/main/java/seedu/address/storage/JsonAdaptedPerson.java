@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import seedu.address.commons.exceptions.IllegalValueException;
+import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Note;
@@ -35,6 +36,10 @@ class JsonAdaptedPerson {
     private final List<JsonAdaptedSubject> subjects = new ArrayList<>();
     // Set by Jackson directly, so files without notes still load
     private final List<JsonAdaptedNote> notes = new ArrayList<>();
+    // Set by Jackson directly, so files without a guardian still load.
+    // Left out of the file when the person has no guardian.
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private JsonAdaptedGuardian guardian;
 
     /**
      * Constructs a {@code JsonAdaptedPerson} with the given person details.
@@ -63,6 +68,7 @@ class JsonAdaptedPerson {
         subjects.addAll(source.getSubjects().stream().map(JsonAdaptedSubject::new).toList());
         notes.addAll(source.getNotes().stream()
             .map(JsonAdaptedNote::new).collect(Collectors.toList()));
+        guardian = source.getGuardian().map(JsonAdaptedGuardian::new).orElse(null);
     }
 
     /**
@@ -109,8 +115,11 @@ class JsonAdaptedPerson {
         }
 
         final List<Note> modelNotes = toModelNotes();
+        // Guardian is optional, so a missing guardian means the person has no guardian
+        final Guardian modelGuardian = guardian == null ? null : guardian.toModelType();
         try {
-            return new Person(modelName, modelPhone, modelSchool, modelLevel, modelSubjects, modelNotes);
+            return new Person(modelName, modelPhone, modelSchool, modelLevel, modelSubjects, modelNotes,
+                    modelGuardian);
         } catch (IllegalArgumentException e) {
             throw new IllegalValueException(e.getMessage(), e);
         }

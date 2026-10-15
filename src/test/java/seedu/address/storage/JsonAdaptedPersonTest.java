@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.commons.util.JsonUtil;
 import seedu.address.model.person.Band;
+import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
@@ -112,6 +113,46 @@ public class JsonAdaptedPersonTest {
 
         assertFalse(json.contains("phone"));
         assertEquals(bensonWithoutPhone, JsonUtil.fromJsonString(json, JsonAdaptedPerson.class).toModelType());
+    }
+
+    @Test
+    public void toModelType_personWithGuardian_roundTripsThroughJson() throws Exception {
+        Person bensonWithGuardian = new PersonBuilder(BENSON).withGuardian("Mary Tan", "91234567").build();
+        String json = JsonUtil.toJsonString(new JsonAdaptedPerson(bensonWithGuardian));
+
+        assertEquals(bensonWithGuardian, JsonUtil.fromJsonString(json, JsonAdaptedPerson.class).toModelType());
+    }
+
+    @Test
+    public void toModelType_personWithoutGuardian_omitsGuardianKey() throws Exception {
+        String json = JsonUtil.toJsonString(new JsonAdaptedPerson(BENSON));
+
+        assertFalse(json.contains("guardian"));
+        assertEquals(BENSON, JsonUtil.fromJsonString(json, JsonAdaptedPerson.class).toModelType());
+    }
+
+    @Test
+    public void toModelType_invalidGuardian_throwsIllegalValueException() throws Exception {
+        Person bensonWithGuardian = new PersonBuilder(BENSON).withGuardian("Mary Tan", "91234567").build();
+        String json = JsonUtil.toJsonString(new JsonAdaptedPerson(bensonWithGuardian));
+
+        JsonAdaptedPerson invalidName = JsonUtil.fromJsonString(
+                json.replace("Mary Tan", "Mary&"), JsonAdaptedPerson.class);
+        assertThrows(IllegalValueException.class, Guardian.MESSAGE_NAME_CONSTRAINTS, invalidName::toModelType);
+
+        JsonAdaptedPerson invalidPhone = JsonUtil.fromJsonString(
+                json.replace("91234567", "9123a"), JsonAdaptedPerson.class);
+        assertThrows(IllegalValueException.class, Guardian.MESSAGE_PHONE_CONSTRAINTS, invalidPhone::toModelType);
+
+        JsonAdaptedPerson missingName = JsonUtil.fromJsonString(
+                json.replace("\"Mary Tan\"", "null"), JsonAdaptedPerson.class);
+        assertThrows(IllegalValueException.class, String.format(JsonAdaptedGuardian.MISSING_FIELD_MESSAGE_FORMAT,
+                Name.class.getSimpleName()), missingName::toModelType);
+
+        JsonAdaptedPerson missingPhone = JsonUtil.fromJsonString(
+                json.replace("\"91234567\"", "null"), JsonAdaptedPerson.class);
+        assertThrows(IllegalValueException.class, String.format(JsonAdaptedGuardian.MISSING_FIELD_MESSAGE_FORMAT,
+                Phone.class.getSimpleName()), missingPhone::toModelType);
     }
 
     @Test

@@ -5,6 +5,7 @@ import java.util.List;
 import seedu.address.model.AddressBook;
 import seedu.address.model.ReadOnlyAddressBook;
 import seedu.address.model.person.Band;
+import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
@@ -25,13 +26,15 @@ public class SampleDataUtil {
     public static Person[] getSamplePersons() {
         return new Person[] {
             new Person(new Name("Alex Yeoh"), new Phone("87438807"),
-                    new School("Hwa Chong Institution"), Level.S3, List.of(new Subject("Mathematics", Band.G1))),
+                    new School("Hwa Chong Institution"), Level.S3, List.of(new Subject("Mathematics", Band.G1)),
+                    List.of(), new Guardian(new Name("Grace Yeoh"), new Phone("98765432"))),
             new Person(new Name("Bernice Yu"), new Phone("99272758"),
                     new School("Nanyang Girls’ High School"), Level.S2, List.of(new Subject("Mathematics", Band.G1))),
             new Person(new Name("Charlotte Oliveiro"), new Phone("93210283"),
                     new School("National Junior College"), Level.S4, List.of(new Subject("Mathematics", Band.G1))),
             new Person(new Name("David Li"), new Phone("91031282"),
-                    new School("River Valley High School"), Level.S1, List.of(new Subject("Mathematics", Band.G1))),
+                    new School("River Valley High School"), Level.S1, List.of(new Subject("Mathematics", Band.G1)),
+                    List.of(), new Guardian(new Name("Li Wei Ming"), new Phone("91234567"))),
             new Person(new Name("Irfan Ibrahim"), new Phone("92492021"),
                     new School("Anglo-Chinese School"), Level.S5, List.of(new Subject("Mathematics", Band.G1))),
             new Person(new Name("Roy Balakrishnan"), new Phone("92624417"),
