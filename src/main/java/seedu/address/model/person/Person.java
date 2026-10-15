@@ -29,7 +29,7 @@ public class Person {
     // Data fields
     private final School school;
     private final Level level;
-    private final List<Subject> subjects;  
+    private final List<Subject> subjects;
     private final List<Note> notes = new ArrayList<>();
 
     /**
