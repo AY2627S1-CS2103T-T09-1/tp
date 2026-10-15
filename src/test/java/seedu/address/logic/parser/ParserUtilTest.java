@@ -2,11 +2,13 @@ package seedu.address.logic.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_INDEX;
+import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_NID;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 
 import org.junit.jupiter.api.Test;
 
+import seedu.address.commons.core.index.Index;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Note;
@@ -40,6 +42,21 @@ public class ParserUtilTest {
 
         // Leading and trailing whitespaces
         assertEquals(INDEX_FIRST_PERSON, ParserUtil.parseIndex("  1  "));
+    }
+
+    @Test
+    public void parseNid_validInput_returnsIndex() throws Exception {
+        assertEquals(Index.fromOneBased(1), ParserUtil.parseNid("1"));
+        assertEquals(Index.fromOneBased(2), ParserUtil.parseNid("  2  "));
+    }
+
+    @Test
+    public void parseNid_invalidInput_throwsParseException() {
+        assertThrows(ParseException.class, MESSAGE_INVALID_NID, () -> ParserUtil.parseNid("0"));
+        assertThrows(ParseException.class, MESSAGE_INVALID_NID, () -> ParserUtil.parseNid("-1"));
+        assertThrows(ParseException.class, MESSAGE_INVALID_NID, () -> ParserUtil.parseNid("abc"));
+        assertThrows(ParseException.class, MESSAGE_INVALID_NID, () -> ParserUtil.parseNid(""));
+        assertThrows(ParseException.class, MESSAGE_INVALID_NID, () -> ParserUtil.parseNid("2147483648"));
     }
 
     @Test
