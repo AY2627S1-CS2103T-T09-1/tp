@@ -70,6 +70,15 @@ public class AddCommandParserTest {
     }
 
     @Test
+    public void parse_emptyPhone_failure() {
+        // p/ with no number is rejected; leave out p/ to add a student without a phone
+        assertParseFailure(parser, NAME_DESC_BOB + " " + PREFIX_PHONE + LEVEL_DESC_BOB + SCHOOL_DESC_BOB,
+                Phone.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, NAME_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + " " + PREFIX_PHONE + "  ",
+                Phone.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
     public void parse_repeatedValue_failure() {
         String validExpectedPersonString = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB;
 

@@ -91,9 +91,10 @@ public class PersonTest {
     }
 
     @Test
-    public void format_noPhone_omitsPhone() {
+    public void format_noPhone_showsNotProvided() {
         Person aliceWithoutPhone = new PersonBuilder(ALICE).withoutPhone().build();
-        assertEquals(ALICE.getName() + "; School: " + ALICE.getSchool() + "; Level: S1",
+        assertEquals(ALICE.getName() + "; Phone: " + Messages.MESSAGE_PHONE_NOT_PROVIDED + "; School: "
+                + ALICE.getSchool() + "; Level: S1",
                 Messages.format(aliceWithoutPhone));
     }
 
