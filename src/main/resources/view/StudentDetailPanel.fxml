@@ -30,17 +30,17 @@
           <Label styleClass="student-detail-field-name" text="Name" GridPane.rowIndex="0" />
           <Label fx:id="name" styleClass="student-detail-field-value" wrapText="true"
                  GridPane.columnIndex="1" GridPane.rowIndex="0" />
-          <Label styleClass="student-detail-field-name" text="School" GridPane.rowIndex="1" />
-          <Label fx:id="school" styleClass="student-detail-field-value" wrapText="true"
-                 GridPane.columnIndex="1" GridPane.rowIndex="1" />
-          <Label styleClass="student-detail-field-name" text="Level" GridPane.rowIndex="2" />
-          <Label fx:id="level" styleClass="student-detail-field-value" wrapText="true"
-                 GridPane.columnIndex="1" GridPane.rowIndex="2" />
-          <Label styleClass="student-detail-field-name" text="Subjects and bands" GridPane.rowIndex="3" />
-          <Label fx:id="subjects" styleClass="student-detail-field-value" wrapText="true"
-                 GridPane.columnIndex="1" GridPane.rowIndex="3" />
-          <Label styleClass="student-detail-field-name" text="Student phone" GridPane.rowIndex="4" />
+          <Label styleClass="student-detail-field-name" text="Student phone" GridPane.rowIndex="1" />
           <Label fx:id="phone" styleClass="student-detail-field-value" wrapText="true"
+                 GridPane.columnIndex="1" GridPane.rowIndex="1" />
+          <Label styleClass="student-detail-field-name" text="School" GridPane.rowIndex="2" />
+          <Label fx:id="school" styleClass="student-detail-field-value" wrapText="true"
+                 GridPane.columnIndex="1" GridPane.rowIndex="2" />
+          <Label styleClass="student-detail-field-name" text="Level" GridPane.rowIndex="3" />
+          <Label fx:id="level" styleClass="student-detail-field-value" wrapText="true"
+                 GridPane.columnIndex="1" GridPane.rowIndex="3" />
+          <Label styleClass="student-detail-field-name" text="Subjects and bands" GridPane.rowIndex="4" />
+          <Label fx:id="subjects" styleClass="student-detail-field-value" wrapText="true"
                  GridPane.columnIndex="1" GridPane.rowIndex="4" />
           <Label styleClass="student-detail-field-name" text="Guardian name" GridPane.rowIndex="5" />
           <Label fx:id="guardianName" styleClass="student-detail-field-value" wrapText="true"

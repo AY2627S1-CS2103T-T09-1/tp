@@ -18,6 +18,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -61,6 +62,13 @@ public class StudentDetailPanelTest {
             assertLabelText("#phone", ALICE.getPhone().orElseThrow().value);
             assertLabelText("#guardianName", "Not provided");
             assertLabelText("#guardianPhone", "Not provided");
+            assertGridRow("#name", 0);
+            assertGridRow("#phone", 1);
+            assertGridRow("#school", 2);
+            assertGridRow("#level", 3);
+            assertGridRow("#subjects", 4);
+            assertGridRow("#guardianName", 5);
+            assertGridRow("#guardianPhone", 6);
             assertNull(container.lookup("#heading"));
             assertNoteCardTexts("Strong in algebra", "Revise geometry");
         });
@@ -133,6 +141,10 @@ public class StudentDetailPanelTest {
 
     private void assertLabelWraps(String query) {
         assertTrue(((Label) container.lookup(query)).isWrapText());
+    }
+
+    private void assertGridRow(String query, int expectedRow) {
+        assertEquals(expectedRow, GridPane.getRowIndex(container.lookup(query)));
     }
 
     private void assertNoteCardTexts(String... expectedTexts) {
