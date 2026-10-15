@@ -37,6 +37,8 @@ public class ParserUtil {
 
     public static final String MESSAGE_INVALID_INDEX = "Index must be a positive integer.";
 
+    public static final String MESSAGE_INVALID_NID = "NID must be a positive integer.";
+
     /**
      * Parses {@code oneBasedIndex} into an {@code Index} and returns it. Leading and trailing whitespaces will be
      * trimmed.
@@ -48,6 +50,20 @@ public class ParserUtil {
             throw new ParseException(MESSAGE_INVALID_INDEX);
         }
         return Index.fromOneBased(Integer.parseInt(trimmedIndex));
+    }
+
+    /**
+     * Parses {@code oneBasedNid}, the number shown before a note, into an {@code Index} and returns it.
+     * Leading and trailing whitespaces will be trimmed.
+     *
+     * @throws ParseException if the given NID is not a positive integer.
+     */
+    public static Index parseNid(String oneBasedNid) throws ParseException {
+        try {
+            return parseIndex(oneBasedNid);
+        } catch (ParseException pe) {
+            throw new ParseException(MESSAGE_INVALID_NID, pe);
+        }
     }
 
     /**

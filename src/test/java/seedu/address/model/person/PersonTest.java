@@ -43,6 +43,47 @@ public class PersonTest {
     }
 
     @Test
+    public void copyWithNotes_newNotes_replacesOnlyNotes() {
+        Person person = new PersonBuilder(ALICE).withGuardian("Mary Tan", "91234567")
+                .withSubjects(new Subject("Mathematics", Band.G1), new Subject("English", Band.G2))
+                .withNotes("Weak in algebra").build();
+        Person expectedCopy = new PersonBuilder(person).withNotes("WA2 Math: 36/50", "Weak in algebra")
+                .build();
+
+        Person copy = person.copyWithNotes(List.of(new Note("WA2 Math: 36/50"), new Note("Weak in algebra")));
+
+        assertEquals(expectedCopy, copy);
+        assertEquals(List.of(new Note("Weak in algebra")), person.getNotes());
+    }
+
+    @Test
+    public void copyWithNotes_noPhoneNoGuardian_keepsThemEmpty() {
+        Person person = new PersonBuilder(ALICE).withoutPhone().withoutGuardian().build();
+
+        Person copy = person.copyWithNotes(List.of(new Note("Weak in algebra")));
+
+        assertTrue(copy.getPhone().isEmpty());
+        assertTrue(copy.getGuardian().isEmpty());
+    }
+
+    @Test
+    public void copyWithNotes_emptyList_removesAllNotes() {
+        Person person = new PersonBuilder(ALICE).withNotes("Weak in algebra", "WA2 Math: 36/50").build();
+
+        assertEquals(new PersonBuilder(ALICE).withNotes().build(), person.copyWithNotes(List.of()));
+    }
+
+    @Test
+    public void copyWithNotes_listChangedAfterCopy_copyUnchanged() {
+        List<Note> notes = new ArrayList<>(List.of(new Note("Weak in algebra")));
+        Person copy = ALICE.copyWithNotes(notes);
+
+        notes.clear();
+
+        assertEquals(List.of(new Note("Weak in algebra")), copy.getNotes());
+    }
+
+    @Test
     public void isSamePerson() {
         // same object -> returns true
         assertTrue(ALICE.isSamePerson(ALICE));
