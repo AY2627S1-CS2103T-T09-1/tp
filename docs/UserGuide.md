@@ -55,8 +55,9 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 * Parameters can be in any order.<br>
   For example, if the command specifies `n/NAME p/PHONE_NUMBER`, `p/PHONE_NUMBER n/NAME` is also acceptable.
 
-* Extraneous parameters for commands that take no parameters, such as `help`, `list`, `exit`, and `clear`, are ignored.<br>
+* Extraneous parameters for commands that take no parameters, such as `help`, `exit`, and `clear`, are ignored.<br>
   For example, `help 123` is interpreted as `help`.
+* The `list` command does not accept additional arguments. For example, `list 3` is rejected.
 
 * If you are using a PDF version of this document, be careful when copying and pasting commands that span multiple lines as space characters surrounding line-breaks may be omitted when copied over to the application.
 </div>
@@ -87,6 +88,8 @@ Examples:
 Shows a list of all persons in the address book.
 
 Format: `list`
+
+The command does not accept additional arguments.
 
 ### Viewing a student: `view`
 
