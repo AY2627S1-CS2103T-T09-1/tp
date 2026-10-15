@@ -112,6 +112,17 @@ public class Person {
     }
 
     /**
+     * Returns a copy of this person with {@code notes} in place of the current notes.
+     * Every other field stays the same.
+     *
+     * @param notes Notes of the copy, in display order.
+     * @return A new {@code Person} with {@code notes}.
+     */
+    public Person copyWithNotes(List<Note> notes) {
+        return new Person(name, phone, school, level, subjects, notes, guardian);
+    }
+
+    /**
      * Returns true if both persons have the same name.
      * This defines a weaker notion of equality between two persons.
      */
