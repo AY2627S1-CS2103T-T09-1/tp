@@ -13,7 +13,8 @@ import seedu.address.commons.util.ToStringBuilder;
 
 /**
  * Represents a Person in the address book.
- * Guarantees: details except phone are present and not null, field values are validated, immutable.
+ * Guarantees: details except phone and guardian are present and not null, field values are validated,
+ * immutable.
  */
 public class Person {
 
@@ -31,6 +32,7 @@ public class Person {
     private final Level level;
     private final List<Subject> subjects;
     private final List<Note> notes = new ArrayList<>();
+    private final Guardian guardian;
 
     /**
      * Every field except {@code phone} must be present and not null.
@@ -45,6 +47,15 @@ public class Person {
      * A null {@code phone} means the person has no phone number.
      */
     public Person(Name name, Phone phone, School school, Level level, List<Subject> subjects, List<Note> notes) {
+        this(name, phone, school, level, subjects, notes, null);
+    }
+
+    /**
+     * Every field except {@code phone} and {@code guardian} must be present and not null.
+     * A null {@code phone} or {@code guardian} means the person has none.
+     */
+    public Person(Name name, Phone phone, School school, Level level, List<Subject> subjects, List<Note> notes,
+            Guardian guardian) {
         requireAllNonNull(name, school, level, subjects, notes);
         List<Subject> validatedSubjects = List.copyOf(subjects);
         validateSubjects(validatedSubjects);
@@ -54,6 +65,7 @@ public class Person {
         this.level = level;
         this.subjects = validatedSubjects;
         this.notes.addAll(notes);
+        this.guardian = guardian;
     }
 
     /**
@@ -90,6 +102,11 @@ public class Person {
     public List<Subject> getSubjects() {
         return subjects;
     }
+
+    public Optional<Guardian> getGuardian() {
+        return Optional.ofNullable(guardian);
+    }
+
     public List<Note> getNotes() {
         return Collections.unmodifiableList(notes);
     }
@@ -127,13 +144,14 @@ public class Person {
                 && school.equals(otherPerson.school)
                 && level.equals(otherPerson.level)
                 && subjects.equals(otherPerson.subjects)
-                && notes.equals(otherPerson.notes);
+                && notes.equals(otherPerson.notes)
+                && Objects.equals(guardian, otherPerson.guardian);
     }
 
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(name, phone, school, level, subjects, notes);
+        return Objects.hash(name, phone, school, level, subjects, notes, guardian);
     }
 
     @Override
@@ -144,6 +162,7 @@ public class Person {
                 .add("school", school)
                 .add("level", level)
                 .add("subjects", subjects)
+                .add("guardian", guardian)
                 .toString();
     }
 

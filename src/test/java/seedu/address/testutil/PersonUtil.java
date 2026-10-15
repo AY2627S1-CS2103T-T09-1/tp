@@ -1,6 +1,8 @@
 package seedu.address.testutil;
 
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
@@ -34,6 +36,9 @@ public class PersonUtil {
         sb.append(PREFIX_LEVEL + person.getLevel().name() + " ");
         person.getSubjects().forEach(subject -> sb.append(PREFIX_SUBJECT).append(subject.getName()).append(" ")
                 .append(PREFIX_BAND).append(subject.getBand()).append(" "));
+        person.getGuardian().ifPresent(guardian -> sb.append(PREFIX_GUARDIAN_NAME)
+                .append(guardian.getName().fullName).append(" ")
+                .append(PREFIX_GUARDIAN_PHONE).append(guardian.getPhone().value).append(" "));
         return sb.toString();
     }
 
@@ -52,6 +57,13 @@ public class PersonUtil {
         descriptor.getSubjects().ifPresent(subjects -> subjects.forEach(subject ->
                 sb.append(PREFIX_SUBJECT).append(subject.getName()).append(" ")
                         .append(PREFIX_BAND).append(subject.getBand()).append(" ")));
+        descriptor.getGuardianName().ifPresent(name ->
+                sb.append(PREFIX_GUARDIAN_NAME).append(name.fullName).append(" "));
+        descriptor.getGuardianPhone().ifPresent(phone ->
+                sb.append(PREFIX_GUARDIAN_PHONE).append(phone.value).append(" "));
+        if (descriptor.isGuardianRemoved()) {
+            sb.append(PREFIX_GUARDIAN_NAME).append(" ").append(PREFIX_GUARDIAN_PHONE).append(" ");
+        }
         return sb.toString();
     }
 }
