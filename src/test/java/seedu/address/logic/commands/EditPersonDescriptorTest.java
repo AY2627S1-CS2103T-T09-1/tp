@@ -44,6 +44,10 @@ public class EditPersonDescriptorTest {
         // different school -> returns false
         editedAmy = new EditPersonDescriptorBuilder(DESC_AMY).withSchool("Other School").build();
         assertFalse(DESC_AMY.equals(editedAmy));
+
+        // phone removed -> returns false
+        editedAmy = new EditPersonDescriptorBuilder(DESC_AMY).withPhoneRemoved().build();
+        assertFalse(DESC_AMY.equals(editedAmy));
     }
 
     @Test
@@ -51,7 +55,8 @@ public class EditPersonDescriptorTest {
         EditPersonDescriptor editPersonDescriptor = new EditPersonDescriptor();
         String expected = EditPersonDescriptor.class.getCanonicalName() + "{name="
                 + editPersonDescriptor.getName().orElse(null) + ", phone="
-                + editPersonDescriptor.getPhone().orElse(null) + ", school="
+                + editPersonDescriptor.getPhone().orElse(null) + ", isPhoneRemoved="
+                + editPersonDescriptor.isPhoneRemoved() + ", school="
                 + editPersonDescriptor.getSchool().orElse(null) + "}";
         assertEquals(expected, editPersonDescriptor.toString());
     }

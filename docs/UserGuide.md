@@ -74,11 +74,14 @@ Format: `help`
 
 Adds a person to the address book.
 
-Format: `add n/NAME p/PHONE_NUMBER sch/SCHOOL`
+Format: `add n/NAME [p/PHONE_NUMBER] sch/SCHOOL`
+
+* The phone number is optional, since younger students may not have their own phone.
 
 Examples:
 * `add n/John Doe p/98765432 sch/Victoria School`
 * `add n/Betsy Crowe sch/Bedok Green Secondary School p/81234567`
+* `add n/Tim Tan sch/Victoria School` adds a student without a phone number.
 
 ### Listing all persons: `list`
 
@@ -107,10 +110,12 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL]`
 * Edits the person at the specified `INDEX`. The index refers to the index number shown in the displayed person list. The index **must be a positive integer** 1, 2, 3, …​
 * At least one of the optional fields must be provided.
 * Existing values will be updated to the input values.
+* You can remove a person's phone number by typing `p/` without specifying any number after it.
 
 Examples:
 *  `edit 1 p/91234567 sch/Victoria School` Edits the phone number and school of the 1st person to be `91234567` and `Victoria School` respectively.
 *  `edit 2 n/Betsy Crower` Edits the name of the 2nd person to be `Betsy Crower`.
+*  `edit 3 p/` Removes the phone number of the 3rd person.
 
 ### Locating persons by name: `find`
 
@@ -192,7 +197,7 @@ _Details coming soon ..._
 
 Action | Format, Examples
 --------|------------------
-**Add** | `add n/NAME p/PHONE_NUMBER sch/SCHOOL` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School`
+**Add** | `add n/NAME [p/PHONE_NUMBER] sch/SCHOOL` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School`
 **Clear** | `clear`
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [sch/SCHOOL]`<br> e.g., `edit 2 n/James Lee sch/Victoria School`

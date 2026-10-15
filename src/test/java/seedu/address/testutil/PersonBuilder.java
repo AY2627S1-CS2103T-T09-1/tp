@@ -32,7 +32,7 @@ public class PersonBuilder {
      */
     public PersonBuilder(Person personToCopy) {
         name = personToCopy.getName();
-        phone = personToCopy.getPhone();
+        phone = personToCopy.getPhone().orElse(null);
         school = personToCopy.getSchool();
     }
 
@@ -49,6 +49,14 @@ public class PersonBuilder {
      */
     public PersonBuilder withPhone(String phone) {
         this.phone = new Phone(phone);
+        return this;
+    }
+
+    /**
+     * Removes the {@code Phone} of the {@code Person} that we are building.
+     */
+    public PersonBuilder withoutPhone() {
+        this.phone = null;
         return this;
     }
 

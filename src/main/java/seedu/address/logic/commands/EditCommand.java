@@ -30,7 +30,8 @@ public class EditCommand extends Command {
 
     public static final String MESSAGE_USAGE = COMMAND_WORD + ": Edits the details of the person identified "
             + "by the index number used in the displayed person list. "
-            + "Existing values will be overwritten by the input values.\n"
+            + "Existing values will be overwritten by the input values. "
+            + "Use " + PREFIX_PHONE + " with no number to remove the phone.\n"
             + "Parameters: INDEX (must be a positive integer) "
             + "[" + PREFIX_NAME + "NAME] "
             + "[" + PREFIX_PHONE + "PHONE] "
@@ -87,7 +88,9 @@ public class EditCommand extends Command {
         assert personToEdit != null;
 
         Name updatedName = editPersonDescriptor.getName().orElse(personToEdit.getName());
-        Phone updatedPhone = editPersonDescriptor.getPhone().orElse(personToEdit.getPhone());
+        Phone updatedPhone = editPersonDescriptor.isPhoneRemoved()
+                ? null
+                : editPersonDescriptor.getPhone().orElse(personToEdit.getPhone().orElse(null));
         School updatedSchool = editPersonDescriptor.getSchool().orElse(personToEdit.getSchool());
 
         return new Person(updatedName, updatedPhone, updatedSchool, personToEdit.getNotes());
@@ -123,6 +126,7 @@ public class EditCommand extends Command {
     public static class EditPersonDescriptor {
         private Name name;
         private Phone phone;
+        private boolean isPhoneRemoved;
         private School school;
 
         public EditPersonDescriptor() {}
@@ -133,6 +137,7 @@ public class EditCommand extends Command {
         public EditPersonDescriptor(EditPersonDescriptor toCopy) {
             setName(toCopy.name);
             setPhone(toCopy.phone);
+            isPhoneRemoved = toCopy.isPhoneRemoved;
             setSchool(toCopy.school);
         }
 
@@ -140,7 +145,7 @@ public class EditCommand extends Command {
          * Returns true if at least one field is edited.
          */
         public boolean isAnyFieldEdited() {
-            return CollectionUtil.isAnyNonNull(name, phone, school);
+            return CollectionUtil.isAnyNonNull(name, phone, school) || isPhoneRemoved;
         }
 
         public void setName(Name name) {
@@ -153,6 +158,18 @@ public class EditCommand extends Command {
 
         public void setPhone(Phone phone) {
             this.phone = phone;
+        }
+
+        /**
+         * Marks the phone to be removed from the person.
+         */
+        public void setPhoneRemoved() {
+            this.phone = null;
+            this.isPhoneRemoved = true;
+        }
+
+        public boolean isPhoneRemoved() {
+            return isPhoneRemoved;
         }
 
         public Optional<Phone> getPhone() {
@@ -180,6 +197,7 @@ public class EditCommand extends Command {
 
             return Objects.equals(name, otherEditPersonDescriptor.name)
                     && Objects.equals(phone, otherEditPersonDescriptor.phone)
+                    && isPhoneRemoved == otherEditPersonDescriptor.isPhoneRemoved
                     && Objects.equals(school, otherEditPersonDescriptor.school);
         }
 
@@ -188,6 +206,7 @@ public class EditCommand extends Command {
             return new ToStringBuilder(this)
                     .add("name", name)
                     .add("phone", phone)
+                    .add("isPhoneRemoved", isPhoneRemoved)
                     .add("school", school)
                     .toString();
         }

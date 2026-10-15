@@ -28,6 +28,7 @@ import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
+import seedu.address.testutil.PersonBuilder;
 
 public class AddCommandParserTest {
     private AddCommandParser parser = new AddCommandParser();
@@ -54,6 +55,12 @@ public class AddCommandParserTest {
         // fields in a different order
         assertParseSuccess(parser, NAME_DESC_BOB + PHONE_DESC_BOB + SCHOOL_DESC_BOB,
                 new AddCommand(expectedPerson));
+    }
+
+    @Test
+    public void parse_phoneMissing_success() {
+        Person expectedPerson = new PersonBuilder(BOB).withoutPhone().build();
+        assertParseSuccess(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB, new AddCommand(expectedPerson));
     }
 
     @Test
@@ -104,9 +111,6 @@ public class AddCommandParserTest {
 
         // missing name prefix
         assertParseFailure(parser, SCHOOL_DESC_BOB + VALID_NAME_BOB + PHONE_DESC_BOB, expectedMessage);
-
-        // missing phone prefix
-        assertParseFailure(parser, SCHOOL_DESC_BOB + NAME_DESC_BOB + VALID_PHONE_BOB, expectedMessage);
 
         // all prefixes missing
         assertParseFailure(parser, VALID_NAME_BOB + VALID_PHONE_BOB, expectedMessage);

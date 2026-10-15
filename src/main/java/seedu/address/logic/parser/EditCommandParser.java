@@ -42,7 +42,13 @@ public class EditCommandParser implements Parser<EditCommand> {
             editPersonDescriptor.setName(ParserUtil.parseName(argMultimap.getValue(PREFIX_NAME).get()));
         }
         if (argMultimap.getValue(PREFIX_PHONE).isPresent()) {
-            editPersonDescriptor.setPhone(ParserUtil.parsePhone(argMultimap.getValue(PREFIX_PHONE).get()));
+            String phone = argMultimap.getValue(PREFIX_PHONE).get();
+            // p/ with no number removes the phone
+            if (phone.isBlank()) {
+                editPersonDescriptor.setPhoneRemoved();
+            } else {
+                editPersonDescriptor.setPhone(ParserUtil.parsePhone(phone));
+            }
         }
         if (argMultimap.getValue(PREFIX_SCHOOL).isPresent()) {
             editPersonDescriptor.setSchool(ParserUtil.parseSchool(argMultimap.getValue(PREFIX_SCHOOL).get()));

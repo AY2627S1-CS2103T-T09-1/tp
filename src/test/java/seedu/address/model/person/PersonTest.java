@@ -12,6 +12,7 @@ import static seedu.address.testutil.TypicalPersons.BOB;
 
 import org.junit.jupiter.api.Test;
 
+import seedu.address.logic.Messages;
 import seedu.address.testutil.PersonBuilder;
 
 public class PersonTest {
@@ -79,12 +80,22 @@ public class PersonTest {
         // different school -> returns false
         editedAlice = new PersonBuilder(ALICE).withSchool(VALID_SCHOOL_BOB).build();
         assertFalse(ALICE.equals(editedAlice));
+
+        // no phone -> returns false
+        editedAlice = new PersonBuilder(ALICE).withoutPhone().build();
+        assertFalse(ALICE.equals(editedAlice));
+    }
+
+    @Test
+    public void format_noPhone_omitsPhone() {
+        Person aliceWithoutPhone = new PersonBuilder(ALICE).withoutPhone().build();
+        assertEquals(ALICE.getName() + "; School: " + ALICE.getSchool(), Messages.format(aliceWithoutPhone));
     }
 
     @Test
     public void toStringMethod() {
         String expected = Person.class.getCanonicalName() + "{name=" + ALICE.getName() + ", phone="
-                + ALICE.getPhone() + ", school=" + ALICE.getSchool() + "}";
+                + ALICE.getPhone().get() + ", school=" + ALICE.getSchool() + "}";
         assertEquals(expected, ALICE.toString());
     }
 }
