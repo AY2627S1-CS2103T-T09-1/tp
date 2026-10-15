@@ -874,7 +874,7 @@ testers are expected to do more *exploratory* testing.
       Expected: Tim Tan is unchanged. The status message says that guardian name and guardian phone cannot be empty.
 
    1. Test case: `edit 1 gn/ gp/` on Tim Tan<br>
-      Expected: The guardian is removed, and the card no longer shows a guardian line.
+      Expected: The guardian is removed, and viewing the student's details shows `Not provided` for both guardian name and guardian phone.
 
    1. Test case: `edit 1 gn/ gp/` on Ken Lim<br>
       Expected: Ken Lim is unchanged. The status message shows `This person has no guardian to remove.`
