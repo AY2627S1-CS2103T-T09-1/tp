@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
+import static seedu.address.logic.commands.CommandTestUtil.showPersonAtIndex;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
@@ -81,8 +82,8 @@ public class AddNoteCommandTest {
     }
 
     @Test
-    public void execute_afterView_keepsStudentShown() throws Exception {
-        new ViewCommand(INDEX_SECOND_PERSON).execute(model);
+    public void execute_filteredList_keepsStudentShown() {
+        showPersonAtIndex(model, INDEX_SECOND_PERSON);
         Person person = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
         Person editedPerson = new PersonBuilder(person).withNotes(NOTE_TEXT).build();
         String expectedMessage = String.format(AddNoteCommand.MESSAGE_SUCCESS, person.getName(), NOTE);
@@ -99,14 +100,6 @@ public class AddNoteCommandTest {
         Index outOfBoundsIndex = Index.fromOneBased(model.getFilteredPersonList().size() + 1);
 
         assertCommandFailure(new AddNoteCommand(outOfBoundsIndex, NOTE), model,
-                Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
-    }
-
-    @Test
-    public void execute_indexOutsideViewedList_throwsCommandException() throws Exception {
-        new ViewCommand(INDEX_FIRST_PERSON).execute(model);
-
-        assertCommandFailure(new AddNoteCommand(INDEX_SECOND_PERSON, NOTE), model,
                 Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
     }
 

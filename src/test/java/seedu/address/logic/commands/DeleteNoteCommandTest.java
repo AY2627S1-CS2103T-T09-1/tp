@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
+import static seedu.address.logic.commands.CommandTestUtil.showPersonAtIndex;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
@@ -86,8 +87,8 @@ public class DeleteNoteCommandTest {
     }
 
     @Test
-    public void execute_afterView_keepsStudentShown() throws Exception {
-        new ViewCommand(INDEX_SECOND_PERSON).execute(model);
+    public void execute_filteredList_keepsStudentShown() {
+        showPersonAtIndex(model, INDEX_SECOND_PERSON);
         Person person = addNotesToFirstPerson(NOTE_ALGEBRA, NOTE_TEST_SCORE);
         Person editedPerson = new PersonBuilder(person).withNotes(NOTE_TEST_SCORE).build();
         String expectedMessage = String.format(DeleteNoteCommand.MESSAGE_SUCCESS, 1, person.getName(),
@@ -110,8 +111,8 @@ public class DeleteNoteCommandTest {
     }
 
     @Test
-    public void execute_indexOutsideViewedList_throwsCommandException() throws Exception {
-        new ViewCommand(INDEX_FIRST_PERSON).execute(model);
+    public void execute_indexOutsideFilteredList_throwsCommandException() {
+        showPersonAtIndex(model, INDEX_FIRST_PERSON);
 
         assertCommandFailure(new DeleteNoteCommand(INDEX_SECOND_PERSON, NID_FIRST), model,
                 Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
