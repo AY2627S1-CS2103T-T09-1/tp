@@ -635,7 +635,7 @@ Use case ends.
 3.  Tutor requests to delete a specific note, giving the student's index and note number
 4.  TuteeBook3 asks Tutor to confirm the deletion
 5.  Tutor confirms the deletion
-6.  TuteeBook3 deletes the note, leaves the remaining notes' numbers unchanged, and shows a confirmation message
+6.  TuteeBook3 deletes the note, renumbers the remaining notes, and shows a confirmation message
 
     Use case ends.
 
