@@ -26,7 +26,7 @@ public class HelpCommand extends Command {
             "view - Shows a student's full record on a single screen.",
             "list - Shows the entire student roster.",
             "addnote - Adds a note about a student.",
-            "deletenote - Removes a note of the given index from a student of the given index.",
+            "deletenote - Deletes the note with the given NID from a student of the given index.",
             "exit - Exits TuteeBook3.",
             "",
             "For a more detailed explanation, please refer to:",
