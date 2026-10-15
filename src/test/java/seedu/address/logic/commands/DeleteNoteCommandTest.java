@@ -1,5 +1,6 @@
 package seedu.address.logic.commands;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
@@ -179,6 +180,15 @@ public class DeleteNoteCommandTest {
 
         // different type -> returns false
         assertFalse(deleteNoteCommand.equals(new ClearCommand()));
+    }
+
+    @Test
+    public void toStringMethod() {
+        DeleteNoteCommand deleteNoteCommand = new DeleteNoteCommand(INDEX_FIRST_PERSON, NID_SECOND);
+        String expected = DeleteNoteCommand.class.getCanonicalName() + "{targetIndex=" + INDEX_FIRST_PERSON
+                + ", targetNid=" + NID_SECOND + "}";
+
+        assertEquals(expected, deleteNoteCommand.toString());
     }
 
     /**
