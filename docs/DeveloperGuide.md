@@ -638,10 +638,8 @@ Use case ends.
 
 1.  Tutor requests to view a specific student by index
 2.  TuteeBook3 shows the student's record with numbered notes
-3.  Tutor requests to delete a specific note, giving the student's index and note number
-4.  TuteeBook3 asks Tutor to confirm the deletion
-5.  Tutor confirms the deletion
-6.  TuteeBook3 deletes the note, renumbers the remaining notes, and shows a confirmation message
+3.  Tutor requests to delete a specific note, giving the student's index and NID
+4.  TuteeBook3 deletes the note, renumbers the remaining notes, and shows a confirmation message
 
     Use case ends.
 
@@ -657,23 +655,11 @@ Use case ends.
 
     Use case ends.
 
-* 3a. The given index or note number is invalid, or the student has no such note.
+* 3a. The given index or NID is invalid, or the student has no such note.
 
     * 3a1. TuteeBook3 shows an error message.
 
       Use case resumes at step 2.
-
-* 5a. Tutor cancels the deletion.
-
-    * 5a1. TuteeBook3 discards the pending deletion request and keeps the note.
-
-      Use case ends.
-
-* 5b. Tutor enters any other command instead of confirming or cancelling.
-
-    * 5b1. TuteeBook3 discards the pending deletion request, then processes the new command as normal.
-
-      Use case ends.
 
 ---
 
