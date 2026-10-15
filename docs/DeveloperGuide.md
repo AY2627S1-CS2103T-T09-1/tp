@@ -294,7 +294,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 | `* * *` | tutor | have my data saved automatically | avoid losing records when I close the app                                   |
 | `* * *` | tutor | exit the app | end my session when I'm done                                                |
 | `* * *` | new user | clear all sample students | start with only my own students                                             |
-| `* * *` | tutor | record the subject band or stream each subject is taken at (G1, G2, G3, Express, N(A), or N(T)) | pitch the material at the right difficulty                                  |
+| `* * *` | tutor | record the band each subject is taken at (G1, G2, or G3) | pitch the material at the right difficulty                                  |
 | `* *` | tutor receiving unknown calls | find students by their guardian's phone number | identify the caller and see their children's records                        |
 | `* *` | tutor planning lessons | filter students by school, level, or subject | prepare lessons for students at the same school, level, or subject together |
 | `* *` | careless typist | confirm before a student is deleted | avoid erasing the wrong student's history after mistyping an ID             |
@@ -768,10 +768,9 @@ Use case ends.
 * **Guardian**: A parent or other adult responsible for a student, whom the tutor contacts about the student's progress.
 * **Level**: A student's year of secondary school, from S1 (Secondary 1) to S5 (Secondary 5).
 * **Note**: A short piece of text that the tutor attaches to a student, such as "Weak in Geometry" or "WA2 Math: 36/50".
-* **Stream**: The older way Singapore secondary schools set subject difficulty: Express, Normal (Academic) or N(A), and Normal (Technical) or N(T). TuteeBook3 records it as the subject band. See subject band.
 * **Student**: A secondary school student whom the tutor teaches.
 * **Subject**: A school subject that the tutor teaches the student, such as "Mathematics" or "Chemistry".
-* **Subject band**: In Singapore secondary schools, the difficulty that the school assigns a student for one subject: G1, G2, or G3, where G3 is the hardest. A student can have a different band for each subject, such as G3 Mathematics and G2 Science. For students in the older streaming system, the band is their stream: Express, N(A), or N(T).
+* **Subject band**: The difficulty designation recorded for a subject: G1, G2, or G3. A student may have a different band for each subject, such as Mathematics at G3 and Science at G2.
 
 #### Commands and IDs
 

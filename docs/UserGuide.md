@@ -47,13 +47,15 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 **:information_source: Notes about the command format:**<br>
 
 * Words in `UPPER_CASE` are the parameters to be supplied by the user.<br>
-  For example, in `add n/NAME sub/Mathematics band/G1`, replace `NAME` with a value such as `John Doe`.
+  For example, in `n/NAME`, replace `NAME` with a value such as `John Doe`.
 
 * Items in square brackets are optional.<br>
   For example, `edit INDEX [n/NAME] [p/PHONE]` can be used as `edit 1 n/John Doe p/98765432` or as `edit 1 n/John Doe`.
 
-* Parameters can be in any order.<br>
-  For example, if the command specifies `n/NAME p/PHONE_NUMBER`, `p/PHONE_NUMBER n/NAME` is also acceptable.
+* Parameters can be in any order, except that each `sub/SUBJECT` must be immediately followed by its `band/BAND`.<br>
+  For example, `sub/Mathematics band/G1 lvl/S3` is valid, but `sub/Mathematics lvl/S3 band/G1` is not.
+
+* `[sub/SUBJECT band/BAND]...` means that additional subject-band pairs may be supplied.
 
 * Extraneous parameters for commands that take no parameters, such as `help`, `exit`, and `clear`, are ignored.<br>
   For example, `help 123` is interpreted as `help`.
@@ -76,13 +78,18 @@ Adds a person to the address book.
 Format: `add n/NAME [p/PHONE_NUMBER] sch/SCHOOL lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]...`
 
 * The phone number is optional, since younger students may not have their own phone.
-* Supply 1–8 distinct subjects. Each `sub/` must be immediately followed by its `band/`, which accepts `G1`, `G2`, or `G3` without case sensitivity. Subject names contain 1–40 letters, spaces, or hyphens and must include at least one letter. Repeated names are rejected regardless of band, case, or repeated internal spaces.
+* Each student must have at least 1 subject and a maximum of 8 distinct subjects. Each `sub/SUBJECT` must be immediately followed by its `band/BAND`.
+* `SUBJECT` accepts 1–40 characters: letters, spaces, and hyphens, with at least one letter. Surrounding spaces are trimmed; entered capitalization and internal spaces are retained for display.
+* `BAND` accepts `G1`, `G2`, or `G3`, ignoring case and surrounding spaces. Bands are displayed in uppercase, for example `Mathematics (G1)`.
+* A subject name cannot appear twice, even with different bands. Duplicate checks ignore case and repeated internal spaces, so `Additional Mathematics` and `additional  mathematics` are the same subject.
 * `LEVEL` must be one of `S1`, `S2`, `S3`, `S4` or `S5`. It is not case-sensitive, so `s3` also works.
 
 Examples:
+
 * `add n/John Doe p/98765432 sch/Victoria School lvl/S3 sub/Mathematics band/G1`
 * `add n/Betsy Crowe lvl/S1 sch/Bedok Green Secondary School p/81234567 sub/Mathematics band/G1`
 * `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1` adds a student without a phone number.
+* `add n/Chloe Tan sch/Bedok Green Secondary School lvl/S2 sub/Mathematics band/G1 sub/English band/G3` adds a student taking two subjects at different bands.
 
 ### Listing all persons: `list`
 
@@ -113,7 +120,7 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT ban
 * Edits the person at the specified `INDEX`. The index refers to the index number shown in the displayed person list. The index **must be a positive integer** 1, 2, 3, …​
 * At least one of the optional fields must be provided.
 * Existing values will be updated to the input values.
-* Supplying subject-band pairs replaces the entire subject list; omitting them preserves existing subjects. The same count, pairing, and validation rules as `add` apply. Notes are preserved when editing a student.
+* Supplying subject-band pairs replaces the entire subject list; omitting them preserves existing subjects. The replacement list must contain at least 1 subject and a maximum of 8 distinct subjects, following the same pairing and validation rules as `add`. Notes are preserved when editing a student.
 * You can remove a person's phone number by typing `p/` without specifying any number after it.
 
 Examples:
@@ -121,7 +128,23 @@ Examples:
 *  `edit 2 n/Betsy Crower` Edits the name of the 2nd person to be `Betsy Crower`.
 *  `edit 3 p/` Removes the phone number of the 3rd person.
 *  `edit 1 sub/English band/G2` Replaces the first student's subjects with English at G2.
+*  `edit 1 sub/Mathematics band/G2 sub/English band/G3` Replaces the first student's subject list with Mathematics at G2 and English at G3. Include every subject you want to keep, even when changing only one band.
 *  `edit 1 lvl/S4` Edits the level of the 1st person to be `S4`.
+
+#### Subject and band errors
+
+The following errors apply to subject-band input in `add` and `edit`. For `edit`, omitting both `sub/` and `band/` leaves subjects unchanged. An empty `sub/` does not remove subjects; every student must have at least one.
+
+| Problem | Message |
+| --- | --- |
+| No `sub/` in `add`, or `band/` supplied alone in `edit` | `Missing required parameter: sub/.` |
+| Missing, misplaced, or repeated `band/` within a pair | `Each sub/ must be immediately followed by one band/.` |
+| Empty band or a value other than G1, G2, or G3 | `Band must be one of G1, G2, G3.` |
+| Invalid subject name | `Subjects must be 1-40 characters using only letters, spaces and hyphens, with at least one letter.` |
+| More than eight subject-band pairs | `A student may have at most 8 subjects.` |
+| Repeated subject name | `Subject is repeated: {SUBJECT}.` |
+
+For example, `edit 1 sub/Mathematics band/G1 sub/mathematics band/G2` fails with `Subject is repeated: mathematics.`
 
 ### Adding a note to a student: `addnote`
 
@@ -209,6 +232,17 @@ AddressBook automatically saves data after every command. You do not need to sav
 
 AddressBook data is saved automatically as a JSON file `[JAR file location]/data/addressbook.json`. Advanced users are welcome to update data directly by editing that data file.
 
+Each student must have a `subjects` array containing 1–8 subject-band objects, for example:
+
+```json
+"subjects" : [
+  { "name" : "Mathematics", "band" : "G1" },
+  { "name" : "English", "band" : "G3" }
+]
+```
+
+This is a field within a student record, not a complete data file. The same subject and band restrictions apply to stored data. Files with missing or empty `subjects` arrays cannot be loaded; older records need valid subject-band entries.
+
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
 If your changes make the data file invalid, AddressBook starts with an empty address book at the next run. The invalid file remains on disk until you run a command (AddressBook saves after every command). Still, we recommend backing up the file before editing it.<br>
 Furthermore, certain edits can cause the AddressBook to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
@@ -237,11 +271,11 @@ _Details coming soon ..._
 
 Action | Format, Examples
 --------|------------------
-**Add** | `add n/NAME [p/PHONE_NUMBER] sch/SCHOOL lvl/LEVEL sub/Mathematics band/G1` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School lvl/S2 sub/Mathematics band/G1`
+**Add** | `add n/NAME [p/PHONE_NUMBER] sch/SCHOOL lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]...` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School lvl/S2 sub/Mathematics band/G1`
 **Add note** | `addnote INDEX c/TEXT`<br> e.g., `addnote 1 c/Weak in algebra`
 **Clear** | `clear`
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
-**Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [sch/SCHOOL] [lvl/LEVEL]`<br> e.g., `edit 2 n/James Lee sch/Victoria School`
+**Edit** | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT band/BAND]...`<br> e.g., `edit 2 sub/Mathematics band/G2 sub/English band/G3`
 **Find** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
 **List** | `list`
 **Help** | `help`
