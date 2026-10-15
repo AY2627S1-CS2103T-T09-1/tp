@@ -127,12 +127,6 @@ The `Model` component,
 * stores a `UserPrefs` object that represents the user’s preferences (currently, just the GUI settings). This is exposed to the outside as a `ReadOnlyUserPrefs` object.
 * does not depend on any of the other three components (as the `Model` represents data entities of the domain, they should make sense on their own without depending on other components)
 
-<div markdown="span" class="alert alert-info">:information_source: **Note:** The alternative, arguably more object-oriented, design below keeps a unique list of tags in `AddressBook`, and each `Person` references tags from that list. This lets `AddressBook` maintain one `Tag` object per unique tag instead of each `Person` holding its own `Tag` objects.<br>
-
-<img src="images/BetterModelClassDiagram.png" width="450" />
-
-</div>
-
 
 ### Storage component
 
@@ -318,7 +312,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 **MSS**
 
-1.  Tutor requests to add a student, giving the name, school, level, at least one subject in the format subject band-subject (for example G3-Chemistry), and optionally a phone number and guardian details
+1.  Tutor requests to add a student, giving the name, school, level, at least one subject, each with its subject band (for example Chemistry at G3), and optionally a phone number and guardian details
 2.  TuteeBook3 validates the details
 3.  TuteeBook3 saves the student
 4.  TuteeBook3 shows the student list with the new student selected
@@ -357,7 +351,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case resumes at step 3.
 
-* 2d. A subject is not in the format subject band-subject, or its subject band is not G1, G2 or G3.
+* 2d. A subject name is invalid, or a subject has no subject band or one that is not G1, G2 or G3.
 
     * 2d1. TuteeBook3 shows an error message stating the expected format.
 
@@ -412,6 +406,18 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 * 3c. The edit would make the student a duplicate of another student.
 
     * 3c1. TuteeBook3 shows an error message and leaves the student unchanged.
+
+      Use case ends.
+
+* 3d. The student has no guardian, and Tutor gives only one of guardian name and guardian phone.
+
+    * 3d1. TuteeBook3 shows an error message that both are needed to add a guardian, and leaves the student unchanged.
+
+      Use case resumes at step 3.
+
+* 3e. Tutor requests to remove the guardian of a student who has no guardian.
+
+    * 3e1. TuteeBook3 shows an error message that the student has no guardian to remove, and leaves the student unchanged.
 
       Use case ends.
 
@@ -841,6 +847,38 @@ testers are expected to do more *exploratory* testing.
       Expected: Similar to previous.
 
 1. _{ more test cases …​ }_
+
+### Adding and editing a guardian
+
+1. Adding a student with a guardian
+
+   1. Test case: `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Tan gp/91234567`<br>
+      Expected: Tim Tan is added. His card shows `Guardian: Mary Tan (91234567)`.
+
+   1. Test case: `add n/Ken Lim sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Lim`<br>
+      Expected: No student is added. The status message shows `Guardian name (gn/) and guardian phone (gp/) must be given together.`
+
+   1. Test case: `add n/Ken Lim sch/Victoria School lvl/S2 sub/Mathematics band/G1`<br>
+      Expected: Ken Lim is added. His card has no guardian line.
+
+1. Editing a guardian
+
+   1. Prerequisites: Tim Tan and Ken Lim were added as above. Use `find n/Tim` or `find n/Ken` so that the student is first in the list.
+
+   1. Test case: `edit 1 gp/98765432` on Tim Tan<br>
+      Expected: Only the guardian's phone changes. The card shows `Guardian: Mary Tan (98765432)`.
+
+   1. Test case: `edit 1 gn/Peter Lim` on Ken Lim<br>
+      Expected: Ken Lim is unchanged. The status message shows `This person has no guardian yet. Give both gn/ and gp/ to add one.`
+
+   1. Test case: `edit 1 gn/ gp/91234567` on Tim Tan<br>
+      Expected: Tim Tan is unchanged. The status message says that guardian name and guardian phone cannot be empty.
+
+   1. Test case: `edit 1 gn/ gp/` on Tim Tan<br>
+      Expected: The guardian is removed, and the card no longer shows a guardian line.
+
+   1. Test case: `edit 1 gn/ gp/` on Ken Lim<br>
+      Expected: Ken Lim is unchanged. The status message shows `This person has no guardian to remove.`
 
 ### Saving data
 
