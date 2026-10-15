@@ -13,6 +13,8 @@ public class CliSyntax {
     public static final Prefix PREFIX_BAND = new Prefix("band/");
     public static final Prefix PREFIX_LEVEL = new Prefix("lvl/");
     public static final Prefix PREFIX_NOTE = new Prefix("c/");
+    public static final Prefix PREFIX_GUARDIAN_NAME = new Prefix("gn/");
+    public static final Prefix PREFIX_GUARDIAN_PHONE = new Prefix("gp/");
 
     private CliSyntax() {}
 

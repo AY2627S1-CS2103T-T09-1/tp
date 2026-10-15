@@ -35,6 +35,10 @@ public class EditPersonDescriptorBuilder {
         descriptor.setSchool(person.getSchool());
         descriptor.setLevel(person.getLevel());
         descriptor.setSubjects(person.getSubjects());
+        person.getGuardian().ifPresentOrElse(guardian -> {
+            descriptor.setGuardianName(guardian.getName());
+            descriptor.setGuardianPhone(guardian.getPhone());
+        }, descriptor::setGuardianRemoved);
     }
 
     /**
@@ -82,6 +86,30 @@ public class EditPersonDescriptorBuilder {
      */
     public EditPersonDescriptorBuilder withSubjects(Subject... subjects) {
         descriptor.setSubjects(List.of(subjects));
+        return this;
+    }
+
+    /**
+     * Sets the guardian name of the {@code EditPersonDescriptor} that we are building.
+     */
+    public EditPersonDescriptorBuilder withGuardianName(String guardianName) {
+        descriptor.setGuardianName(new Name(guardianName));
+        return this;
+    }
+
+    /**
+     * Sets the guardian phone of the {@code EditPersonDescriptor} that we are building.
+     */
+    public EditPersonDescriptorBuilder withGuardianPhone(String guardianPhone) {
+        descriptor.setGuardianPhone(new Phone(guardianPhone));
+        return this;
+    }
+
+    /**
+     * Marks the guardian to be removed in the {@code EditPersonDescriptor} that we are building.
+     */
+    public EditPersonDescriptorBuilder withGuardianRemoved() {
+        descriptor.setGuardianRemoved();
         return this;
     }
 
