@@ -1,11 +1,14 @@
 package seedu.address.ui;
 
+import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 
 /**
@@ -63,8 +66,19 @@ public class PersonCard extends UiPart<Region> {
         school.setText(person.getSchool().value);
         level.setText(person.getLevel().name());
         subjects.setText(person.getSubjects().stream().map(Object::toString).collect(Collectors.joining(", ")));
-        notes.setText(person.getNotes().stream()
-                .map(note -> note.value)
-                .collect(Collectors.joining("\n")));
+        notes.setText(formatNotes(person.getNotes()));
+    }
+
+    /**
+     * Returns {@code notes} as one line per note, each starting with its one-based position,
+     * such as "1. Strong in Algebra".
+     *
+     * @param notes Notes in the order they were added.
+     * @return The numbered notes, or an empty string if there are none.
+     */
+    static String formatNotes(List<Note> notes) {
+        return IntStream.range(0, notes.size())
+                .mapToObj(i -> (i + 1) + ". " + notes.get(i).value)
+                .collect(Collectors.joining("\n"));
     }
 }
