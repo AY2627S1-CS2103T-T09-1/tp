@@ -81,8 +81,12 @@ public class StudentDetailPanel extends UiPart<Region> {
         level.setText(person.getLevel().toString());
         subjects.setText(formatSubjects(person));
         phone.setText(person.getPhone().map(Object::toString).orElse(NOT_PROVIDED_MESSAGE));
-        guardianName.setText(NOT_PROVIDED_MESSAGE);
-        guardianPhone.setText(NOT_PROVIDED_MESSAGE);
+        guardianName.setText(person.getGuardian()
+                .map(guardian -> guardian.getName().fullName)
+                .orElse(NOT_PROVIDED_MESSAGE));
+        guardianPhone.setText(person.getGuardian()
+                .map(guardian -> guardian.getPhone().value)
+                .orElse(NOT_PROVIDED_MESSAGE));
 
         showNotes(person);
     }

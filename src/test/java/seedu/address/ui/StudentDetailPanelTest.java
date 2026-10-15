@@ -78,6 +78,22 @@ public class StudentDetailPanelTest {
     }
 
     @Test
+    public void constructor_studentWithGuardian_displaysGuardianDetails(FxRobot robot) {
+        Person personWithGuardian = new PersonBuilder(ALICE)
+                .withGuardian("Mary Tan", "91234567")
+                .build();
+
+        robot.interact(() -> {
+            StudentDetailPanel panel = new StudentDetailPanel(personWithGuardian, INDEX_FIRST_PERSON, persons);
+            container.getChildren().setAll(panel.getRoot());
+            container.applyCss();
+
+            assertLabelText("#guardianName", "Mary Tan");
+            assertLabelText("#guardianPhone", "91234567");
+        });
+    }
+
+    @Test
     public void constructor_longValues_enablesTextWrapping(FxRobot robot) {
         robot.interact(() -> {
             Person personWithLongNote = new PersonBuilder(ALICE).withNotes("A long note").build();

@@ -106,7 +106,7 @@ The command does not accept additional arguments.
 
 Shows the full record of the student at the specified index in the main content area.
 
-The detail panel contains the student's name, school, level, subject-band pairs, student phone number, guardian name, guardian phone number, and notes. Fields that are not yet available in an older data model are shown as `Not provided`.
+The detail panel contains the student's name, school, level, subject-band pairs, student phone number, guardian name, guardian phone number, and notes. Optional fields without a recorded value, such as the student phone number or guardian details, are shown as `Not provided`.
 
 Format: `view INDEX`
 
