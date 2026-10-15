@@ -156,6 +156,7 @@ public class ParserUtil {
         }
     }
 
+    /**
      * Parses a {@code String note} into a {@code Note}.
      * Leading and trailing whitespaces will be trimmed.
      *
