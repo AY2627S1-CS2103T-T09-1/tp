@@ -2,6 +2,8 @@ package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
@@ -19,6 +21,7 @@ import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
+import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
@@ -36,13 +39,16 @@ public class EditCommand extends Command {
     public static final String MESSAGE_USAGE = COMMAND_WORD + ": Edits the details of the person identified "
             + "by the index number used in the displayed person list. "
             + "Existing values will be overwritten by the input values. "
-            + "Use " + PREFIX_PHONE + " with no number to remove the phone.\n"
+            + "Use " + PREFIX_PHONE + " with no number to remove the phone, and "
+            + PREFIX_GUARDIAN_NAME + " " + PREFIX_GUARDIAN_PHONE + " with no values to remove the guardian.\n"
             + "Parameters: INDEX (must be a positive integer) "
             + "[" + PREFIX_NAME + "NAME] "
             + "[" + PREFIX_PHONE + "PHONE] "
             + "[" + PREFIX_SCHOOL + "SCHOOL] "
             + "[" + PREFIX_LEVEL + "LEVEL] "
-            + "[" + PREFIX_SUBJECT + "SUBJECT " + PREFIX_BAND + "BAND]...\n"
+            + "[" + PREFIX_SUBJECT + "SUBJECT " + PREFIX_BAND + "BAND]... "
+            + "[" + PREFIX_GUARDIAN_NAME + "GUARDIAN_NAME] "
+            + "[" + PREFIX_GUARDIAN_PHONE + "GUARDIAN_PHONE]\n"
             + "Example: " + COMMAND_WORD + " 1 "
             + PREFIX_PHONE + "91234567 "
             + PREFIX_SCHOOL + "Victoria School "
@@ -51,6 +57,12 @@ public class EditCommand extends Command {
     public static final String MESSAGE_EDIT_PERSON_SUCCESS = "Edited person: %1$s";
     public static final String MESSAGE_NOT_EDITED = "At least one field to edit must be provided.";
     public static final String MESSAGE_DUPLICATE_PERSON = "This person already exists in the address book.";
+    public static final String MESSAGE_GUARDIAN_REMOVAL = "Guardian name (" + PREFIX_GUARDIAN_NAME
+            + ") and guardian phone (" + PREFIX_GUARDIAN_PHONE + ") cannot be empty. To remove the guardian, use "
+            + PREFIX_GUARDIAN_NAME + " " + PREFIX_GUARDIAN_PHONE + " with no values.";
+    public static final String MESSAGE_GUARDIAN_INCOMPLETE = "This person has no guardian yet. Give both "
+            + PREFIX_GUARDIAN_NAME + " and " + PREFIX_GUARDIAN_PHONE + " to add one.";
+    public static final String MESSAGE_NO_GUARDIAN_TO_REMOVE = "This person has no guardian to remove.";
 
     private final Index index;
     private final EditPersonDescriptor editPersonDescriptor;
@@ -92,7 +104,8 @@ public class EditCommand extends Command {
      * Creates and returns a {@code Person} with the details of {@code personToEdit}
      * edited with {@code editPersonDescriptor}.
      */
-    private static Person createEditedPerson(Person personToEdit, EditPersonDescriptor editPersonDescriptor) {
+    private static Person createEditedPerson(Person personToEdit, EditPersonDescriptor editPersonDescriptor)
+            throws CommandException {
         assert personToEdit != null;
 
         Name updatedName = editPersonDescriptor.getName().orElse(personToEdit.getName());
@@ -103,8 +116,39 @@ public class EditCommand extends Command {
         Level updatedLevel = editPersonDescriptor.getLevel().orElse(personToEdit.getLevel());
 
         List<Subject> updatedSubjects = editPersonDescriptor.getSubjects().orElse(personToEdit.getSubjects());
+        Guardian updatedGuardian = createEditedGuardian(personToEdit.getGuardian(), editPersonDescriptor);
         return new Person(updatedName, updatedPhone, updatedSchool, updatedLevel,
-                updatedSubjects, personToEdit.getNotes());
+                updatedSubjects, personToEdit.getNotes(), updatedGuardian);
+    }
+
+    /**
+     * Returns the guardian after applying the guardian edits in {@code editPersonDescriptor}
+     * to {@code currentGuardian}, or null if the person has no guardian afterwards.
+     *
+     * @throws CommandException if the person has no guardian, and the guardian is to be removed
+     *     or only one of name and phone is given.
+     */
+    private static Guardian createEditedGuardian(Optional<Guardian> currentGuardian,
+            EditPersonDescriptor editPersonDescriptor) throws CommandException {
+        if (editPersonDescriptor.isGuardianRemoved()) {
+            if (currentGuardian.isEmpty()) {
+                throw new CommandException(MESSAGE_NO_GUARDIAN_TO_REMOVE);
+            }
+            return null;
+        }
+        Optional<Name> guardianName = editPersonDescriptor.getGuardianName();
+        Optional<Phone> guardianPhone = editPersonDescriptor.getGuardianPhone();
+        if (guardianName.isEmpty() && guardianPhone.isEmpty()) {
+            return currentGuardian.orElse(null);
+        }
+        if (currentGuardian.isPresent()) {
+            return new Guardian(guardianName.orElse(currentGuardian.get().getName()),
+                    guardianPhone.orElse(currentGuardian.get().getPhone()));
+        }
+        if (guardianName.isEmpty() || guardianPhone.isEmpty()) {
+            throw new CommandException(MESSAGE_GUARDIAN_INCOMPLETE);
+        }
+        return new Guardian(guardianName.get(), guardianPhone.get());
     }
 
     @Override
@@ -141,6 +185,9 @@ public class EditCommand extends Command {
         private School school;
         private Level level;
         private List<Subject> subjects;
+        private Name guardianName;
+        private Phone guardianPhone;
+        private boolean isGuardianRemoved;
 
         public EditPersonDescriptor() {}
 
@@ -154,13 +201,17 @@ public class EditCommand extends Command {
             setSchool(toCopy.school);
             setLevel(toCopy.level);
             setSubjects(toCopy.subjects);
+            setGuardianName(toCopy.guardianName);
+            setGuardianPhone(toCopy.guardianPhone);
+            isGuardianRemoved = toCopy.isGuardianRemoved;
         }
 
         /**
          * Returns true if at least one field is edited.
          */
         public boolean isAnyFieldEdited() {
-            return CollectionUtil.isAnyNonNull(name, phone, school, level, subjects) || isPhoneRemoved;
+            return CollectionUtil.isAnyNonNull(name, phone, school, level, subjects, guardianName, guardianPhone)
+                    || isPhoneRemoved || isGuardianRemoved;
         }
 
         public void setName(Name name) {
@@ -221,6 +272,35 @@ public class EditCommand extends Command {
             return Optional.ofNullable(subjects);
         }
 
+        public void setGuardianName(Name guardianName) {
+            this.guardianName = guardianName;
+        }
+
+        public Optional<Name> getGuardianName() {
+            return Optional.ofNullable(guardianName);
+        }
+
+        public void setGuardianPhone(Phone guardianPhone) {
+            this.guardianPhone = guardianPhone;
+        }
+
+        public Optional<Phone> getGuardianPhone() {
+            return Optional.ofNullable(guardianPhone);
+        }
+
+        /**
+         * Marks the guardian to be removed from the person.
+         */
+        public void setGuardianRemoved() {
+            this.guardianName = null;
+            this.guardianPhone = null;
+            this.isGuardianRemoved = true;
+        }
+
+        public boolean isGuardianRemoved() {
+            return isGuardianRemoved;
+        }
+
         @Override
         public boolean equals(Object other) {
             if (other == this) {
@@ -237,7 +317,10 @@ public class EditCommand extends Command {
                     && isPhoneRemoved == otherEditPersonDescriptor.isPhoneRemoved
                     && Objects.equals(school, otherEditPersonDescriptor.school)
                     && Objects.equals(level, otherEditPersonDescriptor.level)
-                    && Objects.equals(subjects, otherEditPersonDescriptor.subjects);
+                    && Objects.equals(subjects, otherEditPersonDescriptor.subjects)
+                    && Objects.equals(guardianName, otherEditPersonDescriptor.guardianName)
+                    && Objects.equals(guardianPhone, otherEditPersonDescriptor.guardianPhone)
+                    && isGuardianRemoved == otherEditPersonDescriptor.isGuardianRemoved;
         }
 
         @Override
@@ -249,6 +332,9 @@ public class EditCommand extends Command {
                     .add("school", school)
                     .add("level", level)
                     .add("subjects", subjects)
+                    .add("guardianName", guardianName)
+                    .add("guardianPhone", guardianPhone)
+                    .add("isGuardianRemoved", isGuardianRemoved)
                     .toString();
         }
     }

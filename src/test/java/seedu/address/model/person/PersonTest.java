@@ -121,6 +121,18 @@ public class PersonTest {
         // no phone -> returns false
         editedAlice = new PersonBuilder(ALICE).withoutPhone().build();
         assertFalse(ALICE.equals(editedAlice));
+
+        // with guardian -> returns false
+        Person aliceWithGuardian = new PersonBuilder(ALICE).withGuardian("Mary Tan", "91234567").build();
+        assertFalse(ALICE.equals(aliceWithGuardian));
+
+        // different guardian -> returns false
+        assertFalse(aliceWithGuardian.equals(new PersonBuilder(ALICE).withGuardian("Mary Tan", "98765432").build()));
+
+        // same guardian -> returns true
+        Person aliceWithSameGuardian = new PersonBuilder(ALICE).withGuardian("Mary Tan", "91234567").build();
+        assertTrue(aliceWithGuardian.equals(aliceWithSameGuardian));
+        assertEquals(aliceWithGuardian.hashCode(), aliceWithSameGuardian.hashCode());
     }
 
     @Test
@@ -138,10 +150,16 @@ public class PersonTest {
     }
 
     @Test
+    public void format_withGuardian_includesGuardian() {
+        Person aliceWithGuardian = new PersonBuilder(ALICE).withGuardian("Mary Tan", "91234567").build();
+        assertEquals(Messages.format(ALICE) + "; Guardian: Mary Tan (91234567)", Messages.format(aliceWithGuardian));
+    }
+
+    @Test
     public void toStringMethod() {
         String expected = Person.class.getCanonicalName() + "{name=" + ALICE.getName() + ", phone="
                 + ALICE.getPhone().get() + ", school=" + ALICE.getSchool() + ", level=" + ALICE.getLevel()
-                + ", subjects=" + ALICE.getSubjects()
+                + ", subjects=" + ALICE.getSubjects() + ", guardian=null"
                 + "}";
         assertEquals(expected, ALICE.toString());
     }

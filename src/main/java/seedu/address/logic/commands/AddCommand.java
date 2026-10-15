@@ -2,6 +2,8 @@ package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
@@ -28,13 +30,16 @@ public class AddCommand extends Command {
             + PREFIX_SCHOOL + "SCHOOL "
             + PREFIX_LEVEL + "LEVEL "
             + PREFIX_SUBJECT + "SUBJECT " + PREFIX_BAND + "BAND "
-            + "[" + PREFIX_SUBJECT + "SUBJECT " + PREFIX_BAND + "BAND]...\n"
+            + "[" + PREFIX_SUBJECT + "SUBJECT " + PREFIX_BAND + "BAND]... "
+            + "[" + PREFIX_GUARDIAN_NAME + "GUARDIAN_NAME " + PREFIX_GUARDIAN_PHONE + "GUARDIAN_PHONE]\n"
             + "Example: " + COMMAND_WORD + " "
             + PREFIX_NAME + "John Doe "
             + PREFIX_PHONE + "98765432 "
             + PREFIX_SCHOOL + "Victoria School "
             + PREFIX_LEVEL + "S3 "
-            + PREFIX_SUBJECT + "Mathematics " + PREFIX_BAND + "G3";
+            + PREFIX_SUBJECT + "Mathematics " + PREFIX_BAND + "G3 "
+            + PREFIX_GUARDIAN_NAME + "Mary Doe "
+            + PREFIX_GUARDIAN_PHONE + "91234567";
 
     public static final String MESSAGE_SUCCESS = "New person added: %1$s";
     public static final String MESSAGE_DUPLICATE_PERSON = "This person already exists in the address book.";

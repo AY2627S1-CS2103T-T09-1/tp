@@ -2,6 +2,8 @@ package seedu.address.logic.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
@@ -32,6 +34,10 @@ public class CommandTestUtil {
     public static final String VALID_SCHOOL_BOB = "Victoria School";
     public static final String VALID_LEVEL_AMY = "S1";
     public static final String VALID_LEVEL_BOB = "S4";
+    public static final String VALID_GUARDIAN_NAME_AMY = "Mary Bee";
+    public static final String VALID_GUARDIAN_NAME_BOB = "Peter Choo";
+    public static final String VALID_GUARDIAN_PHONE_AMY = "33333333";
+    public static final String VALID_GUARDIAN_PHONE_BOB = "44444444";
 
     public static final String NAME_DESC_AMY = " " + PREFIX_NAME + VALID_NAME_AMY;
     public static final String NAME_DESC_BOB = " " + PREFIX_NAME + VALID_NAME_BOB;
@@ -41,11 +47,17 @@ public class CommandTestUtil {
     public static final String SCHOOL_DESC_BOB = " " + PREFIX_SCHOOL + VALID_SCHOOL_BOB;
     public static final String LEVEL_DESC_AMY = " " + PREFIX_LEVEL + VALID_LEVEL_AMY;
     public static final String LEVEL_DESC_BOB = " " + PREFIX_LEVEL + VALID_LEVEL_BOB;
+    public static final String GUARDIAN_NAME_DESC_AMY = " " + PREFIX_GUARDIAN_NAME + VALID_GUARDIAN_NAME_AMY;
+    public static final String GUARDIAN_NAME_DESC_BOB = " " + PREFIX_GUARDIAN_NAME + VALID_GUARDIAN_NAME_BOB;
+    public static final String GUARDIAN_PHONE_DESC_AMY = " " + PREFIX_GUARDIAN_PHONE + VALID_GUARDIAN_PHONE_AMY;
+    public static final String GUARDIAN_PHONE_DESC_BOB = " " + PREFIX_GUARDIAN_PHONE + VALID_GUARDIAN_PHONE_BOB;
 
     public static final String INVALID_NAME_DESC = " " + PREFIX_NAME + "James&"; // '&' not allowed in names
     public static final String INVALID_PHONE_DESC = " " + PREFIX_PHONE + "911a"; // 'a' not allowed in phones
     public static final String INVALID_SCHOOL_DESC = " " + PREFIX_SCHOOL; // empty string not allowed for schools
     public static final String INVALID_LEVEL_DESC = " " + PREFIX_LEVEL + "S6"; // only S1 to S5 allowed
+    public static final String INVALID_GUARDIAN_NAME_DESC = " " + PREFIX_GUARDIAN_NAME + "Mary&"; // '&' not allowed
+    public static final String INVALID_GUARDIAN_PHONE_DESC = " " + PREFIX_GUARDIAN_PHONE + "911a"; // digits only
 
     public static final String PREAMBLE_WHITESPACE = "\t  \r  \n";
     public static final String PREAMBLE_NON_EMPTY = "NonEmptyPreamble";

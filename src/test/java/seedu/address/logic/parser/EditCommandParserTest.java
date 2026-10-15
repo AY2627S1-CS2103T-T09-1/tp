@@ -1,6 +1,12 @@
 package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.logic.commands.CommandTestUtil.GUARDIAN_NAME_DESC_AMY;
+import static seedu.address.logic.commands.CommandTestUtil.GUARDIAN_NAME_DESC_BOB;
+import static seedu.address.logic.commands.CommandTestUtil.GUARDIAN_PHONE_DESC_AMY;
+import static seedu.address.logic.commands.CommandTestUtil.GUARDIAN_PHONE_DESC_BOB;
+import static seedu.address.logic.commands.CommandTestUtil.INVALID_GUARDIAN_NAME_DESC;
+import static seedu.address.logic.commands.CommandTestUtil.INVALID_GUARDIAN_PHONE_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_LEVEL_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_NAME_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_PHONE_DESC;
@@ -11,11 +17,15 @@ import static seedu.address.logic.commands.CommandTestUtil.PHONE_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.PHONE_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.SCHOOL_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.SCHOOL_DESC_BOB;
+import static seedu.address.logic.commands.CommandTestUtil.VALID_GUARDIAN_NAME_AMY;
+import static seedu.address.logic.commands.CommandTestUtil.VALID_GUARDIAN_PHONE_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_LEVEL_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_NAME_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_PHONE_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_PHONE_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_SCHOOL_AMY;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
@@ -32,6 +42,7 @@ import seedu.address.logic.Messages;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
 import seedu.address.model.person.Band;
+import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Phone;
@@ -184,6 +195,61 @@ public class EditCommandParserTest {
         descriptor = new EditPersonDescriptorBuilder().withPhoneRemoved().withName(VALID_NAME_AMY).build();
         assertParseSuccess(parser, targetIndex.getOneBased() + " " + PREFIX_PHONE + NAME_DESC_AMY,
                 new EditCommand(targetIndex, descriptor));
+    }
+
+    @Test
+    public void parse_guardianFields_success() {
+        Index targetIndex = INDEX_FIRST_PERSON;
+
+        // guardian name only
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withGuardianName(VALID_GUARDIAN_NAME_AMY).build();
+        assertParseSuccess(parser, targetIndex.getOneBased() + GUARDIAN_NAME_DESC_AMY,
+                new EditCommand(targetIndex, descriptor));
+
+        // guardian phone only
+        descriptor = new EditPersonDescriptorBuilder().withGuardianPhone(VALID_GUARDIAN_PHONE_AMY).build();
+        assertParseSuccess(parser, targetIndex.getOneBased() + GUARDIAN_PHONE_DESC_AMY,
+                new EditCommand(targetIndex, descriptor));
+
+        // both, with extra spaces
+        descriptor = new EditPersonDescriptorBuilder().withGuardianName(VALID_GUARDIAN_NAME_AMY)
+                .withGuardianPhone(VALID_GUARDIAN_PHONE_AMY).build();
+        assertParseSuccess(parser, targetIndex.getOneBased() + " " + PREFIX_GUARDIAN_NAME + "  "
+                + VALID_GUARDIAN_NAME_AMY + "  " + PREFIX_GUARDIAN_PHONE + VALID_GUARDIAN_PHONE_AMY + "  ",
+                new EditCommand(targetIndex, descriptor));
+    }
+
+    @Test
+    public void parse_emptyGuardian_removesGuardian() {
+        Index targetIndex = INDEX_FIRST_PERSON;
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withGuardianRemoved().build();
+        assertParseSuccess(parser, targetIndex.getOneBased() + " " + PREFIX_GUARDIAN_NAME + " "
+                + PREFIX_GUARDIAN_PHONE, new EditCommand(targetIndex, descriptor));
+
+        // guardian removed together with another field
+        descriptor = new EditPersonDescriptorBuilder().withGuardianRemoved().withName(VALID_NAME_AMY).build();
+        assertParseSuccess(parser, targetIndex.getOneBased() + " " + PREFIX_GUARDIAN_PHONE + "  "
+                + PREFIX_GUARDIAN_NAME + NAME_DESC_AMY, new EditCommand(targetIndex, descriptor));
+    }
+
+    @Test
+    public void parse_guardianPartlyEmpty_failure() {
+        String removalMessage = EditCommand.MESSAGE_GUARDIAN_REMOVAL;
+        assertParseFailure(parser, "1 " + PREFIX_GUARDIAN_NAME, removalMessage);
+        assertParseFailure(parser, "1 " + PREFIX_GUARDIAN_PHONE + "  ", removalMessage);
+        assertParseFailure(parser, "1 " + PREFIX_GUARDIAN_NAME + GUARDIAN_PHONE_DESC_AMY, removalMessage);
+        assertParseFailure(parser, "1" + GUARDIAN_NAME_DESC_AMY + " " + PREFIX_GUARDIAN_PHONE, removalMessage);
+    }
+
+    @Test
+    public void parse_invalidGuardian_failure() {
+        assertParseFailure(parser, "1" + INVALID_GUARDIAN_NAME_DESC, Guardian.MESSAGE_NAME_CONSTRAINTS);
+        assertParseFailure(parser, "1" + INVALID_GUARDIAN_PHONE_DESC, Guardian.MESSAGE_PHONE_CONSTRAINTS);
+        assertParseFailure(parser, "1" + GUARDIAN_NAME_DESC_AMY + GUARDIAN_NAME_DESC_BOB,
+                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_GUARDIAN_NAME));
+        assertParseFailure(parser, "1" + GUARDIAN_PHONE_DESC_AMY + GUARDIAN_PHONE_DESC_BOB,
+                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_GUARDIAN_PHONE));
     }
 
     @Test

@@ -70,7 +70,10 @@ public class EditPersonDescriptorTest {
                 + editPersonDescriptor.isPhoneRemoved() + ", school="
                 + editPersonDescriptor.getSchool().orElse(null) + ", level="
                 + editPersonDescriptor.getLevel().orElse(null) + ", subjects="
-                + editPersonDescriptor.getSubjects().orElse(null) + "}";
+                + editPersonDescriptor.getSubjects().orElse(null) + ", guardianName="
+                + editPersonDescriptor.getGuardianName().orElse(null) + ", guardianPhone="
+                + editPersonDescriptor.getGuardianPhone().orElse(null) + ", isGuardianRemoved="
+                + editPersonDescriptor.isGuardianRemoved() + "}";
         assertEquals(expected, editPersonDescriptor.toString());
     }
 }

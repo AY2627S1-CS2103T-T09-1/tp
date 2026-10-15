@@ -3,11 +3,15 @@ package seedu.address.logic.parser;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
+
+import java.util.Optional;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.EditCommand;
@@ -28,7 +32,7 @@ public class EditCommandParser implements Parser<EditCommand> {
         requireNonNull(args);
         ArgumentMultimap argMultimap =
                 ArgumentTokenizer.tokenize(args, PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_LEVEL,
-                        PREFIX_SUBJECT, PREFIX_BAND);
+                        PREFIX_SUBJECT, PREFIX_BAND, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE);
 
         Index index;
 
@@ -38,7 +42,8 @@ public class EditCommandParser implements Parser<EditCommand> {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditCommand.MESSAGE_USAGE), pe);
         }
 
-        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_LEVEL);
+        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_LEVEL,
+                PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE);
 
         EditPersonDescriptor editPersonDescriptor = new EditPersonDescriptor();
 
@@ -64,12 +69,41 @@ public class EditCommandParser implements Parser<EditCommand> {
         if (argMultimap.getValue(PREFIX_SUBJECT).isPresent() || argMultimap.getValue(PREFIX_BAND).isPresent()) {
             editPersonDescriptor.setSubjects(ParserUtil.parseSubjects(argMultimap));
         }
+        parseGuardianForEdit(argMultimap, editPersonDescriptor);
 
         if (!editPersonDescriptor.isAnyFieldEdited()) {
             throw new ParseException(EditCommand.MESSAGE_NOT_EDITED);
         }
 
         return new EditCommand(index, editPersonDescriptor);
+    }
+
+    /**
+     * Sets the guardian edits in {@code argMultimap} on {@code editPersonDescriptor}.
+     * {@code gn/} and {@code gp/} both with no value remove the guardian.
+     *
+     * @throws ParseException if only one of them is empty, or a given value is invalid.
+     */
+    private static void parseGuardianForEdit(ArgumentMultimap argMultimap,
+            EditPersonDescriptor editPersonDescriptor) throws ParseException {
+        Optional<String> guardianName = argMultimap.getValue(PREFIX_GUARDIAN_NAME);
+        Optional<String> guardianPhone = argMultimap.getValue(PREFIX_GUARDIAN_PHONE);
+        boolean isGuardianNameEmpty = guardianName.isPresent() && guardianName.get().isBlank();
+        boolean isGuardianPhoneEmpty = guardianPhone.isPresent() && guardianPhone.get().isBlank();
+
+        if (isGuardianNameEmpty && isGuardianPhoneEmpty) {
+            editPersonDescriptor.setGuardianRemoved();
+            return;
+        }
+        if (isGuardianNameEmpty || isGuardianPhoneEmpty) {
+            throw new ParseException(EditCommand.MESSAGE_GUARDIAN_REMOVAL);
+        }
+        if (guardianName.isPresent()) {
+            editPersonDescriptor.setGuardianName(ParserUtil.parseGuardianName(guardianName.get()));
+        }
+        if (guardianPhone.isPresent()) {
+            editPersonDescriptor.setGuardianPhone(ParserUtil.parseGuardianPhone(guardianPhone.get()));
+        }
     }
 
 }

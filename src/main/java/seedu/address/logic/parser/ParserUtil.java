@@ -2,15 +2,19 @@ package seedu.address.logic.parser;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.StringUtil;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Band;
+import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Note;
@@ -26,6 +30,10 @@ public class ParserUtil {
 
     public static final String MESSAGE_SUBJECT_BAND_PAIR =
             "Each sub/ must be immediately followed by one band/.";
+
+    public static final String MESSAGE_GUARDIAN_PAIR =
+            "Guardian name (" + PREFIX_GUARDIAN_NAME + ") and guardian phone (" + PREFIX_GUARDIAN_PHONE
+            + ") must be given together.";
 
     public static final String MESSAGE_INVALID_INDEX = "Index must be a positive integer.";
 
@@ -70,6 +78,54 @@ public class ParserUtil {
             throw new ParseException(Phone.MESSAGE_CONSTRAINTS);
         }
         return new Phone(trimmedPhone);
+    }
+
+    /**
+     * Parses a {@code String name} into the {@code Name} of a guardian.
+     * Leading and trailing whitespaces will be trimmed.
+     *
+     * @throws ParseException if the given {@code name} is invalid.
+     */
+    public static Name parseGuardianName(String name) throws ParseException {
+        try {
+            return parseName(name);
+        } catch (ParseException pe) {
+            throw new ParseException(Guardian.MESSAGE_NAME_CONSTRAINTS, pe);
+        }
+    }
+
+    /**
+     * Parses a {@code String phone} into the {@code Phone} of a guardian.
+     * Leading and trailing whitespaces will be trimmed.
+     *
+     * @throws ParseException if the given {@code phone} is invalid.
+     */
+    public static Phone parseGuardianPhone(String phone) throws ParseException {
+        try {
+            return parsePhone(phone);
+        } catch (ParseException pe) {
+            throw new ParseException(Guardian.MESSAGE_PHONE_CONSTRAINTS, pe);
+        }
+    }
+
+    /**
+     * Parses the guardian name and phone in {@code arguments} into a {@code Guardian}.
+     * Returns an empty {@code Optional} if neither is given.
+     *
+     * @throws ParseException if only one of them is given, or either is invalid.
+     */
+    public static Optional<Guardian> parseGuardian(ArgumentMultimap arguments) throws ParseException {
+        requireNonNull(arguments);
+        Optional<String> guardianName = arguments.getValue(PREFIX_GUARDIAN_NAME);
+        Optional<String> guardianPhone = arguments.getValue(PREFIX_GUARDIAN_PHONE);
+        if (guardianName.isEmpty() && guardianPhone.isEmpty()) {
+            return Optional.empty();
+        }
+        if (guardianName.isEmpty() || guardianPhone.isEmpty()) {
+            throw new ParseException(MESSAGE_GUARDIAN_PAIR);
+        }
+        return Optional.of(new Guardian(parseGuardianName(guardianName.get()),
+                parseGuardianPhone(guardianPhone.get())));
     }
 
     /**
