@@ -781,6 +781,7 @@ Use case ends.
 #### Commands and IDs
 
 * **Filter**: A prefix and value given to the `find` command, such as `lvl/S2`, that narrows down the student list.
+* **NID**: The number shown before a note on a student's card. Notes are numbered 1, 2, 3 in the order they were added. After a note is deleted, the notes after it move up one number, so an NID is not permanent.
 * **Prefix**: A short marker ending in `/`, such as `n/` or `sch/`, that labels the value after it in a command.
 * **SID**: Student ID, a unique number given to each student when they are added. It is never reused, even after the student is deleted.
 

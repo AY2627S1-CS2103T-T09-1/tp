@@ -191,6 +191,40 @@ Problem | Message
 `c/` appears more than once | `Multiple values specified for the following single-valued field(s): c/`
 `INDEX` or `c/TEXT` is missing, or there is no space before `c/` | `Invalid command format!` followed by how to use `addnote`
 
+### Deleting a note from a student: `deletenote`
+
+Deletes one note from a student's notes.
+
+Format: `deletenote INDEX note/NID`
+
+* `INDEX` is the index number shown in the displayed student list. It must be a positive integer, such as 1, 2, or 3.
+* `NID` is the number shown before the note on the student's card. It must be a positive integer, such as 1, 2, or 3.
+* After you delete a note, the notes after it move up one number. For example, if a student has 3 notes and you delete note 2, the old note 3 becomes note 2. Check the student's card for the new numbers before you delete another note.
+* Deleting a note does not change which students are shown.
+* After `view`, the student you are viewing is number 1, so use `deletenote 1` to delete one of their notes.
+
+<div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
+`deletenote` deletes the note as soon as you press Enter. It does not ask you to confirm, and you cannot undo it. Check `INDEX` and `NID` on the student's card before you press Enter.
+</div>
+
+Examples:
+
+* `deletenote 1 note/2` deletes note 2 of the 1st student in the displayed list.
+* `view 3` followed by `deletenote 1 note/1` deletes the first note of the student shown by `view 3`.
+
+If the command is wrong, `deletenote` shows one of these messages and does not change any student. If `INDEX` is not a positive integer, `deletenote` reports that first, even if `NID` is also wrong.
+
+Problem | Message
+--------|--------
+`INDEX` is not a positive integer, such as `0` or `abc` | `Index must be a positive integer.`
+There is other text between `INDEX` and `note/`, such as `deletenote 1 abc note/2` | `Index must be a positive integer.`
+`INDEX` is larger than the number of students shown | `The person index provided is invalid.`
+`NID` is empty or is not a positive integer, such as `0`, `-1`, or `abc` | `NID must be a positive integer.`
+The student has no notes | `{NAME} has no notes to delete.`
+`NID` is larger than the number of notes the student has | `NID {NID} does not exist. {NAME} has only {COUNT} notes.` (or `1 note` if the student has one note)
+`note/` appears more than once | `Multiple values specified for the following single-valued field(s): note/`
+`INDEX` or `note/NID` is missing, or there is no space before `note/` | `Invalid command format!` followed by how to use `deletenote`
+
 ### Finding students by name: `find`
 
 Shows the students whose names contain the given text.
@@ -290,6 +324,7 @@ Action | Format, Examples
 **Add note** | `addnote INDEX c/TEXT`<br> e.g., `addnote 1 c/Weak in algebra`
 **Clear** | `clear`
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
+**Delete note** | `deletenote INDEX note/NID`<br> e.g., `deletenote 1 note/2`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `edit 2 sub/Mathematics band/G2 sub/English band/G3`, `edit 1 gn/ gp/`
 **Find** | `find n/NAME`<br> e.g., `find n/avi`
 **List** | `list`
