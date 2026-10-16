@@ -3,7 +3,7 @@ layout: page
 title: User Guide
 ---
 
-AddressBook Level 3 (AB3) is a **desktop application for managing contacts, optimized for use through a Command Line Interface (CLI)** while retaining the benefits of a Graphical User Interface (GUI). If you type quickly, AB3 can help you manage contacts faster than traditional GUI applications.
+TuteeBook3 is a **desktop app for private tutors who teach secondary school students (S1 to S5) in Singapore, optimized for use through a Command Line Interface (CLI)** while keeping the benefits of a Graphical User Interface (GUI). It keeps each student's phone number, guardian contact, school, level, subjects, and additional notes in one place, so you can bring up a student's full record with a short typed command. If you type quickly, TuteeBook3 helps you manage your students faster than a spreadsheet or a traditional GUI app.
 
 * Table of Contents
 {:toc}
@@ -17,22 +17,24 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 
 1. Download the latest `.jar` file from [here](https://github.com/AY2627S1-CS2103T-T09-1/tp/releases).
 
-1. Copy the file to the folder you want to use as the _home folder_ for your AddressBook.
+1. Copy the file to the folder you want to use as the _home folder_ for TuteeBook3.
 
 1. Open a terminal, `cd` to the folder containing the JAR file, and run `java -jar addressbook.jar`.<br>
-   A GUI similar to the one below should appear in a few seconds. Note how the app contains some sample data.<br>
+   A GUI similar to the one below should appear in a few seconds. Note how the app contains some sample students.<br>
    ![Ui](images/Ui.png)
 
 1. Type a command in the command box and press Enter to execute it. For example, type **`help`** and press Enter to show the available commands in the feedback box.<br>
    Some example commands you can try:
 
-   * `list` : Lists all contacts.
+   * `list` : Lists all students.
 
-   * `add n/John Doe p/98765432 sch/Victoria School lvl/S3 sub/Mathematics band/G1` : Adds a contact named `John Doe` to the Address Book.
+   * `view 1` : Shows the full record of the 1st student in the list.
 
-   * `delete 3` : Deletes the 3rd contact shown in the current list.
+   * `add n/John Doe p/98765432 sch/Victoria School lvl/S3 sub/Mathematics band/G1` : Adds a student named `John Doe`, who is in S3 at Victoria School and takes Mathematics at G1.
 
-   * `clear` : Deletes all contacts.
+   * `delete 3` : Deletes the 3rd student shown in the current list.
+
+   * `clear` : Deletes all students.
 
    * `exit` : Exits the app.
 
