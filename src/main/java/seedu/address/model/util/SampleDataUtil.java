@@ -27,7 +27,6 @@ public class SampleDataUtil {
      * Returns fictional sample students with contact details, subjects, bands, guardians, and tutoring notes.
      */
     public static Person[] getSamplePersons() {
-        
         return new Person[] {
             new Person(new Name(SAMPLE_PREFIX + "Chloe Tan"), new Phone("91234567"),
                     new School("Bedok Green Secondary School"), Level.S2,
