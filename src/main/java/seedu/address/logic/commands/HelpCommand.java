@@ -20,7 +20,7 @@ public class HelpCommand extends Command {
             "Available commands:",
             "",
             "help - Shows this list of available commands.",
-            "clear - Clears all students from TuteeBook3.",
+            "clear [-f] - Clears all students from TuteeBook3; -f skips confirmation.",
             "add - Adds a student with their name, school, subject, and contact details.",
             "delete - Removes a student of the given index.",
             "find - Finds students using partial name matching.",

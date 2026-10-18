@@ -29,6 +29,9 @@ public class CommandResult {
     /** The application should exit. */
     private final boolean exit;
 
+    /** The feedback should be displayed as a warning. */
+    private final boolean isWarning;
+
     private final DisplayMode displayMode;
 
     private final Person personToDisplay;
@@ -39,14 +42,15 @@ public class CommandResult {
      * Constructs a {@code CommandResult} with the specified fields.
      */
     public CommandResult(String feedbackToUser, boolean showHelp, boolean exit) {
-        this(feedbackToUser, showHelp, exit, DisplayMode.KEEP_CURRENT, null, null);
+        this(feedbackToUser, showHelp, exit, false, DisplayMode.KEEP_CURRENT, null, null);
     }
 
-    private CommandResult(String feedbackToUser, boolean showHelp, boolean exit, DisplayMode displayMode,
-            Person personToDisplay, Index displayedIndex) {
+    private CommandResult(String feedbackToUser, boolean showHelp, boolean exit, boolean isWarning,
+            DisplayMode displayMode, Person personToDisplay, Index displayedIndex) {
         this.feedbackToUser = requireNonNull(feedbackToUser);
         this.showHelp = showHelp;
         this.exit = exit;
+        this.isWarning = isWarning;
         this.displayMode = requireNonNull(displayMode);
         this.personToDisplay = personToDisplay;
         this.displayedIndex = displayedIndex;
@@ -77,6 +81,10 @@ public class CommandResult {
         return exit;
     }
 
+    public boolean isWarning() {
+        return isWarning;
+    }
+
     public DisplayMode getDisplayMode() {
         return displayMode;
     }
@@ -93,14 +101,23 @@ public class CommandResult {
      * Creates a result that shows the student list.
      */
     public static CommandResult showList(String feedbackToUser) {
-        return new CommandResult(feedbackToUser, false, false, DisplayMode.SHOW_LIST, null, null);
+        return new CommandResult(feedbackToUser, false, false, false, DisplayMode.SHOW_LIST, null, null);
     }
 
     /**
      * Creates a result that shows {@code person} in the student details panel.
      */
     public static CommandResult showStudent(String feedbackToUser, Person person, Index displayedIndex) {
-        return new CommandResult(feedbackToUser, false, false, DisplayMode.SHOW_STUDENT, person, displayedIndex);
+        return new CommandResult(feedbackToUser, false, false, false,
+                DisplayMode.SHOW_STUDENT, person, displayedIndex);
+    }
+
+    /**
+     * Creates a result whose feedback should be displayed as a warning.
+     */
+    public static CommandResult warning(String feedbackToUser) {
+        return new CommandResult(feedbackToUser, false, false, true,
+                DisplayMode.KEEP_CURRENT, null, null);
     }
 
     @Override
@@ -117,6 +134,7 @@ public class CommandResult {
         return feedbackToUser.equals(otherCommandResult.feedbackToUser)
                 && showHelp == otherCommandResult.showHelp
                 && exit == otherCommandResult.exit
+                && isWarning == otherCommandResult.isWarning
                 && displayMode == otherCommandResult.displayMode
                 && Objects.equals(personToDisplay, otherCommandResult.personToDisplay)
                 && Objects.equals(displayedIndex, otherCommandResult.displayedIndex);
@@ -124,7 +142,8 @@ public class CommandResult {
 
     @Override
     public int hashCode() {
-        return Objects.hash(feedbackToUser, showHelp, exit, displayMode, personToDisplay, displayedIndex);
+        return Objects.hash(feedbackToUser, showHelp, exit, isWarning,
+                displayMode, personToDisplay, displayedIndex);
     }
 
     @Override
@@ -133,6 +152,7 @@ public class CommandResult {
                 .add("feedbackToUser", feedbackToUser)
                 .add("showHelp", showHelp)
                 .add("exit", exit)
+                .add("isWarning", isWarning)
                 .add("displayMode", displayMode)
                 .add("personToDisplay", personToDisplay)
                 .add("displayedIndex", displayedIndex)
