@@ -311,11 +311,11 @@ The command does not accept additional arguments.
 
 ### Saving the data
 
-AddressBook automatically saves its current data after every successfully executed command. You do not need to save manually.
+TuteeBook3 automatically saves its current data after every successfully executed command. You do not need to save manually.
 
 ### Editing the data file
 
-AddressBook data is saved automatically as a JSON file `[JAR file location]/data/addressbook.json`. Advanced users are welcome to update data directly by editing that data file.
+TuteeBook3 data is saved automatically as a JSON file `[JAR file location]/data/addressbook.json`. Advanced users are welcome to update data directly by editing that data file.
 
 Each student must have a `subjects` array containing 1–8 subject-band objects, for example:
 
