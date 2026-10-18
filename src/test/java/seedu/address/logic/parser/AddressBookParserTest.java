@@ -45,8 +45,16 @@ public class AddressBookParserTest {
 
     @Test
     public void parseCommand_clear() throws Exception {
-        assertTrue(parser.parseCommand(ClearCommand.COMMAND_WORD) instanceof ClearCommand);
-        assertTrue(parser.parseCommand(ClearCommand.COMMAND_WORD + "   ") instanceof ClearCommand);
+        assertEquals(new ClearCommand(), parser.parseCommand(ClearCommand.COMMAND_WORD));
+        assertEquals(new ClearCommand(), parser.parseCommand(ClearCommand.COMMAND_WORD + "   "));
+    }
+
+    @Test
+    public void parseCommand_forceOption_returnsForcedClearCommand() throws Exception {
+        assertEquals(new ClearCommand(true),
+                parser.parseCommand(ClearCommand.COMMAND_WORD + " " + ClearCommand.FORCE_OPTION));
+        assertEquals(new ClearCommand(true),
+                parser.parseCommand(ClearCommand.COMMAND_WORD + "   " + ClearCommand.FORCE_OPTION + "   "));
     }
 
     @Test
@@ -56,6 +64,11 @@ public class AddressBookParserTest {
                 parser.parseCommand(ClearCommand.COMMAND_WORD + " 3"));
         assertThrows(ParseException.class, expectedMessage, () ->
                 parser.parseCommand(ClearCommand.COMMAND_WORD + " additional text"));
+        assertThrows(ParseException.class, expectedMessage, () ->
+                parser.parseCommand(ClearCommand.COMMAND_WORD + " " + ClearCommand.FORCE_OPTION
+                        + " " + ClearCommand.FORCE_OPTION));
+        assertThrows(ParseException.class, expectedMessage, () ->
+                parser.parseCommand(ClearCommand.COMMAND_WORD + " --force"));
     }
 
     @Test

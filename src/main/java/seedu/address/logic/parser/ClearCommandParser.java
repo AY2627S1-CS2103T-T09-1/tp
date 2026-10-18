@@ -1,5 +1,8 @@
 package seedu.address.logic.parser;
 
+import static java.util.Objects.requireNonNull;
+import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+
 import seedu.address.logic.commands.ClearCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 
@@ -9,12 +12,19 @@ import seedu.address.logic.parser.exceptions.ParseException;
 public class ClearCommandParser implements Parser<ClearCommand> {
 
     /**
-     * Returns a {@code ClearCommand} if no additional arguments are present.
+     * Returns a {@code ClearCommand} with the requested confirmation behavior.
      *
-     * @throws ParseException if additional arguments are present.
+     * @throws ParseException if an unsupported argument is present.
      */
     public ClearCommand parse(String args) throws ParseException {
-        ParserUtil.validateNoArguments(args, ClearCommand.MESSAGE_USAGE);
-        return new ClearCommand();
+        requireNonNull(args);
+        String trimmedArgs = args.trim();
+        if (trimmedArgs.isEmpty()) {
+            return new ClearCommand();
+        }
+        if (trimmedArgs.equals(ClearCommand.FORCE_OPTION)) {
+            return new ClearCommand(true);
+        }
+        throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, ClearCommand.MESSAGE_USAGE));
     }
 }

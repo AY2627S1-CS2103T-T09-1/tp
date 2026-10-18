@@ -11,6 +11,7 @@ import javafx.scene.layout.Region;
  */
 public class ResultDisplay extends UiPart<Region> {
 
+    public static final String WARNING_STYLE_CLASS = "warning";
     private static final String FXML = "ResultDisplay.fxml";
 
     @FXML
@@ -21,8 +22,19 @@ public class ResultDisplay extends UiPart<Region> {
     }
 
     public void setFeedbackToUser(String feedbackToUser) {
+        setFeedbackToUser(feedbackToUser, false);
+    }
+
+    /**
+     * Displays feedback and applies warning styling when requested.
+     */
+    public void setFeedbackToUser(String feedbackToUser, boolean isWarning) {
         requireNonNull(feedbackToUser);
         resultDisplay.setText(feedbackToUser);
+        resultDisplay.getStyleClass().remove(WARNING_STYLE_CLASS);
+        if (isWarning) {
+            resultDisplay.getStyleClass().add(WARNING_STYLE_CLASS);
+        }
     }
 
 }

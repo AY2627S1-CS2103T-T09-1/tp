@@ -714,16 +714,33 @@ Use case ends.
 1.  Tutor requests to list students
 2.  TuteeBook3 shows the students, including the sample students
 3.  Tutor requests to clear all students
-4.  TuteeBook3 removes all students and their notes
-5.  TuteeBook3 shows an empty roster
+4.  TuteeBook3 warns that all students and notes will be deleted, and asks Tutor to type `clear` again
+5.  Tutor requests to clear all students again
+6.  TuteeBook3 removes all students and their notes
+7.  TuteeBook3 shows an empty roster
 
     Use case ends.
 
 **Extensions**
 
-* 2a. The list is already empty.
+* 3a. TuteeBook3 is already empty.
 
-  Use case ends.
+    * 3a1. TuteeBook3 informs Tutor that it is already empty and does not ask for confirmation.
+
+      Use case ends.
+
+* 3b. Tutor requests to clear all students using `clear -f`.
+
+    * 3b1. TuteeBook3 removes all students and their notes without asking for confirmation.
+    * 3b2. TuteeBook3 shows an empty roster.
+
+      Use case ends.
+
+* 5a. Tutor enters any other command instead of confirming.
+
+    * 5a1. TuteeBook3 cancels the pending `clear` request and processes the new input as usual.
+
+      Use case ends.
 
 ### Non-Functional Requirements
 

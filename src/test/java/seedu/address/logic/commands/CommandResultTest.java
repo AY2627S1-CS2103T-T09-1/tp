@@ -41,6 +41,9 @@ public class CommandResultTest {
         // different display mode -> returns false
         assertFalse(commandResult.equals(CommandResult.showList("feedback")));
 
+        // different warning value -> returns false
+        assertFalse(commandResult.equals(CommandResult.warning("feedback")));
+
         // same student display values -> returns true
         assertTrue(CommandResult.showStudent("feedback", ALICE, INDEX_FIRST_PERSON)
                 .equals(CommandResult.showStudent("feedback", ALICE, INDEX_FIRST_PERSON)));
@@ -64,6 +67,9 @@ public class CommandResultTest {
 
         // different display mode -> returns different hashcode
         assertNotEquals(commandResult.hashCode(), CommandResult.showList("feedback").hashCode());
+
+        // different warning value -> returns different hashcode
+        assertNotEquals(commandResult.hashCode(), CommandResult.warning("feedback").hashCode());
     }
 
     @Test
@@ -71,9 +77,18 @@ public class CommandResultTest {
         CommandResult commandResult = new CommandResult("feedback");
         String expected = CommandResult.class.getCanonicalName() + "{feedbackToUser="
                 + commandResult.getFeedbackToUser() + ", showHelp=" + commandResult.isShowHelp()
-                + ", exit=" + commandResult.isExit() + ", displayMode=" + commandResult.getDisplayMode()
+                + ", exit=" + commandResult.isExit() + ", isWarning=" + commandResult.isWarning()
+                + ", displayMode=" + commandResult.getDisplayMode()
                 + ", personToDisplay=null, displayedIndex=null}";
         assertEquals(expected, commandResult.toString());
+    }
+
+    @Test
+    public void warning_validFeedback_containsWarningInstruction() {
+        CommandResult commandResult = CommandResult.warning("feedback");
+
+        assertTrue(commandResult.isWarning());
+        assertEquals(CommandResult.DisplayMode.KEEP_CURRENT, commandResult.getDisplayMode());
     }
 
     @Test

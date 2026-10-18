@@ -34,11 +34,11 @@ TuteeBook3 is a **desktop app for private tutors who teach secondary school stud
 
    * `delete 3` : Deletes the 3rd student shown in the current list.
 
-   * `clear` : Deletes all students.
+   * `clear` : Asks you to confirm before deleting all students and their notes.
 
    * `exit` : Exits the app.
 
-1. When you finish trying the commands and before you enter your own student records, type `clear` and press Enter to remove all sample students. Remember that `clear` removes every student and note currently stored.
+1. When you finish trying the commands and before you enter your own student records, type `clear` and press Enter, then type `clear` again and press Enter to confirm that you want to remove all sample students. Alternatively, type `clear -f` and press Enter to remove them immediately without confirmation. Both methods remove every student and note currently stored.
 
 1. Refer to the [Features](#features) section below for details of each command.
 
@@ -61,7 +61,7 @@ TuteeBook3 is a **desktop app for private tutors who teach secondary school stud
 
 * `[sub/SUBJECT band/BAND]...` means that additional subject-band pairs may be supplied.
 
-* Commands that take no parameters, such as `help`, `list`, `exit`, and `clear`, do not accept additional arguments.<br>
+* Commands that take no parameters, such as `help`, `list`, and `exit`, do not accept additional arguments.<br>
   For example, `help 123` is rejected.
 
 * If you are using a PDF version of this document, be careful when copying and pasting commands that span multiple lines as space characters surrounding line-breaks may be omitted when copied over to the application.
@@ -119,7 +119,7 @@ Format: `view INDEX`
 * The current search results are preserved while you view the student.
 * Entering `view` again replaces the current student record instead of opening another panel.
 * Enter `list` to return to the full student list, or `find` to display new search results.
-* Commands that add, edit, delete, or clear students return to the student list after they succeed.
+* Commands that add, edit, or delete students return to the student list after they succeed. A confirmed `clear`, or `clear -f`, also returns to the (cleared) student list.
 * Help and invalid commands leave the student record visible.
 
 Example: `view 2` shows the full record of the second student in the currently displayed list.
@@ -285,11 +285,21 @@ There is more than one value, such as `delete 1 2` | `Invalid format. Usage: del
 
 ### Clearing all entries: `clear`
 
-Clears all entries from the address book.
+Clears all students and their notes after you confirm the command, or immediately when you use `-f`.
 
-Format: `clear`
+Format: `clear [-f]`
 
-The command does not accept additional arguments.
+The command accepts only the optional `-f` argument.
+
+* The first `clear` shows a confirmation notice without changing your data.
+* Type `clear` again as your next command to confirm and clear all students and notes.
+* `clear -f` clears all students and notes immediately without asking for confirmation.
+* Entering any other command, including an invalid command, cancels the pending `clear` request.
+* If TuteeBook3 is already empty, `clear` shows `TuteeBook3 is already empty.` without asking you to confirm.
+
+<div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
+After you confirm, or use `clear -f`, `clear` deletes every student and note immediately. You cannot undo it.
+</div>
 
 ### Exiting the program: `exit`
 
@@ -301,11 +311,11 @@ The command does not accept additional arguments.
 
 ### Saving the data
 
-AddressBook automatically saves data after every command. You do not need to save manually.
+TuteeBook3 automatically saves its current data after every successfully executed command. You do not need to save manually.
 
 ### Editing the data file
 
-AddressBook data is saved automatically as a JSON file `[JAR file location]/data/addressbook.json`. Advanced users are welcome to update data directly by editing that data file.
+TuteeBook3 data is saved automatically as a JSON file `[JAR file location]/data/addressbook.json`. Advanced users are welcome to update data directly by editing that data file.
 
 Each student must have a `subjects` array containing 1–8 subject-band objects, for example:
 
@@ -321,8 +331,8 @@ This is a field within a student record, not a complete data file. The same subj
 A student with a guardian also has a `guardian` object with both a `name` and a `phone`, for example `"guardian" : { "name" : "Mary Tan", "phone" : "91234567" }`. Leave out the `guardian` field for a student without a guardian.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
-If your changes make the data file invalid, AddressBook starts with an empty address book at the next run. The invalid file remains on disk until you run a command (AddressBook saves after every command). Still, we recommend backing up the file before editing it.<br>
-Furthermore, certain edits can cause the AddressBook to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
+If your changes make the data file invalid, TuteeBook3 starts with an empty book at the next run. The invalid file remains on disk until you successfully run a command that reaches the save step. Still, we recommend backing up the file before editing it.<br>
+Furthermore, certain edits can cause TuteeBook3 to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
 </div>
 
 ### Archiving data files `[coming in v2.0]`
@@ -334,7 +344,7 @@ _Details coming soon ..._
 ## FAQ
 
 **Q**: How do I transfer my data to another computer?<br>
-**A**: Install the app on the other computer and overwrite the data file it creates with the data file from your previous AddressBook home folder.
+**A**: Install the app on the other computer and overwrite the data file it creates with the data file from your previous TuteeBook3 home folder.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -350,7 +360,7 @@ Action | Format, Examples
 --------|------------------
 **Add** | `add n/NAME [p/PHONE] sch/SCHOOL lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Ho gp/91234567`
 **Add note** | `addnote INDEX c/TEXT`<br> e.g., `addnote 1 c/Weak in algebra`
-**Clear** | `clear`
+**Clear** | `clear`, followed by `clear` again to confirm (Alternatively, `clear -f` to clear immediately)
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
 **Delete note** | `deletenote INDEX note/NID`<br> e.g., `deletenote 1 note/2`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `edit 2 sub/Mathematics band/G2 sub/English band/G3`, `edit 1 gn/ gp/`
