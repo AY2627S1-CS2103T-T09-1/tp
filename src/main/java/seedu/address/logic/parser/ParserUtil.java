@@ -1,6 +1,7 @@
 package seedu.address.logic.parser;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
@@ -38,6 +39,19 @@ public class ParserUtil {
     public static final String MESSAGE_INVALID_INDEX = "Index must be a positive integer.";
 
     public static final String MESSAGE_INVALID_NID = "NID must be a positive integer.";
+
+    /**
+     * Validates that {@code args} contains no additional arguments.
+     *
+     * @throws ParseException if additional arguments are present.
+     */
+    public static void validateNoArguments(String args, String commandUsage) throws ParseException {
+        requireNonNull(args);
+        requireNonNull(commandUsage);
+        if (!args.isEmpty()) {
+            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, commandUsage));
+        }
+    }
 
     /**
      * Parses {@code oneBasedIndex} into an {@code Index} and returns it. Leading and trailing whitespaces will be

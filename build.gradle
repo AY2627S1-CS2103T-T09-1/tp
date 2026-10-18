@@ -73,7 +73,7 @@ dependencies {
 }
 
 shadowJar {
-    archiveFileName = 'addressbook.jar'
+    archiveFileName = 'TuteeBook3.jar'
 }
 
 defaultTasks 'clean', 'test'

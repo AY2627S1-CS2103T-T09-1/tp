@@ -11,11 +11,15 @@ import seedu.address.model.Model;
 public class ClearCommand extends Command {
 
     public static final String COMMAND_WORD = "clear";
+
+    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Clears all students from TuteeBook3. "
+            + "Additional arguments are not allowed.\n"
+            + "Example: " + COMMAND_WORD;
+
     public static final String MESSAGE_CONFIRMATION =
             "This will delete all students and notes. Type clear again to confirm.";
-    public static final String MESSAGE_EMPTY = "Address book is already empty.";
-    public static final String MESSAGE_SUCCESS = "Address book has been cleared!";
-
+    public static final String MESSAGE_EMPTY = "TuteeBook3 is already empty.";
+    public static final String MESSAGE_SUCCESS = "TuteeBook3 has been cleared!";
 
     @Override
     public CommandResult execute(Model model) {
