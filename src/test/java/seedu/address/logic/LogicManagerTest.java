@@ -12,6 +12,7 @@ import static seedu.address.testutil.TypicalPersons.AMY;
 
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import seedu.address.logic.commands.AddCommand;
+import seedu.address.logic.commands.ClearCommand;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.DeleteCommand;
 import seedu.address.logic.commands.ListCommand;
@@ -77,6 +79,52 @@ public class LogicManagerTest {
         String expectedMessage = String.format(
                 MESSAGE_INVALID_COMMAND_FORMAT, ListCommand.MESSAGE_USAGE);
         assertParseException(invalidListCommand, expectedMessage);
+    }
+
+    @Test
+    public void execute_firstClear_showsConfirmationWithoutChangingModelOrStorage() throws Exception {
+        model.addPerson(AMY);
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        Path addressBookFile = temporaryFolder.resolve("addressBook.json");
+        logic.execute(ListCommand.COMMAND_WORD);
+        String expectedStoredData = Files.readString(addressBookFile);
+
+        assertCommandSuccess(ClearCommand.COMMAND_WORD, ClearCommand.MESSAGE_CONFIRMATION, expectedModel);
+        assertEquals(expectedStoredData, Files.readString(addressBookFile));
+    }
+
+    @Test
+    public void execute_secondConsecutiveClear_clearsAddressBook() throws Exception {
+        model.addPerson(AMY);
+        logic.execute(ClearCommand.COMMAND_WORD);
+
+        assertCommandSuccess(ClearCommand.COMMAND_WORD, ClearCommand.MESSAGE_SUCCESS, new ModelManager());
+    }
+
+    @Test
+    public void execute_clearThenOtherCommand_cancelsConfirmation() throws Exception {
+        model.addPerson(AMY);
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        logic.execute(ClearCommand.COMMAND_WORD);
+        logic.execute(ListCommand.COMMAND_WORD);
+
+        assertCommandSuccess(ClearCommand.COMMAND_WORD, ClearCommand.MESSAGE_CONFIRMATION, expectedModel);
+    }
+
+    @Test
+    public void execute_clearThenInvalidInput_cancelsConfirmation() throws Exception {
+        model.addPerson(AMY);
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        logic.execute(ClearCommand.COMMAND_WORD);
+        assertParseException("unknownCommand", MESSAGE_UNKNOWN_COMMAND);
+
+        assertCommandSuccess(ClearCommand.COMMAND_WORD, ClearCommand.MESSAGE_CONFIRMATION, expectedModel);
+    }
+
+    @Test
+    public void execute_twoClearsOnEmptyAddressBook_success() throws Exception {
+        assertCommandSuccess(ClearCommand.COMMAND_WORD, ClearCommand.MESSAGE_CONFIRMATION, model);
+        assertCommandSuccess(ClearCommand.COMMAND_WORD, ClearCommand.MESSAGE_SUCCESS, model);
     }
 
     @Test

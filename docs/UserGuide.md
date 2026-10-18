@@ -32,7 +32,7 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 
    * `delete 3` : Deletes the 3rd contact shown in the current list.
 
-   * `clear` : Deletes all contacts.
+   * `clear` : Asks you to confirm before deleting all students and their notes.
 
    * `exit` : Exits the app.
 
@@ -267,9 +267,17 @@ Examples:
 
 ### Clearing all entries: `clear`
 
-Clears all entries from the address book.
+Clears all students and their notes after you confirm the command.
 
 Format: `clear`
+
+* The first `clear` shows a confirmation notice without changing your data.
+* Type `clear` again as your next command to confirm and clear all students and notes.
+* Entering any other command, including an invalid command, cancels the pending `clear` request.
+
+<div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
+After you confirm, `clear` deletes every student and note immediately. You cannot undo it.
+</div>
 
 ### Exiting the program: `exit`
 
@@ -279,7 +287,7 @@ Format: `exit`
 
 ### Saving the data
 
-AddressBook automatically saves data after every command. You do not need to save manually.
+AddressBook automatically saves data after every command that changes it. You do not need to save manually.
 
 ### Editing the data file
 
