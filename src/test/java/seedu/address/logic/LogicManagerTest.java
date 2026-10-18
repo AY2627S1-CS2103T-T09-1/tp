@@ -19,8 +19,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import seedu.address.logic.commands.AddCommand;
+import seedu.address.logic.commands.ClearCommand;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.DeleteCommand;
+import seedu.address.logic.commands.ExitCommand;
+import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.exceptions.ParseException;
@@ -77,6 +80,30 @@ public class LogicManagerTest {
         String expectedMessage = String.format(
                 MESSAGE_INVALID_COMMAND_FORMAT, ListCommand.MESSAGE_USAGE);
         assertParseException(invalidListCommand, expectedMessage);
+    }
+
+    @Test
+    public void execute_clearWithArguments_throwsParseException() {
+        String invalidClearCommand = ClearCommand.COMMAND_WORD + " 3";
+        String expectedMessage = String.format(
+                MESSAGE_INVALID_COMMAND_FORMAT, ClearCommand.MESSAGE_USAGE);
+        assertParseException(invalidClearCommand, expectedMessage);
+    }
+
+    @Test
+    public void execute_exitWithArguments_throwsParseException() {
+        String invalidExitCommand = ExitCommand.COMMAND_WORD + " 3";
+        String expectedMessage = String.format(
+                MESSAGE_INVALID_COMMAND_FORMAT, ExitCommand.MESSAGE_USAGE);
+        assertParseException(invalidExitCommand, expectedMessage);
+    }
+
+    @Test
+    public void execute_helpWithArguments_throwsParseException() {
+        String invalidHelpCommand = HelpCommand.COMMAND_WORD + " 3";
+        String expectedMessage = String.format(
+                MESSAGE_INVALID_COMMAND_FORMAT, HelpCommand.MESSAGE_USAGE);
+        assertParseException(invalidHelpCommand, expectedMessage);
     }
 
     @Test
