@@ -28,7 +28,7 @@ Design every feature for this user. When a choice affects what users can enter, 
 
 * `./gradlew check`: compile, run checkstyle, and run all tests. Must pass before you commit.
 * `./gradlew run`: launch the app.
-* `./gradlew shadowJar`: build the single JAR (`build/libs/addressbook.jar`).
+* `./gradlew shadowJar`: build the single JAR (`build/libs/TuteeBook3.jar`).
 * `cd .github && ./run-checks.sh`: check trailing whitespace, missing EOF newlines, and CRLF line endings.
 * CI runs `./gradlew check coverage` on Ubuntu, macOS, and Windows.
 
