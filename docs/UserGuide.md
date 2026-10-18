@@ -23,8 +23,8 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
    A GUI similar to the one below should appear in a few seconds. Note how the app contains some sample data.<br>
    ![Ui](images/Ui.png)
 
-1. Type a command in the command box and press Enter to execute it. For example, type **`help`** and press Enter to show the available commands in the feedback box.<br>
-   Some example commands you can try:
+1. Familiarize yourself with TuteeBook3 by trying its commands using the sample data. Type a command in the command box and press Enter to execute it. For example, type **`help`** and press Enter to show the available commands in the feedback box.<br>
+   Some other commands you can try:
 
    * `list` : Lists all contacts.
 
@@ -35,6 +35,8 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
    * `clear` : Deletes all contacts.
 
    * `exit` : Exits the app.
+
+1. When you finish trying the commands and before you enter your own student records, type `clear` and press Enter to remove all sample students. Remember that `clear` removes every student and note currently stored.
 
 1. Refer to the [Features](#features) section below for details of each command.
 
