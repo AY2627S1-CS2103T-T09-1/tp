@@ -12,7 +12,8 @@ public class HelpCommand extends Command {
     public static final String USER_GUIDE_URL =
             "https://ay2627s1-cs2103t-t09-1.github.io/tp/UserGuide.html";
 
-    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Shows program usage instructions.\n"
+    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Shows program usage instructions. "
+            + "Additional arguments are not allowed.\n"
             + "Example: " + COMMAND_WORD;
 
     public static final String SHOWING_HELP_MESSAGE = String.join(System.lineSeparator(),

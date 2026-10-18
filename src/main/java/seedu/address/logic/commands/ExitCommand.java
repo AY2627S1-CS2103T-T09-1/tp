@@ -9,7 +9,11 @@ public class ExitCommand extends Command {
 
     public static final String COMMAND_WORD = "exit";
 
-    public static final String MESSAGE_EXIT_ACKNOWLEDGEMENT = "Exiting Address Book as requested ...";
+    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Exits TuteeBook3. "
+            + "Additional arguments are not allowed.\n"
+            + "Example: " + COMMAND_WORD;
+
+    public static final String MESSAGE_EXIT_ACKNOWLEDGEMENT = "Exiting TuteeBook3 as requested ...";
 
     @Override
     public CommandResult execute(Model model) {
