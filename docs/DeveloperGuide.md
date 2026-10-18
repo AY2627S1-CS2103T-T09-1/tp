@@ -729,6 +729,13 @@ Use case ends.
 
       Use case ends.
 
+* 3b. Tutor requests to clear all students using `clear -f`.
+
+    * 3b1. TuteeBook3 removes all students and their notes without asking for confirmation.
+    * 3b2. TuteeBook3 shows an empty roster.
+
+      Use case ends.
+
 * 5a. Tutor enters any other command instead of confirming.
 
     * 5a1. TuteeBook3 cancels the pending `clear` request and processes the new input as usual.

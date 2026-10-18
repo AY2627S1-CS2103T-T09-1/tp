@@ -54,13 +54,15 @@ public class LogicManager implements Logic {
             throw e;
         }
 
-        if (command instanceof ClearCommand && model.getAddressBook().getPersonList().isEmpty()) {
-            isClearConfirmationPending = false;
-            return new CommandResult(ClearCommand.MESSAGE_EMPTY);
-        }
-        if (command instanceof ClearCommand && !isClearConfirmationPending) {
-            isClearConfirmationPending = true;
-            return CommandResult.warning(ClearCommand.MESSAGE_CONFIRMATION);
+        if (command instanceof ClearCommand clearCommand) {
+            if (model.getAddressBook().getPersonList().isEmpty()) {
+                isClearConfirmationPending = false;
+                return new CommandResult(ClearCommand.MESSAGE_EMPTY);
+            }
+            if (!clearCommand.isForced() && !isClearConfirmationPending) {
+                isClearConfirmationPending = true;
+                return CommandResult.warning(ClearCommand.MESSAGE_CONFIRMATION);
+            }
         }
         isClearConfirmationPending = false;
 

@@ -59,7 +59,7 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 
 * `[sub/SUBJECT band/BAND]...` means that additional subject-band pairs may be supplied.
 
-* Commands that take no parameters, such as `help`, `list`, `exit`, and `clear`, do not accept additional arguments.<br>
+* Commands that take no parameters, such as `help`, `list`, and `exit`, do not accept additional arguments.<br>
   For example, `help 123` is rejected.
 
 * If you are using a PDF version of this document, be careful when copying and pasting commands that span multiple lines as space characters surrounding line-breaks may be omitted when copied over to the application.
@@ -283,19 +283,20 @@ There is more than one value, such as `delete 1 2` | `Invalid format. Usage: del
 
 ### Clearing all entries: `clear`
 
-Clears all students and their notes after you confirm the command.
+Clears all students and their notes after you confirm the command, or immediately when you use `-f`.
 
-Format: `clear`
+Format: `clear [-f]`
 
-The command does not accept additional arguments.
+The command accepts only the optional `-f` argument.
 
 * The first `clear` shows a confirmation notice without changing your data.
 * Type `clear` again as your next command to confirm and clear all students and notes.
+* `clear -f` clears all students and notes immediately without asking for confirmation.
 * Entering any other command, including an invalid command, cancels the pending `clear` request.
 * If TuteeBook3 is already empty, `clear` shows `TuteeBook3 is already empty.` without asking you to confirm.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
-After you confirm, `clear` deletes every student and note immediately. You cannot undo it.
+After you confirm, or use `clear -f`, `clear` deletes every student and note immediately. You cannot undo it.
 </div>
 
 ### Exiting the program: `exit`
