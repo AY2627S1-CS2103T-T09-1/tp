@@ -251,19 +251,33 @@ Examples:
 * `find n/c` returns `Chloe Tan` and `Marcus Lim` from the sample student list.<br>
   ![Results for find c](images/findChloeMarcusResult.png)
 
-### Deleting a person: `delete`
+### Deleting a student: `delete`
 
-Deletes the specified person from the address book.
+Deletes a student, together with their guardian details and all of their notes.
 
 Format: `delete INDEX`
 
-* Deletes the person at the specified `INDEX`.
-* The index refers to the index number shown in the displayed person list.
-* The index **must be a positive integer** 1, 2, 3, …​
+* `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
+* After `view`, use the index shown at the top of the student detail view when running `delete`.
+* After a student is deleted, the student list shows all remaining students, even if you used `find` before. The index numbers of the remaining students may change, so check the list before you run another command that uses an index.
+* If the student detail view was open, it closes and the student list is shown.
+
+<div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
+`delete` deletes the student as soon as you press Enter. It does not ask you to confirm, and you cannot undo it. Check `INDEX` in the student list before you press Enter.
+</div>
 
 Examples:
-* `list` followed by `delete 2` deletes the 2nd person in the address book.
-* `find Betsy` followed by `delete 1` deletes the 1st person in the results of the `find` command.
+
+* `list` followed by `delete 2` deletes the 2nd student in the full student list.
+* `find n/Tan` followed by `delete 1` deletes the 1st student in the search results.
+
+If the command is wrong, `delete` shows one of these messages and does not delete any student.
+
+Problem | Message
+--------|--------
+`INDEX` is missing or is not a positive integer, such as `0`, `-1`, or `abc` | `Invalid format. Usage: delete INDEX`
+There is more than one value, such as `delete 1 2` | `Invalid format. Usage: delete INDEX`
+`INDEX` is larger than the number of students shown | `The student index provided is invalid.`
 
 ### Clearing all entries: `clear`
 
