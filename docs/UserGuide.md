@@ -249,8 +249,8 @@ Format: `find n/NAME`
 * Enter `list` to return to the full student list.
 
 Examples:
-* `find n/loe tan` returns `Chloe Tan`
-* `find n/c` returns `Chloe Tan` and `Marcus Lim` from the sample student list.<br>
+* `find n/loe tan` returns `SAMPLE Chloe Tan`
+* `find n/c` returns `SAMPLE Chloe Tan` and `SAMPLE Marcus Lim` from the sample student list.<br>
   ![Results for find c](images/findChloeMarcusResult.png)
 
 ### Deleting a student: `delete`
