@@ -169,11 +169,11 @@ For example, `edit 1 sub/Mathematics band/G1 sub/mathematics band/G2` fails with
 
 Adds a note to the end of a student's notes.
 
-Format: `addnote INDEX c/TEXT`
+Format: `addnote INDEX t/TEXT`
 
 * `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
 * `TEXT` must be 1 to 500 characters long, including spaces between words. Spaces before and after the text are removed and not counted.
-* `TEXT` can contain any characters, including digits, punctuation, and slashes, such as `WA2 Math: 36/50` or `Rajesh s/o Kumar`.
+* `TEXT` can contain any characters, including digits, punctuation, and slashes, such as `WA2 Math: 36/50`, `Rajesh s/o Kumar`, or `Call Mrs Tan c/o school`.
 * You can add the same note text more than once.
 * New notes appear in the student detail view after the existing notes.
 * Notes are numbered in the order you added them, such as `1. Weak in algebra`.
@@ -182,13 +182,13 @@ Format: `addnote INDEX c/TEXT`
 * If you edit the data file, each note must follow the same `TEXT` rules. Otherwise, the app starts with an empty student list.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
-`TEXT` cannot contain `c/` right after a space, because the app reads it as a second `c/` parameter. For example, `addnote 1 c/Call Mrs Tan c/o school` shows an error. Write `care of` instead of `c/o`.
+`TEXT` cannot contain `t/` right after a space, because the app reads it as a second `t/` parameter. For example, `addnote 1 t/Revise t/f questions` shows an error. Write `true/false` instead of `t/f`.
 </div>
 
 Examples:
 
-* `addnote 1 c/Weak in algebra` adds the note `Weak in algebra` to the 1st student in the displayed list.
-* `view 2` followed by `addnote 2 c/WA2 Math: 36/50` adds the note to the student shown by `view 2`.
+* `addnote 1 t/Weak in algebra` adds the note `Weak in algebra` to the 1st student in the displayed list.
+* `view 2` followed by `addnote 2 t/WA2 Math: 36/50` adds the note to the student shown by `view 2`.
 
 If the command is wrong, `addnote` shows one of these messages and does not change any student. If `INDEX` is not a positive integer, `addnote` reports that first, even if `TEXT` is also wrong.
 
@@ -198,8 +198,8 @@ Problem | Message
 `INDEX` is larger than the number of students shown | `The person index provided is invalid.`
 `TEXT` is empty or only spaces | `Note text cannot be blank.`
 `TEXT` is longer than 500 characters | `Note text must be at most 500 characters.`
-`c/` appears more than once | `Multiple values specified for the following single-valued field(s): c/`
-`INDEX` or `c/TEXT` is missing, or there is no space before `c/` | `Invalid command format!` followed by how to use `addnote`
+`t/` appears more than once | `Multiple values specified for the following single-valued field(s): t/`
+`INDEX` or `t/TEXT` is missing, or there is no space before `t/` | `Invalid command format!` followed by how to use `addnote`
 
 ### Editing a note of a student: `editnote`
 
@@ -395,7 +395,7 @@ _Details coming soon ..._
 Action | Format, Examples
 --------|------------------
 **Add** | `add n/NAME [p/PHONE] sch/SCHOOL lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Ho gp/91234567`
-**Add note** | `addnote INDEX c/TEXT`<br> e.g., `addnote 1 c/Weak in algebra`
+**Add note** | `addnote INDEX t/TEXT`<br> e.g., `addnote 1 t/Weak in algebra`
 **Clear** | `clear`, followed by `clear` again to confirm (Alternatively, `clear -f` to clear immediately)
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
 **Delete note** | `deletenote INDEX nid/NID`<br> e.g., `deletenote 1 nid/2`
