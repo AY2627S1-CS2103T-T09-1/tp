@@ -1,6 +1,7 @@
 package seedu.address.logic.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_INDEX;
 import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_NID;
 import static seedu.address.testutil.Assert.assertThrows;
@@ -23,6 +24,20 @@ public class ParserUtilTest {
     private static final String VALID_NOTE = "WA2 Math: 36/50";
 
     private static final String WHITESPACE = " \t\r\n";
+
+    private static final String COMMAND_USAGE = "Usage message";
+
+    @Test
+    public void validateNoArguments_emptyArguments_success() throws Exception {
+        ParserUtil.validateNoArguments("", COMMAND_USAGE);
+    }
+
+    @Test
+    public void validateNoArguments_nonEmptyArguments_throwsParseException() {
+        String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, COMMAND_USAGE);
+        assertThrows(ParseException.class, expectedMessage, () ->
+                ParserUtil.validateNoArguments(" extra", COMMAND_USAGE));
+    }
 
     @Test
     public void parseIndex_invalidInput_throwsParseException() {

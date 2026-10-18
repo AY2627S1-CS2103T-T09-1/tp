@@ -57,9 +57,8 @@ AddressBook Level 3 (AB3) is a **desktop application for managing contacts, opti
 
 * `[sub/SUBJECT band/BAND]...` means that additional subject-band pairs may be supplied.
 
-* Extraneous parameters for commands that take no parameters, such as `help`, `exit`, and `clear`, are ignored.<br>
-  For example, `help 123` is interpreted as `help`.
-* The `list` command does not accept additional arguments. For example, `list 3` is rejected.
+* Commands that take no parameters, such as `help`, `list`, `exit`, and `clear`, do not accept additional arguments.<br>
+  For example, `help 123` is rejected.
 
 * If you are using a PDF version of this document, be careful when copying and pasting commands that span multiple lines as space characters surrounding line-breaks may be omitted when copied over to the application.
 </div>
@@ -70,6 +69,7 @@ Shows a one-line summary of each available command and the URL of the TuteeBook3
 
 Format: `help`
 
+The command does not accept additional arguments.
 
 ### Adding a person: `add`
 
@@ -271,11 +271,15 @@ Clears all entries from the address book.
 
 Format: `clear`
 
+The command does not accept additional arguments.
+
 ### Exiting the program: `exit`
 
 Exits the program.
 
 Format: `exit`
+
+The command does not accept additional arguments.
 
 ### Saving the data
 
