@@ -44,12 +44,15 @@ public class EditNoteCommandParserTest {
 
     @Test
     public void parse_prefixesInsideText_keepsWholeText() {
-        String careOfNote = "Call Mrs Tan " + PREFIX_NOTE + "o school";
+        String careOfNote = "Call Mrs Tan c/o school";
+        String trueFalseNote = "Revise t/f questions";
         String nidNote = "Redo nid/2 next week";
         String repeatedPrefixNote = "a " + PREFIX_NOTE + "b";
 
         assertParseSuccess(parser, "1 nid/2 " + PREFIX_NOTE + careOfNote,
                 new EditNoteCommand(INDEX_FIRST_PERSON, NID_SECOND, new Note(careOfNote)));
+        assertParseSuccess(parser, "1 nid/2 " + PREFIX_NOTE + trueFalseNote,
+                new EditNoteCommand(INDEX_FIRST_PERSON, NID_SECOND, new Note(trueFalseNote)));
         assertParseSuccess(parser, "1 nid/2 " + PREFIX_NOTE + nidNote,
                 new EditNoteCommand(INDEX_FIRST_PERSON, NID_SECOND, new Note(nidNote)));
         assertParseSuccess(parser, "1 nid/2 " + PREFIX_NOTE + repeatedPrefixNote,

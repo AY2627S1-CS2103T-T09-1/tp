@@ -205,12 +205,12 @@ Problem | Message
 
 Replaces the text of one of a student's notes.
 
-Format: `editnote INDEX nid/NID c/TEXT`
+Format: `editnote INDEX nid/NID t/TEXT`
 
 * `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
 * `NID` is the number shown before the note in the student detail view. It must be a positive integer, such as 1, 2, or 3. To see a student's notes and their NIDs, use `view INDEX`.
 * `TEXT` is the new text of the note. It follows the same rules as in `addnote`: 1 to 500 characters, with spaces before and after the text removed.
-* `nid/NID` must come before `c/TEXT`. Everything after `c/` is the note text, so `TEXT` can contain anything, including `c/o`, `nid/`, or another `c/`. For example, `editnote 1 nid/2 c/Call Mrs Tan c/o school` saves the note `Call Mrs Tan c/o school`.
+* `nid/NID` must come before `t/TEXT`. Everything after `t/` is the note text, so `TEXT` can contain anything, including `t/f`, `nid/`, or another `t/`. For example, `editnote 1 nid/2 t/Revise t/f questions` saves the note `Revise t/f questions`.
 * The edited note keeps its NID, and the student's other notes do not change.
 * If the new text is the same as the current text, the note stays as it is and `editnote` shows the message `Note {NID} of {NAME} was not changed because it already says: {TEXT}` in amber. Changing only uppercase and lowercase letters, such as `algebra` to `Algebra`, counts as a change.
 * Editing a note does not change which students are shown.
@@ -218,18 +218,18 @@ Format: `editnote INDEX nid/NID c/TEXT`
 
 Examples:
 
-* `editnote 1 nid/2 c/Improving in algebra` replaces note 2 of the 1st student in the displayed list with `Improving in algebra`.
-* `view 3` followed by `editnote 3 nid/1 c/WA2 Math: 42/50` replaces the first note of the student shown by `view 3`.
+* `editnote 1 nid/2 t/Improving in algebra` replaces note 2 of the 1st student in the displayed list with `Improving in algebra`.
+* `view 3` followed by `editnote 3 nid/1 t/WA2 Math: 42/50` replaces the first note of the student shown by `view 3`.
 
 If the command is wrong, `editnote` shows one of these messages and does not change any student. When several parts are wrong, `editnote` reports the first one in this table.
 
 Problem | Message
 --------|--------
-`nid/NID` comes after `c/TEXT`, such as `editnote 1 c/hi nid/2` | `Put nid/NID before c/TEXT. Everything after c/ is read as the note text.`
-`INDEX`, `nid/NID`, or `c/TEXT` is missing, or there is no space before `nid/` or `c/` | `Invalid command format!` followed by how to use `editnote`
+`nid/NID` comes after `t/TEXT`, such as `editnote 1 t/hi nid/2` | `Put nid/NID before t/TEXT. Everything after t/ is read as the note text.`
+`INDEX`, `nid/NID`, or `t/TEXT` is missing, or there is no space before `nid/` or `t/` | `Invalid command format!` followed by how to use `editnote`
 `INDEX` is not a positive integer, such as `0` or `abc` | `Index must be a positive integer.`
-There is other text between `INDEX` and the first prefix, such as `editnote 1 abc nid/2 c/hi` | `Index must be a positive integer.`
-`nid/` appears more than once before `c/` | `Multiple values specified for the following single-valued field(s): nid/`
+There is other text between `INDEX` and the first prefix, such as `editnote 1 abc nid/2 t/hi` | `Index must be a positive integer.`
+`nid/` appears more than once before `t/` | `Multiple values specified for the following single-valued field(s): nid/`
 `NID` is empty or is not a positive integer, such as `0`, `-1`, or `abc` | `NID must be a positive integer.`
 `TEXT` is empty or only spaces | `Note text cannot be blank.`
 `TEXT` is longer than 500 characters | `Note text must be at most 500 characters.`
@@ -400,7 +400,7 @@ Action | Format, Examples
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
 **Delete note** | `deletenote INDEX nid/NID`<br> e.g., `deletenote 1 nid/2`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `edit 2 sub/Mathematics band/G2 sub/English band/G3`, `edit 1 gn/ gp/`
-**Edit note** | `editnote INDEX nid/NID c/TEXT`<br> e.g., `editnote 1 nid/2 c/Improving in algebra`
+**Edit note** | `editnote INDEX nid/NID t/TEXT`<br> e.g., `editnote 1 nid/2 t/Improving in algebra`
 **Find** | `find n/NAME`<br> e.g., `find n/avi`
 **List** | `list`
 **Help** | `help`
