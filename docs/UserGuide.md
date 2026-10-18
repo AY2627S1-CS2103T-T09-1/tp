@@ -38,7 +38,7 @@ TuteeBook3 is a **desktop app for private tutors who teach secondary school stud
 
    * `exit` : Exits the app.
 
-1. When you finish trying the commands and before you enter your own student records, type `clear` and press Enter to remove all sample students. Remember that `clear` removes every student and note currently stored.
+1. When you finish trying the commands and before you enter your own student records, type `clear` and press Enter, then type `clear` again and press Enter to confirm that you want to remove all sample students. Alternatively, type `clear -f` and press Enter to remove them immediately without confirmation. Both methods remove every student and note currently stored.
 
 1. Refer to the [Features](#features) section below for details of each command.
 
@@ -119,7 +119,7 @@ Format: `view INDEX`
 * The current search results are preserved while you view the student.
 * Entering `view` again replaces the current student record instead of opening another panel.
 * Enter `list` to return to the full student list, or `find` to display new search results.
-* Commands that add, edit, delete, or clear students return to the student list after they succeed.
+* Commands that add, edit, or delete students return to the student list after they succeed. A confirmed `clear`, or `clear -f`, also returns to the (cleared) student list.
 * Help and invalid commands leave the student record visible.
 
 Example: `view 2` shows the full record of the second student in the currently displayed list.
@@ -360,7 +360,7 @@ Action | Format, Examples
 --------|------------------
 **Add** | `add n/NAME [p/PHONE] sch/SCHOOL lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Ho gp/91234567`
 **Add note** | `addnote INDEX c/TEXT`<br> e.g., `addnote 1 c/Weak in algebra`
-**Clear** | `clear`
+**Clear** | `clear`, followed by `clear` again to confirm, or `clear -f` to clear immediately
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
 **Delete note** | `deletenote INDEX note/NID`<br> e.g., `deletenote 1 note/2`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `edit 2 sub/Mathematics band/G2 sub/English band/G3`, `edit 1 gn/ gp/`
