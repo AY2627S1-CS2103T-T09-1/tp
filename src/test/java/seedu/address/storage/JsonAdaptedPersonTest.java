@@ -101,6 +101,14 @@ public class JsonAdaptedPersonTest {
     }
 
     @Test
+    public void toModelType_formattedPhone_throwsIllegalValueException() {
+        // the data file must hold the cleaned form; only typed commands remove spaces
+        JsonAdaptedPerson person =
+                new JsonAdaptedPerson(VALID_NAME, "9123 4567", VALID_SCHOOL, VALID_LEVEL, VALID_SUBJECTS);
+        assertThrows(IllegalValueException.class, Phone.MESSAGE_CONSTRAINTS, person::toModelType);
+    }
+
+    @Test
     public void toModelType_nullPhone_returnsPersonWithoutPhone() throws Exception {
         JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, null, VALID_SCHOOL, VALID_LEVEL, VALID_SUBJECTS);
         assertEquals(new PersonBuilder(BENSON).withoutPhone().build(), person.toModelType());

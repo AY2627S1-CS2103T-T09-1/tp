@@ -105,6 +105,13 @@ public class AddCommandParserTest {
     }
 
     @Test
+    public void parse_formattedPhone_savesCleanedPhone() {
+        Person expectedPerson = new PersonBuilder(BOB).withPhone("91234567").build();
+        assertParseSuccess(parser, NAME_DESC_BOB + " " + PREFIX_PHONE + "+65 9123 4567" + LEVEL_DESC_BOB
+                + SCHOOL_DESC_BOB + SUBJECT_DESC, new AddCommand(expectedPerson));
+    }
+
+    @Test
     public void parse_withGuardian_success() {
         Person expectedPerson = new PersonBuilder(BOB)
                 .withGuardian(VALID_GUARDIAN_NAME_BOB, VALID_GUARDIAN_PHONE_BOB).build();

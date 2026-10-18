@@ -1,7 +1,7 @@
 {
   "persons": [ {
     "name": "Valid Person",
-    "phone": "9482424",
+    "phone": "94824240",
     "level": "S1"
   }, {
     "name": "Person With Invalid Phone Field",

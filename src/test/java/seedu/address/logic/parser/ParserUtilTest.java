@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Note;
 import seedu.address.model.person.Phone;
@@ -20,7 +21,7 @@ public class ParserUtilTest {
     private static final String INVALID_PHONE = "+651234";
 
     private static final String VALID_NAME = "Rachel Walker";
-    private static final String VALID_PHONE = "123456";
+    private static final String VALID_PHONE = "91234567";
     private static final String VALID_NOTE = "WA2 Math: 36/50";
 
     private static final String WHITESPACE = " \t\r\n";
@@ -118,6 +119,37 @@ public class ParserUtilTest {
         String phoneWithWhitespace = WHITESPACE + VALID_PHONE + WHITESPACE;
         Phone expectedPhone = new Phone(VALID_PHONE);
         assertEquals(expectedPhone, ParserUtil.parsePhone(phoneWithWhitespace));
+    }
+
+    @Test
+    public void parsePhone_formattedSingaporeNumber_returnsCleanedPhone() throws Exception {
+        Phone expectedPhone = new Phone(VALID_PHONE);
+        assertEquals(expectedPhone, ParserUtil.parsePhone("+65 9123 4567"));
+        assertEquals(expectedPhone, ParserUtil.parsePhone("+6591234567"));
+        assertEquals(expectedPhone, ParserUtil.parsePhone("9123 4567"));
+        assertEquals(expectedPhone, ParserUtil.parsePhone("9123-4567"));
+        assertEquals(expectedPhone, ParserUtil.parsePhone("  91234567  "));
+    }
+
+    @Test
+    public void parsePhone_notSingaporeNumber_throwsParseException() {
+        assertThrows(ParseException.class, Phone.MESSAGE_CONSTRAINTS, () -> ParserUtil.parsePhone("+44 20 7946 0958"));
+        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("65 9123 4567")); // 65 without +
+        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("+65")); // country code only
+        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("9123 456")); // 7 digits
+        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("9123.4567")); // dots are not removed
+        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("91234567a"));
+    }
+
+    @Test
+    public void parseGuardianPhone_formattedSingaporeNumber_returnsCleanedPhone() throws Exception {
+        assertEquals(new Phone(VALID_PHONE), ParserUtil.parseGuardianPhone("+65 9123-4567"));
+    }
+
+    @Test
+    public void parseGuardianPhone_invalidValue_throwsParseExceptionWithGuardianPrefix() {
+        assertThrows(ParseException.class, Guardian.MESSAGE_PHONE_CONSTRAINTS, () ->
+                ParserUtil.parseGuardianPhone("12345678"));
     }
 
     @Test

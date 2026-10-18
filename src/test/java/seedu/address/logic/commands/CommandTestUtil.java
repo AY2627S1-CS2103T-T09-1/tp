@@ -28,16 +28,16 @@ public class CommandTestUtil {
 
     public static final String VALID_NAME_AMY = "Amy Bee";
     public static final String VALID_NAME_BOB = "Bob Choo";
-    public static final String VALID_PHONE_AMY = "11111111";
-    public static final String VALID_PHONE_BOB = "22222222";
+    public static final String VALID_PHONE_AMY = "91111111";
+    public static final String VALID_PHONE_BOB = "82222222";
     public static final String VALID_SCHOOL_AMY = "Bedok Green Secondary School";
     public static final String VALID_SCHOOL_BOB = "Victoria School";
     public static final String VALID_LEVEL_AMY = "S1";
     public static final String VALID_LEVEL_BOB = "S4";
     public static final String VALID_GUARDIAN_NAME_AMY = "Mary Bee";
     public static final String VALID_GUARDIAN_NAME_BOB = "Peter Choo";
-    public static final String VALID_GUARDIAN_PHONE_AMY = "33333333";
-    public static final String VALID_GUARDIAN_PHONE_BOB = "44444444";
+    public static final String VALID_GUARDIAN_PHONE_AMY = "93333333";
+    public static final String VALID_GUARDIAN_PHONE_BOB = "84444444";
 
     public static final String NAME_DESC_AMY = " " + PREFIX_NAME + VALID_NAME_AMY;
     public static final String NAME_DESC_BOB = " " + PREFIX_NAME + VALID_NAME_BOB;

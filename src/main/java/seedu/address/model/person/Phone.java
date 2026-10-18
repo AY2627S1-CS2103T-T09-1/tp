@@ -9,10 +9,14 @@ import static seedu.address.commons.util.AppUtil.checkArgument;
  */
 public class Phone {
 
-
     public static final String MESSAGE_CONSTRAINTS =
-            "Phone numbers should only contain digits, and should be at least 3 digits long";
-    public static final String VALIDATION_REGEX = "\\d{3,}";
+            "Phone numbers must be Singapore numbers: 8 digits starting with 6, 8 or 9, such as 91234567. "
+            + "Spaces, dashes and +65 are allowed.";
+    /*
+     * A Singapore landline (6) or mobile (8, 9) number, stored without spaces, dashes or country code.
+     */
+    public static final String VALIDATION_REGEX = "[689]\\d{7}";
+    private static final String COUNTRY_CODE = "+65";
     public final String value;
 
     /**
@@ -24,6 +28,16 @@ public class Phone {
         requireNonNull(phone);
         checkArgument(isValidPhone(phone), MESSAGE_CONSTRAINTS);
         value = phone;
+    }
+
+    /**
+     * Returns {@code phone} with spaces and dashes removed, then a leading {@code +65} removed.
+     * The result may still be invalid; check it with {@link #isValidPhone(String)}.
+     */
+    public static String normalise(String phone) {
+        requireNonNull(phone);
+        String compact = phone.replaceAll("[ -]", "");
+        return compact.startsWith(COUNTRY_CODE) ? compact.substring(COUNTRY_CODE.length()) : compact;
     }
 
     /**

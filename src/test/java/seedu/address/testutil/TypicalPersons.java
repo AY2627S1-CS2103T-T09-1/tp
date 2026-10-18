@@ -41,28 +41,28 @@ public class TypicalPersons {
             .withLevel("S4")
             .build();
     public static final Person ELLE = new PersonBuilder().withName("Elle Meyer")
-            .withPhone("9482224")
+            .withPhone("94822240")
             .withSchool("Greenhaven Secondary School")
             .withLevel("S5")
             .build();
     public static final Person FIONA = new PersonBuilder().withName("Fiona Kunz")
-            .withPhone("9482427")
+            .withPhone("94824270")
             .withLevel("S1")
             .build();
     public static final Person GEORGE = new PersonBuilder().withName("George Best")
-            .withPhone("9482442")
+            .withPhone("94824420")
             .withSchool("Sunrise Junior College")
             .withLevel("S2")
             .build();
 
     // Manually added
     public static final Person HOON = new PersonBuilder().withName("Hoon Meier")
-            .withPhone("8482424")
+            .withPhone("84824240")
             .withSchool("Raffles Institution")
             .withLevel("S3")
             .build();
     public static final Person IDA = new PersonBuilder().withName("Ida Mueller")
-            .withPhone("8482131")
+            .withPhone("84821310")
             .withSchool("CHIJ St. Nicholas Girls’ School")
             .withLevel("S4")
             .build();

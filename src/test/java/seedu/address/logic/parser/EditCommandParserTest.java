@@ -198,6 +198,19 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_formattedPhones_savesCleanedPhones() {
+        Index targetIndex = INDEX_FIRST_PERSON;
+
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withPhone("91234567").build();
+        assertParseSuccess(parser, targetIndex.getOneBased() + " " + PREFIX_PHONE + "9123 4567",
+                new EditCommand(targetIndex, descriptor));
+
+        descriptor = new EditPersonDescriptorBuilder().withGuardianPhone("81234567").build();
+        assertParseSuccess(parser, targetIndex.getOneBased() + " " + PREFIX_GUARDIAN_PHONE + "+65 8123 4567",
+                new EditCommand(targetIndex, descriptor));
+    }
+
+    @Test
     public void parse_guardianFields_success() {
         Index targetIndex = INDEX_FIRST_PERSON;
 
