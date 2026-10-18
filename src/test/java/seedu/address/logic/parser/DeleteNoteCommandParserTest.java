@@ -22,13 +22,13 @@ public class DeleteNoteCommandParserTest {
     public void parse_validArgs_returnsDeleteNoteCommand() {
         DeleteNoteCommand expectedCommand = new DeleteNoteCommand(INDEX_FIRST_PERSON, Index.fromOneBased(2));
 
-        assertParseSuccess(parser, "1 note/2", expectedCommand);
-        assertParseSuccess(parser, "  1   note/  2  ", expectedCommand);
+        assertParseSuccess(parser, "1 nid/2", expectedCommand);
+        assertParseSuccess(parser, "  1   nid/  2  ", expectedCommand);
     }
 
     @Test
     public void parse_maxIntNid_returnsDeleteNoteCommand() {
-        assertParseSuccess(parser, "1 note/2147483647",
+        assertParseSuccess(parser, "1 nid/2147483647",
                 new DeleteNoteCommand(INDEX_FIRST_PERSON, Index.fromOneBased(Integer.MAX_VALUE)));
     }
 
@@ -38,68 +38,68 @@ public class DeleteNoteCommandParserTest {
                 String.format(MESSAGE_INVALID_COMMAND_FORMAT, DeleteNoteCommand.MESSAGE_USAGE);
 
         assertParseFailure(parser, "", expectedMessage);
-        assertParseFailure(parser, " note/2", expectedMessage);
+        assertParseFailure(parser, " nid/2", expectedMessage);
         assertParseFailure(parser, " 1", expectedMessage);
 
         // NID given without its prefix
         assertParseFailure(parser, " 1 2", expectedMessage);
 
         // missing space between index and prefix
-        assertParseFailure(parser, " 1note/2", expectedMessage);
+        assertParseFailure(parser, " 1nid/2", expectedMessage);
 
-        // addnote's note text prefix instead of note/
+        // addnote's note text prefix instead of nid/
         assertParseFailure(parser, " 1 c/2", expectedMessage);
 
         // prefixes are case-sensitive
-        assertParseFailure(parser, " 1 NOTE/2", expectedMessage);
+        assertParseFailure(parser, " 1 NID/2", expectedMessage);
     }
 
     @Test
     public void parse_invalidIndex_throwsParseException() {
-        assertParseFailure(parser, " 0 note/1", MESSAGE_INVALID_INDEX);
-        assertParseFailure(parser, " -1 note/1", MESSAGE_INVALID_INDEX);
-        assertParseFailure(parser, " abc note/1", MESSAGE_INVALID_INDEX);
-        assertParseFailure(parser, " 99999999999 note/1", MESSAGE_INVALID_INDEX);
+        assertParseFailure(parser, " 0 nid/1", MESSAGE_INVALID_INDEX);
+        assertParseFailure(parser, " -1 nid/1", MESSAGE_INVALID_INDEX);
+        assertParseFailure(parser, " abc nid/1", MESSAGE_INVALID_INDEX);
+        assertParseFailure(parser, " 99999999999 nid/1", MESSAGE_INVALID_INDEX);
     }
 
     @Test
     public void parse_extraTextBeforePrefix_throwsIndexError() {
-        assertParseFailure(parser, " 1 abc note/2", MESSAGE_INVALID_INDEX);
-        assertParseFailure(parser, " 1 2 note/3", MESSAGE_INVALID_INDEX);
+        assertParseFailure(parser, " 1 abc nid/2", MESSAGE_INVALID_INDEX);
+        assertParseFailure(parser, " 1 2 nid/3", MESSAGE_INVALID_INDEX);
     }
 
     @Test
     public void parse_invalidNid_throwsParseException() {
-        assertParseFailure(parser, " 1 note/0", MESSAGE_INVALID_NID);
-        assertParseFailure(parser, " 1 note/-1", MESSAGE_INVALID_NID);
-        assertParseFailure(parser, " 1 note/abc", MESSAGE_INVALID_NID);
-        assertParseFailure(parser, " 1 note/99999999999", MESSAGE_INVALID_NID);
-        assertParseFailure(parser, " 1 note/1.5", MESSAGE_INVALID_NID);
-        assertParseFailure(parser, " 1 note/+1", MESSAGE_INVALID_NID);
-        assertParseFailure(parser, " 1 note/2 abc", MESSAGE_INVALID_NID);
+        assertParseFailure(parser, " 1 nid/0", MESSAGE_INVALID_NID);
+        assertParseFailure(parser, " 1 nid/-1", MESSAGE_INVALID_NID);
+        assertParseFailure(parser, " 1 nid/abc", MESSAGE_INVALID_NID);
+        assertParseFailure(parser, " 1 nid/99999999999", MESSAGE_INVALID_NID);
+        assertParseFailure(parser, " 1 nid/1.5", MESSAGE_INVALID_NID);
+        assertParseFailure(parser, " 1 nid/+1", MESSAGE_INVALID_NID);
+        assertParseFailure(parser, " 1 nid/2 abc", MESSAGE_INVALID_NID);
     }
 
     @Test
     public void parse_emptyNid_throwsParseException() {
-        assertParseFailure(parser, " 1 note/", MESSAGE_INVALID_NID);
-        assertParseFailure(parser, " 1 note/   ", MESSAGE_INVALID_NID);
+        assertParseFailure(parser, " 1 nid/", MESSAGE_INVALID_NID);
+        assertParseFailure(parser, " 1 nid/   ", MESSAGE_INVALID_NID);
     }
 
     @Test
     public void parse_invalidIndexAndInvalidNid_throwsIndexError() {
-        assertParseFailure(parser, " 0 note/0", MESSAGE_INVALID_INDEX);
-        assertParseFailure(parser, " abc note/", MESSAGE_INVALID_INDEX);
-        assertParseFailure(parser, " 0 note/1 note/2", MESSAGE_INVALID_INDEX);
+        assertParseFailure(parser, " 0 nid/0", MESSAGE_INVALID_INDEX);
+        assertParseFailure(parser, " abc nid/", MESSAGE_INVALID_INDEX);
+        assertParseFailure(parser, " 0 nid/1 nid/2", MESSAGE_INVALID_INDEX);
     }
 
     @Test
     public void parse_repeatedPrefix_throwsParseException() {
         String expectedMessage = Messages.getErrorMessageForDuplicatePrefixes(PREFIX_NID);
 
-        assertParseFailure(parser, " 1 note/1 note/2", expectedMessage);
-        assertParseFailure(parser, " 1 note/1 note/1", expectedMessage);
+        assertParseFailure(parser, " 1 nid/1 nid/2", expectedMessage);
+        assertParseFailure(parser, " 1 nid/1 nid/1", expectedMessage);
 
         // repeated prefix is reported before the invalid NID
-        assertParseFailure(parser, " 1 note/abc note/2", expectedMessage);
+        assertParseFailure(parser, " 1 nid/abc nid/2", expectedMessage);
     }
 }
