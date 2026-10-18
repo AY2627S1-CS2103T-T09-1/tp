@@ -360,7 +360,7 @@ Action | Format, Examples
 --------|------------------
 **Add** | `add n/NAME [p/PHONE] sch/SCHOOL lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Ho gp/91234567`
 **Add note** | `addnote INDEX c/TEXT`<br> e.g., `addnote 1 c/Weak in algebra`
-**Clear** | `clear`, followed by `clear` again to confirm, or `clear -f` to clear immediately
+**Clear** | `clear`, followed by `clear` again to confirm (Alternatively, `clear -f` to clear immediately)
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
 **Delete note** | `deletenote INDEX note/NID`<br> e.g., `deletenote 1 note/2`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `edit 2 sub/Mathematics band/G2 sub/English band/G3`, `edit 1 gn/ gp/`
