@@ -16,7 +16,7 @@ public class ClearCommand extends Command {
             + "Additional arguments are not allowed.\n"
             + "Example: " + COMMAND_WORD;
 
-    public static final String MESSAGE_SUCCESS = "Address book has been cleared!";
+    public static final String MESSAGE_SUCCESS = "TuteeBook3 has been cleared!";
 
 
     @Override
