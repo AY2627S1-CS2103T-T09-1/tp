@@ -630,6 +630,12 @@ Use case ends.
 
       Use case resumes at step 4.
 
+* 3c. The new text is the same as the note's current text.
+
+    * 3c1. TuteeBook3 keeps the note as it is and warns that the note was not changed.
+
+      Use case ends.
+
 ---
 
 **Use case: UC9 - Delete a note from a student**
