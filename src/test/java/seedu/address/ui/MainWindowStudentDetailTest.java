@@ -1,7 +1,9 @@
 package seedu.address.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalPersons.ALICE;
@@ -21,6 +23,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -108,6 +111,21 @@ public class MainWindowStudentDetailTest {
         assertEquals(List.of("1. New note"), noteTexts);
     }
 
+    @Test
+    public void execute_warningResult_appliesWarningStyle(FxRobot robot) {
+        enterCommand(robot, "warn");
+
+        assertTrue(getResultDisplay().getStyleClass().contains(ResultDisplay.WARNING_STYLE_CLASS));
+    }
+
+    @Test
+    public void execute_standardResultAfterWarning_removesWarningStyle(FxRobot robot) {
+        enterCommand(robot, "warn");
+        enterCommand(robot, "keep");
+
+        assertFalse(getResultDisplay().getStyleClass().contains(ResultDisplay.WARNING_STYLE_CLASS));
+    }
+
     private void enterCommand(FxRobot robot, String command) {
         robot.interact(() -> {
             TextField commandTextField =
@@ -125,6 +143,10 @@ public class MainWindowStudentDetailTest {
         return getContentPlaceholder().getChildren().get(0);
     }
 
+    private TextArea getResultDisplay() {
+        return (TextArea) mainWindow.getRoot().getScene().lookup(".result-display");
+    }
+
     private static class LogicStub implements Logic {
 
         private final ObservableList<Person> persons = FXCollections.observableArrayList(ALICE, BENSON);
@@ -137,6 +159,7 @@ public class MainWindowStudentDetailTest {
                 case "list" -> CommandResult.showList("Listed all students");
                 case "addnote 1 c/New note" -> addNoteToFirstPerson();
                 case "keep" -> new CommandResult("No display change");
+                case "warn" -> CommandResult.warning("Warning");
                 case "fail" -> throw new CommandException("Invalid command");
                 default -> throw new AssertionError("Unexpected command: " + commandText);
             };

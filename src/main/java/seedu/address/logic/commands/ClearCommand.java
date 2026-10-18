@@ -13,6 +13,7 @@ public class ClearCommand extends Command {
     public static final String COMMAND_WORD = "clear";
     public static final String MESSAGE_CONFIRMATION =
             "This will delete all students and notes. Type clear again to confirm.";
+    public static final String MESSAGE_EMPTY = "Address book is already empty.";
     public static final String MESSAGE_SUCCESS = "Address book has been cleared!";
 
 

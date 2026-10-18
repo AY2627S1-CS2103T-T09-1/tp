@@ -89,7 +89,8 @@ public class LogicManagerTest {
         logic.execute(ListCommand.COMMAND_WORD);
         String expectedStoredData = Files.readString(addressBookFile);
 
-        assertCommandSuccess(ClearCommand.COMMAND_WORD, ClearCommand.MESSAGE_CONFIRMATION, expectedModel);
+        assertCommandSuccess(ClearCommand.COMMAND_WORD,
+                CommandResult.warning(ClearCommand.MESSAGE_CONFIRMATION), expectedModel);
         assertEquals(expectedStoredData, Files.readString(addressBookFile));
     }
 
@@ -98,7 +99,8 @@ public class LogicManagerTest {
         model.addPerson(AMY);
         logic.execute(ClearCommand.COMMAND_WORD);
 
-        assertCommandSuccess(ClearCommand.COMMAND_WORD, ClearCommand.MESSAGE_SUCCESS, new ModelManager());
+        assertCommandSuccess(ClearCommand.COMMAND_WORD,
+                CommandResult.showList(ClearCommand.MESSAGE_SUCCESS), new ModelManager());
     }
 
     @Test
@@ -108,7 +110,8 @@ public class LogicManagerTest {
         logic.execute(ClearCommand.COMMAND_WORD);
         logic.execute(ListCommand.COMMAND_WORD);
 
-        assertCommandSuccess(ClearCommand.COMMAND_WORD, ClearCommand.MESSAGE_CONFIRMATION, expectedModel);
+        assertCommandSuccess(ClearCommand.COMMAND_WORD,
+                CommandResult.warning(ClearCommand.MESSAGE_CONFIRMATION), expectedModel);
     }
 
     @Test
@@ -118,13 +121,30 @@ public class LogicManagerTest {
         logic.execute(ClearCommand.COMMAND_WORD);
         assertParseException("unknownCommand", MESSAGE_UNKNOWN_COMMAND);
 
-        assertCommandSuccess(ClearCommand.COMMAND_WORD, ClearCommand.MESSAGE_CONFIRMATION, expectedModel);
+        assertCommandSuccess(ClearCommand.COMMAND_WORD,
+                CommandResult.warning(ClearCommand.MESSAGE_CONFIRMATION), expectedModel);
     }
 
     @Test
-    public void execute_twoClearsOnEmptyAddressBook_success() throws Exception {
-        assertCommandSuccess(ClearCommand.COMMAND_WORD, ClearCommand.MESSAGE_CONFIRMATION, model);
-        assertCommandSuccess(ClearCommand.COMMAND_WORD, ClearCommand.MESSAGE_SUCCESS, model);
+    public void execute_clearOnEmptyAddressBook_showsEmptyMessageWithoutPendingConfirmation() throws Exception {
+        assertCommandSuccess(ClearCommand.COMMAND_WORD,
+                new CommandResult(ClearCommand.MESSAGE_EMPTY), model);
+        model.addPerson(AMY);
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+
+        assertCommandSuccess(ClearCommand.COMMAND_WORD,
+                CommandResult.warning(ClearCommand.MESSAGE_CONFIRMATION), expectedModel);
+    }
+
+    @Test
+    public void execute_clearWithEmptyFilteredList_showsConfirmation() throws Exception {
+        model.addPerson(AMY);
+        model.updateFilteredPersonList(unused -> false);
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        expectedModel.updateFilteredPersonList(unused -> false);
+
+        assertCommandSuccess(ClearCommand.COMMAND_WORD,
+                CommandResult.warning(ClearCommand.MESSAGE_CONFIRMATION), expectedModel);
     }
 
     @Test
@@ -155,6 +175,16 @@ public class LogicManagerTest {
             Model expectedModel) throws CommandException, ParseException {
         CommandResult result = logic.execute(inputCommand);
         assertEquals(expectedMessage, result.getFeedbackToUser());
+        assertEquals(expectedModel, model);
+    }
+
+    /**
+     * Executes the command and confirms that the result and model match the expected values.
+     */
+    private void assertCommandSuccess(String inputCommand, CommandResult expectedCommandResult,
+            Model expectedModel) throws CommandException, ParseException {
+        CommandResult result = logic.execute(inputCommand);
+        assertEquals(expectedCommandResult, result);
         assertEquals(expectedModel, model);
     }
 

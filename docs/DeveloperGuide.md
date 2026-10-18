@@ -723,11 +723,11 @@ Use case ends.
 
 **Extensions**
 
-* 2a. The list is already empty.
+* 3a. The address book is already empty.
 
-    * 2a1. TuteeBook3 still asks for confirmation if Tutor requests to clear all students.
+    * 3a1. TuteeBook3 informs Tutor that the address book is already empty and does not ask for confirmation.
 
-      Use case resumes at step 3.
+      Use case ends.
 
 * 5a. Tutor enters any other command instead of confirming.
 

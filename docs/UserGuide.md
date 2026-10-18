@@ -274,6 +274,7 @@ Format: `clear`
 * The first `clear` shows a confirmation notice without changing your data.
 * Type `clear` again as your next command to confirm and clear all students and notes.
 * Entering any other command, including an invalid command, cancels the pending `clear` request.
+* If the address book is already empty, `clear` shows `Address book is already empty.` without asking you to confirm.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
 After you confirm, `clear` deletes every student and note immediately. You cannot undo it.
