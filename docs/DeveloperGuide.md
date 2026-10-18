@@ -723,9 +723,9 @@ Use case ends.
 
 **Extensions**
 
-* 3a. The address book is already empty.
+* 3a. TuteeBook3 is already empty.
 
-    * 3a1. TuteeBook3 informs Tutor that the address book is already empty and does not ask for confirmation.
+    * 3a1. TuteeBook3 informs Tutor that it is already empty and does not ask for confirmation.
 
       Use case ends.
 
