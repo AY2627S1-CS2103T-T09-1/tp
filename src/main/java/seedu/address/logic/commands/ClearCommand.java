@@ -18,7 +18,9 @@ public class ClearCommand extends Command {
             + ": Clears all students from TuteeBook3 after confirmation, unless " + FORCE_OPTION
             + " is provided.\n"
             + "Parameters: [" + FORCE_OPTION + "]\n"
-            + "Example: " + COMMAND_WORD + " " + FORCE_OPTION;
+            + "Examples:\n"
+            + COMMAND_WORD + " (asks for confirmation)\n"
+            + COMMAND_WORD + " " + FORCE_OPTION + " (clears immediately without confirmation)";
 
     public static final String MESSAGE_CONFIRMATION =
             "This will delete all students and notes. Type clear again to confirm.";

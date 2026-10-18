@@ -41,6 +41,15 @@ public class ClearCommandTest {
     }
 
     @Test
+    public void messageUsage_clearExamples_listsConfirmedCommandFirst() {
+        String expectedExamples = "Examples:\n"
+                + "clear (asks for confirmation)\n"
+                + "clear -f (clears immediately without confirmation)";
+
+        assertTrue(ClearCommand.MESSAGE_USAGE.endsWith(expectedExamples));
+    }
+
+    @Test
     public void equals() {
         ClearCommand normalCommand = new ClearCommand();
         ClearCommand forcedCommand = new ClearCommand(true);
