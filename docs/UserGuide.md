@@ -255,6 +255,35 @@ Examples:
 * `find n/c` returns `SAMPLE Chloe Tan` and `SAMPLE Marcus Lim` from the sample student list.<br>
   ![Results for find c](images/findChloeMarcusResult.png)
 
+### Finding students by note: `findnote`
+
+Shows the students who have at least one note containing the given text, and which of their notes match.
+
+Format: `findnote TEXT`
+
+* `TEXT` can be any part of a note, even part of a word. For example, `alge` matches `Needs more practice with algebra.`
+* The search is not case-sensitive. For example, `ALGEBRA` matches `algebra`.
+* `TEXT` is matched as one piece of text, including its spaces. For example, `findnote next lesson` matches notes containing `next lesson`, but not `lesson next`.
+* Extra spaces in `TEXT` are ignored. For example, `findnote next   lesson` is the same as `findnote next lesson`.
+* `TEXT` can contain any characters, including slashes, such as `36/50`.
+* `TEXT` must be at most 500 characters long, the same as a note. Spaces before and after the text are removed and not counted.
+* The search checks notes only.
+* The student list shows only the matching students. The result box lists each one with the numbers of their matching notes. You can use these with `view` and `deletenote`, such as `deletenote 1 nid/3`.
+* If no student matches, the student list is empty and a message tells you how to see all students again.
+* Enter `list` to return to the full student list.
+
+Examples:
+
+* `findnote algebra` shows `SAMPLE Chloe Tan`, and the result box shows `1. SAMPLE Chloe Tan: note 1`.
+* `findnote before the next lesson` shows `SAMPLE Marcus Lim` and `SAMPLE Daniel Lee`.
+
+If the command is wrong, `findnote` shows one of these messages and does not change which students are shown.
+
+Problem | Message
+--------|--------
+`TEXT` is empty or only spaces | `The text to search notes for cannot be blank. Example: findnote algebra`
+`TEXT` is longer than 500 characters | `The text to search notes for must be at most 500 characters.`
+
 ### Deleting a student: `delete`
 
 Deletes a student, together with their guardian details and all of their notes.
@@ -365,5 +394,6 @@ Action | Format, Examples
 **Delete note** | `deletenote INDEX nid/NID`<br> e.g., `deletenote 1 nid/2`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `edit 2 sub/Mathematics band/G2 sub/English band/G3`, `edit 1 gn/ gp/`
 **Find** | `find n/NAME`<br> e.g., `find n/avi`
+**Find note** | `findnote TEXT`<br> e.g., `findnote algebra`
 **List** | `list`
 **Help** | `help`
