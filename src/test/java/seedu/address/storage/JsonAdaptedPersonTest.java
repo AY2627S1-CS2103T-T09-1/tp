@@ -24,7 +24,7 @@ import seedu.address.testutil.PersonBuilder;
 
 public class JsonAdaptedPersonTest {
     private static final String INVALID_NAME = "R@chel";
-    private static final String INVALID_PHONE = "+651234";
+    private static final String INVALID_PHONE = "12";
     private static final String INVALID_LEVEL = "S6";
 
     private static final String VALID_NAME = BENSON.getName().toString();
@@ -121,6 +121,15 @@ public class JsonAdaptedPersonTest {
 
         assertFalse(json.contains("phone"));
         assertEquals(bensonWithoutPhone, JsonUtil.fromJsonString(json, JsonAdaptedPerson.class).toModelType());
+    }
+
+    @Test
+    public void toModelType_overseasPhones_roundTripsThroughJson() throws Exception {
+        Person bensonOverseas = new PersonBuilder(BENSON).withPhone("+442079460958")
+                .withGuardian("Mary Tan", "+60123456789").build();
+        String json = JsonUtil.toJsonString(new JsonAdaptedPerson(bensonOverseas));
+
+        assertEquals(bensonOverseas, JsonUtil.fromJsonString(json, JsonAdaptedPerson.class).toModelType());
     }
 
     @Test

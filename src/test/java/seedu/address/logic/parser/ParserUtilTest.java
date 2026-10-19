@@ -18,7 +18,7 @@ import seedu.address.model.person.Phone;
 
 public class ParserUtilTest {
     private static final String INVALID_NAME = "R@chel";
-    private static final String INVALID_PHONE = "+651234";
+    private static final String INVALID_PHONE = "12";
 
     private static final String VALID_NAME = "Rachel Walker";
     private static final String VALID_PHONE = "91234567";
@@ -132,12 +132,22 @@ public class ParserUtilTest {
     }
 
     @Test
-    public void parsePhone_notSingaporeNumber_throwsParseException() {
-        assertThrows(ParseException.class, Phone.MESSAGE_CONSTRAINTS, () -> ParserUtil.parsePhone("+44 20 7946 0958"));
-        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("65 9123 4567")); // 65 without +
-        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("+65")); // country code only
-        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("9123 456")); // 7 digits
+    public void parsePhone_notSingaporeNumber_returnsCleanedPhone() throws Exception {
+        assertEquals(new Phone("+442079460958"), ParserUtil.parsePhone("+44 20 7946-0958"));
+        assertEquals(new Phone("+6512345678"), ParserUtil.parsePhone("+65 1234 5678")); // +65 kept
+        assertEquals(new Phone("6591234567"), ParserUtil.parsePhone("65 9123 4567")); // 65 without +
+        assertEquals(new Phone("9123456"), ParserUtil.parsePhone("9123 456")); // 7 digits
+        assertEquals(new Phone("911"), ParserUtil.parsePhone("911")); // 3 digits
+        assertEquals(new Phone("123456789012345"), ParserUtil.parsePhone("123 4567 8901 2345")); // 15 digits
+    }
+
+    @Test
+    public void parsePhone_invalidCharactersOrLength_throwsParseException() {
+        assertThrows(ParseException.class, Phone.MESSAGE_CONSTRAINTS, () -> ParserUtil.parsePhone("+65"));
+        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("1 2")); // 2 digits
+        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("1234 5678 9012 3456")); // 16 digits
         assertThrows(ParseException.class, () -> ParserUtil.parsePhone("9123.4567")); // dots are not removed
+        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("(65) 9123 4567")); // brackets
         assertThrows(ParseException.class, () -> ParserUtil.parsePhone("91234567a"));
     }
 
@@ -149,7 +159,7 @@ public class ParserUtilTest {
     @Test
     public void parseGuardianPhone_invalidValue_throwsParseExceptionWithGuardianPrefix() {
         assertThrows(ParseException.class, Guardian.MESSAGE_PHONE_CONSTRAINTS, () ->
-                ParserUtil.parseGuardianPhone("12345678"));
+                ParserUtil.parseGuardianPhone("9123a"));
     }
 
     @Test

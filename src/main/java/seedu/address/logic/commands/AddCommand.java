@@ -10,11 +10,16 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
 
+import java.util.List;
+import java.util.stream.Stream;
+
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
+import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.Phone;
 
 /**
  * Adds a person to the address book.
@@ -63,7 +68,10 @@ public class AddCommand extends Command {
         }
 
         model.addPerson(toAdd);
-        return CommandResult.showList(String.format(MESSAGE_SUCCESS, Messages.format(toAdd)));
+        CommandResult result = CommandResult.showList(String.format(MESSAGE_SUCCESS, Messages.format(toAdd)));
+        List<Phone> givenPhones = Stream.concat(toAdd.getPhone().stream(),
+                toAdd.getGuardian().map(Guardian::getPhone).stream()).toList();
+        return Messages.getNonSingaporePhoneWarning(givenPhones).map(result::withWarning).orElse(result);
     }
 
     @Override

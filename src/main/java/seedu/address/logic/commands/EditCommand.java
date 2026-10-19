@@ -14,6 +14,7 @@ import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.CollectionUtil;
@@ -97,7 +98,12 @@ public class EditCommand extends Command {
 
         model.setPerson(personToEdit, editedPerson);
         model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
-        return CommandResult.showList(String.format(MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson)));
+        CommandResult result = CommandResult.showList(
+                String.format(MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson)));
+        // only warn about phones typed in this command, not ones the person already had
+        List<Phone> givenPhones = Stream.concat(editPersonDescriptor.getPhone().stream(),
+                editPersonDescriptor.getGuardianPhone().stream()).toList();
+        return Messages.getNonSingaporePhoneWarning(givenPhones).map(result::withWarning).orElse(result);
     }
 
     /**

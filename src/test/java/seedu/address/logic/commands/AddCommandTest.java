@@ -41,7 +41,48 @@ public class AddCommandTest {
         assertEquals(String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(validPerson)),
                 commandResult.getFeedbackToUser());
         assertEquals(CommandResult.DisplayMode.SHOW_LIST, commandResult.getDisplayMode());
+        assertFalse(commandResult.isWarning());
         assertEquals(List.of(validPerson), modelStub.personsAdded);
+    }
+
+    @Test
+    public void execute_nonSingaporePhone_addSuccessfulWithWarning() throws Exception {
+        assertAddedWithWarning(new PersonBuilder().withPhone("+447911123456").build(),
+                String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONE, "+447911123456"));
+    }
+
+    @Test
+    public void execute_nonSingaporeGuardianPhone_addSuccessfulWithWarning() throws Exception {
+        assertAddedWithWarning(new PersonBuilder().withGuardian("Mary Tan", "+60123456789").build(),
+                String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONE, "+60123456789"));
+    }
+
+    @Test
+    public void execute_bothPhonesNotSingapore_addSuccessfulWithOneWarning() throws Exception {
+        assertAddedWithWarning(new PersonBuilder().withPhone("+447911123456")
+                        .withGuardian("Mary Tan", "+60123456789").build(),
+                String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONES, "+447911123456 and +60123456789"));
+
+        // the same number for student and guardian is named once
+        assertAddedWithWarning(new PersonBuilder().withPhone("+60123456789")
+                        .withGuardian("Mary Tan", "+60123456789").build(),
+                String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONE, "+60123456789"));
+    }
+
+    /**
+     * Executes an {@code AddCommand} for {@code person} and checks that it is added,
+     * with {@code expectedWarning} after the success message.
+     */
+    private void assertAddedWithWarning(Person person, String expectedWarning) throws Exception {
+        ModelStubAcceptingPersonAdded modelStub = new ModelStubAcceptingPersonAdded();
+
+        CommandResult commandResult = new AddCommand(person).execute(modelStub);
+
+        assertEquals(String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(person)) + "\n" + expectedWarning,
+                commandResult.getFeedbackToUser());
+        assertTrue(commandResult.isWarning());
+        assertEquals(CommandResult.DisplayMode.SHOW_LIST, commandResult.getDisplayMode());
+        assertEquals(List.of(person), modelStub.personsAdded);
     }
 
     @Test

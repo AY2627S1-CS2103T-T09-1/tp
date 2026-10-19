@@ -1,5 +1,7 @@
 package seedu.address.logic;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,6 +22,10 @@ public class Messages {
     public static final String MESSAGE_PHONE_NOT_PROVIDED = "Not provided";
     public static final String MESSAGE_DUPLICATE_FIELDS =
                 "Multiple values specified for the following single-valued field(s): ";
+    public static final String MESSAGE_NOT_SINGAPORE_PHONE = "Warning: %1$s doesn't look like a Singapore number "
+            + "(8 digits starting with 6, 8 or 9). Use edit to fix it if it's wrong.";
+    public static final String MESSAGE_NOT_SINGAPORE_PHONES = "Warning: %1$s don't look like Singapore numbers "
+            + "(8 digits starting with 6, 8 or 9). Use edit to fix them if they're wrong.";
 
     /**
      * Returns an error message indicating the duplicate prefixes.
@@ -31,6 +37,25 @@ public class Messages {
                 Stream.of(duplicatePrefixes).map(Prefix::toString).collect(Collectors.toSet());
 
         return MESSAGE_DUPLICATE_FIELDS + String.join(" ", duplicateFields);
+    }
+
+    /**
+     * Returns a warning naming the {@code phones} that are not Singapore numbers,
+     * or an empty {@code Optional} if all of them are.
+     */
+    public static Optional<String> getNonSingaporePhoneWarning(List<Phone> phones) {
+        List<String> nonSingaporePhones = phones.stream()
+                .filter(phone -> !phone.isSingaporeNumber())
+                .map(Phone::toString)
+                .distinct()
+                .toList();
+        if (nonSingaporePhones.isEmpty()) {
+            return Optional.empty();
+        }
+        if (nonSingaporePhones.size() == 1) {
+            return Optional.of(String.format(MESSAGE_NOT_SINGAPORE_PHONE, nonSingaporePhones.get(0)));
+        }
+        return Optional.of(String.format(MESSAGE_NOT_SINGAPORE_PHONES, String.join(" and ", nonSingaporePhones)));
     }
 
     /**

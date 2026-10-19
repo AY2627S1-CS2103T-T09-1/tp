@@ -120,6 +120,16 @@ public class CommandResult {
                 DisplayMode.KEEP_CURRENT, null, null);
     }
 
+    /**
+     * Returns a copy of this result with {@code warning} added on a new line,
+     * displayed as a warning. The display mode is kept.
+     */
+    public CommandResult withWarning(String warning) {
+        requireNonNull(warning);
+        return new CommandResult(feedbackToUser + "\n" + warning, showHelp, exit, true,
+                displayMode, personToDisplay, displayedIndex);
+    }
+
     @Override
     public boolean equals(Object other) {
         if (other == this) {
