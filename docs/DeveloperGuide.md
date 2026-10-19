@@ -155,13 +155,13 @@ Students and guardians each have one phone number, stored as a `Phone`. The same
 
 #### Implementation
 
-1. `ParserUtil#parsePhone` calls `Phone#normalise`, which removes spaces and dashes, then removes a leading `+65` if the rest is a Singapore number (8 digits starting with 6, 8 or 9). For example, `+65 9123-4567` becomes `91234567`, but `+65 1234 5678` becomes `+6512345678`.
-1. `ParserUtil#parsePhone` then checks the result with `Phone#isValidPhone`: an optional `+` followed by 3 to 15 digits. Anything else throws a `ParseException` with `Phone.MESSAGE_CONSTRAINTS`.
+1. `ParserUtil#parsePhone` calls `Phone#normalize`, which removes spaces and hyphens, then removes a leading `+65` if the rest is a Singapore number (8 digits starting with 6, 8, or 9). For example, `+65 9123-4567` becomes `91234567`, but `+65 1234 5678` becomes `+6512345678`.
+1. `ParserUtil#parsePhone` then calls `Phone#getInvalidReason`, which checks the result with `Phone#isValidPhone`: an optional `+` followed by 3 to 15 digits. If the check fails, it returns a message that names the field and the value as typed, and gives the first problem it finds: the value is empty, has a character that isn't allowed, has a `+` that isn't at the start, or has the wrong number of digits. `ParserUtil` throws a `ParseException` with that message. `ParserUtil#parseGuardianPhone` does the same, with the field named `Guardian phone`.
 1. After saving the student, `AddCommand` and `EditCommand` pass the phones given in the command to `Messages#getNonSingaporePhoneWarning`. If any of them is not a Singapore number, the command returns its usual result with `CommandResult#withWarning`, which adds the warning and displays the result in amber without changing what the main panel shows.
 
 `EditCommand` only checks phones from its `EditPersonDescriptor`, so editing another detail of a student who already has an overseas number does not show the warning again.
 
-The data file uses the same `Phone#isValidPhone` rule, but storage does not call `Phone#normalise`. A phone in the data file must already be in its cleaned form.
+`JsonAdaptedPerson` and `JsonAdaptedGuardian` also call `Phone#normalize` before `Phone#isValidPhone` when loading the data file, so a phone edited by hand with `+65`, spaces, or hyphens loads in the same form as a typed one. A phone that is still invalid fails with the general `Phone.MESSAGE_CONSTRAINTS`, since the user does not see this message directly.
 
 #### Design considerations
 
@@ -176,10 +176,10 @@ The data file uses the same `Phone#isValidPhone` rule, but storage does not call
   * Cons: A typo such as `9123456` is saved without the tutor noticing.
 
 * **Alternative 3 (current choice):** Accept an optional `+` and 3 to 15 digits, and show a warning when the number is not a Singapore number.
-  * Pros: Real numbers are never blocked, typos are still pointed out, and v1.3 data files still load.
+  * Pros: Real numbers are never blocked, typos are still pointed out, and v1.3 data files with realistic numbers still load.
   * Cons: An extra warning path in `AddCommand` and `EditCommand`.
 
-15 is the longest phone number allowed by the international standard (E.164), including the country code. 3 is the minimum from v1.3, kept so that existing data files still load.
+15 is the longest phone number allowed by the international standard (E.164), including the country code. 3 is the minimum from v1.3, kept so that existing data files with realistic numbers still load. A v1.3 phone with more than 15 digits no longer loads.
 
 **Aspect: Whether to keep `+65`**
 
@@ -187,7 +187,7 @@ The data file uses the same `Phone#isValidPhone` rule, but storage does not call
   * Pros: `91234567` and `+65 9123 4567` are saved the same way, so the same number is never stored in two forms. A number that only looks Singaporean after removing `+65` is not changed into a different number.
   * Cons: Overseas numbers keep their country code, so phone numbers are not all stored in the same format.
 
-* **Alternative 2:** Keep numbers exactly as typed, apart from spaces and dashes.
+* **Alternative 2:** Keep numbers exactly as typed, apart from spaces and hyphens.
   * Pros: Simpler.
   * Cons: The same Singapore number could be stored as `91234567` or `+6591234567`, so comparing or searching phone numbers would have to handle both.
 
@@ -949,13 +949,13 @@ testers are expected to do more *exploratory* testing.
    1. Prerequisites: Ravi Kumar was added as above. Before each test case, use `find n/Ravi` so that Ravi Kumar is first in the list.
 
    1. Test case: `edit 1 p/+44 7911 123456`<br>
-      Expected: The phone number is saved as `+447911123456`. The status message is shown in amber, with a warning that `+447911123456` doesn't look like a Singapore number.
+      Expected: The phone number is saved as `+447911123456`. The status message is shown in amber, with a warning that phone `+447911123456` doesn't look like a Singapore number.
 
    1. Test case: `edit 1 sch/Bedok Green Secondary School`<br>
       Expected: The school changes. The status message shows no warning about the phone number.
 
    1. Test case: `edit 1 p/12`<br>
-      Expected: Ravi Kumar is unchanged. The status message shows the phone number rules.
+      Expected: Ravi Kumar is unchanged. The status message says `Phone 12 needs 3 to 15 digits, counting the country code, but has 2.`
 
 ### Saving data
 
