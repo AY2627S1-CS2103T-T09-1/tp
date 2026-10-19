@@ -94,6 +94,65 @@ public class EditCommandTest {
     }
 
     @Test
+    public void execute_nonSingaporePhone_successWithWarning() {
+        Person original = model.getFilteredPersonList().get(0);
+        Person edited = new PersonBuilder(original).withPhone("+447911123456").build();
+        EditCommand command = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withPhone("+447911123456").build());
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(original, edited);
+        String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited));
+        CommandResult expectedResult = CommandResult.showList(expectedMessage)
+                .withWarning(String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONE, "phone +447911123456"));
+        assertCommandSuccess(command, model, expectedResult, expectedModel);
+    }
+
+    @Test
+    public void execute_nonSingaporeGuardianPhone_successWithWarning() {
+        Person original = model.getFilteredPersonList().get(0);
+        Person edited = new PersonBuilder(original).withGuardian(VALID_GUARDIAN_NAME_AMY, "+60123456789").build();
+        EditCommand command = new EditCommand(INDEX_FIRST_PERSON, new EditPersonDescriptorBuilder()
+                .withGuardianName(VALID_GUARDIAN_NAME_AMY).withGuardianPhone("+60123456789").build());
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(original, edited);
+        String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited));
+        CommandResult expectedResult = CommandResult.showList(expectedMessage)
+                .withWarning(String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONE, "guardian phone +60123456789"));
+        assertCommandSuccess(command, model, expectedResult, expectedModel);
+    }
+
+    @Test
+    public void execute_bothPhonesNotSingapore_successWithOneWarning() {
+        Person original = model.getFilteredPersonList().get(0);
+        Person edited = new PersonBuilder(original).withPhone("+447911123456")
+                .withGuardian(VALID_GUARDIAN_NAME_AMY, "+60123456789").build();
+        EditCommand command = new EditCommand(INDEX_FIRST_PERSON, new EditPersonDescriptorBuilder()
+                .withPhone("+447911123456").withGuardianName(VALID_GUARDIAN_NAME_AMY)
+                .withGuardianPhone("+60123456789").build());
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(original, edited);
+        String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited));
+        CommandResult expectedResult = CommandResult.showList(expectedMessage).withWarning(
+                String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONES,
+                        "phone +447911123456 and guardian phone +60123456789"));
+        assertCommandSuccess(command, model, expectedResult, expectedModel);
+    }
+
+    @Test
+    public void execute_otherFieldWithExistingNonSingaporePhone_noWarning() {
+        Person original = model.getFilteredPersonList().get(0);
+        Person withOverseasPhone = new PersonBuilder(original).withPhone("+447911123456").build();
+        model.setPerson(original, withOverseasPhone);
+        Person edited = new PersonBuilder(withOverseasPhone).withSchool("Victoria School").build();
+        EditCommand command = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withSchool("Victoria School").build());
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(withOverseasPhone, edited);
+        String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited));
+        assertCommandSuccess(command, model, CommandResult.showList(expectedMessage), expectedModel);
+    }
+
+    @Test
     public void execute_bothGuardianFieldsNoGuardian_addsGuardian() {
         Person original = model.getFilteredPersonList().get(0);
         Person edited = new PersonBuilder(original)

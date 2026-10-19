@@ -24,7 +24,7 @@ import seedu.address.testutil.PersonBuilder;
 
 public class JsonAdaptedPersonTest {
     private static final String INVALID_NAME = "R@chel";
-    private static final String INVALID_PHONE = "+651234";
+    private static final String INVALID_PHONE = "12";
     private static final String INVALID_LEVEL = "S6";
 
     private static final String VALID_NAME = BENSON.getName().toString();
@@ -101,6 +101,28 @@ public class JsonAdaptedPersonTest {
     }
 
     @Test
+    public void toModelType_formattedPhone_returnsCleanedPhone() throws Exception {
+        // hand-edited files are cleaned the same way as typed phones
+        JsonAdaptedPerson singapore =
+                new JsonAdaptedPerson(VALID_NAME, "+65 9123-4567", VALID_SCHOOL, VALID_LEVEL, VALID_SUBJECTS);
+        assertEquals(new Phone("91234567"), singapore.toModelType().getPhone().orElseThrow());
+
+        JsonAdaptedPerson overseas =
+                new JsonAdaptedPerson(VALID_NAME, "+44 20 7946 0958", VALID_SCHOOL, VALID_LEVEL, VALID_SUBJECTS);
+        assertEquals(new Phone("+442079460958"), overseas.toModelType().getPhone().orElseThrow());
+    }
+
+    @Test
+    public void toModelType_formattedGuardianPhone_returnsCleanedPhone() throws Exception {
+        Person bensonWithGuardian = new PersonBuilder(BENSON).withGuardian("Mary Tan", "91234567").build();
+        String json = JsonUtil.toJsonString(new JsonAdaptedPerson(bensonWithGuardian));
+
+        JsonAdaptedPerson formattedPhone = JsonUtil.fromJsonString(
+                json.replace("\"91234567\"", "\"+65 9123-4567\""), JsonAdaptedPerson.class);
+        assertEquals(bensonWithGuardian, formattedPhone.toModelType());
+    }
+
+    @Test
     public void toModelType_nullPhone_returnsPersonWithoutPhone() throws Exception {
         JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, null, VALID_SCHOOL, VALID_LEVEL, VALID_SUBJECTS);
         assertEquals(new PersonBuilder(BENSON).withoutPhone().build(), person.toModelType());
@@ -113,6 +135,15 @@ public class JsonAdaptedPersonTest {
 
         assertFalse(json.contains("phone"));
         assertEquals(bensonWithoutPhone, JsonUtil.fromJsonString(json, JsonAdaptedPerson.class).toModelType());
+    }
+
+    @Test
+    public void toModelType_overseasPhones_roundTripsThroughJson() throws Exception {
+        Person bensonOverseas = new PersonBuilder(BENSON).withPhone("+442079460958")
+                .withGuardian("Mary Tan", "+60123456789").build();
+        String json = JsonUtil.toJsonString(new JsonAdaptedPerson(bensonOverseas));
+
+        assertEquals(bensonOverseas, JsonUtil.fromJsonString(json, JsonAdaptedPerson.class).toModelType());
     }
 
     @Test

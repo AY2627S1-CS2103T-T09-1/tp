@@ -7,9 +7,11 @@ import static seedu.address.logic.commands.CommandTestUtil.GUARDIAN_PHONE_DESC_A
 import static seedu.address.logic.commands.CommandTestUtil.GUARDIAN_PHONE_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_GUARDIAN_NAME_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_GUARDIAN_PHONE_DESC;
+import static seedu.address.logic.commands.CommandTestUtil.INVALID_GUARDIAN_PHONE_MESSAGE;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_LEVEL_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_NAME_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_PHONE_DESC;
+import static seedu.address.logic.commands.CommandTestUtil.INVALID_PHONE_MESSAGE;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_SCHOOL_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.LEVEL_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.NAME_DESC_AMY;
@@ -45,7 +47,6 @@ import seedu.address.model.person.Band;
 import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
-import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
 import seedu.address.model.person.Subject;
 import seedu.address.testutil.EditPersonDescriptorBuilder;
@@ -109,11 +110,11 @@ public class EditCommandParserTest {
         assertParseFailure(parser, "1 sub/English", ParserUtil.MESSAGE_SUBJECT_BAND_PAIR);
         assertParseFailure(parser, "1 sub/English band/G4", Band.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, "1" + INVALID_NAME_DESC, Name.MESSAGE_CONSTRAINTS); // invalid name
-        assertParseFailure(parser, "1" + INVALID_PHONE_DESC, Phone.MESSAGE_CONSTRAINTS); // invalid phone
+        assertParseFailure(parser, "1" + INVALID_PHONE_DESC, INVALID_PHONE_MESSAGE); // invalid phone
         assertParseFailure(parser, "1" + INVALID_SCHOOL_DESC, School.MESSAGE_CONSTRAINTS); // invalid school
 
         // invalid phone followed by valid school
-        assertParseFailure(parser, "1" + INVALID_PHONE_DESC + SCHOOL_DESC_AMY, Phone.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1" + INVALID_PHONE_DESC + SCHOOL_DESC_AMY, INVALID_PHONE_MESSAGE);
 
         // multiple invalid values, but only the first invalid value is captured
         assertParseFailure(parser, "1" + INVALID_NAME_DESC + INVALID_SCHOOL_DESC + VALID_PHONE_AMY,
@@ -198,6 +199,19 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_formattedPhones_savesCleanedPhones() {
+        Index targetIndex = INDEX_FIRST_PERSON;
+
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withPhone("91234567").build();
+        assertParseSuccess(parser, targetIndex.getOneBased() + " " + PREFIX_PHONE + "9123 4567",
+                new EditCommand(targetIndex, descriptor));
+
+        descriptor = new EditPersonDescriptorBuilder().withGuardianPhone("81234567").build();
+        assertParseSuccess(parser, targetIndex.getOneBased() + " " + PREFIX_GUARDIAN_PHONE + "+65 8123 4567",
+                new EditCommand(targetIndex, descriptor));
+    }
+
+    @Test
     public void parse_guardianFields_success() {
         Index targetIndex = INDEX_FIRST_PERSON;
 
@@ -245,7 +259,7 @@ public class EditCommandParserTest {
     @Test
     public void parse_invalidGuardian_failure() {
         assertParseFailure(parser, "1" + INVALID_GUARDIAN_NAME_DESC, Guardian.MESSAGE_NAME_CONSTRAINTS);
-        assertParseFailure(parser, "1" + INVALID_GUARDIAN_PHONE_DESC, Guardian.MESSAGE_PHONE_CONSTRAINTS);
+        assertParseFailure(parser, "1" + INVALID_GUARDIAN_PHONE_DESC, INVALID_GUARDIAN_PHONE_MESSAGE);
         assertParseFailure(parser, "1" + GUARDIAN_NAME_DESC_AMY + GUARDIAN_NAME_DESC_BOB,
                 Messages.getErrorMessageForDuplicatePrefixes(PREFIX_GUARDIAN_NAME));
         assertParseFailure(parser, "1" + GUARDIAN_PHONE_DESC_AMY + GUARDIAN_PHONE_DESC_BOB,

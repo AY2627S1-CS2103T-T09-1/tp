@@ -149,6 +149,48 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 
 This section describes some noteworthy details on how certain features are implemented.
 
+### Phone number validation
+
+Students and guardians each have one phone number, stored as a `Phone`. The same rules apply to `p/` and `gp/`.
+
+#### Implementation
+
+1. `ParserUtil#parsePhone` calls `Phone#normalize`, which removes spaces and hyphens, then removes a leading `+65` if the rest is a Singapore number (8 digits starting with 6, 8, or 9). For example, `+65 9123-4567` becomes `91234567`, but `+65 1234 5678` becomes `+6512345678`.
+1. `ParserUtil#parsePhone` then calls `Phone#getInvalidReason`, which checks the result with `Phone#isValidPhone`: an optional `+` followed by 3 to 15 digits. If the check fails, it returns a message that names the field and the value as typed, and gives the first problem it finds: the value is empty, has a character that isn't allowed, has a `+` that isn't at the start, or has the wrong number of digits. `ParserUtil` throws a `ParseException` with that message. `ParserUtil#parseGuardianPhone` does the same, with the field named `Guardian phone`.
+1. After saving the student, `AddCommand` and `EditCommand` pass the phones given in the command to `Messages#getNonSingaporePhoneWarning`. If any of them is not a Singapore number, the command returns its usual result with `CommandResult#withWarning`, which adds the warning and displays the result in amber without changing what the main panel shows.
+
+`EditCommand` only checks phones from its `EditPersonDescriptor`, so editing another detail of a student who already has an overseas number does not show the warning again.
+
+`JsonAdaptedPerson` and `JsonAdaptedGuardian` also call `Phone#normalize` before `Phone#isValidPhone` when loading the data file, so a phone edited by hand with `+65`, spaces, or hyphens loads in the same form as a typed one. A phone that is still invalid fails with the general `Phone.MESSAGE_CONSTRAINTS`, since the user does not see this message directly.
+
+#### Design considerations
+
+**Aspect: Which phone numbers to accept**
+
+* **Alternative 1:** Accept only Singapore numbers.
+  * Pros: Catches typos such as a missing digit.
+  * Cons: Blocks real numbers, such as a guardian with an overseas number. The course's PE guidelines use an 8-digit phone limit as an example of validation that can be too strict. Data files from v1.3, which allowed any 3 or more digits, could fail to load.
+
+* **Alternative 2:** Accept any digits without a note.
+  * Pros: Simplest to implement.
+  * Cons: A typo such as `9123456` is saved without the tutor noticing.
+
+* **Alternative 3 (current choice):** Accept an optional `+` and 3 to 15 digits, and show a warning when the number is not a Singapore number.
+  * Pros: Real numbers are never blocked, typos are still pointed out, and v1.3 data files with realistic numbers still load.
+  * Cons: An extra warning path in `AddCommand` and `EditCommand`.
+
+15 is the longest phone number allowed by the international standard (E.164), including the country code. 3 is the minimum from v1.3, kept so that existing data files with realistic numbers still load. A v1.3 phone with more than 15 digits no longer loads.
+
+**Aspect: Whether to keep `+65`**
+
+* **Alternative 1 (current choice):** Remove `+65` only when the rest is a Singapore number.
+  * Pros: `91234567` and `+65 9123 4567` are saved the same way, so the same number is never stored in two forms. A number that only looks Singaporean after removing `+65` is not changed into a different number.
+  * Cons: Overseas numbers keep their country code, so phone numbers are not all stored in the same format.
+
+* **Alternative 2:** Keep numbers exactly as typed, apart from spaces and hyphens.
+  * Pros: Simpler.
+  * Cons: The same Singapore number could be stored as `91234567` or `+6591234567`, so comparing or searching phone numbers would have to handle both.
+
 ### \[Proposed\] Undo/redo feature
 
 #### Proposed Implementation
@@ -367,6 +409,12 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case ends.
 
+* 2f. The phone number or guardian phone number is not a Singapore number.
+
+    * 2f1. TuteeBook3 accepts the number, and shows a warning asking Tutor to check it after saving the student.
+
+      Use case resumes at step 3.
+
 ---
 
 **Use case: UC2 - Edit a student's details**
@@ -420,6 +468,12 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
     * 3e1. TuteeBook3 shows an error message that the student has no guardian to remove, and leaves the student unchanged.
 
       Use case ends.
+
+* 3f. A new phone number or guardian phone number is not a Singapore number.
+
+    * 3f1. TuteeBook3 accepts the number, and shows a warning asking Tutor to check it after updating the student.
+
+      Use case resumes at step 4.
 
 ---
 
@@ -882,6 +936,26 @@ testers are expected to do more *exploratory* testing.
 
    1. Test case: `edit 1 gn/ gp/` on Ken Lim<br>
       Expected: Ken Lim is unchanged. The status message shows `This person has no guardian to remove.`
+
+### Entering phone numbers
+
+1. Adding a student with a formatted Singapore number
+
+   1. Test case: `add n/Ravi Kumar sch/Victoria School lvl/S2 sub/Mathematics band/G1 p/+65 9123-4567`<br>
+      Expected: Ravi Kumar is added with phone number `91234567`. The status message shows no warning about the phone number.
+
+1. Editing the phone number
+
+   1. Prerequisites: Ravi Kumar was added as above. Before each test case, use `find n/Ravi` so that Ravi Kumar is first in the list.
+
+   1. Test case: `edit 1 p/+44 7911 123456`<br>
+      Expected: The phone number is saved as `+447911123456`. The status message is shown in amber, with a warning that phone `+447911123456` doesn't look like a Singapore number.
+
+   1. Test case: `edit 1 sch/Bedok Green Secondary School`<br>
+      Expected: The school changes. The status message shows no warning about the phone number.
+
+   1. Test case: `edit 1 p/12`<br>
+      Expected: Ravi Kumar is unchanged. The status message says `Phone 12 needs 3 to 15 digits, counting the country code, but has 2.`
 
 ### Saving data
 

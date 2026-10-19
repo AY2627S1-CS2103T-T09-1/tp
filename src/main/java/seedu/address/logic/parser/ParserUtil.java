@@ -40,6 +40,10 @@ public class ParserUtil {
 
     public static final String MESSAGE_INVALID_NID = "NID must be a positive integer.";
 
+    public static final String PHONE_LABEL = "Phone";
+
+    public static final String GUARDIAN_PHONE_LABEL = "Guardian phone";
+
     /**
      * Validates that {@code args} contains no additional arguments.
      *
@@ -97,17 +101,12 @@ public class ParserUtil {
 
     /**
      * Parses a {@code String phone} into a {@code Phone}.
-     * Leading and trailing whitespaces will be trimmed.
+     * Leading and trailing whitespaces will be trimmed, and spaces, hyphens, and a leading +65 are removed.
      *
      * @throws ParseException if the given {@code phone} is invalid.
      */
     public static Phone parsePhone(String phone) throws ParseException {
-        requireNonNull(phone);
-        String trimmedPhone = phone.trim();
-        if (!Phone.isValidPhone(trimmedPhone)) {
-            throw new ParseException(Phone.MESSAGE_CONSTRAINTS);
-        }
-        return new Phone(trimmedPhone);
+        return parseLabelledPhone(phone, PHONE_LABEL);
     }
 
     /**
@@ -126,16 +125,25 @@ public class ParserUtil {
 
     /**
      * Parses a {@code String phone} into the {@code Phone} of a guardian.
-     * Leading and trailing whitespaces will be trimmed.
+     * Leading and trailing whitespaces will be trimmed, and spaces, hyphens, and a leading +65 are removed.
      *
      * @throws ParseException if the given {@code phone} is invalid.
      */
     public static Phone parseGuardianPhone(String phone) throws ParseException {
-        try {
-            return parsePhone(phone);
-        } catch (ParseException pe) {
-            throw new ParseException(Guardian.MESSAGE_PHONE_CONSTRAINTS, pe);
+        return parseLabelledPhone(phone, GUARDIAN_PHONE_LABEL);
+    }
+
+    /**
+     * Parses {@code phone} into a {@code Phone}, naming it {@code label} in the error message.
+     */
+    private static Phone parseLabelledPhone(String phone, String label) throws ParseException {
+        requireNonNull(phone);
+        String trimmedPhone = phone.trim();
+        Optional<String> invalidReason = Phone.getInvalidReason(label, trimmedPhone);
+        if (invalidReason.isPresent()) {
+            throw new ParseException(invalidReason.get());
         }
+        return new Phone(Phone.normalize(trimmedPhone));
     }
 
     /**

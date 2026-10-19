@@ -97,7 +97,13 @@ public class EditCommand extends Command {
 
         model.setPerson(personToEdit, editedPerson);
         model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
-        return CommandResult.showList(String.format(MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson)));
+        CommandResult result = CommandResult.showList(
+                String.format(MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson)));
+        // only warn about phones typed in this command, not ones the person already had
+        return Messages.getNonSingaporePhoneWarning(editPersonDescriptor.getPhone(),
+                        editPersonDescriptor.getGuardianPhone())
+                .map(result::withWarning)
+                .orElse(result);
     }
 
     /**
