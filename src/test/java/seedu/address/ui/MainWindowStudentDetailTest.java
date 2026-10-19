@@ -102,7 +102,7 @@ public class MainWindowStudentDetailTest {
     public void execute_commandUpdatesViewedStudent_refreshesStudentDetails(FxRobot robot) {
         enterCommand(robot, "view 1");
 
-        enterCommand(robot, "addnote 1 c/New note");
+        enterCommand(robot, "addnote 1 t/New note");
 
         List<String> noteTexts = mainWindow.getRoot().getScene().getRoot()
                 .lookupAll(".student-detail-note-card").stream()
@@ -173,7 +173,7 @@ public class MainWindowStudentDetailTest {
                 case "view 1" -> CommandResult.showStudent("Viewing Alice", ALICE, INDEX_FIRST_PERSON);
                 case "view 2" -> CommandResult.showStudent("Viewing Benson", BENSON, INDEX_SECOND_PERSON);
                 case "list" -> CommandResult.showList("Listed all students");
-                case "addnote 1 c/New note" -> addNoteToFirstPerson();
+                case "addnote 1 t/New note" -> addNoteToFirstPerson();
                 case "keep" -> new CommandResult("No display change");
                 case "warn" -> CommandResult.warning("Warning");
                 case "fail" -> throw new CommandException("Invalid command");

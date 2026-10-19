@@ -20,8 +20,8 @@ public class AddNoteCommand extends Command {
     public static final String COMMAND_WORD = "addnote";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD + ": Adds a note to the person at INDEX.\n"
-            + "Parameters: INDEX (must be a positive integer) c/TEXT\n"
-            + "Example: " + COMMAND_WORD + " 1 c/Weak in algebra";
+            + "Parameters: INDEX (must be a positive integer) t/TEXT\n"
+            + "Example: " + COMMAND_WORD + " 1 t/Weak in algebra";
 
     public static final String MESSAGE_SUCCESS = "Added note to %1$s: %2$s";
 
