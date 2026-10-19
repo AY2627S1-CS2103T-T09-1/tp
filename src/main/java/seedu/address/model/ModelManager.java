@@ -111,6 +111,19 @@ public class ModelManager implements Model {
     }
 
     @Override
+    public boolean keepPersonInFilteredList(Person person) {
+        requireNonNull(person);
+        Predicate<? super Person> currentPredicate = filteredPersons.getPredicate();
+        if (currentPredicate == null) {
+            return false;
+        }
+        // checked before widening the filter, which would then always match person
+        boolean isOutsideFilter = !currentPredicate.test(person);
+        filteredPersons.setPredicate(p -> currentPredicate.test(p) || p.isSamePerson(person));
+        return isOutsideFilter;
+    }
+
+    @Override
     public boolean equals(Object other) {
         if (other == this) {
             return true;
