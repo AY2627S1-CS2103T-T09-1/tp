@@ -48,25 +48,28 @@ public class AddCommandTest {
     @Test
     public void execute_nonSingaporePhone_addSuccessfulWithWarning() throws Exception {
         assertAddedWithWarning(new PersonBuilder().withPhone("+447911123456").build(),
-                String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONE, "+447911123456"));
+                String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONE, "phone +447911123456"));
     }
 
     @Test
     public void execute_nonSingaporeGuardianPhone_addSuccessfulWithWarning() throws Exception {
         assertAddedWithWarning(new PersonBuilder().withGuardian("Mary Tan", "+60123456789").build(),
-                String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONE, "+60123456789"));
+                "Warning: guardian phone +60123456789 doesn't look like a Singapore number (8 digits starting "
+                + "with 6, 8, or 9, with or without +65). Use edit to fix it if it's wrong.");
     }
 
     @Test
     public void execute_bothPhonesNotSingapore_addSuccessfulWithOneWarning() throws Exception {
         assertAddedWithWarning(new PersonBuilder().withPhone("+447911123456")
                         .withGuardian("Mary Tan", "+60123456789").build(),
-                String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONES, "+447911123456 and +60123456789"));
+                String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONES,
+                        "phone +447911123456 and guardian phone +60123456789"));
 
-        // the same number for student and guardian is named once
+        // the same number for student and guardian is named for both
         assertAddedWithWarning(new PersonBuilder().withPhone("+60123456789")
                         .withGuardian("Mary Tan", "+60123456789").build(),
-                String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONE, "+60123456789"));
+                String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONES,
+                        "phone +60123456789 and guardian phone +60123456789"));
     }
 
     /**

@@ -58,6 +58,10 @@ public class CommandTestUtil {
     public static final String INVALID_LEVEL_DESC = " " + PREFIX_LEVEL + "S6"; // only S1 to S5 allowed
     public static final String INVALID_GUARDIAN_NAME_DESC = " " + PREFIX_GUARDIAN_NAME + "Mary&"; // '&' not allowed
     public static final String INVALID_GUARDIAN_PHONE_DESC = " " + PREFIX_GUARDIAN_PHONE + "911a"; // digits only
+    public static final String INVALID_PHONE_MESSAGE = "Phone 911a contains \"a\", which isn't allowed. "
+            + "Use only digits, spaces, hyphens (-), and a + at the start.";
+    public static final String INVALID_GUARDIAN_PHONE_MESSAGE = "Guardian phone 911a contains \"a\", which isn't "
+            + "allowed. Use only digits, spaces, hyphens (-), and a + at the start.";
 
     public static final String PREAMBLE_WHITESPACE = "\t  \r  \n";
     public static final String PREAMBLE_NON_EMPTY = "NonEmptyPreamble";

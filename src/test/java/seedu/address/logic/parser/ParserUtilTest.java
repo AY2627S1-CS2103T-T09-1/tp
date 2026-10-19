@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.parser.exceptions.ParseException;
-import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Note;
 import seedu.address.model.person.Phone;
@@ -142,13 +141,20 @@ public class ParserUtilTest {
     }
 
     @Test
-    public void parsePhone_invalidCharactersOrLength_throwsParseException() {
-        assertThrows(ParseException.class, Phone.MESSAGE_CONSTRAINTS, () -> ParserUtil.parsePhone("+65"));
-        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("1 2")); // 2 digits
-        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("1234 5678 9012 3456")); // 16 digits
-        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("9123.4567")); // dots are not removed
-        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("(65) 9123 4567")); // brackets
-        assertThrows(ParseException.class, () -> ParserUtil.parsePhone("91234567a"));
+    public void parsePhone_invalidCharactersOrLength_throwsParseExceptionWithReason() {
+        String digitCount = " needs 3 to 15 digits, counting the country code, but has ";
+        assertThrows(ParseException.class, "Phone +" + digitCount + "0.", () -> ParserUtil.parsePhone("+"));
+        assertThrows(ParseException.class, "Phone 12" + digitCount + "2.", () -> ParserUtil.parsePhone(" 12 "));
+        assertThrows(ParseException.class, "Phone 1234 5678 9012 3456" + digitCount + "16.", () ->
+                ParserUtil.parsePhone("1234 5678 9012 3456"));
+
+        String allowed = ", which isn't allowed. Use only digits, spaces, hyphens (-), and a + at the start.";
+        assertThrows(ParseException.class, "Phone 9123.4567 contains \".\"" + allowed, () ->
+                ParserUtil.parsePhone("9123.4567"));
+
+        assertThrows(ParseException.class, "Phone 91+234567 can only have one +, at the start.", () ->
+                ParserUtil.parsePhone("91+234567"));
+        assertThrows(ParseException.class, "Phone cannot be empty.", () -> ParserUtil.parsePhone("  "));
     }
 
     @Test
@@ -157,8 +163,9 @@ public class ParserUtilTest {
     }
 
     @Test
-    public void parseGuardianPhone_invalidValue_throwsParseExceptionWithGuardianPrefix() {
-        assertThrows(ParseException.class, Guardian.MESSAGE_PHONE_CONSTRAINTS, () ->
+    public void parseGuardianPhone_invalidValue_throwsParseExceptionNamingGuardianPhone() {
+        assertThrows(ParseException.class, "Guardian phone 9123a contains \"a\", which isn't allowed. "
+                + "Use only digits, spaces, hyphens (-), and a + at the start.", () ->
                 ParserUtil.parseGuardianPhone("9123a"));
     }
 

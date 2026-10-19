@@ -103,7 +103,7 @@ public class EditCommandTest {
         expectedModel.setPerson(original, edited);
         String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited));
         CommandResult expectedResult = CommandResult.showList(expectedMessage)
-                .withWarning(String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONE, "+447911123456"));
+                .withWarning(String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONE, "phone +447911123456"));
         assertCommandSuccess(command, model, expectedResult, expectedModel);
     }
 
@@ -117,7 +117,7 @@ public class EditCommandTest {
         expectedModel.setPerson(original, edited);
         String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited));
         CommandResult expectedResult = CommandResult.showList(expectedMessage)
-                .withWarning(String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONE, "+60123456789"));
+                .withWarning(String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONE, "guardian phone +60123456789"));
         assertCommandSuccess(command, model, expectedResult, expectedModel);
     }
 
@@ -133,7 +133,8 @@ public class EditCommandTest {
         expectedModel.setPerson(original, edited);
         String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited));
         CommandResult expectedResult = CommandResult.showList(expectedMessage).withWarning(
-                String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONES, "+447911123456 and +60123456789"));
+                String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONES,
+                        "phone +447911123456 and guardian phone +60123456789"));
         assertCommandSuccess(command, model, expectedResult, expectedModel);
     }
 

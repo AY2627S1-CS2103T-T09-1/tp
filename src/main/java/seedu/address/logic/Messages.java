@@ -23,9 +23,11 @@ public class Messages {
     public static final String MESSAGE_DUPLICATE_FIELDS =
                 "Multiple values specified for the following single-valued field(s): ";
     public static final String MESSAGE_NOT_SINGAPORE_PHONE = "Warning: %1$s doesn't look like a Singapore number "
-            + "(8 digits starting with 6, 8 or 9). Use edit to fix it if it's wrong.";
+            + "(8 digits starting with 6, 8, or 9, with or without +65). Use edit to fix it if it's wrong.";
     public static final String MESSAGE_NOT_SINGAPORE_PHONES = "Warning: %1$s don't look like Singapore numbers "
-            + "(8 digits starting with 6, 8 or 9). Use edit to fix them if they're wrong.";
+            + "(8 digits starting with 6, 8, or 9, with or without +65). Use edit to fix them if they're wrong.";
+    public static final String WARNING_LABEL_PHONE = "phone ";
+    public static final String WARNING_LABEL_GUARDIAN_PHONE = "guardian phone ";
 
     /**
      * Returns an error message indicating the duplicate prefixes.
@@ -40,14 +42,18 @@ public class Messages {
     }
 
     /**
-     * Returns a warning naming the {@code phones} that are not Singapore numbers,
-     * or an empty {@code Optional} if all of them are.
+     * Returns a warning naming the given phones that are not Singapore numbers, and whose they are,
+     * or an empty {@code Optional} if every given phone is a Singapore number.
+     *
+     * @param phone The student's phone, if one was given.
+     * @param guardianPhone The guardian's phone, if one was given.
      */
-    public static Optional<String> getNonSingaporePhoneWarning(List<Phone> phones) {
-        List<String> nonSingaporePhones = phones.stream()
-                .filter(phone -> !phone.isSingaporeNumber())
-                .map(Phone::toString)
-                .distinct()
+    public static Optional<String> getNonSingaporePhoneWarning(Optional<Phone> phone,
+            Optional<Phone> guardianPhone) {
+        List<String> nonSingaporePhones = Stream.of(
+                        labelIfNotSingapore(WARNING_LABEL_PHONE, phone),
+                        labelIfNotSingapore(WARNING_LABEL_GUARDIAN_PHONE, guardianPhone))
+                .flatMap(Optional::stream)
                 .toList();
         if (nonSingaporePhones.isEmpty()) {
             return Optional.empty();
@@ -56,6 +62,10 @@ public class Messages {
             return Optional.of(String.format(MESSAGE_NOT_SINGAPORE_PHONE, nonSingaporePhones.get(0)));
         }
         return Optional.of(String.format(MESSAGE_NOT_SINGAPORE_PHONES, String.join(" and ", nonSingaporePhones)));
+    }
+
+    private static Optional<String> labelIfNotSingapore(String label, Optional<Phone> phone) {
+        return phone.filter(p -> !p.isSingaporeNumber()).map(p -> label + p);
     }
 
     /**

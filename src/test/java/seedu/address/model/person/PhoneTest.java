@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 
 public class PhoneTest {
@@ -37,7 +39,7 @@ public class PhoneTest {
         assertFalse(Phone.isValidPhone("9123+4567")); // + not at the start
         assertFalse(Phone.isValidPhone("++6591234567")); // two +
         assertFalse(Phone.isValidPhone("9123 4567")); // spaces are removed by the parser, not stored
-        assertFalse(Phone.isValidPhone("9123-4567")); // dashes are removed by the parser, not stored
+        assertFalse(Phone.isValidPhone("9123-4567")); // hyphens are removed by the parser, not stored
 
         // valid phone numbers
         assertTrue(Phone.isValidPhone("911")); // 3 digits
@@ -68,26 +70,72 @@ public class PhoneTest {
     }
 
     @Test
-    public void normalise() {
-        assertThrows(NullPointerException.class, () -> Phone.normalise(null));
+    public void normalize() {
+        assertThrows(NullPointerException.class, () -> Phone.normalize(null));
 
-        // spaces and dashes removed
-        assertEquals("91234567", Phone.normalise("9123 4567"));
-        assertEquals("91234567", Phone.normalise("9123-4567"));
+        // spaces and hyphens removed
+        assertEquals("91234567", Phone.normalize("9123 4567"));
+        assertEquals("91234567", Phone.normalize("9123-4567"));
 
         // +65 removed when the rest is a Singapore number
-        assertEquals("91234567", Phone.normalise("+65 9123 4567"));
-        assertEquals("91234567", Phone.normalise("+6591234567"));
+        assertEquals("91234567", Phone.normalize("+65 9123 4567"));
+        assertEquals("91234567", Phone.normalize("+6591234567"));
 
         // +65 kept when the rest is not a Singapore number
-        assertEquals("+6512345678", Phone.normalise("+65 1234 5678"));
-        assertEquals("+65", Phone.normalise("+65"));
+        assertEquals("+6512345678", Phone.normalize("+65 1234 5678"));
+        assertEquals("+65", Phone.normalize("+65"));
 
         // overseas numbers keep their country code
-        assertEquals("+447911123456", Phone.normalise("+44 7911-123456"));
+        assertEquals("+447911123456", Phone.normalize("+44 7911-123456"));
 
         // 65 without + is not a country code
-        assertEquals("6591234567", Phone.normalise("65 9123 4567"));
+        assertEquals("6591234567", Phone.normalize("65 9123 4567"));
+
+        // other dashes are not hyphens, so they are kept
+        assertEquals("9123\u20134567", Phone.normalize("9123\u20134567"));
+    }
+
+    @Test
+    public void getInvalidReason_validPhone_returnsEmpty() {
+        assertTrue(Phone.getInvalidReason("Phone", "+65 9123-4567").isEmpty());
+        assertTrue(Phone.getInvalidReason("Phone", "+44 20 7946 0958").isEmpty());
+        assertTrue(Phone.getInvalidReason("Phone", "911").isEmpty());
+    }
+
+    @Test
+    public void getInvalidReason_empty_returnsEmptyReason() {
+        assertEquals(Optional.of("Phone cannot be empty."), Phone.getInvalidReason("Phone", ""));
+    }
+
+    @Test
+    public void getInvalidReason_invalidCharacter_namesFirstInvalidCharacter() {
+        String allowed = "which isn't allowed. Use only digits, spaces, hyphens (-), and a + at the start.";
+        assertEquals(Optional.of("Phone 9123.4567 contains \".\", " + allowed),
+                Phone.getInvalidReason("Phone", "9123.4567"));
+        assertEquals(Optional.of("Phone (65) 9123 4567 contains \"(\", " + allowed),
+                Phone.getInvalidReason("Phone", "(65) 9123 4567"));
+        assertEquals(Optional.of("Phone 9123\u20134567 contains \"\u2013\", " + allowed),
+                Phone.getInvalidReason("Phone", "9123\u20134567")); // en dash
+        assertEquals(Optional.of("Guardian phone 911a contains \"a\", " + allowed),
+                Phone.getInvalidReason("Guardian phone", "911a"));
+    }
+
+    @Test
+    public void getInvalidReason_misplacedPlus_returnsPlusReason() {
+        assertEquals(Optional.of("Phone 9123+4567 can only have one +, at the start."),
+                Phone.getInvalidReason("Phone", "9123+4567"));
+        assertEquals(Optional.of("Phone ++6591234567 can only have one +, at the start."),
+                Phone.getInvalidReason("Phone", "++6591234567"));
+    }
+
+    @Test
+    public void getInvalidReason_wrongDigitCount_returnsDigitCount() {
+        assertEquals(Optional.of("Phone 12 needs 3 to 15 digits, counting the country code, but has 2."),
+                Phone.getInvalidReason("Phone", "12"));
+        assertEquals(Optional.of("Phone +65 needs 3 to 15 digits, counting the country code, but has 2."),
+                Phone.getInvalidReason("Phone", "+65"));
+        assertEquals(Optional.of("Phone 1234 5678 9012 3456 needs 3 to 15 digits, counting the country code, "
+                + "but has 16."), Phone.getInvalidReason("Phone", "1234 5678 9012 3456"));
     }
 
     @Test
