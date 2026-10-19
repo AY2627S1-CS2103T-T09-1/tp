@@ -999,13 +999,13 @@ testers are expected to do more *exploratory* testing.
 
 1. Editing a student so they no longer match the search
 
-   1. Prerequisites: At least two students have `Tan` in their name. Enter `find n/Tan`, then `view 1`.
+   1. Prerequisites: Start with the sample data. Enter `find n/an`, which lists `SAMPLE Chloe Tan`, `SAMPLE Aisha Rahman`, `SAMPLE Daniel Lee`, and `SAMPLE Ethan Kumar`, then `view 1`. Run the test cases in order.
 
    1. Test case: `edit 1 n/Chloe Lim`<br>
-      Expected: The student record stays open and shows the name Chloe Lim. The status message says `Chloe Lim no longer matches your last search, but stays in the list until you enter list or find.` Enter `list`, then `find n/Tan` again: Chloe Lim is no longer in the results.
+      Expected: The student record stays open and shows the name Chloe Lim. The status message says `Chloe Lim no longer matches your last search, but stays in the list until you enter list or find.`
 
    1. Test case: `edit 2 lvl/S4`<br>
-      Expected: The second student in the search results changes to `S4`. The list still shows only the search results, and the status message has no line about the search.
+      Expected: The student record still shows Chloe Lim. The status message says `SAMPLE Aisha Rahman` was edited, with no line about the search. Enter `list`, then `find n/an`: the list shows Aisha Rahman (now `S4`), Daniel Lee, and Ethan Kumar, and Chloe Lim is no longer in the results.
 
 ### Saving data
 
