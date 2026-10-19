@@ -191,6 +191,38 @@ Students and guardians each have one phone number, stored as a `Phone`. The same
   * Pros: Simpler.
   * Cons: The same Singapore number could be stored as `91234567` or `+6591234567`, so comparing or searching phone numbers would have to handle both.
 
+### Keeping the list after an edit
+
+`edit` keeps the displayed list and any open student record, so the tutor can work down a set of `find` results by index.
+
+#### Implementation
+
+1. Before replacing the student, `EditCommand` calls `Model#keepPersonInFilteredList` with the edited student.
+1. If the list is filtered, `ModelManager` first checks whether the current filter matches the edited student. It then replaces the filter with one that also accepts the edited student: `current.test(p) || p.isSamePerson(editedPerson)`, and returns `true` if the old filter did not match them. If the list is not filtered, it does nothing and returns `false`.
+1. `Model#setPerson` then replaces the student in place. Since the new filter accepts the edited student, they stay at the same position in the filtered list, even if they no longer match the search.
+1. If `keepPersonInFilteredList` returned `true`, `EditCommand` adds a line to the result saying that the student no longer matches the last search but stays in the list. Any phone warning comes after this line.
+1. `EditCommand` returns a `CommandResult` that keeps the current display, so an open `StudentDetailPanel`, which shows the student at its index in the filtered list, shows the updated details.
+
+The filter matches the edited student with `Person#isSamePerson`, the same name-based check that prevents duplicates, rather than `Person#equals`. A later command that changes the student without renaming them, such as `addnote`, then keeps them in the list too.
+
+The next `find` or `list` replaces the whole filter, so the extra rule never builds up across searches.
+
+#### Design considerations
+
+**Aspect: What to show after an edit**
+
+* **Alternative 1:** Show the full list, as AB3 does.
+  * Pros: Simplest, and the user never sees a student who doesn't match the search.
+  * Cons: Index numbers change, so a follow-up such as `edit 2 ...` can silently edit a different student. The tutor has to repeat `find` after every edit.
+
+* **Alternative 2:** Keep the filter unchanged.
+  * Pros: Simple, and other students keep their index numbers.
+  * Cons: A student edited so that they no longer match the search disappears. The students after them move up, and an open student record shows a different student.
+
+* **Alternative 3 (current choice):** Keep the filter, plus the edited student.
+  * Pros: Every student keeps their index number, and an open student record stays on the same student.
+  * Cons: A student who no longer matches the search stays in the list until the next `find` or `list`. The result box and the User Guide both say so, so the tutor is not left wondering why they are there.
+
 ### \[Proposed\] Undo/redo feature
 
 #### Proposed Implementation
@@ -425,7 +457,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 2.  TuteeBook3 shows a list of students
 3.  Tutor requests to edit a specific student by index, giving the new values for the details to change
 4.  TuteeBook3 validates and updates the student
-5.  TuteeBook3 shows the updated student record
+5.  TuteeBook3 shows the updated details
 
     Use case ends.
 
@@ -474,6 +506,12 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
     * 3f1. TuteeBook3 accepts the number, and shows a warning asking Tutor to check it after updating the student.
 
       Use case resumes at step 4.
+
+* 4a. The list shows search results, and the updated student no longer matches the search.
+
+    * 4a1. TuteeBook3 keeps the student at the same position in the list, and says that they no longer match the search.
+
+      Use case resumes at step 5.
 
 ---
 
@@ -956,6 +994,18 @@ testers are expected to do more *exploratory* testing.
 
    1. Test case: `edit 1 p/12`<br>
       Expected: Ravi Kumar is unchanged. The status message says `Phone 12 needs 3 to 15 digits, counting the country code, but has 2.`
+
+### Editing a student in search results
+
+1. Editing a student so they no longer match the search
+
+   1. Prerequisites: At least two students have `Tan` in their name. Enter `find n/Tan`, then `view 1`.
+
+   1. Test case: `edit 1 n/Chloe Lim`<br>
+      Expected: The student record stays open and shows the name Chloe Lim. The status message says `Chloe Lim no longer matches your last search, but stays in the list until you enter list or find.` Enter `list`, then `find n/Tan` again: Chloe Lim is no longer in the results.
+
+   1. Test case: `edit 2 lvl/S4`<br>
+      Expected: The second student in the search results changes to `S4`. The list still shows only the search results, and the status message has no line about the search.
 
 ### Saving data
 
