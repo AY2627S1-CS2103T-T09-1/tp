@@ -101,11 +101,25 @@ public class JsonAdaptedPersonTest {
     }
 
     @Test
-    public void toModelType_formattedPhone_throwsIllegalValueException() {
-        // the data file must hold the cleaned form; only typed commands remove spaces
-        JsonAdaptedPerson person =
-                new JsonAdaptedPerson(VALID_NAME, "9123 4567", VALID_SCHOOL, VALID_LEVEL, VALID_SUBJECTS);
-        assertThrows(IllegalValueException.class, Phone.MESSAGE_CONSTRAINTS, person::toModelType);
+    public void toModelType_formattedPhone_returnsCleanedPhone() throws Exception {
+        // hand-edited files are cleaned the same way as typed phones
+        JsonAdaptedPerson singapore =
+                new JsonAdaptedPerson(VALID_NAME, "+65 9123-4567", VALID_SCHOOL, VALID_LEVEL, VALID_SUBJECTS);
+        assertEquals(new Phone("91234567"), singapore.toModelType().getPhone().orElseThrow());
+
+        JsonAdaptedPerson overseas =
+                new JsonAdaptedPerson(VALID_NAME, "+44 20 7946 0958", VALID_SCHOOL, VALID_LEVEL, VALID_SUBJECTS);
+        assertEquals(new Phone("+442079460958"), overseas.toModelType().getPhone().orElseThrow());
+    }
+
+    @Test
+    public void toModelType_formattedGuardianPhone_returnsCleanedPhone() throws Exception {
+        Person bensonWithGuardian = new PersonBuilder(BENSON).withGuardian("Mary Tan", "91234567").build();
+        String json = JsonUtil.toJsonString(new JsonAdaptedPerson(bensonWithGuardian));
+
+        JsonAdaptedPerson formattedPhone = JsonUtil.fromJsonString(
+                json.replace("\"91234567\"", "\"+65 9123-4567\""), JsonAdaptedPerson.class);
+        assertEquals(bensonWithGuardian, formattedPhone.toModelType());
     }
 
     @Test
