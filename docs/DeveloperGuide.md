@@ -205,7 +205,7 @@ Students and guardians each have one phone number, stored as a `Phone`. The same
 
 The filter matches the edited student with `Person#isSamePerson`, the same name-based check that prevents duplicates, rather than `Person#equals`. A later command that changes the student without renaming them, such as `addnote`, then keeps them in the list too.
 
-The next `find` or `list` replaces the whole filter, so the extra rule never builds up across searches.
+Each edit wraps the current filter, so after several edits in a row, every edited student stays in the list, not just the last one. The next `find` or `list` replaces the whole filter, so the extra rules never build up across searches.
 
 #### Design considerations
 
@@ -1005,7 +1005,7 @@ testers are expected to do more *exploratory* testing.
       Expected: The student record stays open and shows the name Chloe Lim. The status message says `Chloe Lim no longer matches your last search, but stays in the list until you enter list or find.`
 
    1. Test case: `edit 2 lvl/S4`<br>
-      Expected: The student record still shows Chloe Lim. The status message says `SAMPLE Aisha Rahman` was edited, with no line about the search. Enter `list`, then `find n/an`: the list shows Aisha Rahman (now `S4`), Daniel Lee, and Ethan Kumar, and Chloe Lim is no longer in the results.
+      Expected: The student record still shows Chloe Lim, so she is still first in the list even though another student was edited. The status message says `SAMPLE Aisha Rahman` was edited, with no line about the search. Enter `list`, then `find n/an`: the list shows Aisha Rahman (now `S4`), Daniel Lee, and Ethan Kumar, and Chloe Lim is no longer in the results.
 
 ### Saving data
 
