@@ -9,13 +9,13 @@ import seedu.address.model.Model;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
 
 /**
- * Finds and lists all students whose name contains the given text, ignoring case.
+ * Filters the student list to students whose name contains the given text, ignoring case.
  */
-public class FindCommand extends Command {
+public class FilterCommand extends Command {
 
-    public static final String COMMAND_WORD = "find";
+    public static final String COMMAND_WORD = "filter";
 
-    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Finds all students whose names contain "
+    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Shows all students whose names contain "
             + "the given text (case-insensitive) and displays them as a list with index numbers.\n"
             + "Parameters: " + PREFIX_NAME + "NAME\n"
             + "Example: " + COMMAND_WORD + " " + PREFIX_NAME + "avi";
@@ -25,7 +25,7 @@ public class FindCommand extends Command {
 
     private final NameContainsKeywordsPredicate predicate;
 
-    public FindCommand(NameContainsKeywordsPredicate predicate) {
+    public FilterCommand(NameContainsKeywordsPredicate predicate) {
         this.predicate = predicate;
     }
 
@@ -47,11 +47,11 @@ public class FindCommand extends Command {
         }
 
         // instanceof handles nulls
-        if (!(other instanceof FindCommand otherFindCommand)) {
+        if (!(other instanceof FilterCommand otherFilterCommand)) {
             return false;
         }
 
-        return predicate.equals(otherFindCommand.predicate);
+        return predicate.equals(otherFilterCommand.predicate);
     }
 
     @Override

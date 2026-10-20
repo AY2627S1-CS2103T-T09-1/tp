@@ -837,7 +837,7 @@ Use case ends.
 
 #### Commands and IDs
 
-* **Filter**: A prefix and value given to the `find` command, such as `lvl/S2`, that narrows down the student list.
+* **Filter**: A prefix and value given to the `filter` command, such as `n/Tan`, that narrows down the student list.
 * **NID**: The number shown before a note in the student detail view. Notes are numbered 1, 2, 3 in the order they were added. After a note is deleted, the notes after it move up one number, so an NID is not permanent.
 * **Prefix**: A short marker ending in `/`, such as `n/` or `sch/`, that labels the value after it in a command.
 * **SID**: Student ID, a unique number given to each student when they are added. It is never reused, even after the student is deleted.
@@ -845,10 +845,10 @@ Use case ends.
 #### Screen layout
 
 * **Command box**: The text field at the top of the window where the user types commands.
-* **Detail view**: The view that shows everything about one student, including all their notes. It takes the place of the student list, so only one student is shown at a time. The user can return to the student list with `list` or `find`.
+* **Detail view**: The view that shows everything about one student, including all their notes. It takes the place of the student list, so only one student is shown at a time. The user can return to the student list with `list` or `filter`.
 * **Result display**: The area below the command box that tells the user whether their last command worked, and why not if it failed.
 * **Student card**: One student's entry in the student list.
-* **Student list**: The view that lists students with their main details. It takes the place of the detail view when the user enters `list` or `find`.
+* **Student list**: The view that lists students with their main details. It takes the place of the detail view when the user enters `list` or `filter`.
 
 #### Code
 
@@ -920,7 +920,7 @@ testers are expected to do more *exploratory* testing.
 
 1. Editing a guardian
 
-   1. Prerequisites: Tim Tan and Ken Lim were added as above. Use `find n/Tim` or `find n/Ken` so that the student is first in the list.
+   1. Prerequisites: Tim Tan and Ken Lim were added as above. Use `filter n/Tim` or `filter n/Ken` so that the student is first in the list.
 
    1. Test case: `edit 1 gp/98765432` on Tim Tan<br>
       Expected: Only the guardian's phone changes. Viewing Tim Tan's student details shows guardian Mary Tan with phone number `98765432`.
