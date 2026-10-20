@@ -130,7 +130,7 @@ Format: `view INDEX`
 * The current search results are preserved while you view the student.
 * Entering `view` again replaces the current student record instead of opening another panel.
 * Enter `list` to return to the full student list, or `filter` to display new search results.
-* Commands that add, edit, or delete students return to the student list after they succeed. A confirmed `clear`, or `clear -f`, also returns to the (cleared) student list.
+* Commands that add or delete students return to the student list after they succeed. `edit` keeps the current list and student record. If the open record is the student you edited, it shows the changes. A confirmed `clear`, or `clear -f`, also returns to the (cleared) student list.
 * Help and invalid commands leave the student record visible.
 
 Example: `view 2` shows the full record of the second student in the currently displayed list.
@@ -147,6 +147,7 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT ban
 * Supplying subject-band pairs replaces the entire subject list; omitting them preserves existing subjects. The replacement list must contain at least 1 subject and a maximum of 8 distinct subjects, following the same pairing and validation rules as `add`. Notes are preserved when editing a student.
 * `PHONE` and `GUARDIAN_PHONE` follow the same rules as in `add`, so `p/9123 4567` is saved as `91234567`. The warning about a number not looking like a Singapore number only appears when you type `p/` or `gp/` in that command.
 * You can remove a person's phone number by typing `p/` without specifying any number after it.
+* The displayed list and any open student record stay as they are, so the other students keep their index numbers. If the edited student no longer matches your last `filter`, they stay in the list until you enter `list` or `filter` again. The result box tells you when an edit makes a student stop matching.
 * If the student already has a guardian, `gn/` or `gp/` on its own changes just that part of the guardian.
 * If the student has no guardian yet, give both `gn/` and `gp/` to add one. Giving only one of them shows `This person has no guardian yet. Give both gn/ and gp/ to add one.`
 * You can remove the guardian by typing `gn/ gp/` with no values after either. Leaving only one of them empty, such as `gn/` alone or `gn/ gp/91234567`, is rejected so that the guardian is not removed by mistake. If the student has no guardian, `gn/ gp/` shows `This person has no guardian to remove.`

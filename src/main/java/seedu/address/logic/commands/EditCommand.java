@@ -9,7 +9,6 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
-import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
 import java.util.List;
 import java.util.Objects;
@@ -55,6 +54,8 @@ public class EditCommand extends Command {
             + PREFIX_LEVEL + "S3";
 
     public static final String MESSAGE_EDIT_PERSON_SUCCESS = "Edited person: %1$s";
+    public static final String MESSAGE_NO_LONGER_MATCHES = "%1$s no longer matches your last search, "
+            + "but stays in the list until you enter list or filter.";
     public static final String MESSAGE_NOT_EDITED = "At least one field to edit must be provided.";
     public static final String MESSAGE_DUPLICATE_PERSON = "This student already exists in TuteeBook3.";
     public static final String MESSAGE_GUARDIAN_REMOVAL = "Guardian name (" + PREFIX_GUARDIAN_NAME
@@ -95,10 +96,14 @@ public class EditCommand extends Command {
             throw new CommandException(MESSAGE_DUPLICATE_PERSON);
         }
 
+        // keep the edited person at the same index, so the list and view panel don't shift
+        boolean isOutsideFilter = model.keepPersonInFilteredList(editedPerson);
         model.setPerson(personToEdit, editedPerson);
-        model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
-        CommandResult result = CommandResult.showList(
-                String.format(MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson)));
+        String feedback = String.format(MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson));
+        if (isOutsideFilter) {
+            feedback += "\n" + String.format(MESSAGE_NO_LONGER_MATCHES, editedPerson.getName());
+        }
+        CommandResult result = new CommandResult(feedback);
         // only warn about phones typed in this command, not ones the person already had
         return Messages.getNonSingaporePhoneWarning(editPersonDescriptor.getPhone(),
                         editPersonDescriptor.getGuardianPhone())

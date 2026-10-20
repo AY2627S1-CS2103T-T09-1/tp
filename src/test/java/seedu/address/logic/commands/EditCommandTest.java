@@ -17,7 +17,12 @@ import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
 import static seedu.address.logic.commands.CommandTestUtil.showPersonAtIndex;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
+import static seedu.address.testutil.TypicalPersons.BENSON;
+import static seedu.address.testutil.TypicalPersons.DANIEL;
+import static seedu.address.testutil.TypicalPersons.KEYWORD_MATCHING_MEIER;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,6 +34,8 @@ import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
 import seedu.address.model.person.Band;
+import seedu.address.model.person.NameContainsKeywordsPredicate;
+import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Subject;
 import seedu.address.testutil.EditPersonDescriptorBuilder;
@@ -50,7 +57,7 @@ public class EditCommandTest {
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setPerson(original, edited);
         String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited));
-        assertCommandSuccess(command, model, CommandResult.showList(expectedMessage), expectedModel);
+        assertCommandSuccess(command, model, new CommandResult(expectedMessage), expectedModel);
     }
 
     @Test
@@ -66,7 +73,7 @@ public class EditCommandTest {
         expectedModel.setPerson(personWithNotes, edited);
         String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS,
                 Messages.format(edited));
-        assertCommandSuccess(command, model, CommandResult.showList(expectedMessage), expectedModel);
+        assertCommandSuccess(command, model, new CommandResult(expectedMessage), expectedModel);
     }
 
     @Test
@@ -78,7 +85,7 @@ public class EditCommandTest {
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setPerson(original, edited);
         String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited));
-        assertCommandSuccess(command, model, CommandResult.showList(expectedMessage), expectedModel);
+        assertCommandSuccess(command, model, new CommandResult(expectedMessage), expectedModel);
     }
 
     @Test
@@ -90,7 +97,7 @@ public class EditCommandTest {
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setPerson(original, edited);
         String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited));
-        assertCommandSuccess(command, model, CommandResult.showList(expectedMessage), expectedModel);
+        assertCommandSuccess(command, model, new CommandResult(expectedMessage), expectedModel);
     }
 
     @Test
@@ -102,7 +109,7 @@ public class EditCommandTest {
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setPerson(original, edited);
         String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited));
-        CommandResult expectedResult = CommandResult.showList(expectedMessage)
+        CommandResult expectedResult = new CommandResult(expectedMessage)
                 .withWarning(String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONE, "phone +447911123456"));
         assertCommandSuccess(command, model, expectedResult, expectedModel);
     }
@@ -116,7 +123,7 @@ public class EditCommandTest {
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setPerson(original, edited);
         String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited));
-        CommandResult expectedResult = CommandResult.showList(expectedMessage)
+        CommandResult expectedResult = new CommandResult(expectedMessage)
                 .withWarning(String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONE, "guardian phone +60123456789"));
         assertCommandSuccess(command, model, expectedResult, expectedModel);
     }
@@ -132,7 +139,7 @@ public class EditCommandTest {
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setPerson(original, edited);
         String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited));
-        CommandResult expectedResult = CommandResult.showList(expectedMessage).withWarning(
+        CommandResult expectedResult = new CommandResult(expectedMessage).withWarning(
                 String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONES,
                         "phone +447911123456 and guardian phone +60123456789"));
         assertCommandSuccess(command, model, expectedResult, expectedModel);
@@ -149,7 +156,7 @@ public class EditCommandTest {
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setPerson(withOverseasPhone, edited);
         String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited));
-        assertCommandSuccess(command, model, CommandResult.showList(expectedMessage), expectedModel);
+        assertCommandSuccess(command, model, new CommandResult(expectedMessage), expectedModel);
     }
 
     @Test
@@ -162,7 +169,7 @@ public class EditCommandTest {
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setPerson(original, edited);
         String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited));
-        assertCommandSuccess(command, model, CommandResult.showList(expectedMessage), expectedModel);
+        assertCommandSuccess(command, model, new CommandResult(expectedMessage), expectedModel);
     }
 
     @Test
@@ -187,7 +194,7 @@ public class EditCommandTest {
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setPerson(withGuardian, edited);
         String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited));
-        assertCommandSuccess(command, model, CommandResult.showList(expectedMessage), expectedModel);
+        assertCommandSuccess(command, model, new CommandResult(expectedMessage), expectedModel);
 
         Person editedAgain = new PersonBuilder(edited)
                 .withGuardian(VALID_GUARDIAN_NAME_BOB, VALID_GUARDIAN_PHONE_BOB).build();
@@ -195,7 +202,7 @@ public class EditCommandTest {
                 new EditPersonDescriptorBuilder().withGuardianPhone(VALID_GUARDIAN_PHONE_BOB).build());
         expectedModel.setPerson(edited, editedAgain);
         expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedAgain));
-        assertCommandSuccess(command, model, CommandResult.showList(expectedMessage), expectedModel);
+        assertCommandSuccess(command, model, new CommandResult(expectedMessage), expectedModel);
     }
 
     @Test
@@ -207,7 +214,7 @@ public class EditCommandTest {
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setPerson(withGuardian, edited);
         String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited));
-        assertCommandSuccess(command, model, CommandResult.showList(expectedMessage), expectedModel);
+        assertCommandSuccess(command, model, new CommandResult(expectedMessage), expectedModel);
     }
 
     @Test
@@ -233,7 +240,7 @@ public class EditCommandTest {
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setPerson(withGuardian, edited);
         String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited));
-        assertCommandSuccess(command, model, CommandResult.showList(expectedMessage), expectedModel);
+        assertCommandSuccess(command, model, new CommandResult(expectedMessage), expectedModel);
     }
 
     @Test
@@ -247,7 +254,7 @@ public class EditCommandTest {
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setPerson(model.getFilteredPersonList().get(0), editedPerson);
 
-        assertCommandSuccess(editCommand, model, CommandResult.showList(expectedMessage), expectedModel);
+        assertCommandSuccess(editCommand, model, new CommandResult(expectedMessage), expectedModel);
     }
 
     @Test
@@ -268,7 +275,7 @@ public class EditCommandTest {
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setPerson(lastPerson, editedPerson);
 
-        assertCommandSuccess(editCommand, model, CommandResult.showList(expectedMessage), expectedModel);
+        assertCommandSuccess(editCommand, model, new CommandResult(expectedMessage), expectedModel);
     }
 
     @Test
@@ -280,24 +287,74 @@ public class EditCommandTest {
 
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
 
-        assertCommandSuccess(editCommand, model, CommandResult.showList(expectedMessage), expectedModel);
+        assertCommandSuccess(editCommand, model, new CommandResult(expectedMessage), expectedModel);
     }
 
     @Test
-    public void execute_filteredList_success() {
-        showPersonAtIndex(model, INDEX_SECOND_PERSON);
-
-        Person personInFilteredList = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
-        Person editedPerson = new PersonBuilder(personInFilteredList).withName(VALID_NAME_BOB).build();
+    public void execute_filteredList_keepsFilter() {
+        NameContainsKeywordsPredicate meierPredicate =
+                new NameContainsKeywordsPredicate(List.of(KEYWORD_MATCHING_MEIER));
+        model.updateFilteredPersonList(meierPredicate);
+        Person editedPerson = new PersonBuilder(BENSON).withPhone(VALID_PHONE_BOB).build();
         EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON,
-                new EditPersonDescriptorBuilder().withName(VALID_NAME_BOB).build());
+                new EditPersonDescriptorBuilder().withPhone(VALID_PHONE_BOB).build());
 
         String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson));
 
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
-        expectedModel.setPerson(model.getFilteredPersonList().get(0), editedPerson);
+        expectedModel.setPerson(BENSON, editedPerson);
+        expectedModel.updateFilteredPersonList(meierPredicate);
 
-        assertCommandSuccess(editCommand, model, CommandResult.showList(expectedMessage), expectedModel);
+        assertCommandSuccess(editCommand, model, new CommandResult(expectedMessage), expectedModel);
+        assertEquals(List.of(editedPerson, DANIEL), model.getFilteredPersonList());
+    }
+
+    @Test
+    public void execute_editedPersonNoLongerMatchesFilter_staysAtSameIndex() {
+        model.updateFilteredPersonList(new NameContainsKeywordsPredicate(List.of(KEYWORD_MATCHING_MEIER)));
+        Person editedPerson = new PersonBuilder(BENSON).withName(VALID_NAME_BOB).build();
+        EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withName(VALID_NAME_BOB).build());
+
+        String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson))
+                + "\n" + String.format(EditCommand.MESSAGE_NO_LONGER_MATCHES, VALID_NAME_BOB);
+
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(BENSON, editedPerson);
+        expectedModel.updateFilteredPersonList(person -> person.equals(editedPerson) || person.equals(DANIEL));
+
+        assertCommandSuccess(editCommand, model, new CommandResult(expectedMessage), expectedModel);
+        assertEquals(List.of(editedPerson, DANIEL), model.getFilteredPersonList());
+    }
+
+    @Test
+    public void execute_noLongerMatchesFilterThenAddNote_staysAtSameIndex() throws Exception {
+        model.updateFilteredPersonList(new NameContainsKeywordsPredicate(List.of(KEYWORD_MATCHING_MEIER)));
+        new EditCommand(INDEX_FIRST_PERSON, new EditPersonDescriptorBuilder().withName(VALID_NAME_BOB).build())
+                .execute(model);
+        new AddNoteCommand(INDEX_FIRST_PERSON, new Note("Weak in algebra")).execute(model);
+
+        Person editedPerson = new PersonBuilder(BENSON).withName(VALID_NAME_BOB).withNotes("Weak in algebra").build();
+        assertEquals(List.of(editedPerson, DANIEL), model.getFilteredPersonList());
+    }
+
+    @Test
+    public void execute_noLongerMatchesFilterAndNonSingaporePhone_showsNoteThenWarning() {
+        model.updateFilteredPersonList(new NameContainsKeywordsPredicate(List.of(KEYWORD_MATCHING_MEIER)));
+        Person editedPerson = new PersonBuilder(BENSON).withName(VALID_NAME_BOB).withPhone("+447911123456").build();
+        EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON, new EditPersonDescriptorBuilder()
+                .withName(VALID_NAME_BOB).withPhone("+447911123456").build());
+
+        String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson))
+                + "\n" + String.format(EditCommand.MESSAGE_NO_LONGER_MATCHES, VALID_NAME_BOB);
+        CommandResult expectedResult = new CommandResult(expectedMessage)
+                .withWarning(String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONE, "phone +447911123456"));
+
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(BENSON, editedPerson);
+        expectedModel.updateFilteredPersonList(person -> person.equals(editedPerson) || person.equals(DANIEL));
+
+        assertCommandSuccess(editCommand, model, expectedResult, expectedModel);
     }
 
     @Test
