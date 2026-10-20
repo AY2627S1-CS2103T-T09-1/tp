@@ -223,6 +223,22 @@ Each edit wraps the current filter, so after several edits in a row, every edite
   * Pros: Every student keeps their index number, and an open student record stays on the same student.
   * Cons: A student who no longer matches the search stays in the list until the next `filter` or `list`. The result box and the User Guide both say so, so the tutor is not left wondering why they are there.
 
+### Finding students by note
+
+`findnote TEXT` lists the students who have a note containing `TEXT`, and shows the numbers of the matching notes in the result box. It is a separate command from `filter`.
+
+#### Design considerations
+
+**Aspect: Whether to search notes with `filter` or a separate command**
+
+* **Alternative 1:** Add a `t/TEXT` prefix to `filter`, such as `filter t/algebra`.
+  * Pros: One search command for everything. Tutors who know `filter` may try `t/` first, since `addnote` uses it for note text.
+  * Cons: `filter` only narrows the student list. The tutor also needs to know _which_ notes matched before they can act on them with `deletenote`. Showing note numbers only when `t/` is given would make one command produce two kinds of result.
+
+* **Alternative 2 (current choice):** A separate `findnote` command.
+  * Pros: The result box can list each student's matching note numbers. `filter` stays a simple way to narrow the list by student details.
+  * Cons: Tutors may still try `filter t/algebra`. The User Guide places `findnote` right after `filter`, so it is easy to find.
+
 ### \[Proposed\] Undo/redo feature
 
 #### Proposed Implementation
