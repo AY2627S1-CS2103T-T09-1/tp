@@ -23,7 +23,7 @@ public class HelpCommand extends Command {
             "clear [-f] - Clears all students from TuteeBook3; -f skips confirmation.",
             "add - Adds a student with their name, school, subject, and contact details.",
             "delete - Removes a student of the given index.",
-            "filter - Filters students using partial name matching.",
+            "filter - Filters students by name or school, using partial matching.",
             "view - Shows a student's full record on a single screen.",
             "list - Shows the entire student roster.",
             "addnote - Adds a note about a student.",
