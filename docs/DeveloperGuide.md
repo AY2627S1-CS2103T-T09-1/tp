@@ -193,7 +193,7 @@ Students and guardians each have one phone number, stored as a `Phone`. The same
 
 ### Keeping the list after an edit
 
-`edit` keeps the displayed list and any open student record, so the tutor can work down a set of `filter` results by index.
+`edit` keeps the displayed list or any open student record, so the tutor can work down a set of `filter` results by index.
 
 #### Implementation
 
