@@ -149,6 +149,80 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 
 This section describes some noteworthy details on how certain features are implemented.
 
+### Phone number validation
+
+Students and guardians each have one phone number, stored as a `Phone`. The same rules apply to `p/` and `gp/`.
+
+#### Implementation
+
+1. `ParserUtil#parsePhone` calls `Phone#normalize`, which removes spaces and hyphens, then removes a leading `+65` if the rest is a Singapore number (8 digits starting with 6, 8, or 9). For example, `+65 9123-4567` becomes `91234567`, but `+65 1234 5678` becomes `+6512345678`.
+1. `ParserUtil#parsePhone` then calls `Phone#getInvalidReason`, which checks the result with `Phone#isValidPhone`: an optional `+` followed by 3 to 15 digits. If the check fails, it returns a message that names the field and the value as typed, and gives the first problem it finds: the value is empty, has a character that isn't allowed, has a `+` that isn't at the start, or has the wrong number of digits. `ParserUtil` throws a `ParseException` with that message. `ParserUtil#parseGuardianPhone` does the same, with the field named `Guardian phone`.
+1. After saving the student, `AddCommand` and `EditCommand` pass the phones given in the command to `Messages#getNonSingaporePhoneWarning`. If any of them is not a Singapore number, the command returns its usual result with `CommandResult#withWarning`, which adds the warning and displays the result in amber without changing what the main panel shows.
+
+`EditCommand` only checks phones from its `EditPersonDescriptor`, so editing another detail of a student who already has an overseas number does not show the warning again.
+
+`JsonAdaptedPerson` and `JsonAdaptedGuardian` also call `Phone#normalize` before `Phone#isValidPhone` when loading the data file, so a phone edited by hand with `+65`, spaces, or hyphens loads in the same form as a typed one. A phone that is still invalid fails with the general `Phone.MESSAGE_CONSTRAINTS`, since the user does not see this message directly.
+
+#### Design considerations
+
+**Aspect: Which phone numbers to accept**
+
+* **Alternative 1:** Accept only Singapore numbers.
+  * Pros: Catches typos such as a missing digit.
+  * Cons: Blocks real numbers, such as a guardian with an overseas number. The course's PE guidelines use an 8-digit phone limit as an example of validation that can be too strict. Data files from v1.3, which allowed any 3 or more digits, could fail to load.
+
+* **Alternative 2:** Accept any digits without a note.
+  * Pros: Simplest to implement.
+  * Cons: A typo such as `9123456` is saved without the tutor noticing.
+
+* **Alternative 3 (current choice):** Accept an optional `+` and 3 to 15 digits, and show a warning when the number is not a Singapore number.
+  * Pros: Real numbers are never blocked, typos are still pointed out, and v1.3 data files with realistic numbers still load.
+  * Cons: An extra warning path in `AddCommand` and `EditCommand`.
+
+15 is the longest phone number allowed by the international standard (E.164), including the country code. 3 is the minimum from v1.3, kept so that existing data files with realistic numbers still load. A v1.3 phone with more than 15 digits no longer loads.
+
+**Aspect: Whether to keep `+65`**
+
+* **Alternative 1 (current choice):** Remove `+65` only when the rest is a Singapore number.
+  * Pros: `91234567` and `+65 9123 4567` are saved the same way, so the same number is never stored in two forms. A number that only looks Singaporean after removing `+65` is not changed into a different number.
+  * Cons: Overseas numbers keep their country code, so phone numbers are not all stored in the same format.
+
+* **Alternative 2:** Keep numbers exactly as typed, apart from spaces and hyphens.
+  * Pros: Simpler.
+  * Cons: The same Singapore number could be stored as `91234567` or `+6591234567`, so comparing or searching phone numbers would have to handle both.
+
+### Keeping the list after an edit
+
+`edit` keeps the displayed list or any open student record, so the tutor can work down a set of `filter` results by index.
+
+#### Implementation
+
+1. Before replacing the student, `EditCommand` calls `Model#keepPersonInFilteredList` with the edited student.
+1. If the list is filtered, `ModelManager` first checks whether the current filter matches the edited student. It then replaces the filter with one that also accepts the edited student: `current.test(p) || p.isSamePerson(editedPerson)`, and returns `true` if the old filter did not match them. If the list is not filtered, it does nothing and returns `false`.
+1. `Model#setPerson` then replaces the student in place. Since the new filter accepts the edited student, they stay at the same position in the filtered list, even if they no longer match the search.
+1. If `keepPersonInFilteredList` returned `true`, `EditCommand` adds a line to the result saying that the student no longer matches the last search but stays in the list. Any phone warning comes after this line.
+1. `EditCommand` returns a `CommandResult` that keeps the current display, so an open `StudentDetailPanel`, which shows the student at its index in the filtered list, shows the updated details.
+
+The filter matches the edited student with `Person#isSamePerson`, the same name-based check that prevents duplicates, rather than `Person#equals`. A later command that changes the student without renaming them, such as `addnote`, then keeps them in the list too.
+
+Each edit wraps the current filter, so after several edits in a row, every edited student stays in the list, not just the last one. The next `filter` or `list` replaces the whole filter, so the extra rules never build up across searches.
+
+#### Design considerations
+
+**Aspect: What to show after an edit**
+
+* **Alternative 1:** Show the full list, as AB3 does.
+  * Pros: Simplest, and the user never sees a student who doesn't match the search.
+  * Cons: Index numbers change, so a follow-up such as `edit 2 ...` can silently edit a different student. The tutor has to repeat `filter` after every edit.
+
+* **Alternative 2:** Keep the filter unchanged.
+  * Pros: Simple, and other students keep their index numbers.
+  * Cons: A student edited so that they no longer match the search disappears. The students after them move up, and an open student record shows a different student.
+
+* **Alternative 3 (current choice):** Keep the filter, plus the edited student.
+  * Pros: Every student keeps their index number, and an open student record stays on the same student.
+  * Cons: A student who no longer matches the search stays in the list until the next `filter` or `list`. The result box and the User Guide both say so, so the tutor is not left wondering why they are there.
+
 ### \[Proposed\] Undo/redo feature
 
 #### Proposed Implementation
@@ -367,17 +441,23 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case ends.
 
+* 2f. The phone number or guardian phone number is not a Singapore number.
+
+    * 2f1. TuteeBook3 accepts the number, and shows a warning asking Tutor to check it after saving the student.
+
+      Use case resumes at step 3.
+
 ---
 
 **Use case: UC2 - Edit a student's details**
 
 **MSS**
 
-1.  Tutor requests to list students
+1.  Tutor requests to list students, or filters them by name (UC4)
 2.  TuteeBook3 shows a list of students
 3.  Tutor requests to edit a specific student by index, giving the new values for the details to change
 4.  TuteeBook3 validates and updates the student
-5.  TuteeBook3 shows the updated student record
+5.  TuteeBook3 shows the updated details
 
     Use case ends.
 
@@ -420,6 +500,18 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
     * 3e1. TuteeBook3 shows an error message that the student has no guardian to remove, and leaves the student unchanged.
 
       Use case ends.
+
+* 3f. A new phone number or guardian phone number is not a Singapore number.
+
+    * 3f1. TuteeBook3 accepts the number, and shows a warning asking Tutor to check it after updating the student.
+
+      Use case resumes at step 4.
+
+* 4a. The list shows search results, and the updated student no longer matches the search.
+
+    * 4a1. TuteeBook3 keeps the student at the same position in the list, and says that they no longer match the search.
+
+      Use case resumes at step 5.
 
 ---
 
@@ -783,7 +875,7 @@ Use case ends.
 
 #### Commands and IDs
 
-* **Filter**: A prefix and value given to the `find` command, such as `lvl/S2`, that narrows down the student list.
+* **Filter**: A prefix and value given to the `filter` command, such as `n/Tan`, that narrows down the student list.
 * **NID**: The number shown before a note in the student detail view. Notes are numbered 1, 2, 3 in the order they were added. After a note is deleted, the notes after it move up one number, so an NID is not permanent.
 * **Prefix**: A short marker ending in `/`, such as `n/` or `sch/`, that labels the value after it in a command.
 * **SID**: Student ID, a unique number given to each student when they are added. It is never reused, even after the student is deleted.
@@ -791,10 +883,10 @@ Use case ends.
 #### Screen layout
 
 * **Command box**: The text field at the top of the window where the user types commands.
-* **Detail view**: The view that shows everything about one student, including all their notes. It takes the place of the student list, so only one student is shown at a time. The user can return to the student list with `list` or `find`.
+* **Detail view**: The view that shows everything about one student, including all their notes. It takes the place of the student list, so only one student is shown at a time. The user can return to the student list with `list` or `filter`.
 * **Result display**: The area below the command box that tells the user whether their last command worked, and why not if it failed.
 * **Student card**: One student's entry in the student list.
-* **Student list**: The view that lists students with their main details. It takes the place of the detail view when the user enters `list` or `find`.
+* **Student list**: The view that lists students with their main details. It takes the place of the detail view when the user enters `list` or `filter`.
 
 #### Code
 
@@ -866,7 +958,7 @@ testers are expected to do more *exploratory* testing.
 
 1. Editing a guardian
 
-   1. Prerequisites: Tim Tan and Ken Lim were added as above. Use `find n/Tim` or `find n/Ken` so that the student is first in the list.
+   1. Prerequisites: Tim Tan and Ken Lim were added as above. Use `filter n/Tim` or `filter n/Ken` so that the student is first in the list.
 
    1. Test case: `edit 1 gp/98765432` on Tim Tan<br>
       Expected: Only the guardian's phone changes. Viewing Tim Tan's student details shows guardian Mary Tan with phone number `98765432`.
@@ -882,6 +974,38 @@ testers are expected to do more *exploratory* testing.
 
    1. Test case: `edit 1 gn/ gp/` on Ken Lim<br>
       Expected: Ken Lim is unchanged. The status message shows `This person has no guardian to remove.`
+
+### Entering phone numbers
+
+1. Adding a student with a formatted Singapore number
+
+   1. Test case: `add n/Ravi Kumar sch/Victoria School lvl/S2 sub/Mathematics band/G1 p/+65 9123-4567`<br>
+      Expected: Ravi Kumar is added with phone number `91234567`. The status message shows no warning about the phone number.
+
+1. Editing the phone number
+
+   1. Prerequisites: Ravi Kumar was added as above. Before each test case, use `filter n/Ravi` so that Ravi Kumar is first in the list.
+
+   1. Test case: `edit 1 p/+44 7911 123456`<br>
+      Expected: The phone number is saved as `+447911123456`. The status message is shown in amber, with a warning that phone `+447911123456` doesn't look like a Singapore number.
+
+   1. Test case: `edit 1 sch/Bedok Green Secondary School`<br>
+      Expected: The school changes. The status message shows no warning about the phone number.
+
+   1. Test case: `edit 1 p/12`<br>
+      Expected: Ravi Kumar is unchanged. The status message says `Phone 12 needs 3 to 15 digits, counting the country code, but has 2.`
+
+### Editing a student in search results
+
+1. Editing a student so they no longer match the search
+
+   1. Prerequisites: Start with the sample data. Enter `filter n/an`, which lists `SAMPLE Chloe Tan`, `SAMPLE Aisha Rahman`, `SAMPLE Daniel Lee`, and `SAMPLE Ethan Kumar`, then `view 1`. Run the test cases in order.
+
+   1. Test case: `edit 1 n/Chloe Lim`<br>
+      Expected: The student record stays open and shows the name Chloe Lim. The status message says `Chloe Lim no longer matches your last search, but stays in the list until you enter list or filter.`
+
+   1. Test case: `edit 2 lvl/S4`<br>
+      Expected: The student record still shows Chloe Lim, so she is still first in the list even though another student was edited. The status message says `SAMPLE Aisha Rahman` was edited, with no line about the search. Enter `list`, then `filter n/an`: the list shows Aisha Rahman (now `S4`), Daniel Lee, and Ethan Kumar, and Chloe Lim is no longer in the results.
 
 ### Saving data
 

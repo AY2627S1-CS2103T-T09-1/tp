@@ -154,14 +154,16 @@ A plausible mistake must never crash the app, corrupt the data file, or leave th
 Define "valid" by what real users need to enter, not by the narrowest data type.
 
 * Limits must be reasonable for the target user.
-  * Don't: cap phone numbers at 8 digits. That rejects every overseas number.
+  * Don't: pick a limit that real users hit without saying so.
+  * Do: when a rule is narrow on purpose, state it exactly in the UG and say why.
   * Do: pick a limit no realistic value reaches, and document it in the UG.
 * Do not reject symbols that real values contain.
   * Don't: reject `Rajesh s/o Kumar`, `Mary-Jane O'Brien`, or `J. Tan`. AB3's `Name.VALIDATION_REGEX` rejects all three today. Treat that as a known flaw to fix, not a pattern to copy.
   * Don't: add a prefix that collides with realistic values. A new `s/` prefix would split `s/o` inside a name.
   * Do: when a symbol is hard to parse, improve the parser before banning the symbol.
 * Warn rather than block unusual but harmless input.
-  * Don't: reject `+65 9123 4567` or `9123 4567 (HP) 6123 4567 (Office)`. AB3's `Phone` accepts only digits today.
+  * Don't: reject `+65 9123 4567`, `9123-4567` or an overseas number. `ParserUtil.parsePhone` removes spaces, dashes, and a leading `+65` when the rest is a Singapore number.
+  * Do: save a number that isn't a Singapore number and add a warning with `CommandResult.withWarning`, as `add` and `edit` do for `p/` and `gp/`.
   * Don't: reject a date in the past. Users record past events.
   * Do: accept the value and show a warning if it might be a mistake, such as "Note: this date is in the past."
 * Still guard against harmful input. Accepting a value that makes data ambiguous or breaks a later command is also a flaw. Block it or warn about it.

@@ -17,10 +17,10 @@ import seedu.address.model.person.Phone;
 
 public class ParserUtilTest {
     private static final String INVALID_NAME = "R@chel";
-    private static final String INVALID_PHONE = "+651234";
+    private static final String INVALID_PHONE = "12";
 
     private static final String VALID_NAME = "Rachel Walker";
-    private static final String VALID_PHONE = "123456";
+    private static final String VALID_PHONE = "91234567";
     private static final String VALID_NOTE = "WA2 Math: 36/50";
 
     private static final String WHITESPACE = " \t\r\n";
@@ -118,6 +118,55 @@ public class ParserUtilTest {
         String phoneWithWhitespace = WHITESPACE + VALID_PHONE + WHITESPACE;
         Phone expectedPhone = new Phone(VALID_PHONE);
         assertEquals(expectedPhone, ParserUtil.parsePhone(phoneWithWhitespace));
+    }
+
+    @Test
+    public void parsePhone_formattedSingaporeNumber_returnsCleanedPhone() throws Exception {
+        Phone expectedPhone = new Phone(VALID_PHONE);
+        assertEquals(expectedPhone, ParserUtil.parsePhone("+65 9123 4567"));
+        assertEquals(expectedPhone, ParserUtil.parsePhone("+6591234567"));
+        assertEquals(expectedPhone, ParserUtil.parsePhone("9123 4567"));
+        assertEquals(expectedPhone, ParserUtil.parsePhone("9123-4567"));
+        assertEquals(expectedPhone, ParserUtil.parsePhone("  91234567  "));
+    }
+
+    @Test
+    public void parsePhone_notSingaporeNumber_returnsCleanedPhone() throws Exception {
+        assertEquals(new Phone("+442079460958"), ParserUtil.parsePhone("+44 20 7946-0958"));
+        assertEquals(new Phone("+6512345678"), ParserUtil.parsePhone("+65 1234 5678")); // +65 kept
+        assertEquals(new Phone("6591234567"), ParserUtil.parsePhone("65 9123 4567")); // 65 without +
+        assertEquals(new Phone("9123456"), ParserUtil.parsePhone("9123 456")); // 7 digits
+        assertEquals(new Phone("911"), ParserUtil.parsePhone("911")); // 3 digits
+        assertEquals(new Phone("123456789012345"), ParserUtil.parsePhone("123 4567 8901 2345")); // 15 digits
+    }
+
+    @Test
+    public void parsePhone_invalidCharactersOrLength_throwsParseExceptionWithReason() {
+        String digitCount = " needs 3 to 15 digits, counting the country code, but has ";
+        assertThrows(ParseException.class, "Phone +" + digitCount + "0.", () -> ParserUtil.parsePhone("+"));
+        assertThrows(ParseException.class, "Phone 12" + digitCount + "2.", () -> ParserUtil.parsePhone(" 12 "));
+        assertThrows(ParseException.class, "Phone 1234 5678 9012 3456" + digitCount + "16.", () ->
+                ParserUtil.parsePhone("1234 5678 9012 3456"));
+
+        String allowed = ", which isn't allowed. Use only digits, spaces, hyphens (-), and a + at the start.";
+        assertThrows(ParseException.class, "Phone 9123.4567 contains \".\"" + allowed, () ->
+                ParserUtil.parsePhone("9123.4567"));
+
+        assertThrows(ParseException.class, "Phone 91+234567 can only have one +, at the start.", () ->
+                ParserUtil.parsePhone("91+234567"));
+        assertThrows(ParseException.class, "Phone cannot be empty.", () -> ParserUtil.parsePhone("  "));
+    }
+
+    @Test
+    public void parseGuardianPhone_formattedSingaporeNumber_returnsCleanedPhone() throws Exception {
+        assertEquals(new Phone(VALID_PHONE), ParserUtil.parseGuardianPhone("+65 9123-4567"));
+    }
+
+    @Test
+    public void parseGuardianPhone_invalidValue_throwsParseExceptionNamingGuardianPhone() {
+        assertThrows(ParseException.class, "Guardian phone 9123a contains \"a\", which isn't allowed. "
+                + "Use only digits, spaces, hyphens (-), and a + at the start.", () ->
+                ParserUtil.parseGuardianPhone("9123a"));
     }
 
     @Test

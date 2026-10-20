@@ -18,7 +18,7 @@ public class HelpCommandTest {
             "clear [-f] - Clears all students from TuteeBook3; -f skips confirmation.",
             "add - Adds a student with their name, school, subject, and contact details.",
             "delete - Removes a student of the given index.",
-            "find - Finds students using partial name matching.",
+            "filter - Filters students using partial name matching.",
             "findnote - Finds students whose notes contain the given text.",
             "view - Shows a student's full record on a single screen.",
             "list - Shows the entire student roster.",

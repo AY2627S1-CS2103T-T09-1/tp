@@ -10,29 +10,30 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.Messages;
-import seedu.address.logic.commands.FindCommand;
+import seedu.address.logic.commands.FilterCommand;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
 
-public class FindCommandParserTest {
+public class FilterCommandParserTest {
 
     private static final String MESSAGE_INVALID_FORMAT =
-            String.format(MESSAGE_INVALID_COMMAND_FORMAT, FindCommand.MESSAGE_USAGE);
+            String.format(MESSAGE_INVALID_COMMAND_FORMAT, FilterCommand.MESSAGE_USAGE);
 
-    private final FindCommandParser parser = new FindCommandParser();
+    private final FilterCommandParser parser = new FilterCommandParser();
 
     @Test
-    public void parse_validName_returnsFindCommand() {
-        FindCommand expectedFindCommand = new FindCommand(new NameContainsKeywordsPredicate(List.of("avi")));
-        assertParseSuccess(parser, " n/avi", expectedFindCommand);
+    public void parse_validName_returnsFilterCommand() {
+        FilterCommand expectedFilterCommand = new FilterCommand(new NameContainsKeywordsPredicate(List.of("avi")));
+        assertParseSuccess(parser, " n/avi", expectedFilterCommand);
 
         // space after the prefix
-        assertParseSuccess(parser, " n/ avi", expectedFindCommand);
+        assertParseSuccess(parser, " n/ avi", expectedFilterCommand);
     }
 
     @Test
     public void parse_nameWithExtraSpaces_collapsesSpaces() {
-        FindCommand expectedFindCommand = new FindCommand(new NameContainsKeywordsPredicate(List.of("Chloe Tan")));
-        assertParseSuccess(parser, " n/  Chloe \t  Tan  ", expectedFindCommand);
+        FilterCommand expectedFilterCommand =
+                new FilterCommand(new NameContainsKeywordsPredicate(List.of("Chloe Tan")));
+        assertParseSuccess(parser, " n/  Chloe \t  Tan  ", expectedFilterCommand);
     }
 
     @Test
@@ -52,8 +53,8 @@ public class FindCommandParserTest {
 
     @Test
     public void parse_blankName_throwsParseException() {
-        assertParseFailure(parser, " n/", FindCommandParser.MESSAGE_BLANK_NAME);
-        assertParseFailure(parser, " n/   ", FindCommandParser.MESSAGE_BLANK_NAME);
+        assertParseFailure(parser, " n/", FilterCommandParser.MESSAGE_BLANK_NAME);
+        assertParseFailure(parser, " n/   ", FilterCommandParser.MESSAGE_BLANK_NAME);
     }
 
     @Test
