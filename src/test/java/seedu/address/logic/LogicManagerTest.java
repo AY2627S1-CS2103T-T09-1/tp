@@ -170,6 +170,7 @@ public class LogicManagerTest {
         Model expectedModel = new ModelManager();
         assertCommandSuccess("y", CommandResult.showList(
                 String.format(DeleteCommand.MESSAGE_DELETE_STUDENT_SUCCESS, AMY.getName())), expectedModel);
+        model.addPerson(AMY);
         assertCommandSuccess("delete -f 1", CommandResult.showList(String.format(
                 DeleteCommand.MESSAGE_DELETE_STUDENT_SUCCESS, AMY.getName())), new ModelManager());
     }

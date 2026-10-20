@@ -116,7 +116,7 @@ How the parsing works:
 
 ### Command confirmations
 
-`AddCommand`, `ClearCommand`, `DeleteCommand`, and `DeleteNoteCommand` implement `ConfirmationCommand`. Before running one of these commands, `LogicManager` asks it whether a prompt is needed. `ConfirmationManager` stores the command and returns a warning `CommandResult`, which the UI displays in yellow. The next input `y` runs the stored command and saves the result; `n` discards it. Any other input leaves the request pending and returns a reminder. The `-f` option executes the command without prompting.
+`ClearCommand`, `DeleteCommand`, and `DeleteNoteCommand` implement `ConfirmationCommand`. Before running one of these commands, `LogicManager` asks it whether a prompt is needed. `ConfirmationManager` stores the command and returns a warning `CommandResult`, which the UI displays in yellow. The next input `y` runs the stored command and saves the result; `n` discards it. Any other input leaves the request pending and returns a reminder. These destructive commands accept `-f` to execute without prompting.
 
 ### Model component
 **API** : [`Model.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/model/Model.java)

@@ -69,9 +69,10 @@ public class DeleteNoteCommandParserTest {
     }
 
     @Test
-    public void parse_extraTextBeforePrefix_throwsIndexError() {
-        assertParseFailure(parser, " 1 abc nid/2", MESSAGE_INVALID_INDEX);
-        assertParseFailure(parser, " 1 2 nid/3", MESSAGE_INVALID_INDEX);
+    public void parse_extraTextBeforePrefix_throwsCommandFormatError() {
+        String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, DeleteNoteCommand.MESSAGE_USAGE);
+        assertParseFailure(parser, " 1 abc nid/2", expectedMessage);
+        assertParseFailure(parser, " 1 2 nid/3", expectedMessage);
     }
 
     @Test
