@@ -193,7 +193,7 @@ Students and guardians each have one phone number, stored as a `Phone`. The same
 
 ### Keeping the list after an edit
 
-`edit` keeps the displayed list and any open student record, so the tutor can work down a set of `find` results by index.
+`edit` keeps the displayed list and any open student record, so the tutor can work down a set of `filter` results by index.
 
 #### Implementation
 
@@ -205,7 +205,7 @@ Students and guardians each have one phone number, stored as a `Phone`. The same
 
 The filter matches the edited student with `Person#isSamePerson`, the same name-based check that prevents duplicates, rather than `Person#equals`. A later command that changes the student without renaming them, such as `addnote`, then keeps them in the list too.
 
-Each edit wraps the current filter, so after several edits in a row, every edited student stays in the list, not just the last one. The next `find` or `list` replaces the whole filter, so the extra rules never build up across searches.
+Each edit wraps the current filter, so after several edits in a row, every edited student stays in the list, not just the last one. The next `filter` or `list` replaces the whole filter, so the extra rules never build up across searches.
 
 #### Design considerations
 
@@ -213,7 +213,7 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 
 * **Alternative 1:** Show the full list, as AB3 does.
   * Pros: Simplest, and the user never sees a student who doesn't match the search.
-  * Cons: Index numbers change, so a follow-up such as `edit 2 ...` can silently edit a different student. The tutor has to repeat `find` after every edit.
+  * Cons: Index numbers change, so a follow-up such as `edit 2 ...` can silently edit a different student. The tutor has to repeat `filter` after every edit.
 
 * **Alternative 2:** Keep the filter unchanged.
   * Pros: Simple, and other students keep their index numbers.
@@ -221,7 +221,7 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 
 * **Alternative 3 (current choice):** Keep the filter, plus the edited student.
   * Pros: Every student keeps their index number, and an open student record stays on the same student.
-  * Cons: A student who no longer matches the search stays in the list until the next `find` or `list`. The result box and the User Guide both say so, so the tutor is not left wondering why they are there.
+  * Cons: A student who no longer matches the search stays in the list until the next `filter` or `list`. The result box and the User Guide both say so, so the tutor is not left wondering why they are there.
 
 ### \[Proposed\] Undo/redo feature
 
@@ -453,7 +453,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 **MSS**
 
-1.  Tutor requests to list students
+1.  Tutor requests to list students, or filters them by name (UC4)
 2.  TuteeBook3 shows a list of students
 3.  Tutor requests to edit a specific student by index, giving the new values for the details to change
 4.  TuteeBook3 validates and updates the student
@@ -984,7 +984,7 @@ testers are expected to do more *exploratory* testing.
 
 1. Editing the phone number
 
-   1. Prerequisites: Ravi Kumar was added as above. Before each test case, use `find n/Ravi` so that Ravi Kumar is first in the list.
+   1. Prerequisites: Ravi Kumar was added as above. Before each test case, use `filter n/Ravi` so that Ravi Kumar is first in the list.
 
    1. Test case: `edit 1 p/+44 7911 123456`<br>
       Expected: The phone number is saved as `+447911123456`. The status message is shown in amber, with a warning that phone `+447911123456` doesn't look like a Singapore number.
@@ -999,13 +999,13 @@ testers are expected to do more *exploratory* testing.
 
 1. Editing a student so they no longer match the search
 
-   1. Prerequisites: Start with the sample data. Enter `find n/an`, which lists `SAMPLE Chloe Tan`, `SAMPLE Aisha Rahman`, `SAMPLE Daniel Lee`, and `SAMPLE Ethan Kumar`, then `view 1`. Run the test cases in order.
+   1. Prerequisites: Start with the sample data. Enter `filter n/an`, which lists `SAMPLE Chloe Tan`, `SAMPLE Aisha Rahman`, `SAMPLE Daniel Lee`, and `SAMPLE Ethan Kumar`, then `view 1`. Run the test cases in order.
 
    1. Test case: `edit 1 n/Chloe Lim`<br>
-      Expected: The student record stays open and shows the name Chloe Lim. The status message says `Chloe Lim no longer matches your last search, but stays in the list until you enter list or find.`
+      Expected: The student record stays open and shows the name Chloe Lim. The status message says `Chloe Lim no longer matches your last search, but stays in the list until you enter list or filter.`
 
    1. Test case: `edit 2 lvl/S4`<br>
-      Expected: The student record still shows Chloe Lim, so she is still first in the list even though another student was edited. The status message says `SAMPLE Aisha Rahman` was edited, with no line about the search. Enter `list`, then `find n/an`: the list shows Aisha Rahman (now `S4`), Daniel Lee, and Ethan Kumar, and Chloe Lim is no longer in the results.
+      Expected: The student record still shows Chloe Lim, so she is still first in the list even though another student was edited. The status message says `SAMPLE Aisha Rahman` was edited, with no line about the search. Enter `list`, then `filter n/an`: the list shows Aisha Rahman (now `S4`), Daniel Lee, and Ethan Kumar, and Chloe Lim is no longer in the results.
 
 ### Saving data
 
