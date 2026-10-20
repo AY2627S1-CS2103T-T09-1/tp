@@ -109,6 +109,7 @@ public class AddCommandParserTest {
     public void parse_repeatedSpacesInTextFields_collapsesSpaces() {
         Person expectedPerson = new PersonBuilder(BOB)
                 .withName("John Doe")
+                .withoutPhone()
                 .withSchool("Victoria School")
                 .withSubjects(new Subject("Additional Mathematics", Band.G2))
                 .withGuardian("Mary Jane", VALID_GUARDIAN_PHONE_BOB)
