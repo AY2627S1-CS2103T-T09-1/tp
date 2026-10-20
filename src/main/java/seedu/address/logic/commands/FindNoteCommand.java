@@ -23,7 +23,8 @@ public class FindNoteCommand extends Command {
             + "Parameters: TEXT\n"
             + "Example: " + COMMAND_WORD + " algebra";
 
-    public static final String MESSAGE_STUDENTS_FOUND = "%1$d student(s) with notes containing \"%2$s\":";
+    public static final String MESSAGE_ONE_STUDENT_FOUND = "1 student with notes containing \"%1$s\":";
+    public static final String MESSAGE_STUDENTS_FOUND = "%1$d students with notes containing \"%2$s\":";
     public static final String MESSAGE_STUDENT_LINE = "%1$d. %2$s: %3$s";
     public static final String MESSAGE_NO_STUDENTS_FOUND = "No student has a note containing \"%1$s\". "
             + "Check the spelling, or type list to see all students.";
@@ -54,13 +55,19 @@ public class FindNoteCommand extends Command {
 
     private String formatResults(List<Person> matchingStudents) {
         List<String> lines = new ArrayList<>();
-        lines.add(String.format(MESSAGE_STUDENTS_FOUND, matchingStudents.size(), predicate.getText()));
+        lines.add(formatHeader(matchingStudents.size()));
         for (int i = 0; i < matchingStudents.size(); i++) {
             Person student = matchingStudents.get(i);
             String noteNumbers = formatNoteNumbers(student);
             lines.add(String.format(MESSAGE_STUDENT_LINE, i + 1, student.getName(), noteNumbers));
         }
         return String.join(System.lineSeparator(), lines);
+    }
+
+    private String formatHeader(int studentCount) {
+        return studentCount == 1
+                ? String.format(MESSAGE_ONE_STUDENT_FOUND, predicate.getText())
+                : String.format(MESSAGE_STUDENTS_FOUND, studentCount, predicate.getText());
     }
 
     private String formatNoteNumbers(Person student) {

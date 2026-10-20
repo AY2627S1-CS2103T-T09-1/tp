@@ -37,7 +37,7 @@ public class FindNoteCommandTest {
     public void execute_someStudentsMatch_showsStudentsAndNoteNumbers() {
         NoteContainsTextPredicate predicate = new NoteContainsTextPredicate("algebra");
         String expectedMessage = String.join(System.lineSeparator(),
-                "2 student(s) with notes containing \"algebra\":",
+                "2 students with notes containing \"algebra\":",
                 "1. Chloe Tan: notes 1, 3",
                 "2. Marcus Lim: note 2");
         expectedModel.updateFilteredPersonList(predicate);
@@ -45,6 +45,19 @@ public class FindNoteCommandTest {
         assertCommandSuccess(new FindNoteCommand(predicate), model, CommandResult.showList(expectedMessage),
                 expectedModel);
         assertEquals(List.of(CHLOE, MARCUS), model.getFilteredPersonList());
+    }
+
+    @Test
+    public void execute_oneStudentMatches_usesSingular() {
+        NoteContainsTextPredicate predicate = new NoteContainsTextPredicate("geometry");
+        String expectedMessage = String.join(System.lineSeparator(),
+                "1 student with notes containing \"geometry\":",
+                "1. Chloe Tan: note 2");
+        expectedModel.updateFilteredPersonList(predicate);
+
+        assertCommandSuccess(new FindNoteCommand(predicate), model, CommandResult.showList(expectedMessage),
+                expectedModel);
+        assertEquals(List.of(CHLOE), model.getFilteredPersonList());
     }
 
     @Test
