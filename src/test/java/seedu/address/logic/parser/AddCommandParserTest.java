@@ -111,6 +111,7 @@ public class AddCommandParserTest {
                 .withName("John Doe")
                 .withoutPhone()
                 .withSchool("Victoria School")
+                .withLevel("S2")
                 .withSubjects(new Subject("Additional Mathematics", Band.G2))
                 .withGuardian("Mary Jane", VALID_GUARDIAN_PHONE_BOB)
                 .build();
