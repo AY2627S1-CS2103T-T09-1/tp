@@ -225,7 +225,7 @@ Format: `deletenote INDEX nid/NID`
 * `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
 * `NID` is the number shown before the note in the student detail view. It must be a positive integer, such as 1, 2, or 3. To see a student's notes and their NIDs, use `view INDEX`.
 * After you delete a note, the notes after it move up one number. For example, if a student has 3 notes and you delete note 2, the old note 3 becomes note 2. Check the student detail view for the new numbers before you delete another note.
-* Deleting a note does not change which students are shown.
+* Deleting a note does not change which students are shown, except after `findnote`: if you delete a student's last note that contains the search text, that student leaves the list and the students after them move up one index.
 * After `view`, use the index shown at the top of the student detail view when running `deletenote`.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
@@ -284,6 +284,7 @@ Format: `findnote TEXT`
 * `TEXT` must be at most 500 characters long, the same as a note. Spaces before and after the text are removed and not counted.
 * The search checks notes only.
 * The student list shows only the matching students. The result box lists each one with the numbers of their matching notes. You can use these with `view` and `deletenote`, such as `deletenote 1 nid/3`.
+* The note numbers in the result box do not update when you delete a note. For example, if the result shows `1. Chloe Tan: notes 2, 4` and you run `deletenote 1 nid/2`, Chloe's old note 4 becomes note 3, so `deletenote 1 nid/4` no longer refers to it. To delete several matching notes, delete the highest-numbered one first, or run `findnote` again after each delete.
 * If no student matches, the student list is empty and a message tells you how to see all students again.
 * Enter `list` to return to the full student list.
 
