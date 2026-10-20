@@ -129,7 +129,7 @@ Format: `view INDEX`
 * The index must be a positive integer, such as 1, 2, or 3.
 * The current search results are preserved while you view the student.
 * Entering `view` again replaces the current student record instead of opening another panel.
-* Enter `list` to return to the full student list, or `find` to display new search results.
+* Enter `list` to return to the full student list, or `filter` to display new search results.
 * Commands that add or delete students return to the student list after they succeed. `edit` keeps the current list and student record. If the open record is the student you edited, it shows the changes. A confirmed `clear`, or `clear -f`, also returns to the (cleared) student list.
 * Help and invalid commands leave the student record visible.
 
@@ -147,7 +147,7 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT ban
 * Supplying subject-band pairs replaces the entire subject list; omitting them preserves existing subjects. The replacement list must contain at least 1 subject and a maximum of 8 distinct subjects, following the same pairing and validation rules as `add`. Notes are preserved when editing a student.
 * `PHONE` and `GUARDIAN_PHONE` follow the same rules as in `add`, so `p/9123 4567` is saved as `91234567`. The warning about a number not looking like a Singapore number only appears when you type `p/` or `gp/` in that command.
 * You can remove a person's phone number by typing `p/` without specifying any number after it.
-* The displayed list and any open student record stay as they are, so the other students keep their index numbers. If the edited student no longer matches your last `find`, they stay in the list until you enter `list` or `find` again. The result box tells you when an edit makes a student stop matching.
+* The displayed list and any open student record stay as they are, so the other students keep their index numbers. If the edited student no longer matches your last `filter`, they stay in the list until you enter `list` or `filter` again. The result box tells you when an edit makes a student stop matching.
 * If the student already has a guardian, `gn/` or `gp/` on its own changes just that part of the guardian.
 * If the student has no guardian yet, give both `gn/` and `gp/` to add one. Giving only one of them shows `This person has no guardian yet. Give both gn/ and gp/ to add one.`
 * You can remove the guardian by typing `gn/ gp/` with no values after either. Leaving only one of them empty, such as `gn/` alone or `gn/ gp/91234567`, is rejected so that the guardian is not removed by mistake. If the student has no guardian, `gn/ gp/` shows `This person has no guardian to remove.`
@@ -250,11 +250,11 @@ The student has no notes | `{NAME} has no notes to delete.`
 `nid/` appears more than once | `Multiple values specified for the following single-valued field(s): nid/`
 `INDEX` or `nid/NID` is missing, or there is no space before `nid/` | `Invalid command format!` followed by how to use `deletenote`
 
-### Finding students by name: `find`
+### Filtering students by name: `filter`
 
 Shows the students whose names contain the given text.
 
-Format: `find n/NAME`
+Format: `filter n/NAME`
 
 * `NAME` can be any part of a name, even part of a word. For example, `avi` matches `David Lim`.
 * The search is not case-sensitive. For example, `n/DAVID` matches `David Lim`.
@@ -266,9 +266,9 @@ Format: `find n/NAME`
 * Enter `list` to return to the full student list.
 
 Examples:
-* `find n/loe tan` returns `SAMPLE Chloe Tan`
-* `find n/c` returns `SAMPLE Chloe Tan` and `SAMPLE Marcus Lim` from the sample student list.<br>
-  ![Results for find c](images/findChloeMarcusResult.png)
+* `filter n/loe tan` returns `SAMPLE Chloe Tan`
+* `filter n/c` returns `SAMPLE Chloe Tan` and `SAMPLE Marcus Lim` from the sample student list.<br>
+  ![Results for filter c](images/findChloeMarcusResult.png)
 
 ### Deleting a student: `delete`
 
@@ -278,7 +278,7 @@ Format: `delete INDEX`
 
 * `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
 * After `view`, use the index shown at the top of the student detail view when running `delete`.
-* After a student is deleted, the student list shows all remaining students, even if you used `find` before. The index numbers of the remaining students may change, so check the list before you run another command that uses an index.
+* After a student is deleted, the student list shows all remaining students, even if you used `filter` before. The index numbers of the remaining students may change, so check the list before you run another command that uses an index.
 * If the student detail view was open, it closes and the student list is shown.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
@@ -288,7 +288,7 @@ Format: `delete INDEX`
 Examples:
 
 * `list` followed by `delete 2` deletes the 2nd student in the full student list.
-* `find n/Tan` followed by `delete 1` deletes the 1st student in the search results.
+* `filter n/Tan` followed by `delete 1` deletes the 1st student in the search results.
 
 If the command is wrong, `delete` shows one of these messages and does not delete any student.
 
@@ -381,6 +381,6 @@ Action | Format, Examples
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
 **Delete note** | `deletenote INDEX nid/NID`<br> e.g., `deletenote 1 nid/2`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `edit 2 sub/Mathematics band/G2 sub/English band/G3`, `edit 1 gn/ gp/`
-**Find** | `find n/NAME`<br> e.g., `find n/avi`
+**Filter** | `filter n/NAME`<br> e.g., `filter n/avi`
 **List** | `list`
 **Help** | `help`
