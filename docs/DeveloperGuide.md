@@ -114,10 +114,6 @@ How the parsing works:
 * When called upon to parse a user command, the `AddressBookParser` class creates an `XYZCommandParser` (`XYZ` is a placeholder for the specific command name, e.g., `AddCommandParser`). The parser uses the other classes shown above to parse the user command and create an `XYZCommand` object (e.g., `AddCommand`). The `AddressBookParser` returns that object as a `Command` object.
 * All `XYZCommandParser` classes, such as `AddCommandParser` and `DeleteCommandParser`, implement the `Parser` interface so they can be treated similarly where appropriate, for example during testing.
 
-### Command confirmations
-
-`ClearCommand`, `DeleteCommand`, and `DeleteNoteCommand` implement `ConfirmationCommand`. Before running one of these commands, `LogicManager` asks it whether a prompt is needed. `ConfirmationManager` stores the command and returns a warning `CommandResult`, which the UI displays in yellow. The next input `y` runs the stored command and saves the result; `n` discards it. Any other input leaves the request pending and returns a reminder. These destructive commands accept `-f` to execute without prompting.
-
 ### Model component
 **API** : [`Model.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/model/Model.java)
 
@@ -550,11 +546,17 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case ends.
 
-* 5b. Tutor enters anything other than `y` or `n`.
+* 5b. Tutor enters any other command instead of confirming or cancelling.
 
-    * 5b1. TuteeBook3 keeps the pending deletion and reminds Tutor to enter `y` or `n`.
+    * 5b1. TuteeBook3 discards the pending deletion request, then processes the new command as normal.
 
-      Use case resumes at step 5.
+      Use case ends.
+
+* 5c. Tutor's confirmation does not match the pending request.
+
+    * 5c1. TuteeBook3 discards the pending request and shows an error message that there is no matching deletion request.
+
+      Use case resumes at step 3.
 
 * 6a. TuteeBook3 fails to save the change.
 
@@ -729,8 +731,7 @@ Use case ends.
 1.  Tutor requests to view a specific student by index
 2.  TuteeBook3 shows the student's record with numbered notes
 3.  Tutor requests to delete a specific note, giving the student's index and NID
-4.  TuteeBook3 asks Tutor to confirm deleting the note.
-5.  Tutor confirms, and TuteeBook3 deletes the note, renumbers the remaining notes, and shows a success message.
+4.  TuteeBook3 deletes the note, renumbers the remaining notes, and shows a confirmation message
 
     Use case ends.
 
@@ -751,12 +752,6 @@ Use case ends.
     * 3a1. TuteeBook3 shows an error message.
 
       Use case resumes at step 2.
-
-* 4a. Tutor cancels the deletion.
-
-    * 4a1. TuteeBook3 keeps the note and reports that no changes were made.
-
-      Use case ends.
 
 ---
 
@@ -811,8 +806,8 @@ Use case ends.
 1.  Tutor requests to list students
 2.  TuteeBook3 shows the students, including the sample students
 3.  Tutor requests to clear all students
-4.  TuteeBook3 warns that all students and notes will be deleted, and asks Tutor to enter `y` or `n`
-5.  Tutor enters `y`
+4.  TuteeBook3 warns that all students and notes will be deleted, and asks Tutor to type `clear` again
+5.  Tutor requests to clear all students again
 6.  TuteeBook3 removes all students and their notes
 7.  TuteeBook3 shows an empty roster
 
@@ -833,11 +828,11 @@ Use case ends.
 
       Use case ends.
 
-* 5a. Tutor enters anything other than `y` or `n`.
+* 5a. Tutor enters any other command instead of confirming.
 
-    * 5a1. TuteeBook3 keeps the pending `clear` request and reminds Tutor to enter `y` or `n`.
+    * 5a1. TuteeBook3 cancels the pending `clear` request and processes the new input as usual.
 
-      Use case resumes at step 5.
+      Use case ends.
 
 ### Non-Functional Requirements
 

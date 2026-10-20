@@ -1,8 +1,6 @@
 package seedu.address.logic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.Messages.MESSAGE_UNKNOWN_COMMAND;
 import static seedu.address.logic.commands.CommandTestUtil.LEVEL_DESC_AMY;
@@ -25,7 +23,6 @@ import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.ClearCommand;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.DeleteCommand;
-import seedu.address.logic.commands.DeleteNoteCommand;
 import seedu.address.logic.commands.ExitCommand;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
@@ -44,8 +41,6 @@ import seedu.address.testutil.PersonBuilder;
 public class LogicManagerTest {
     private static final IOException DUMMY_IO_EXCEPTION = new IOException("dummy IO exception");
     private static final IOException DUMMY_AD_EXCEPTION = new AccessDeniedException("dummy access denied exception");
-    private static final CommandResult CLEAR_CONFIRMATION_RESULT = CommandResult.warning(
-            ClearCommand.MESSAGE_CONFIRMATION + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX);
 
     @TempDir
     public Path temporaryFolder;
@@ -96,16 +91,17 @@ public class LogicManagerTest {
         logic.execute(ListCommand.COMMAND_WORD);
         String expectedStoredData = Files.readString(addressBookFile);
 
-        assertCommandSuccess(ClearCommand.COMMAND_WORD, CLEAR_CONFIRMATION_RESULT, expectedModel);
+        assertCommandSuccess(ClearCommand.COMMAND_WORD,
+                CommandResult.warning(ClearCommand.MESSAGE_CONFIRMATION), expectedModel);
         assertEquals(expectedStoredData, Files.readString(addressBookFile));
     }
 
     @Test
-    public void execute_clearConfirmed_clearsAddressBook() throws Exception {
+    public void execute_secondConsecutiveClear_clearsAddressBook() throws Exception {
         model.addPerson(AMY);
         logic.execute(ClearCommand.COMMAND_WORD);
 
-        assertCommandSuccess("y",
+        assertCommandSuccess(ClearCommand.COMMAND_WORD,
                 CommandResult.showList(ClearCommand.MESSAGE_SUCCESS), new ModelManager());
     }
 
@@ -121,7 +117,6 @@ public class LogicManagerTest {
     public void execute_clearThenForcedClear_clearsAddressBook() throws Exception {
         model.addPerson(AMY);
         logic.execute(ClearCommand.COMMAND_WORD);
-        logic.execute("n");
 
         assertCommandSuccess(ClearCommand.COMMAND_WORD + " " + ClearCommand.FORCE_OPTION,
                 CommandResult.showList(ClearCommand.MESSAGE_SUCCESS), new ModelManager());
@@ -137,81 +132,25 @@ public class LogicManagerTest {
     }
 
     @Test
-    public void execute_invalidConfirmationResponse_keepsPendingAndDoesNotChangeModel() throws Exception {
+    public void execute_clearThenOtherCommand_cancelsConfirmation() throws Exception {
         model.addPerson(AMY);
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         logic.execute(ClearCommand.COMMAND_WORD);
-        assertCommandSuccess("maybe", CommandResult.warning(ConfirmationManager.MESSAGE_INVALID_RESPONSE),
-                expectedModel);
+        logic.execute(ListCommand.COMMAND_WORD);
 
-        assertCommandSuccess("n", ConfirmationManager.MESSAGE_CANCELLED, expectedModel);
+        assertCommandSuccess(ClearCommand.COMMAND_WORD,
+                CommandResult.warning(ClearCommand.MESSAGE_CONFIRMATION), expectedModel);
     }
 
     @Test
-    public void execute_noConfirmation_keepsAddressBookUnchanged() throws Exception {
+    public void execute_clearThenInvalidInput_cancelsConfirmation() throws Exception {
         model.addPerson(AMY);
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
-        Path addressBookFile = temporaryFolder.resolve("addressBook.json");
-        logic.execute(ListCommand.COMMAND_WORD);
-        String expectedStoredData = Files.readString(addressBookFile);
         logic.execute(ClearCommand.COMMAND_WORD);
-        assertCommandSuccess("n", ConfirmationManager.MESSAGE_CANCELLED, expectedModel);
-        assertEquals(expectedStoredData, Files.readString(addressBookFile));
-    }
+        assertParseException("unknownCommand", MESSAGE_UNKNOWN_COMMAND);
 
-    @Test
-    public void execute_deleteConfirmed_deletesSelectedStudent() throws Exception {
-        model.addPerson(AMY);
-        CommandResult prompt = logic.execute("delete 1");
-        assertTrue(prompt.isWarning());
-        assertEquals("This will delete " + AMY.getName() + " and all their notes. Continue?"
-                + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX, prompt.getFeedbackToUser());
-
-        Model expectedModel = new ModelManager();
-        assertCommandSuccess("y", CommandResult.showList(
-                String.format(DeleteCommand.MESSAGE_DELETE_STUDENT_SUCCESS, AMY.getName())), expectedModel);
-        model.addPerson(AMY);
-        assertCommandSuccess("delete -f 1", CommandResult.showList(String.format(
-                DeleteCommand.MESSAGE_DELETE_STUDENT_SUCCESS, AMY.getName())), new ModelManager());
-    }
-
-    @Test
-    public void execute_deleteAndDeleteNoteCancelled_leaveDataAndStorageUnchanged() throws Exception {
-        Person personWithNote = new PersonBuilder(AMY).withNotes("Review algebra").build();
-        model.addPerson(personWithNote);
-        Path addressBookFile = temporaryFolder.resolve("addressBook.json");
-        logic.execute(ListCommand.COMMAND_WORD);
-        String initialStoredData = Files.readString(addressBookFile);
-        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
-
-        logic.execute("delete 1");
-        assertCommandSuccess("n", ConfirmationManager.MESSAGE_CANCELLED, expectedModel);
-        assertEquals(initialStoredData, Files.readString(addressBookFile));
-
-        logic.execute("deletenote 1 nid/1");
-        assertCommandSuccess("n", ConfirmationManager.MESSAGE_CANCELLED, expectedModel);
-        assertEquals(initialStoredData, Files.readString(addressBookFile));
-    }
-
-    @Test
-    public void execute_deleteNoteConfirmed_deletesSelectedNote() throws Exception {
-        Person personWithNote = new PersonBuilder(AMY).withNotes("Review algebra").build();
-        model.addPerson(personWithNote);
-        CommandResult prompt = logic.execute("deletenote 1 nid/1");
-        assertTrue(prompt.isWarning());
-        assertEquals("This will delete note 1 from " + AMY.getName() + ". Continue?"
-                + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX, prompt.getFeedbackToUser());
-
-        Model expectedModel = new ModelManager();
-        expectedModel.addPerson(new PersonBuilder(personWithNote).withNotes().build());
-        assertCommandSuccess("y", new CommandResult(String.format(DeleteNoteCommand.MESSAGE_SUCCESS,
-                1, AMY.getName(), personWithNote.getNotes().getFirst())),
-                expectedModel);
-        logic.execute("addnote 1 t/Review geometry");
-        CommandResult forcedResult = logic.execute("deletenote -f 1 nid/1");
-        assertFalse(forcedResult.isWarning());
-        assertEquals(String.format(DeleteNoteCommand.MESSAGE_SUCCESS, 1, AMY.getName(), "Review geometry"),
-                forcedResult.getFeedbackToUser());
+        assertCommandSuccess(ClearCommand.COMMAND_WORD,
+                CommandResult.warning(ClearCommand.MESSAGE_CONFIRMATION), expectedModel);
     }
 
     @Test
@@ -221,7 +160,8 @@ public class LogicManagerTest {
         model.addPerson(AMY);
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
 
-        assertCommandSuccess(ClearCommand.COMMAND_WORD, CLEAR_CONFIRMATION_RESULT, expectedModel);
+        assertCommandSuccess(ClearCommand.COMMAND_WORD,
+                CommandResult.warning(ClearCommand.MESSAGE_CONFIRMATION), expectedModel);
     }
 
     @Test
@@ -237,7 +177,8 @@ public class LogicManagerTest {
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.updateFilteredPersonList(unused -> false);
 
-        assertCommandSuccess(ClearCommand.COMMAND_WORD, CLEAR_CONFIRMATION_RESULT, expectedModel);
+        assertCommandSuccess(ClearCommand.COMMAND_WORD,
+                CommandResult.warning(ClearCommand.MESSAGE_CONFIRMATION), expectedModel);
     }
 
     @Test

@@ -16,11 +16,11 @@ import seedu.address.model.UserPrefs;
 public class ClearCommandTest {
 
     @Test
-    public void execute_emptyAddressBook_showsAlreadyEmptyMessage() {
+    public void execute_emptyAddressBook_success() {
         Model model = new ModelManager();
         Model expectedModel = new ModelManager();
 
-        assertCommandSuccess(new ClearCommand(), model, new CommandResult(ClearCommand.MESSAGE_EMPTY),
+        assertCommandSuccess(new ClearCommand(), model, CommandResult.showList(ClearCommand.MESSAGE_SUCCESS),
                 expectedModel);
     }
 
