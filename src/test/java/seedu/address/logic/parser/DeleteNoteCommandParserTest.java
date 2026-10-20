@@ -27,6 +27,12 @@ public class DeleteNoteCommandParserTest {
     }
 
     @Test
+    public void parse_forceOption_returnsForcedDeleteNoteCommand() {
+        assertParseSuccess(parser, "-f 1 nid/2",
+                new DeleteNoteCommand(INDEX_FIRST_PERSON, Index.fromOneBased(2), true));
+    }
+
+    @Test
     public void parse_maxIntNid_returnsDeleteNoteCommand() {
         assertParseSuccess(parser, "1 nid/2147483647",
                 new DeleteNoteCommand(INDEX_FIRST_PERSON, Index.fromOneBased(Integer.MAX_VALUE)));

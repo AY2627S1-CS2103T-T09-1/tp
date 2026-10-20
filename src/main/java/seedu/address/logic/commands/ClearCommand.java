@@ -9,7 +9,7 @@ import seedu.address.model.Model;
 /**
  * Clears the address book.
  */
-public class ClearCommand extends Command {
+public class ClearCommand extends Command implements ConfirmationCommand {
 
     public static final String COMMAND_WORD = "clear";
     public static final String FORCE_OPTION = "-f";
@@ -22,8 +22,7 @@ public class ClearCommand extends Command {
             + COMMAND_WORD + " (asks for confirmation)\n"
             + COMMAND_WORD + " " + FORCE_OPTION + " (clears immediately without confirmation)";
 
-    public static final String MESSAGE_CONFIRMATION =
-            "This will delete all students and notes. Type clear again to confirm.";
+    public static final String MESSAGE_CONFIRMATION = "This will delete all students and notes. Continue?";
     public static final String MESSAGE_EMPTY = "TuteeBook3 is already empty.";
     public static final String MESSAGE_SUCCESS = "TuteeBook3 has been cleared!";
 
@@ -43,13 +42,28 @@ public class ClearCommand extends Command {
         this.isForced = isForced;
     }
 
+    @Override
     public boolean isForced() {
         return isForced;
     }
 
     @Override
+    public String getConfirmationMessage(Model model) {
+        requireNonNull(model);
+        return model.getAddressBook().getPersonList().isEmpty() ? null : MESSAGE_CONFIRMATION;
+    }
+
+    @Override
+    public CommandResult executeConfirmed(Model model) {
+        return execute(model);
+    }
+
+    @Override
     public CommandResult execute(Model model) {
         requireNonNull(model);
+        if (model.getAddressBook().getPersonList().isEmpty()) {
+            return new CommandResult(MESSAGE_EMPTY);
+        }
         model.setAddressBook(new AddressBook());
         return CommandResult.showList(MESSAGE_SUCCESS);
     }

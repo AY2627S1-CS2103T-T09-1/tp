@@ -7,9 +7,9 @@ import java.util.logging.Logger;
 import javafx.collections.ObservableList;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
-import seedu.address.logic.commands.ClearCommand;
 import seedu.address.logic.commands.Command;
 import seedu.address.logic.commands.CommandResult;
+import seedu.address.logic.commands.ConfirmationCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.AddressBookParser;
 import seedu.address.logic.parser.exceptions.ParseException;
@@ -31,7 +31,7 @@ public class LogicManager implements Logic {
     private final Model model;
     private final Storage storage;
     private final AddressBookParser addressBookParser;
-    private boolean isClearConfirmationPending;
+    private final ConfirmationManager confirmationManager = new ConfirmationManager();
 
     /**
      * Constructs a {@code LogicManager} with the given {@code Model} and {@code Storage}.
@@ -46,29 +46,33 @@ public class LogicManager implements Logic {
     public CommandResult execute(String commandText) throws CommandException, ParseException {
         logger.info("----------------[USER COMMAND][" + commandText + "]");
 
-        Command command;
-        try {
-            command = addressBookParser.parseCommand(commandText);
-        } catch (ParseException e) {
-            isClearConfirmationPending = false;
-            throw e;
+        if (confirmationManager.hasPendingConfirmation()) {
+            String response = commandText.trim();
+            if (response.equalsIgnoreCase("y")) {
+                ConfirmationCommand confirmedCommand = confirmationManager.confirmPending().orElseThrow();
+                return executeAndSave(confirmedCommand.executeConfirmed(model));
+            }
+            if (response.equalsIgnoreCase("n")) {
+                return confirmationManager.cancelPending().orElseThrow();
+            }
+            return confirmationManager.invalidResponse();
         }
 
-        if (command instanceof ClearCommand clearCommand) {
-            if (model.getAddressBook().getPersonList().isEmpty()) {
-                isClearConfirmationPending = false;
-                return new CommandResult(ClearCommand.MESSAGE_EMPTY);
+        Command command = addressBookParser.parseCommand(commandText);
+        if (command instanceof ConfirmationCommand confirmableCommand) {
+            String confirmationMessage = confirmableCommand.getConfirmationMessage(model);
+            if (!confirmableCommand.isForced() && confirmationMessage != null) {
+                return confirmationManager.requestConfirmation(confirmableCommand, confirmationMessage);
             }
-            if (!clearCommand.isForced() && !isClearConfirmationPending) {
-                isClearConfirmationPending = true;
-                return CommandResult.warning(ClearCommand.MESSAGE_CONFIRMATION);
+            if (confirmableCommand.isForced() || confirmationMessage != null) {
+                return executeAndSave(confirmableCommand.executeConfirmed(model));
             }
         }
-        isClearConfirmationPending = false;
 
-        CommandResult commandResult;
-        commandResult = command.execute(model);
+        return executeAndSave(command.execute(model));
+    }
 
+    private CommandResult executeAndSave(CommandResult commandResult) throws CommandException {
         try {
             storage.saveAddressBook(model.getAddressBook());
         } catch (AccessDeniedException e) {
