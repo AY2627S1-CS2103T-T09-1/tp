@@ -2,6 +2,7 @@ package seedu.address.model.person;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static seedu.address.testutil.Assert.assertThrows;
 
 import java.util.List;
 import java.util.function.Predicate;
@@ -17,6 +18,11 @@ public class StudentMatchesAllPredicateTest {
 
     private final Person chloe = new PersonBuilder().withName("Chloe Tan")
             .withSchool("Bedok Green Secondary School").build();
+
+    @Test
+    public void constructor_emptyFilters_throwsAssertionError() {
+        assertThrows(AssertionError.class, () -> new StudentMatchesAllPredicate(List.of()));
+    }
 
     @Test
     public void test_allFiltersMatch_returnsTrue() {
