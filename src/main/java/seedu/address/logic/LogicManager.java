@@ -47,18 +47,30 @@ public class LogicManager implements Logic {
         logger.info("----------------[USER COMMAND][" + commandText + "]");
 
         if (confirmationManager.hasPendingConfirmation()) {
-            String response = commandText.trim();
-            if (response.equalsIgnoreCase("y")) {
-                ConfirmationCommand confirmedCommand = confirmationManager.confirmPending().orElseThrow();
+            ConfirmationCommand pendingCommand = confirmationManager.clearPending().orElseThrow();
+            if (commandText.trim().equals("CONFIRM")) {
+                ConfirmationCommand confirmedCommand = pendingCommand;
                 return executeAndSave(confirmedCommand.execute(model));
             }
-            if (response.equalsIgnoreCase("n")) {
-                return confirmationManager.cancelPending().orElseThrow();
+            String cancellationNotice = confirmationManager.getCancellationNotice(pendingCommand);
+            try {
+                return executeCommand(commandText).withCancellationNotice(cancellationNotice);
+            } catch (CommandException e) {
+                throw new CommandException(cancellationNotice + System.lineSeparator() + e.getMessage(), e);
+            } catch (ParseException e) {
+                throw new ParseException(cancellationNotice + System.lineSeparator() + e.getMessage(), e);
             }
-            return confirmationManager.invalidResponse();
         }
 
         Command command = addressBookParser.parseCommand(commandText);
+        return executeCommand(command);
+    }
+
+    private CommandResult executeCommand(String commandText) throws CommandException, ParseException {
+        return executeCommand(addressBookParser.parseCommand(commandText));
+    }
+
+    private CommandResult executeCommand(Command command) throws CommandException, ParseException {
         if (command instanceof ConfirmationCommand confirmableCommand) {
             String confirmationMessage = confirmableCommand.getConfirmationMessage(model);
             if (!confirmableCommand.isForced() && confirmationMessage != null) {

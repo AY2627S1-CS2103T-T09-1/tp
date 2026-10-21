@@ -56,6 +56,11 @@ public class DeleteCommand extends Command implements ConfirmationCommand {
     }
 
     @Override
+    public String getCommandWord() {
+        return COMMAND_WORD;
+    }
+
+    @Override
     public String getConfirmationMessage(Model model) throws CommandException {
         Person person = getTargetPerson(model);
         return "This will delete " + person.getName() + " and all their notes. Continue?";

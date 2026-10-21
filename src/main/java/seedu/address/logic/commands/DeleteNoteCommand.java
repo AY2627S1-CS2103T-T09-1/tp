@@ -59,6 +59,11 @@ public class DeleteNoteCommand extends Command implements ConfirmationCommand {
     }
 
     @Override
+    public String getCommandWord() {
+        return COMMAND_WORD;
+    }
+
+    @Override
     public String getConfirmationMessage(Model model) throws CommandException {
         Person person = getTargetPerson(model);
         verifyNoteExists(person);

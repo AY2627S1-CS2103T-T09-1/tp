@@ -20,6 +20,11 @@ public interface ConfirmationCommand {
     boolean isForced();
 
     /**
+     * Returns the command word used to identify this command in a cancellation message.
+     */
+    String getCommandWord();
+
+    /**
      * Returns the confirmation message, or {@code null} if confirmation is unnecessary.
      *
      * @throws CommandException if the requested operation is invalid.

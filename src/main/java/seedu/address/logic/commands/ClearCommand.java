@@ -48,6 +48,11 @@ public class ClearCommand extends Command implements ConfirmationCommand {
     }
 
     @Override
+    public String getCommandWord() {
+        return COMMAND_WORD;
+    }
+
+    @Override
     public String getConfirmationMessage(Model model) {
         requireNonNull(model);
         return model.getAddressBook().getPersonList().isEmpty() ? null : MESSAGE_CONFIRMATION;
