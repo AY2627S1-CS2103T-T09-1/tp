@@ -223,6 +223,65 @@ Each edit wraps the current filter, so after several edits in a row, every edite
   * Pros: Every student keeps their index number, and an open student record stays on the same student.
   * Cons: A student who no longer matches the search stays in the list until the next `filter` or `list`. The result box and the User Guide both say so, so the tutor is not left wondering why they are there.
 
+### Filtering students
+
+`filter` shows the students who match every filter the tutor gives, such as `filter lvl/S3 sub/Mathematics band/G2`.
+
+#### Implementation
+
+<img src="images/FilterClassDiagram.png" width="650" />
+
+1. `FilterCommandParser` splits the arguments at the filter prefixes `n/`, `sch/`, `lvl/`, `sub/`, `band/`, `p/`, `gn/`, and `gp/`. It also recognizes `t/` and `nid/`, only to reject them with a message that `filter` cannot search notes, so that they are not read as part of another value.
+1. It then checks, in order, that there is no text before the first prefix, that at least one filter is given, that no prefix is repeated, and that `band/` comes with `sub/`.
+1. It creates one `Predicate<Person>` for each filter given:
+
+   Prefix | Predicate | Matches when the student's…
+   -------|-----------|----------------------------
+   `n/` | `NameContainsKeywordsPredicate` | name contains the text
+   `sch/` | `SchoolContainsTextPredicate` | school contains the text
+   `lvl/` | `LevelMatchesPredicate` | level is that level
+   `sub/` [`band/`] | `SubjectMatchesPredicate` | subjects include that subject, at that band if given
+   `p/` | `PhoneMatchesPredicate` | own phone is that number
+   `gn/` | `GuardianNameContainsTextPredicate` | guardian's name contains the text
+   `gp/` | `GuardianPhoneMatchesPredicate` | guardian's phone is that number
+
+1. It wraps the predicates in a `StudentMatchesAllPredicate`, which returns `true` only if every predicate does, and returns a `FilterCommand` holding it.
+1. `FilterCommand#execute` passes the predicate to `Model#updateFilteredPersonList` and returns `CommandResult.showList(...)` with the number of students found, or a no-match message.
+
+The partial-match predicates (`n/`, `sch/`, `gn/`) use `StringUtil#containsIgnoreCaseAndSpaces`, which lowercases both strings and squeezes runs of whitespace before comparing. The exact-match filters are parsed first with the same `ParserUtil` methods as `add`, into a `Level`, `Band`, or `Phone`. So `lvl/s3` becomes `S3` and `p/+65 9123 4567` becomes `91234567`, the form in which they are stored, and the predicates can compare values directly. `SubjectMatchesPredicate` compares names with `Subject#hasName`, the same rule `add` uses to detect a repeated subject, and requires the band to belong to that same subject.
+
+#### Design considerations
+
+**Aspect: How to represent the filters**
+
+* **Alternative 1:** One predicate class with an optional field for each filter.
+  * Pros: Fewer classes.
+  * Cons: Every new filter changes the same constructor, `test`, and `equals`, and each matching rule can only be tested through the whole class.
+
+* **Alternative 2 (current choice):** One predicate class per filter, combined by `StudentMatchesAllPredicate`.
+  * Pros: Each matching rule is small and tested on its own. Adding a filter adds one class and one parser branch, without changing the others.
+  * Cons: More classes.
+
+**Aspect: Whether filters match part of a value or the whole value**
+
+* **Alternative 1:** Partial matching for every field.
+  * Pros: One rule for the tutor to learn.
+  * Cons: Short, fixed values become ambiguous: `sub/math` would match both Mathematics and Additional Mathematics, and `p/9123` would match every number containing those digits.
+
+* **Alternative 2 (current choice):** Partial matching for free text (name, school, guardian name), exact matching for fixed values (level, subject, band, phone).
+  * Pros: Tutors can type part of a name or school they half remember, while fixed values match only what they mean.
+  * Cons: Two rules to learn. The User Guide's filter table says which fields match partially.
+
+**Aspect: How several filters combine**
+
+* **Alternative 1:** A student matches if they match any filter (OR).
+  * Pros: Finds more students.
+  * Cons: Each extra filter widens the list, but tutors add filters to narrow it, such as all S3 students taking Mathematics.
+
+* **Alternative 2 (current choice):** A student must match every filter (AND).
+  * Pros: Each filter narrows the list, which fits planning a lesson for one group.
+  * Cons: To see two schools, the tutor runs `filter` twice.
+
 ### \[Proposed\] Undo/redo feature
 
 #### Proposed Implementation
