@@ -50,7 +50,7 @@ public class LogicManager implements Logic {
             String response = commandText.trim();
             if (response.equalsIgnoreCase("y")) {
                 ConfirmationCommand confirmedCommand = confirmationManager.confirmPending().orElseThrow();
-                return executeAndSave(confirmedCommand.executeConfirmed(model));
+                return executeAndSave(confirmedCommand.execute(model));
             }
             if (response.equalsIgnoreCase("n")) {
                 return confirmationManager.cancelPending().orElseThrow();
@@ -64,8 +64,8 @@ public class LogicManager implements Logic {
             if (!confirmableCommand.isForced() && confirmationMessage != null) {
                 return confirmationManager.requestConfirmation(confirmableCommand, confirmationMessage);
             }
-            if (confirmableCommand.isForced() || confirmationMessage != null) {
-                return executeAndSave(confirmableCommand.executeConfirmed(model));
+            if (confirmableCommand.isForced()) {
+                return executeAndSave(confirmableCommand.execute(model));
             }
         }
 

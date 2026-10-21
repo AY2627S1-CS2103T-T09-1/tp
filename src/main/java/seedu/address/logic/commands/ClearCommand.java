@@ -54,11 +54,6 @@ public class ClearCommand extends Command implements ConfirmationCommand {
     }
 
     @Override
-    public CommandResult executeConfirmed(Model model) {
-        return execute(model);
-    }
-
-    @Override
     public CommandResult execute(Model model) {
         requireNonNull(model);
         if (model.getAddressBook().getPersonList().isEmpty()) {

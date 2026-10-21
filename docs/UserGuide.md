@@ -243,7 +243,7 @@ If the command is wrong, `deletenote` shows one of these messages and does not c
 Problem | Message
 --------|--------
 `INDEX` is not a positive integer, such as `0` or `abc` | `Index must be a positive integer.`
-There is other text between `INDEX` and `nid/`, such as `deletenote 1 abc nid/2` | `Index must be a positive integer.`
+There is other text between `INDEX` and `nid/`, such as `deletenote 1 abc nid/2` | `Invalid command format!` followed by how to use `deletenote`
 `INDEX` is larger than the number of students shown | `The person index provided is invalid.`
 `NID` is empty or is not a positive integer, such as `0`, `-1`, or `abc` | `NID must be a positive integer.`
 The student has no notes | `{NAME} has no notes to delete.`

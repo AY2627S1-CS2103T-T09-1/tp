@@ -30,6 +30,12 @@ public class DeleteCommandParserTest {
     }
 
     @Test
+    public void parse_forceOptionWrongPositionOrCase_throwsParseException() {
+        assertParseFailure(parser, "1 -f", DeleteCommand.MESSAGE_INVALID_FORMAT);
+        assertParseFailure(parser, "-F 1", DeleteCommand.MESSAGE_INVALID_FORMAT);
+    }
+
+    @Test
     public void parse_validArgsWithWhitespace_returnsDeleteCommand() {
         assertParseSuccess(parser, "   1   ", new DeleteCommand(INDEX_FIRST_PERSON));
     }

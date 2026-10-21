@@ -62,11 +62,6 @@ public class DeleteCommand extends Command implements ConfirmationCommand {
     }
 
     @Override
-    public CommandResult executeConfirmed(Model model) throws CommandException {
-        return execute(model);
-    }
-
-    @Override
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
         Person personToDelete = getTargetPerson(model);

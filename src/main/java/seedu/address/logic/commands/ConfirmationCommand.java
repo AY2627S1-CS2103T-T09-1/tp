@@ -8,6 +8,13 @@ import seedu.address.model.Model;
  */
 public interface ConfirmationCommand {
     /**
+     * Executes this command.
+     *
+     * @throws CommandException if the requested operation cannot be completed.
+     */
+    CommandResult execute(Model model) throws CommandException;
+
+    /**
      * Returns whether this command should skip its confirmation prompt.
      */
     boolean isForced();
@@ -18,11 +25,4 @@ public interface ConfirmationCommand {
      * @throws CommandException if the requested operation is invalid.
      */
     String getConfirmationMessage(Model model) throws CommandException;
-
-    /**
-     * Executes this command after confirmation or when it is forced.
-     *
-     * @throws CommandException if the requested operation cannot be completed.
-     */
-    CommandResult executeConfirmed(Model model) throws CommandException;
 }
