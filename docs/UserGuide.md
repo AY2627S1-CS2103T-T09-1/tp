@@ -82,6 +82,7 @@ Adds a person to the address book.
 Format: `add n/NAME [p/PHONE] sch/SCHOOL lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]`
 
 * The phone number is optional, since younger students may not have their own phone.
+* When you add a student, TuteeBook3 trims leading and trailing spaces and collapses repeated ordinary spaces to one in the name, school, subject names, and guardian name. It keeps the capitalization you enter. For example, `add n/John  Doe sch/Victoria  School lvl/S3 sub/Additional  Mathematics band/G1` stores `John Doe`, `Victoria School`, and `Additional Mathematics`.
 * `PHONE` is the number you use to reach the student. It can only contain digits, with an optional `+` at the start, and must have 3 to 15 digits, counting the country code. You can type spaces or hyphens (`-`), such as `9123 4567` or `9123-4567`, and they are removed when it is saved. Other dashes, such as `–`, are not allowed.
 * A Singapore number (8 digits starting with 6, 8, or 9) is saved as those 8 digits. A leading `+65` is removed, so `+65 9123 4567` is saved as `91234567`. If what follows `+65` isn't a Singapore number, the `+65` is kept.
 * For an overseas number, type `+` and the country code, such as `+60 12-345 6789`. For Singapore, type `+65`, not `65`.
@@ -95,7 +96,7 @@ Each student and guardian has one phone number, which is the number you use to r
 </div>
 
 * Each student must have at least 1 subject and a maximum of 8 distinct subjects. Each `sub/SUBJECT` must be immediately followed by its `band/BAND`.
-* `SUBJECT` accepts 1–40 characters: letters, spaces, and hyphens, with at least one letter. Surrounding spaces are trimmed; entered capitalization and internal spaces are retained for display.
+* `SUBJECT` accepts 1–40 characters: letters, spaces, and hyphens, with at least one letter. Surrounding spaces are trimmed and repeated ordinary spaces are collapsed to one; entered capitalization is retained for display.
 * `BAND` accepts `G1`, `G2`, or `G3`, ignoring case and surrounding spaces. Bands are displayed in uppercase, for example `Mathematics (G1)`.
 * A subject name cannot appear twice, even with different bands. Duplicate checks ignore case and repeated internal spaces, so `Additional Mathematics` and `additional  mathematics` are the same subject.
 * `LEVEL` must be one of `S1`, `S2`, `S3`, `S4` or `S5`. It is not case-sensitive, so `s3` also works.
