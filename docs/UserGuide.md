@@ -81,6 +81,7 @@ Adds a person to the address book.
 
 Format: `add n/NAME [p/PHONE] sch/SCHOOL lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]`
 
+* `NAME` can contain only letters, digits, and spaces. Symbols such as `/`, `-`, and `'` aren't supported yet, so type `Rajesh s/o Kumar` as `Rajesh so Kumar`.
 * The phone number is optional, since younger students may not have their own phone.
 * `PHONE` is the number you use to reach the student. It can only contain digits, with an optional `+` at the start, and must have 3 to 15 digits, counting the country code. You can type spaces or hyphens (`-`), such as `9123 4567` or `9123-4567`, and they are removed when it is saved. Other dashes, such as `–`, are not allowed.
 * A Singapore number (8 digits starting with 6, 8, or 9) is saved as those 8 digits. A leading `+65` is removed, so `+65 9123 4567` is saved as `91234567`. If what follows `+65` isn't a Singapore number, the `+65` is kept.
@@ -99,6 +100,21 @@ Each student and guardian has one phone number, which is the number you use to r
 * `BAND` accepts `G1`, `G2`, or `G3`, ignoring case and surrounding spaces. Bands are displayed in uppercase, for example `Mathematics (G1)`.
 * A subject name cannot appear twice, even with different bands. Duplicate checks ignore case and repeated internal spaces, so `Additional Mathematics` and `additional  mathematics` are the same subject.
 * `LEVEL` must be one of `S1`, `S2`, `S3`, `S4` or `S5`. It is not case-sensitive, so `s3` also works.
+
+If the command is wrong, `add` shows one of these messages and does not add the student. If there is more than one problem, `add` reports only the first, checking in this order: text before the first parameter, missing parameters, repeated parameters, and then each value in the order `NAME`, `PHONE`, `SCHOOL`, `LEVEL`, subjects, and guardian.
+
+Problem | Message
+--------|--------
+There are no parameters at all, or there is text between `add` and the first parameter, such as `add John Doe sch/Victoria School ...` | `Invalid command format!` followed by how to use `add`
+`n/`, `sch/`, `lvl/`, or `sub/` is missing, or has no space before it | Every missing one is named, such as `Missing required parameters: sch/, lvl/.`
+`n/`, `p/`, `sch/`, `lvl/`, `gn/`, or `gp/` appears more than once | `Multiple values specified for the following single-valued field(s): p/`
+`NAME` is invalid | `Names should only contain alphanumeric characters and spaces, and should not be blank`
+`SCHOOL` is invalid | `School names must be 1-100 characters and contain at least one letter.`
+`LEVEL` is not S1 to S5 | `Level must be one of S1, S2, S3, S4, S5.`
+Only one of `gn/` and `gp/` is given | `Guardian name (gn/) and guardian phone (gp/) must be given together.`
+A student with exactly the same name, including capitalization and spaces, already exists | `This student already exists in TuteeBook3.`
+`PHONE` or `GUARDIAN_PHONE` is invalid | The message says why, as described above
+A subject or band is wrong | See [Subject and band errors](#subject-and-band-errors)
 
 Examples:
 
@@ -171,7 +187,7 @@ The following errors apply to subject-band input in `add` and `edit`. For `edit`
 
 | Problem | Message |
 | --- | --- |
-| No `sub/` in `add`, or `band/` supplied alone in `edit` | `Missing required parameter: sub/.` |
+| No `sub/` in `add`, or `band/` supplied alone in `edit` | `Missing required parameter: sub/.` In `add`, any other missing parameters are listed too, such as `Missing required parameters: lvl/, sub/.` |
 | Missing, misplaced, or repeated `band/` within a pair | `Each sub/ must be immediately followed by one band/.` |
 | Empty band or a value other than G1, G2, or G3 | `Band must be one of G1, G2, G3.` |
 | Invalid subject name | `Subjects must be 1-40 characters using only letters, spaces and hyphens, with at least one letter.` |
