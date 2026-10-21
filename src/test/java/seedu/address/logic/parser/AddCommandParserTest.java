@@ -58,7 +58,7 @@ public class AddCommandParserTest {
     @Test
     public void parse_invalidSchool_failure() {
         String person = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB;
-        String missingSchoolMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddCommand.MESSAGE_USAGE);
+        String missingSchoolMessage = "Missing required parameter: sch/.";
         assertParseFailure(parser, person + SUBJECT_DESC, missingSchoolMessage);
         assertParseFailure(parser, person + "sch/Victoria School" + SUBJECT_DESC, missingSchoolMessage);
         assertParseFailure(parser, person + " sch/  " + SUBJECT_DESC, School.MESSAGE_CONSTRAINTS);
@@ -228,14 +228,43 @@ public class AddCommandParserTest {
     public void parse_compulsoryFieldMissing_failure() {
         assertParseFailure(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB,
                 "Missing required parameter: sub/.");
-        String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddCommand.MESSAGE_USAGE);
-
-        // missing name prefix
-        assertParseFailure(parser, LEVEL_DESC_BOB + SCHOOL_DESC_BOB + VALID_NAME_BOB + PHONE_DESC_BOB
-                + SUBJECT_DESC, expectedMessage);
 
         // missing level prefix
-        assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + SCHOOL_DESC_BOB + SUBJECT_DESC, expectedMessage);
+        assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + SCHOOL_DESC_BOB + SUBJECT_DESC,
+                "Missing required parameter: lvl/.");
+    }
+
+    @Test
+    public void parse_missingName_failure() {
+        assertParseFailure(parser, SCHOOL_DESC_BOB + LEVEL_DESC_BOB + PHONE_DESC_BOB + SUBJECT_DESC,
+                "Missing required parameter: n/.");
+    }
+
+    @Test
+    public void parse_missingSchoolAndLevel_failure() {
+        assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + SUBJECT_DESC,
+                "Missing required parameters: sch/, lvl/.");
+    }
+
+    @Test
+    public void parse_allRequiredMissing_failure() {
+        assertParseFailure(parser, PHONE_DESC_BOB, "Missing required parameters: n/, sch/, lvl/, sub/.");
+    }
+
+    @Test
+    public void parse_noParameters_showsUsage() {
+        String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddCommand.MESSAGE_USAGE);
+        assertParseFailure(parser, "", expectedMessage);
+        assertParseFailure(parser, PREAMBLE_WHITESPACE, expectedMessage);
+    }
+
+    @Test
+    public void parse_preambleWithMissingPrefix_failure() {
+        String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddCommand.MESSAGE_USAGE);
+
+        // name typed without n/
+        assertParseFailure(parser, VALID_NAME_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB + SUBJECT_DESC,
+                expectedMessage);
 
         // all prefixes missing
         assertParseFailure(parser, VALID_NAME_BOB + VALID_PHONE_BOB + SUBJECT_DESC, expectedMessage);
