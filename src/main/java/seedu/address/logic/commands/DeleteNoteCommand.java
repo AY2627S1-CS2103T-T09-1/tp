@@ -21,7 +21,7 @@ public class DeleteNoteCommand extends Command {
     public static final String COMMAND_WORD = "deletenote";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD
-            + ": Deletes the note numbered NID from the person at INDEX.\n"
+            + ": Deletes the note numbered NID from the student at INDEX.\n"
             + "Parameters: INDEX (must be a positive integer) nid/NID (must be a positive integer)\n"
             + "Example: " + COMMAND_WORD + " 1 nid/2";
 
