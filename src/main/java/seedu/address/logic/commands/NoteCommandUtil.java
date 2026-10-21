@@ -2,6 +2,7 @@ package seedu.address.logic.commands;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.exceptions.CommandException;
+import seedu.address.model.Model;
 import seedu.address.model.person.Person;
 
 /**
@@ -31,5 +32,26 @@ class NoteCommandUtil {
             throw new CommandException(String.format(MESSAGE_NID_NOT_FOUND, nid.getOneBased(),
                     person.getName(), noteCount, noteWord));
         }
+    }
+
+    /**
+     * Replaces {@code person} with {@code editedPerson} in {@code model}, keeping the edited person at the
+     * same index in the filtered list even if their notes no longer match the current search.
+     *
+     * @param model Model that holds {@code person}.
+     * @param person Person to replace.
+     * @param editedPerson Person with the changed notes.
+     * @param successMessage Message to show after the change.
+     * @return {@code successMessage}, followed by a line saying the edited person no longer matches the
+     *         last search if that is the case.
+     */
+    static String setPersonKeepingIndex(Model model, Person person, Person editedPerson, String successMessage) {
+        boolean isOutsideFilter = model.keepPersonInFilteredList(editedPerson);
+        model.setPerson(person, editedPerson);
+        if (!isOutsideFilter) {
+            return successMessage;
+        }
+        return successMessage + "\n"
+                + String.format(EditCommand.MESSAGE_NO_LONGER_MATCHES, editedPerson.getName());
     }
 }

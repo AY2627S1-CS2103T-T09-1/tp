@@ -10,6 +10,9 @@ import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
+import java.util.List;
+import java.util.function.Predicate;
+
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.index.Index;
@@ -31,6 +34,10 @@ public class EditNoteCommandTest {
     private static final Index NID_FIRST = Index.fromOneBased(1);
     private static final Index NID_SECOND = Index.fromOneBased(2);
     private static final Index NID_THIRD = Index.fromOneBased(3);
+
+    // stands in for a search by note text, which no command offers yet
+    private static final Predicate<Person> HAS_ALGEBRA_NOTE =
+            person -> person.getNotes().contains(new Note(NOTE_ALGEBRA));
 
     private final Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
 
@@ -108,6 +115,56 @@ public class EditNoteCommandTest {
 
         assertCommandSuccess(new EditNoteCommand(INDEX_FIRST_PERSON, NID_FIRST, new Note(NOTE_IMPROVING)),
                 model, expectedMessage, expectedModel);
+    }
+
+    @Test
+    public void execute_filteredByNoteNoLongerMatches_staysAtSameIndex() {
+        Person first = addNotesToPerson(INDEX_FIRST_PERSON, NOTE_ALGEBRA);
+        Person second = addNotesToPerson(INDEX_SECOND_PERSON, NOTE_ALGEBRA);
+        model.updateFilteredPersonList(HAS_ALGEBRA_NOTE);
+        Person editedFirst = new PersonBuilder(first).withNotes(NOTE_CALCULATOR).build();
+        String expectedMessage = String.format(EditNoteCommand.MESSAGE_SUCCESS, 1, first.getName(),
+                NOTE_ALGEBRA, NOTE_CALCULATOR)
+                + "\n" + String.format(EditCommand.MESSAGE_NO_LONGER_MATCHES, first.getName());
+
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        expectedModel.setPerson(first, editedFirst);
+        expectedModel.updateFilteredPersonList(person -> person.equals(editedFirst) || person.equals(second));
+
+        assertCommandSuccess(new EditNoteCommand(INDEX_FIRST_PERSON, NID_FIRST, new Note(NOTE_CALCULATOR)),
+                model, expectedMessage, expectedModel);
+        assertEquals(List.of(editedFirst, second), model.getFilteredPersonList());
+    }
+
+    @Test
+    public void execute_filteredByNoteStillMatches_noExtraLine() {
+        Person first = addNotesToPerson(INDEX_FIRST_PERSON, NOTE_ALGEBRA, NOTE_TEST_SCORE);
+        Person second = addNotesToPerson(INDEX_SECOND_PERSON, NOTE_ALGEBRA);
+        model.updateFilteredPersonList(HAS_ALGEBRA_NOTE);
+        Person editedFirst = new PersonBuilder(first).withNotes(NOTE_ALGEBRA, NOTE_CALCULATOR).build();
+        String expectedMessage = String.format(EditNoteCommand.MESSAGE_SUCCESS, 2, first.getName(),
+                NOTE_TEST_SCORE, NOTE_CALCULATOR);
+
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        expectedModel.setPerson(first, editedFirst);
+        expectedModel.updateFilteredPersonList(HAS_ALGEBRA_NOTE);
+
+        assertCommandSuccess(new EditNoteCommand(INDEX_FIRST_PERSON, NID_SECOND, new Note(NOTE_CALCULATOR)),
+                model, expectedMessage, expectedModel);
+        assertEquals(List.of(editedFirst, second), model.getFilteredPersonList());
+    }
+
+    @Test
+    public void execute_noLongerMatchesThenEditNoteAgain_editsSameStudent() throws Exception {
+        Person first = addNotesToPerson(INDEX_FIRST_PERSON, NOTE_ALGEBRA, NOTE_TEST_SCORE);
+        Person second = addNotesToPerson(INDEX_SECOND_PERSON, NOTE_ALGEBRA);
+        model.updateFilteredPersonList(HAS_ALGEBRA_NOTE);
+
+        new EditNoteCommand(INDEX_FIRST_PERSON, NID_FIRST, new Note(NOTE_CALCULATOR)).execute(model);
+        new EditNoteCommand(INDEX_FIRST_PERSON, NID_SECOND, new Note(NOTE_IMPROVING)).execute(model);
+
+        Person editedFirst = new PersonBuilder(first).withNotes(NOTE_CALCULATOR, NOTE_IMPROVING).build();
+        assertEquals(List.of(editedFirst, second), model.getFilteredPersonList());
     }
 
     @Test
@@ -230,7 +287,15 @@ public class EditNoteCommandTest {
      * Replaces the first person in {@code model} with a copy that has {@code notes}, and returns the copy.
      */
     private Person addNotesToFirstPerson(String... notes) {
-        Person person = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        return addNotesToPerson(INDEX_FIRST_PERSON, notes);
+    }
+
+    /**
+     * Replaces the person at {@code index} in {@code model} with a copy that has {@code notes}, and returns
+     * the copy.
+     */
+    private Person addNotesToPerson(Index index, String... notes) {
+        Person person = model.getFilteredPersonList().get(index.getZeroBased());
         Person personWithNotes = new PersonBuilder(person).withNotes(notes).build();
         model.setPerson(person, personWithNotes);
         return personWithNotes;

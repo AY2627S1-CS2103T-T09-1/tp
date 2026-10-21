@@ -69,9 +69,10 @@ public class EditNoteCommand extends Command {
         notes.set(targetNid.getZeroBased(), newNote);
         Person editedPerson = person.copyWithNotes(notes);
 
-        model.setPerson(person, editedPerson);
-        return new CommandResult(String.format(MESSAGE_SUCCESS, targetNid.getOneBased(),
-                editedPerson.getName(), oldNote, newNote));
+        String successMessage = String.format(MESSAGE_SUCCESS, targetNid.getOneBased(),
+                editedPerson.getName(), oldNote, newNote);
+        return new CommandResult(
+                NoteCommandUtil.setPersonKeepingIndex(model, person, editedPerson, successMessage));
     }
 
     @Override
