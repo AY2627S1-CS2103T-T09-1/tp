@@ -54,9 +54,10 @@ public class DeleteNoteCommand extends Command {
         Note deletedNote = notes.remove(targetNid.getZeroBased());
         Person editedPerson = person.copyWithNotes(notes);
 
-        model.setPerson(person, editedPerson);
-        return new CommandResult(String.format(MESSAGE_SUCCESS, targetNid.getOneBased(),
-                editedPerson.getName(), deletedNote));
+        String successMessage = String.format(MESSAGE_SUCCESS, targetNid.getOneBased(),
+                editedPerson.getName(), deletedNote);
+        return new CommandResult(
+                NoteCommandUtil.setPersonKeepingIndex(model, person, editedPerson, successMessage));
     }
 
     @Override
