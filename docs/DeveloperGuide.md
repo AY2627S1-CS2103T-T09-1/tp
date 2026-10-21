@@ -207,6 +207,8 @@ The filter matches the edited student with `Person#isSamePerson`, the same name-
 
 Each edit wraps the current filter, so after several edits in a row, every edited student stays in the list, not just the last one. The next `filter` or `list` replaces the whole filter, so the extra rules never build up across searches.
 
+`editnote` and `deletenote` keep the list the same way. Both call `NoteCommandUtil#setPersonKeepingIndex`, which calls `keepPersonInFilteredList` before `setPerson` and adds the same line to the result. While `filter` searches by name only, changing a note never makes a student stop matching, so this matters once the list can be filtered by note text.
+
 #### Design considerations
 
 **Aspect: What to show after an edit**

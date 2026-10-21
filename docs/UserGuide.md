@@ -131,7 +131,7 @@ Format: `view INDEX`
 * The current search results are preserved while you view the student.
 * Entering `view` again replaces the current student record instead of opening another panel.
 * Enter `list` to return to the full student list, or `filter` to display new search results.
-* Commands that add or delete students return to the student list after they succeed. `edit` keeps the current list and student record. If the open record is the student you edited, it shows the changes. A confirmed `clear`, or `clear -f`, also returns to the (cleared) student list.
+* Commands that add or delete students return to the student list after they succeed. `edit`, `addnote`, `editnote`, and `deletenote` keep the current list and student record. If the open record is the student you changed, it shows the changes. A confirmed `clear`, or `clear -f`, also returns to the (cleared) student list.
 * Help and invalid commands leave the student record visible.
 
 Example: `view 2` shows the full record of the second student in the currently displayed list.
