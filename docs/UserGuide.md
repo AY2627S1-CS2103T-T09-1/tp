@@ -282,6 +282,7 @@ No filter is given | `Give at least one filter, such as n/NAME or sch/SCHOOL.`
 There is text before the first filter | `Invalid command format!` followed by how to use `filter`
 A filter is empty, such as `sch/` | `The school to search for cannot be blank.` (or `name`)
 A filter appears more than once | `Multiple values specified for the following single-valued field(s): sch/`
+`t/` or `nid/` is given | `filter cannot search notes. Filter by name or school instead, such as: filter n/tan sch/bedok`
 
 ### Deleting a student: `delete`
 
