@@ -14,6 +14,7 @@ import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
+import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Person;
 
 /**
@@ -63,7 +64,10 @@ public class AddCommand extends Command {
         }
 
         model.addPerson(toAdd);
-        return CommandResult.showList(String.format(MESSAGE_SUCCESS, Messages.format(toAdd)));
+        CommandResult result = CommandResult.showList(String.format(MESSAGE_SUCCESS, Messages.format(toAdd)));
+        return Messages.getNonSingaporePhoneWarning(toAdd.getPhone(), toAdd.getGuardian().map(Guardian::getPhone))
+                .map(result::withWarning)
+                .orElse(result);
     }
 
     @Override

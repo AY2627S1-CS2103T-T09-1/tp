@@ -7,9 +7,11 @@ import static seedu.address.logic.commands.CommandTestUtil.GUARDIAN_PHONE_DESC_A
 import static seedu.address.logic.commands.CommandTestUtil.GUARDIAN_PHONE_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_GUARDIAN_NAME_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_GUARDIAN_PHONE_DESC;
+import static seedu.address.logic.commands.CommandTestUtil.INVALID_GUARDIAN_PHONE_MESSAGE;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_LEVEL_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_NAME_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_PHONE_DESC;
+import static seedu.address.logic.commands.CommandTestUtil.INVALID_PHONE_MESSAGE;
 import static seedu.address.logic.commands.CommandTestUtil.LEVEL_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.LEVEL_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.NAME_DESC_AMY;
@@ -45,7 +47,6 @@ import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
-import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
 import seedu.address.model.person.Subject;
 import seedu.address.testutil.PersonBuilder;
@@ -105,6 +106,29 @@ public class AddCommandParserTest {
     }
 
     @Test
+    public void parse_repeatedSpacesInTextFields_collapsesSpaces() {
+        Person expectedPerson = new PersonBuilder(BOB)
+                .withName("John Doe")
+                .withoutPhone()
+                .withSchool("Victoria School")
+                .withLevel("S2")
+                .withSubjects(new Subject("Additional Mathematics", Band.G2))
+                .withGuardian("Mary Jane", VALID_GUARDIAN_PHONE_BOB)
+                .build();
+        String args = " n/  John   Doe  sch/  Victoria   School  lvl/S2 sub/  Additional   Mathematics  band/G2 "
+                + "gn/  Mary   Jane  gp/" + VALID_GUARDIAN_PHONE_BOB;
+
+        assertParseSuccess(parser, args, new AddCommand(expectedPerson));
+    }
+
+    @Test
+    public void parse_formattedPhone_savesCleanedPhone() {
+        Person expectedPerson = new PersonBuilder(BOB).withPhone("91234567").build();
+        assertParseSuccess(parser, NAME_DESC_BOB + " " + PREFIX_PHONE + "+65 9123 4567" + LEVEL_DESC_BOB
+                + SCHOOL_DESC_BOB + SUBJECT_DESC, new AddCommand(expectedPerson));
+    }
+
+    @Test
     public void parse_withGuardian_success() {
         Person expectedPerson = new PersonBuilder(BOB)
                 .withGuardian(VALID_GUARDIAN_NAME_BOB, VALID_GUARDIAN_PHONE_BOB).build();
@@ -145,13 +169,13 @@ public class AddCommandParserTest {
 
         // invalid phone
         assertParseFailure(parser, details + GUARDIAN_NAME_DESC_BOB + INVALID_GUARDIAN_PHONE_DESC,
-                Guardian.MESSAGE_PHONE_CONSTRAINTS);
+                INVALID_GUARDIAN_PHONE_MESSAGE);
 
         // empty values
         assertParseFailure(parser, details + " " + PREFIX_GUARDIAN_NAME + GUARDIAN_PHONE_DESC_BOB,
                 Guardian.MESSAGE_NAME_CONSTRAINTS);
         assertParseFailure(parser, details + GUARDIAN_NAME_DESC_BOB + " " + PREFIX_GUARDIAN_PHONE + "  ",
-                Guardian.MESSAGE_PHONE_CONSTRAINTS);
+                "Guardian phone cannot be empty.");
 
         // repeated prefixes
         assertParseFailure(parser, details + GUARDIAN_NAME_DESC_AMY + GUARDIAN_NAME_DESC_BOB
@@ -164,10 +188,10 @@ public class AddCommandParserTest {
     public void parse_emptyPhone_failure() {
         // p/ with no number is rejected; leave out p/ to add a student without a phone
         assertParseFailure(parser, NAME_DESC_BOB + " " + PREFIX_PHONE + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + SUBJECT_DESC,
-                Phone.MESSAGE_CONSTRAINTS);
+                "Phone cannot be empty.");
         assertParseFailure(parser, NAME_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + " " + PREFIX_PHONE + "  "
                 + SUBJECT_DESC,
-                Phone.MESSAGE_CONSTRAINTS);
+                "Phone cannot be empty.");
     }
 
     @Test
@@ -241,7 +265,7 @@ public class AddCommandParserTest {
 
         // invalid phone
         assertParseFailure(parser, LEVEL_DESC_BOB + SCHOOL_DESC_BOB + NAME_DESC_BOB + INVALID_PHONE_DESC + SUBJECT_DESC,
-                Phone.MESSAGE_CONSTRAINTS);
+                INVALID_PHONE_MESSAGE);
 
         // invalid level
         assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + INVALID_LEVEL_DESC + SCHOOL_DESC_BOB + SUBJECT_DESC,

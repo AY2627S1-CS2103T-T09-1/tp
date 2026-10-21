@@ -14,7 +14,7 @@ The project is evolving from [AddressBook-Level3](https://se-education.org/addre
 The current version supports the core contact-management workflow:
 
 * Add, edit, and delete contacts.
-* Find contacts by name using a case-insensitive search.
+* Filter contacts by name using a case-insensitive search.
 * List all saved contacts.
 * Store contact data locally in a human-editable JSON file.
 * Operate through short typed commands while displaying results in a JavaFX interface.

@@ -50,6 +50,20 @@ public class CommandResultTest {
     }
 
     @Test
+    public void withWarning() {
+        CommandResult listResult = CommandResult.showList("feedback").withWarning("note");
+        assertEquals("feedback\nnote", listResult.getFeedbackToUser());
+        assertTrue(listResult.isWarning());
+        assertEquals(CommandResult.DisplayMode.SHOW_LIST, listResult.getDisplayMode());
+
+        CommandResult studentResult = CommandResult.showStudent("feedback", ALICE, INDEX_FIRST_PERSON)
+                .withWarning("note");
+        assertEquals(CommandResult.DisplayMode.SHOW_STUDENT, studentResult.getDisplayMode());
+        assertEquals(ALICE, studentResult.getPersonToDisplay().get());
+        assertEquals(INDEX_FIRST_PERSON, studentResult.getDisplayedIndex().get());
+    }
+
+    @Test
     public void hashcode() {
         CommandResult commandResult = new CommandResult("feedback");
 

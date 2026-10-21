@@ -50,10 +50,12 @@ class JsonAdaptedGuardian {
         if (phone == null) {
             throw new IllegalValueException(String.format(MISSING_FIELD_MESSAGE_FORMAT, Phone.class.getSimpleName()));
         }
-        if (!Phone.isValidPhone(phone)) {
+        // Cleaned like a typed phone, so a hand-edited file can use +65, spaces, and hyphens
+        String normalizedPhone = Phone.normalize(phone);
+        if (!Phone.isValidPhone(normalizedPhone)) {
             throw new IllegalValueException(Guardian.MESSAGE_PHONE_CONSTRAINTS);
         }
-        return new Guardian(new Name(name), new Phone(phone));
+        return new Guardian(new Name(name), new Phone(normalizedPhone));
     }
 
 }

@@ -68,4 +68,15 @@ public interface Model {
      * @throws NullPointerException if {@code predicate} is null.
      */
     void updateFilteredPersonList(Predicate<Person> predicate);
+
+    /**
+     * Keeps {@code person} in the filtered person list on top of the current filter,
+     * so that it stays visible even if it does not match the filter.
+     * Does nothing if the list is not filtered.
+     *
+     * @return True if {@code person} does not match the current filter,
+     *         so it is shown only because it was kept.
+     * @throws NullPointerException if {@code person} is null.
+     */
+    boolean keepPersonInFilteredList(Person person);
 }

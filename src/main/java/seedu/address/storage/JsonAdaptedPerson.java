@@ -85,11 +85,13 @@ class JsonAdaptedPerson {
         }
         final Name modelName = new Name(name);
 
-        // Phone is optional, so a missing phone means the person has no phone
-        if (phone != null && !Phone.isValidPhone(phone)) {
+        // Phone is optional, so a missing phone means the person has no phone.
+        // It is cleaned like a typed phone, so a hand-edited file can use +65, spaces, and hyphens.
+        final String normalizedPhone = phone == null ? null : Phone.normalize(phone);
+        if (normalizedPhone != null && !Phone.isValidPhone(normalizedPhone)) {
             throw new IllegalValueException(Phone.MESSAGE_CONSTRAINTS);
         }
-        final Phone modelPhone = phone == null ? null : new Phone(phone);
+        final Phone modelPhone = normalizedPhone == null ? null : new Phone(normalizedPhone);
 
         if (!School.isValidSchool(school)) {
             throw new IllegalValueException(School.MESSAGE_CONSTRAINTS);
