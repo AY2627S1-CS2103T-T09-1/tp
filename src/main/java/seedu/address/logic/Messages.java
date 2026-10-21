@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import seedu.address.logic.parser.Prefix;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
+import seedu.address.model.person.Subject;
 
 /**
  * Container for user visible messages.
@@ -74,15 +75,17 @@ public class Messages {
     public static String format(Person person) {
         final StringBuilder builder = new StringBuilder();
         builder.append(person.getName())
-                .append("; Phone: ")
+                .append("; Student phone: ")
                 .append(person.getPhone().map(Phone::toString).orElse(MESSAGE_PHONE_NOT_PROVIDED))
                 .append("; School: ")
                 .append(person.getSchool())
                 .append("; Level: ")
                 .append(person.getLevel())
                 .append("; Subjects: ")
-                .append(person.getSubjects());
-        person.getGuardian().ifPresent(guardian -> builder.append("; Guardian: ").append(guardian));
+                .append(person.getSubjects().stream().map(Subject::toString).collect(Collectors.joining(", ")));
+        // labels match the student detail panel
+        person.getGuardian().ifPresent(guardian -> builder.append("; Guardian name: ").append(guardian.getName())
+                .append("; Guardian phone: ").append(guardian.getPhone()));
         return builder.toString();
     }
 
