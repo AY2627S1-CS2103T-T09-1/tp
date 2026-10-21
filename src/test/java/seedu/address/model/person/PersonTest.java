@@ -198,6 +198,14 @@ public class PersonTest {
     }
 
     @Test
+    public void format_multipleSubjects_commaSeparated() {
+        Person aliceWithTwoSubjects = new PersonBuilder(ALICE)
+                .withSubjects(new Subject("Mathematics", Band.G1), new Subject("Science", Band.G2)).build();
+        assertEquals("Alice Pauline; Student phone: 94351253; School: Maplewood Secondary School; Level: S1; "
+                + "Subjects: Mathematics (G1), Science (G2)", Messages.format(aliceWithTwoSubjects));
+    }
+
+    @Test
     public void toStringMethod() {
         String expected = Person.class.getCanonicalName() + "{name=" + ALICE.getName() + ", phone="
                 + ALICE.getPhone().get() + ", school=" + ALICE.getSchool() + ", level=" + ALICE.getLevel()
