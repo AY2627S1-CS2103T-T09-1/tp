@@ -251,25 +251,39 @@ The student has no notes | `{NAME} has no notes to delete.`
 `nid/` appears more than once | `Multiple values specified for the following single-valued field(s): nid/`
 `INDEX` or `nid/NID` is missing, or there is no space before `nid/` | `Invalid command format!` followed by how to use `deletenote`
 
-### Filtering students by name: `filter`
+### Filtering students: `filter`
 
-Shows the students whose names contain the given text.
+Shows the students who match every filter you give.
 
-Format: `filter n/NAME`
+Format: `filter [n/NAME] [sch/SCHOOL]`
 
-* `NAME` can be any part of a name, even part of a word. For example, `avi` matches `David Lim`.
-* The search is not case-sensitive. For example, `n/DAVID` matches `David Lim`.
-* `NAME` is matched as one contiguous piece of text, including its spaces. Separate words are not treated as alternatives: `n/david lim` matches `David Lim`, but `n/lim david` and `n/chloe marcus` do not match the sample names.
-* Extra spaces in `NAME` are ignored. For example, `n/david   lim` is the same as `n/david lim`.
-* Give `n/` only once.
-* The search checks names only.
+* Give at least one filter, and each filter at most once.
+* A student must match every filter you give. For example, `filter n/tan sch/bedok` shows students whose name contains `tan` and whose school contains `bedok`.
+
+Filter | Matches students whose…
+-------|------------------------
+`n/NAME` | name contains `NAME`
+`sch/SCHOOL` | school contains `SCHOOL`
+
+* Each filter matches any part of the value, even part of a word. For example, `sch/vic` matches `Victoria School`.
+* Filters are not case-sensitive, and extra spaces are ignored.
+* Each value is matched as one piece of text, including its spaces: `n/david lim` matches `David Lim`, but `n/lim david` does not.
 * If no student matches, the student list is empty and a message tells you how to see all students again.
 * Enter `list` to return to the full student list.
 
 Examples:
-* `filter n/loe tan` returns `SAMPLE Chloe Tan`
 * `filter n/c` returns `SAMPLE Chloe Tan` and `SAMPLE Marcus Lim` from the sample student list.<br>
   ![Results for filter c](images/findChloeMarcusResult.png)
+* `filter sch/victoria` returns `SAMPLE Daniel Lee`.
+* `filter n/lim sch/secondary` returns `SAMPLE Marcus Lim`.
+
+Problem | Message
+--------|--------
+No filter is given | `Give at least one filter, such as n/NAME or sch/SCHOOL.`
+There is text before the first filter | `Invalid command format!` followed by how to use `filter`
+A filter is empty, such as `sch/` | `The school to search for cannot be blank.` (or `name`)
+A filter appears more than once | `Multiple values specified for the following single-valued field(s): sch/`
+`t/` or `nid/` is given | `filter cannot search notes. Filter by name or school instead, such as: filter n/tan sch/bedok`
 
 ### Deleting a student: `delete`
 
@@ -382,6 +396,6 @@ Action | Format, Examples
 **Delete** | `delete INDEX`<br> e.g., `delete 3`
 **Delete note** | `deletenote INDEX nid/NID`<br> e.g., `deletenote 1 nid/2`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `edit 2 sub/Mathematics band/G2 sub/English band/G3`, `edit 1 gn/ gp/`
-**Filter** | `filter n/NAME`<br> e.g., `filter n/avi`
+**Filter** | `filter [n/NAME] [sch/SCHOOL]`<br> e.g., `filter n/lim sch/secondary`
 **List** | `list`
 **Help** | `help`

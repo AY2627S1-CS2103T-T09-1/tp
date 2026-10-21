@@ -2,30 +2,39 @@ package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 
+import java.util.logging.Logger;
+
+import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.model.Model;
-import seedu.address.model.person.NameContainsKeywordsPredicate;
+import seedu.address.model.person.StudentMatchesAllPredicate;
 
 /**
- * Filters the student list to students whose name contains the given text, ignoring case.
+ * Filters the student list to students who match every filter given, ignoring case.
  */
 public class FilterCommand extends Command {
 
     public static final String COMMAND_WORD = "filter";
 
-    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Shows all students whose names contain "
-            + "the given text (case-insensitive) and displays them as a list with index numbers.\n"
-            + "Parameters: " + PREFIX_NAME + "NAME\n"
-            + "Example: " + COMMAND_WORD + " " + PREFIX_NAME + "avi";
+    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Shows the students who match every filter "
+            + "given. Each filter matches any part of the value, ignoring case.\n"
+            + "Parameters: [" + PREFIX_NAME + "NAME] [" + PREFIX_SCHOOL + "SCHOOL] (at least one)\n"
+            + "Example: " + COMMAND_WORD + " " + PREFIX_NAME + "tan " + PREFIX_SCHOOL + "bedok";
 
     public static final String MESSAGE_NO_STUDENTS_FOUND =
             "No students match your search. Check the spelling, or type list to see all students.";
 
-    private final NameContainsKeywordsPredicate predicate;
+    private static final Logger logger = LogsCenter.getLogger(FilterCommand.class);
 
-    public FilterCommand(NameContainsKeywordsPredicate predicate) {
+    private final StudentMatchesAllPredicate predicate;
+
+    /**
+     * Creates a {@code FilterCommand} that shows the students matching {@code predicate}.
+     */
+    public FilterCommand(StudentMatchesAllPredicate predicate) {
         this.predicate = predicate;
     }
 
@@ -34,6 +43,7 @@ public class FilterCommand extends Command {
         requireNonNull(model);
         model.updateFilteredPersonList(predicate);
         int matchCount = model.getFilteredPersonList().size();
+        logger.fine("filter matched " + matchCount + " student(s) with " + predicate);
         if (matchCount == 0) {
             return CommandResult.showList(MESSAGE_NO_STUDENTS_FOUND);
         }
