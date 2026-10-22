@@ -6,6 +6,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_NOTE_FILTER;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
@@ -25,6 +26,8 @@ import seedu.address.model.person.GuardianPhoneMatchesPredicate;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.LevelMatchesPredicate;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
+import seedu.address.model.person.Note;
+import seedu.address.model.person.NoteContainsTextPredicate;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.PhoneMatchesPredicate;
@@ -115,12 +118,53 @@ public class FilterCommandParserTest {
 
     @Test
     public void parse_notePrefix_throwsParseException() {
-        assertParseFailure(parser, " t/algebra", FilterCommandParser.MESSAGE_NOTES_NOT_FILTERABLE);
-        assertParseFailure(parser, " t/", FilterCommandParser.MESSAGE_NOTES_NOT_FILTERABLE);
-        assertParseFailure(parser, " nid/2", FilterCommandParser.MESSAGE_NOTES_NOT_FILTERABLE);
+        assertParseFailure(parser, " t/algebra", FilterCommandParser.MESSAGE_USE_NOTE_FILTER);
+        assertParseFailure(parser, " t/", FilterCommandParser.MESSAGE_USE_NOTE_FILTER);
+        assertParseFailure(parser, " nid/2", FilterCommandParser.MESSAGE_USE_NOTE_FILTER);
 
         // without t/ being recognized, this would search names for "tan t/algebra"
-        assertParseFailure(parser, " n/tan t/algebra", FilterCommandParser.MESSAGE_NOTES_NOT_FILTERABLE);
+        assertParseFailure(parser, " n/tan t/algebra", FilterCommandParser.MESSAGE_USE_NOTE_FILTER);
+
+        // note text cannot contain another prefix after a space
+        assertParseFailure(parser, " note/revise t/f", FilterCommandParser.MESSAGE_USE_NOTE_FILTER);
+    }
+
+    @Test
+    public void parse_validNote_returnsFilterCommand() {
+        assertParseSuccess(parser, " note/algebra", filterCommandOf(note("algebra")));
+        assertParseSuccess(parser, " note/  next \t  lesson ", filterCommandOf(note("next lesson")));
+        assertParseSuccess(parser, " note/WA2 Math: 36/50", filterCommandOf(note("WA2 Math: 36/50")));
+    }
+
+    @Test
+    public void parse_blankNote_throwsParseException() {
+        assertParseFailure(parser, " note/", FilterCommandParser.MESSAGE_BLANK_NOTE);
+        assertParseFailure(parser, " note/   ", FilterCommandParser.MESSAGE_BLANK_NOTE);
+    }
+
+    @Test
+    public void parse_noteAtMaxLength_returnsFilterCommand() {
+        String text = "a".repeat(Note.MAX_LENGTH);
+        assertParseSuccess(parser, " note/" + text, filterCommandOf(note(text)));
+    }
+
+    @Test
+    public void parse_noteOverMaxLength_throwsParseException() {
+        String text = "a".repeat(Note.MAX_LENGTH + 1);
+        assertParseFailure(parser, " note/" + text, FilterCommandParser.MESSAGE_NOTE_TOO_LONG);
+    }
+
+    @Test
+    public void parse_repeatedNote_throwsParseException() {
+        assertParseFailure(parser, " note/algebra note/geometry",
+                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_NOTE_FILTER));
+    }
+
+    @Test
+    public void parse_noteWithOtherFilters_returnsSameCommand() {
+        FilterCommand expectedFilterCommand = filterCommandOf(level(Level.S1), note("next lesson"));
+        assertParseSuccess(parser, " lvl/S1 note/next lesson", expectedFilterCommand);
+        assertParseSuccess(parser, " note/next lesson lvl/S1", expectedFilterCommand);
     }
 
     @Test
@@ -304,6 +348,10 @@ public class FilterCommandParserTest {
 
     private static Predicate<Person> guardianPhone(String phone) {
         return new GuardianPhoneMatchesPredicate(new Phone(phone));
+    }
+
+    private static Predicate<Person> note(String text) {
+        return new NoteContainsTextPredicate(text);
     }
 
     @SafeVarargs

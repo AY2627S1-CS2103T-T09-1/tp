@@ -8,6 +8,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NOTE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_NOTE_FILTER;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
@@ -25,6 +26,8 @@ import seedu.address.model.person.GuardianNameContainsTextPredicate;
 import seedu.address.model.person.GuardianPhoneMatchesPredicate;
 import seedu.address.model.person.LevelMatchesPredicate;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
+import seedu.address.model.person.Note;
+import seedu.address.model.person.NoteContainsTextPredicate;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.PhoneMatchesPredicate;
@@ -46,15 +49,17 @@ public class FilterCommandParser implements Parser<FilterCommand> {
             "Give at least one filter.\n" + FilterCommand.MESSAGE_USAGE;
     public static final String MESSAGE_BAND_NOT_AFTER_SUBJECT = PREFIX_BAND + " must come right after "
             + PREFIX_SUBJECT + ", such as: filter " + PREFIX_SUBJECT + "Mathematics " + PREFIX_BAND + "G2";
-    public static final String MESSAGE_NOTES_NOT_FILTERABLE = "filter cannot search notes. "
-            + "Filter by the student's details instead, such as: filter "
-            + PREFIX_NAME + "tan " + PREFIX_SCHOOL + "bedok " + PREFIX_LEVEL + "S3";
+    public static final String MESSAGE_USE_NOTE_FILTER = "To filter by notes, use " + PREFIX_NOTE_FILTER
+            + ", such as: filter " + PREFIX_NOTE_FILTER + "algebra";
+    public static final String MESSAGE_BLANK_NOTE = "The note text to search for cannot be blank.";
+    public static final String MESSAGE_NOTE_TOO_LONG = "The note text to search for must be at most "
+            + Note.MAX_LENGTH + " characters.";
 
     private static final Prefix[] FILTER_PREFIXES = {
         PREFIX_NAME, PREFIX_SCHOOL, PREFIX_LEVEL, PREFIX_SUBJECT, PREFIX_BAND,
-        PREFIX_PHONE, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE
+        PREFIX_PHONE, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE, PREFIX_NOTE_FILTER
     };
-    // recognized only so that they are rejected, instead of being read as part of another value
+    // addnote's and deletenote's prefixes, recognized only to point the user to note/
     private static final Prefix[] NOTE_PREFIXES = {PREFIX_NOTE, PREFIX_NID};
 
     /**
@@ -65,7 +70,7 @@ public class FilterCommandParser implements Parser<FilterCommand> {
     public FilterCommand parse(String args) throws ParseException {
         ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(args, allPrefixes());
         if (hasAny(argMultimap, NOTE_PREFIXES)) {
-            throw new ParseException(MESSAGE_NOTES_NOT_FILTERABLE);
+            throw new ParseException(MESSAGE_USE_NOTE_FILTER);
         }
         if (!argMultimap.getPreamble().isEmpty()) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, FilterCommand.MESSAGE_USAGE));
@@ -108,6 +113,10 @@ public class FilterCommandParser implements Parser<FilterCommand> {
             Phone guardianPhoneValue = ParserUtil.parseGuardianPhone(guardianPhone.get());
             filters.add(new GuardianPhoneMatchesPredicate(guardianPhoneValue));
         }
+        Optional<String> note = argMultimap.getValue(PREFIX_NOTE_FILTER);
+        if (note.isPresent()) {
+            filters.add(parseNoteFilter(note.get()));
+        }
         return new FilterCommand(new StudentMatchesAllPredicate(filters));
     }
 
@@ -148,6 +157,19 @@ public class FilterCommandParser implements Parser<FilterCommand> {
         } catch (IllegalArgumentException e) {
             throw new ParseException(Band.MESSAGE_CONSTRAINTS, e);
         }
+    }
+
+    /**
+     * Returns a filter for students with a note containing {@code value}.
+     *
+     * @throws ParseException if the text is blank or longer than a note can be.
+     */
+    private static NoteContainsTextPredicate parseNoteFilter(String value) throws ParseException {
+        String text = parseSearchText(value, MESSAGE_BLANK_NOTE);
+        if (text.codePointCount(0, text.length()) > Note.MAX_LENGTH) {
+            throw new ParseException(MESSAGE_NOTE_TOO_LONG);
+        }
+        return new NoteContainsTextPredicate(text);
     }
 
     private static boolean hasAny(ArgumentMultimap argMultimap, Prefix... prefixes) {
