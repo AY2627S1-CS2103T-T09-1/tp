@@ -1,9 +1,12 @@
 package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NOTE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 
 import java.util.ArrayList;
@@ -14,8 +17,12 @@ import java.util.stream.Stream;
 
 import seedu.address.logic.commands.FilterCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.person.GuardianNameContainsTextPredicate;
+import seedu.address.model.person.GuardianPhoneMatchesPredicate;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.Phone;
+import seedu.address.model.person.PhoneMatchesPredicate;
 import seedu.address.model.person.SchoolContainsTextPredicate;
 import seedu.address.model.person.StudentMatchesAllPredicate;
 
@@ -26,13 +33,17 @@ public class FilterCommandParser implements Parser<FilterCommand> {
 
     public static final String MESSAGE_BLANK_NAME = "The name to search for cannot be blank.";
     public static final String MESSAGE_BLANK_SCHOOL = "The school to search for cannot be blank.";
-    public static final String MESSAGE_NO_FILTER = "Give at least one filter, such as "
-            + PREFIX_NAME + "NAME or " + PREFIX_SCHOOL + "SCHOOL.";
+    public static final String MESSAGE_BLANK_GUARDIAN_NAME =
+            "The guardian name to search for cannot be blank.";
+    public static final String MESSAGE_NO_FILTER =
+            "Give at least one filter.\n" + FilterCommand.MESSAGE_USAGE;
     public static final String MESSAGE_NOTES_NOT_FILTERABLE = "filter cannot search notes. "
             + "Filter by name or school instead, such as: filter "
             + PREFIX_NAME + "tan " + PREFIX_SCHOOL + "bedok";
 
-    private static final Prefix[] FILTER_PREFIXES = {PREFIX_NAME, PREFIX_SCHOOL};
+    private static final Prefix[] FILTER_PREFIXES = {
+        PREFIX_NAME, PREFIX_SCHOOL, PREFIX_PHONE, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE
+    };
     // recognized only so that they are rejected, instead of being read as part of another value
     private static final Prefix[] NOTE_PREFIXES = {PREFIX_NOTE, PREFIX_NID};
 
@@ -63,6 +74,20 @@ public class FilterCommandParser implements Parser<FilterCommand> {
         Optional<String> school = argMultimap.getValue(PREFIX_SCHOOL);
         if (school.isPresent()) {
             filters.add(new SchoolContainsTextPredicate(parseSearchText(school.get(), MESSAGE_BLANK_SCHOOL)));
+        }
+        Optional<String> phone = argMultimap.getValue(PREFIX_PHONE);
+        if (phone.isPresent()) {
+            filters.add(new PhoneMatchesPredicate(ParserUtil.parsePhone(phone.get())));
+        }
+        Optional<String> guardianName = argMultimap.getValue(PREFIX_GUARDIAN_NAME);
+        if (guardianName.isPresent()) {
+            String guardianNameText = parseSearchText(guardianName.get(), MESSAGE_BLANK_GUARDIAN_NAME);
+            filters.add(new GuardianNameContainsTextPredicate(guardianNameText));
+        }
+        Optional<String> guardianPhone = argMultimap.getValue(PREFIX_GUARDIAN_PHONE);
+        if (guardianPhone.isPresent()) {
+            Phone guardianPhoneValue = ParserUtil.parseGuardianPhone(guardianPhone.get());
+            filters.add(new GuardianPhoneMatchesPredicate(guardianPhoneValue));
         }
         return new FilterCommand(new StudentMatchesAllPredicate(filters));
     }
