@@ -149,6 +149,17 @@ The `Model` component,
 * stores a `UserPrefs` object that represents the user’s preferences (currently, just the GUI settings). This is exposed to the outside as a `ReadOnlyUserPrefs` object.
 * does not depend on any of the other three components (as the `Model` represents data entities of the domain, they should make sense on their own without depending on other components)
 
+Each `Person` is one student. The classes that make up a `Person` are shown below.
+
+<img src="images/PersonClassDiagram.png" width="550" />
+
+The diagram does not show these rules, which the classes check when an object is created:
+
+* A student has 1 to 8 subjects, and no two of them have the same name, ignoring case. `Person#validateSubjects` checks both, so the same subject cannot be taken at two bands.
+* A note's NID is its position in the student's list of notes. A new note goes at the end, and deleting a note renumbers the notes after it.
+* A `Guardian` always has both a name and a phone. A student has a complete guardian or none. See [Guardian details](#guardian-details).
+* `Guardian` reuses `Name` and `Phone`, so a guardian's name and phone follow the same rules as a student's.
+
 
 ### Storage component
 
