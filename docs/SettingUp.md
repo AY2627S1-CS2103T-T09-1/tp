@@ -25,6 +25,7 @@ If you plan to use IntelliJ IDEA (highly recommended):
 1. **Verify the setup**:
    1. Run `seedu.address.Main` and try a few commands.
    1. [Run the tests](Testing.md) to ensure they all pass.
+1. **Enable assertions**: After running `seedu.address.Main` once, go to **Run** > **Edit Configurations...**, select `Main`, and add `-ea` to **VM options**. If the field is hidden, click **Modify options** > **Add VM options**. IntelliJ then checks the code's `assert` statements, as `./gradlew run` and the tests already do.
 
 --------------------------------------------------------------------------------------------------------------------
 
