@@ -206,16 +206,13 @@ Format: `addnote INDEX t/TEXT`
 * `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
 * `TEXT` must be 1 to 500 characters long, including spaces between words. Spaces before and after the text are removed and not counted.
 * `TEXT` can contain any characters, including digits, punctuation, and slashes, such as `WA2 Math: 36/50`, `Rajesh s/o Kumar`, or `Call Mrs Tan c/o school`.
+* Everything after `t/` is the note text, so `TEXT` can contain `t/f` or another `t/`. For example, `addnote 1 t/Revise t/f questions` adds the note `Revise t/f questions`.
 * You can add the same note text more than once.
 * New notes appear in the student detail view after the existing notes.
 * Notes are numbered in the order you added them, such as `1. Weak in algebra`.
 * Adding a note does not change which students are shown.
 * After `view`, use the index shown at the top of the student detail view when running `addnote`.
 * If you edit the data file, each note must follow the same `TEXT` rules. Otherwise, the app starts with an empty student list.
-
-<div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
-`TEXT` cannot contain `t/` right after a space, because the app reads it as a second `t/` parameter. For example, `addnote 1 t/Revise t/f questions` shows an error. Write `true/false` instead of `t/f`.
-</div>
 
 Examples:
 
@@ -230,7 +227,6 @@ Problem | Message
 `INDEX` is larger than the number of students shown | `The student index provided is invalid.`
 `TEXT` is empty or only spaces | `Note text cannot be blank.`
 `TEXT` is longer than 500 characters | `Note text must be at most 500 characters.`
-`t/` appears more than once | `Multiple values specified for the following single-valued field(s): t/`
 `INDEX` or `t/TEXT` is missing, or there is no space before `t/` | `Invalid command format!` followed by how to use `addnote`
 
 ### Editing a note of a student: `editnote`
