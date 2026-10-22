@@ -265,7 +265,7 @@ There is other text between `INDEX` and the first prefix, such as `editnote 1 ab
 `NID` is empty or is not a positive integer, such as `0`, `-1`, or `abc` | `NID must be a positive integer.`
 `TEXT` is empty or only spaces | `Note text cannot be blank.`
 `TEXT` is longer than 500 characters | `Note text must be at most 500 characters.`
-`INDEX` is larger than the number of students shown | `The person index provided is invalid.`
+`INDEX` is larger than the number of students shown | `The student index provided is invalid.`
 The student has no notes | `{NAME} has no notes to edit.`
 `NID` is larger than the number of notes the student has | `NID {NID} does not exist. {NAME} has only {COUNT} notes.` (or `1 note` if the student has one note)
 
