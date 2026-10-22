@@ -38,7 +38,7 @@ TuteeBook3 is a **desktop app for private tutors who teach secondary school stud
 
    * `exit` : Exits the app.
 
-1. When you finish trying the commands and before you enter your own student records, type `clear` and press Enter, then type `clear` again and press Enter to confirm that you want to remove all sample students. Alternatively, type `clear -f` and press Enter to remove them immediately without confirmation. Both methods remove every student and note currently stored.
+1. When you finish trying the commands and before you enter your own student records, type `clear`, then enter `CONFIRM` to remove all sample students. Alternatively, type `clear -f` to remove them immediately without confirmation. Both methods remove every student and note currently stored.
 
 1. Refer to the [Features](#features) section below for details of each command.
 
@@ -221,16 +221,17 @@ Problem | Message
 
 Deletes one note from a student's notes.
 
-Format: `deletenote INDEX nid/NID`
+Format: `deletenote [-f] INDEX nid/NID`
 
 * `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
 * `NID` is the number shown before the note in the student detail view. It must be a positive integer, such as 1, 2, or 3. To see a student's notes and their NIDs, use `view INDEX`.
+* The command shows an amber prompt, such as `This will delete note 1 from Alex Tan. Continue? Type CONFIRM (uppercase) to proceed; any other input cancels this request and runs as a command.` Enter `CONFIRM` to confirm. You can use `deletenote -f INDEX nid/NID` to delete immediately.
 * After you delete a note, the notes after it move up one number. For example, if a student has 3 notes and you delete note 2, the old note 3 becomes note 2. Check the student detail view for the new numbers before you delete another note.
 * Deleting a note does not change which students are shown.
 * After `view`, use the index shown at the top of the student detail view when running `deletenote`.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
-`deletenote` deletes the note as soon as you press Enter. It does not ask you to confirm, and you cannot undo it. Check `INDEX` and `NID` in the student detail view before you press Enter.
+After you confirm with `CONFIRM`, `deletenote` deletes the note immediately. `deletenote -f` skips confirmation. You cannot undo the deletion. Check `INDEX` and `NID` in the student detail view before you confirm.
 </div>
 
 Examples:
@@ -243,7 +244,7 @@ If the command is wrong, `deletenote` shows one of these messages and does not c
 Problem | Message
 --------|--------
 `INDEX` is not a positive integer, such as `0` or `abc` | `Index must be a positive integer.`
-There is other text between `INDEX` and `nid/`, such as `deletenote 1 abc nid/2` | `Index must be a positive integer.`
+There is other text between `INDEX` and `nid/`, such as `deletenote 1 abc nid/2` | `Invalid command format!` followed by how to use `deletenote`
 `INDEX` is larger than the number of students shown | `The person index provided is invalid.`
 `NID` is empty or is not a positive integer, such as `0`, `-1`, or `abc` | `NID must be a positive integer.`
 The student has no notes | `{NAME} has no notes to delete.`
@@ -289,15 +290,16 @@ A filter appears more than once | `Multiple values specified for the following s
 
 Deletes a student, together with their guardian details and all of their notes.
 
-Format: `delete INDEX`
+Format: `delete [-f] INDEX`
 
 * `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
+* `delete` shows an amber prompt, such as `This will delete Alex Tan and all their notes. Continue? Type CONFIRM (uppercase) to proceed; any other input cancels this request and runs as a command.` Enter `CONFIRM` to confirm. Use `delete -f INDEX` to delete immediately.
 * After `view`, use the index shown at the top of the student detail view when running `delete`.
 * After a student is deleted, the student list shows all remaining students, even if you used `filter` before. The index numbers of the remaining students may change, so check the list before you run another command that uses an index.
 * If the student detail view was open, it closes and the student list is shown.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
-`delete` deletes the student as soon as you press Enter. It does not ask you to confirm, and you cannot undo it. Check `INDEX` in the student list before you press Enter.
+After you confirm with `CONFIRM`, `delete` removes the student and all their notes immediately. `delete -f` skips confirmation. You cannot undo the deletion. Check `INDEX` in the student list before you confirm.
 </div>
 
 Examples:
@@ -309,8 +311,8 @@ If the command is wrong, `delete` shows one of these messages and does not delet
 
 Problem | Message
 --------|--------
-`INDEX` is missing or is not a positive integer, such as `0`, `-1`, or `abc` | `Invalid format. Usage: delete INDEX`
-There is more than one value, such as `delete 1 2` | `Invalid format. Usage: delete INDEX`
+`INDEX` is missing or is not a positive integer, such as `0`, `-1`, or `abc` | `Invalid format. Usage: delete [-f] INDEX`
+There is more than one value, such as `delete 1 2` | `Invalid format. Usage: delete [-f] INDEX`
 `INDEX` is larger than the number of students shown | `The student index provided is invalid.`
 
 ### Clearing all entries: `clear`
@@ -321,10 +323,9 @@ Format: `clear [-f]`
 
 The command accepts only the optional `-f` argument.
 
-* The first `clear` shows a confirmation notice without changing your data.
-* Type `clear` again as your next command to confirm and clear all students and notes.
+* `clear` shows the amber prompt `This will delete all students and notes. Continue? Type CONFIRM (uppercase) to proceed; any other input cancels this request and runs as a command.` without changing your data. Enter `CONFIRM` to confirm.
 * `clear -f` clears all students and notes immediately without asking for confirmation.
-* Entering any other command, including an invalid command, cancels the pending `clear` request.
+* While a confirmation is pending, only the exact uppercase word `CONFIRM` (with optional leading or trailing spaces) confirms it. Any other input cancels the pending command and is processed normally. A cancellation notice appears in red above the command result; command output keeps its usual color, and command errors appear in red.
 * If TuteeBook3 is already empty, `clear` shows `TuteeBook3 is already empty.` without asking you to confirm.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
@@ -392,9 +393,9 @@ Action | Format, Examples
 --------|------------------
 **Add** | `add n/NAME [p/PHONE] sch/SCHOOL lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Ho gp/91234567`
 **Add note** | `addnote INDEX t/TEXT`<br> e.g., `addnote 1 t/Weak in algebra`
-**Clear** | `clear`, followed by `clear` again to confirm (Alternatively, `clear -f` to clear immediately)
-**Delete** | `delete INDEX`<br> e.g., `delete 3`
-**Delete note** | `deletenote INDEX nid/NID`<br> e.g., `deletenote 1 nid/2`
+**Clear** | `clear`, followed by `CONFIRM` to confirm (Alternatively, `clear -f` to clear immediately)
+**Delete** | `delete [-f] INDEX`<br> e.g., `delete 3`
+**Delete note** | `deletenote [-f] INDEX nid/NID`<br> e.g., `deletenote 1 nid/2`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `edit 2 sub/Mathematics band/G2 sub/English band/G3`, `edit 1 gn/ gp/`
 **Filter** | `filter [n/NAME] [sch/SCHOOL]`<br> e.g., `filter n/lim sch/secondary`
 **List** | `list`
