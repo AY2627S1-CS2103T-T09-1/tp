@@ -93,7 +93,7 @@ public class CommandResultTest {
                 + commandResult.getFeedbackToUser() + ", showHelp=" + commandResult.isShowHelp()
                 + ", exit=" + commandResult.isExit() + ", isWarning=" + commandResult.isWarning()
                 + ", displayMode=" + commandResult.getDisplayMode()
-                + ", personToDisplay=null, displayedIndex=null}";
+                + ", personToDisplay=null, displayedIndex=null, cancellationNotice=null}";
         assertEquals(expected, commandResult.toString());
     }
 

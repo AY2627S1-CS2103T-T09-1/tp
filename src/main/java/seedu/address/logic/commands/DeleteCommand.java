@@ -14,40 +14,74 @@ import seedu.address.model.person.Person;
 /**
  * Deletes a person identified using its displayed index from the address book.
  */
-public class DeleteCommand extends Command {
+public class DeleteCommand extends Command implements ConfirmationCommand {
 
     public static final String COMMAND_WORD = "delete";
+    public static final String FORCE_OPTION = "-f";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD
             + ": Deletes the student identified by the index number used in the displayed student list.\n"
-            + "Parameters: INDEX (must be a positive integer)\n"
-            + "Example: " + COMMAND_WORD + " 1";
+            + "Parameters: [" + FORCE_OPTION + "] INDEX (must be a positive integer)\n"
+            + "Example: " + COMMAND_WORD + " 1 (asks for confirmation)\n"
+            + COMMAND_WORD + " " + FORCE_OPTION + " 1 (deletes immediately)";
 
     public static final String MESSAGE_DELETE_STUDENT_SUCCESS = "Deleted student: %1$s.";
 
-    public static final String MESSAGE_INVALID_FORMAT = "Invalid format. Usage: " + COMMAND_WORD + " INDEX";
+    public static final String MESSAGE_INVALID_FORMAT = "Invalid format. Usage: " + COMMAND_WORD
+            + " [-f] INDEX";
 
     public static final String MESSAGE_INVALID_STUDENT_INDEX = "The student index provided is invalid.";
 
     private final Index targetIndex;
+    private final boolean isForced;
 
+    /**
+     * Creates a DeleteCommand that asks for confirmation.
+     */
     public DeleteCommand(Index targetIndex) {
+        this(targetIndex, false);
+    }
+
+    /**
+     * Creates a DeleteCommand that bypasses confirmation when {@code isForced} is true.
+     */
+    public DeleteCommand(Index targetIndex, boolean isForced) {
         this.targetIndex = targetIndex;
+        this.isForced = isForced;
+    }
+
+    @Override
+    public boolean isForced() {
+        return isForced;
+    }
+
+    @Override
+    public String getCommandWord() {
+        return COMMAND_WORD;
+    }
+
+    @Override
+    public String getConfirmationMessage(Model model) throws CommandException {
+        Person person = getTargetPerson(model);
+        return "This will delete " + person.getName() + " and all their notes. Continue?";
     }
 
     @Override
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
-        List<Person> lastShownList = model.getFilteredPersonList();
+        Person personToDelete = getTargetPerson(model);
+        model.deletePerson(personToDelete);
+        model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
+        String message = String.format(MESSAGE_DELETE_STUDENT_SUCCESS, personToDelete.getName());
+        return CommandResult.showList(message);
+    }
 
+    private Person getTargetPerson(Model model) throws CommandException {
+        List<Person> lastShownList = model.getFilteredPersonList();
         if (targetIndex.getZeroBased() >= lastShownList.size()) {
             throw new CommandException(MESSAGE_INVALID_STUDENT_INDEX);
         }
-
-        Person personToDelete = lastShownList.get(targetIndex.getZeroBased());
-        model.deletePerson(personToDelete);
-        model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
-        return CommandResult.showList(String.format(MESSAGE_DELETE_STUDENT_SUCCESS, personToDelete.getName()));
+        return lastShownList.get(targetIndex.getZeroBased());
     }
 
     @Override
@@ -61,13 +95,14 @@ public class DeleteCommand extends Command {
             return false;
         }
 
-        return targetIndex.equals(otherDeleteCommand.targetIndex);
+        return targetIndex.equals(otherDeleteCommand.targetIndex) && isForced == otherDeleteCommand.isForced;
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
                 .add("targetIndex", targetIndex)
+                .add("isForced", isForced)
                 .toString();
     }
 }

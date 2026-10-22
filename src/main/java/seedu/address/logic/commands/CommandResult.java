@@ -38,15 +38,17 @@ public class CommandResult {
 
     private final Index displayedIndex;
 
+    private final String cancellationNotice;
+
     /**
      * Constructs a {@code CommandResult} with the specified fields.
      */
     public CommandResult(String feedbackToUser, boolean showHelp, boolean exit) {
-        this(feedbackToUser, showHelp, exit, false, DisplayMode.KEEP_CURRENT, null, null);
+        this(feedbackToUser, showHelp, exit, false, DisplayMode.KEEP_CURRENT, null, null, null);
     }
 
     private CommandResult(String feedbackToUser, boolean showHelp, boolean exit, boolean isWarning,
-            DisplayMode displayMode, Person personToDisplay, Index displayedIndex) {
+            DisplayMode displayMode, Person personToDisplay, Index displayedIndex, String cancellationNotice) {
         this.feedbackToUser = requireNonNull(feedbackToUser);
         this.showHelp = showHelp;
         this.exit = exit;
@@ -54,6 +56,7 @@ public class CommandResult {
         this.displayMode = requireNonNull(displayMode);
         this.personToDisplay = personToDisplay;
         this.displayedIndex = displayedIndex;
+        this.cancellationNotice = cancellationNotice;
         boolean requiresStudent = displayMode == DisplayMode.SHOW_STUDENT;
         if (requiresStudent) {
             requireNonNull(personToDisplay);
@@ -97,11 +100,15 @@ public class CommandResult {
         return Optional.ofNullable(displayedIndex);
     }
 
+    public Optional<String> getCancellationNotice() {
+        return Optional.ofNullable(cancellationNotice);
+    }
+
     /**
      * Creates a result that shows the student list.
      */
     public static CommandResult showList(String feedbackToUser) {
-        return new CommandResult(feedbackToUser, false, false, false, DisplayMode.SHOW_LIST, null, null);
+        return new CommandResult(feedbackToUser, false, false, false, DisplayMode.SHOW_LIST, null, null, null);
     }
 
     /**
@@ -109,7 +116,7 @@ public class CommandResult {
      */
     public static CommandResult showStudent(String feedbackToUser, Person person, Index displayedIndex) {
         return new CommandResult(feedbackToUser, false, false, false,
-                DisplayMode.SHOW_STUDENT, person, displayedIndex);
+                DisplayMode.SHOW_STUDENT, person, displayedIndex, null);
     }
 
     /**
@@ -117,7 +124,7 @@ public class CommandResult {
      */
     public static CommandResult warning(String feedbackToUser) {
         return new CommandResult(feedbackToUser, false, false, true,
-                DisplayMode.KEEP_CURRENT, null, null);
+                DisplayMode.KEEP_CURRENT, null, null, null);
     }
 
     /**
@@ -127,7 +134,16 @@ public class CommandResult {
     public CommandResult withWarning(String warning) {
         requireNonNull(warning);
         return new CommandResult(feedbackToUser + "\n" + warning, showHelp, exit, true,
-                displayMode, personToDisplay, displayedIndex);
+                displayMode, personToDisplay, displayedIndex, cancellationNotice);
+    }
+
+    /**
+     * Returns a copy of this result with a separate cancellation notice for display.
+     */
+    public CommandResult withCancellationNotice(String notice) {
+        requireNonNull(notice);
+        return new CommandResult(feedbackToUser, showHelp, exit, isWarning,
+                displayMode, personToDisplay, displayedIndex, notice);
     }
 
     @Override
@@ -147,13 +163,14 @@ public class CommandResult {
                 && isWarning == otherCommandResult.isWarning
                 && displayMode == otherCommandResult.displayMode
                 && Objects.equals(personToDisplay, otherCommandResult.personToDisplay)
-                && Objects.equals(displayedIndex, otherCommandResult.displayedIndex);
+                && Objects.equals(displayedIndex, otherCommandResult.displayedIndex)
+                && Objects.equals(cancellationNotice, otherCommandResult.cancellationNotice);
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(feedbackToUser, showHelp, exit, isWarning,
-                displayMode, personToDisplay, displayedIndex);
+                displayMode, personToDisplay, displayedIndex, cancellationNotice);
     }
 
     @Override
@@ -166,6 +183,7 @@ public class CommandResult {
                 .add("displayMode", displayMode)
                 .add("personToDisplay", personToDisplay)
                 .add("displayedIndex", displayedIndex)
+                .add("cancellationNotice", cancellationNotice)
                 .toString();
     }
 
