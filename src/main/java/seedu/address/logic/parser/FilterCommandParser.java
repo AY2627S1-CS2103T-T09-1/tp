@@ -2,6 +2,7 @@ package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NOTE;
@@ -17,6 +18,7 @@ import java.util.stream.Stream;
 import seedu.address.logic.commands.FilterCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Band;
+import seedu.address.model.person.LevelMatchesPredicate;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.SchoolContainsTextPredicate;
@@ -36,10 +38,12 @@ public class FilterCommandParser implements Parser<FilterCommand> {
     public static final String MESSAGE_BAND_NOT_AFTER_SUBJECT = PREFIX_BAND + " must come right after "
             + PREFIX_SUBJECT + ", such as: filter " + PREFIX_SUBJECT + "Mathematics " + PREFIX_BAND + "G2";
     public static final String MESSAGE_NOTES_NOT_FILTERABLE = "filter cannot search notes. "
-            + "Filter by name or school instead, such as: filter "
-            + PREFIX_NAME + "tan " + PREFIX_SCHOOL + "bedok";
+            + "Filter by the student's details instead, such as: filter "
+            + PREFIX_NAME + "tan " + PREFIX_SCHOOL + "bedok " + PREFIX_LEVEL + "S3";
 
-    private static final Prefix[] FILTER_PREFIXES = {PREFIX_NAME, PREFIX_SCHOOL, PREFIX_SUBJECT, PREFIX_BAND};
+    private static final Prefix[] FILTER_PREFIXES = {
+        PREFIX_NAME, PREFIX_SCHOOL, PREFIX_LEVEL, PREFIX_SUBJECT, PREFIX_BAND
+    };
     // recognized only so that they are rejected, instead of being read as part of another value
     private static final Prefix[] NOTE_PREFIXES = {PREFIX_NOTE, PREFIX_NID};
 
@@ -71,6 +75,10 @@ public class FilterCommandParser implements Parser<FilterCommand> {
         Optional<String> school = argMultimap.getValue(PREFIX_SCHOOL);
         if (school.isPresent()) {
             filters.add(new SchoolContainsTextPredicate(parseSearchText(school.get(), MESSAGE_BLANK_SCHOOL)));
+        }
+        Optional<String> level = argMultimap.getValue(PREFIX_LEVEL);
+        if (level.isPresent()) {
+            filters.add(new LevelMatchesPredicate(ParserUtil.parseLevel(level.get())));
         }
         Optional<String> subject = argMultimap.getValue(PREFIX_SUBJECT);
         if (subject.isPresent()) {

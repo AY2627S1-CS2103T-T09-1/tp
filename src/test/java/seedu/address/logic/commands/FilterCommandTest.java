@@ -23,6 +23,8 @@ import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
 import seedu.address.model.person.Band;
+import seedu.address.model.person.Level;
+import seedu.address.model.person.LevelMatchesPredicate;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.SchoolContainsTextPredicate;
@@ -123,6 +125,27 @@ public class FilterCommandTest {
         expectedModel.updateFilteredPersonList(predicate);
         assertCommandSuccess(command, model, CommandResult.showList(expectedMessage), expectedModel);
         assertEquals(List.of(), model.getFilteredPersonList());
+    }
+
+    @Test
+    public void execute_level_studentsAtLevelFound() {
+        String expectedMessage = String.format(MESSAGE_PERSONS_LISTED_OVERVIEW, 2);
+        StudentMatchesAllPredicate predicate = filterOf(new LevelMatchesPredicate(Level.S1));
+        FilterCommand command = new FilterCommand(predicate);
+        expectedModel.updateFilteredPersonList(predicate);
+        assertCommandSuccess(command, model, CommandResult.showList(expectedMessage), expectedModel);
+        assertEquals(List.of(ALICE, FIONA), model.getFilteredPersonList());
+    }
+
+    @Test
+    public void execute_levelAndSchool_onlyStudentsMatchingBothFound() {
+        String expectedMessage = String.format(MESSAGE_PERSONS_LISTED_OVERVIEW, 1);
+        StudentMatchesAllPredicate predicate = filterOf(new LevelMatchesPredicate(Level.S2),
+                new SchoolContainsTextPredicate("northvale"));
+        FilterCommand command = new FilterCommand(predicate);
+        expectedModel.updateFilteredPersonList(predicate);
+        assertCommandSuccess(command, model, CommandResult.showList(expectedMessage), expectedModel);
+        assertEquals(List.of(BENSON), model.getFilteredPersonList());
     }
 
     @Test
