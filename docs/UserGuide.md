@@ -102,7 +102,7 @@ Each student and guardian has one phone number, which is the number you use to r
 * A subject name cannot appear twice, even with different bands. Duplicate checks ignore case and repeated internal spaces, so `Additional Mathematics` and `additional  mathematics` are the same subject.
 * `LEVEL` must be one of `S1`, `S2`, `S3`, `S4` or `S5`. It is not case-sensitive, so `s3` also works.
 
-If the command is wrong, `add` shows one of these messages and does not add the student. If there is more than one problem, `add` reports only the first, checking in this order: text before the first parameter, missing parameters, repeated parameters, and then each value in the order `NAME`, `PHONE`, `SCHOOL`, `LEVEL`, subjects, and guardian.
+If the command is wrong, `add` shows one of these messages and does not add the student. If there is more than one input problem, `add` reports only the first. It checks for text before the first parameter, missing parameters, repeated parameters, and then invalid values in the order `NAME`, `PHONE`, `SCHOOL`, `LEVEL`, subjects, and guardian. After all input is valid, TuteeBook3 checks whether the student is a duplicate.
 
 Problem | Message
 --------|--------
@@ -110,12 +110,12 @@ There are no parameters at all, or there is text between `add` and the first par
 `n/`, `sch/`, `lvl/`, or `sub/` is missing, or has no space before it | Every missing one is named, such as `Missing required parameters: sch/, lvl/.`
 `n/`, `p/`, `sch/`, `lvl/`, `gn/`, or `gp/` appears more than once | `Multiple values specified for the following single-valued field(s): p/`
 `NAME` is invalid | `Names should only contain alphanumeric characters and spaces, and should not be blank`
+`PHONE` or `GUARDIAN_PHONE` is invalid | The message says why, as described above
 `SCHOOL` is invalid | `School names must be 1-100 characters and contain at least one letter.`
 `LEVEL` is not S1 to S5 | `Level must be one of S1, S2, S3, S4, S5.`
+A subject or band is wrong | See [Subject and band errors](#subject-and-band-errors)
 Only one of `gn/` and `gp/` is given | `Guardian name (gn/) and guardian phone (gp/) must be given together.`
 A student with the same normalized name, school, and level already exists | `A student named NAME at SCHOOL, level LEVEL already exists. If this is a different student, enter a distinguishing name, for example Chloe Tan 2.`
-`PHONE` or `GUARDIAN_PHONE` is invalid | The message says why, as described above
-A subject or band is wrong | See [Subject and band errors](#subject-and-band-errors)
 
 TuteeBook3 checks for likely duplicates using the student's name. It ignores capitalization and repeated spaces when comparing names and school names; it compares levels directly. If another student has the same name but a different school or level, `add` shows an amber prompt such as `A student named NAME already exists at SCHOOL (LEVEL). Add another student with this name?` Type `CONFIRM` to add the record. Any other input cancels the add and is processed as a command. If the normalized name, school, and level all match, `add` rejects the new record. TuteeBook3 displays the red error `A student named NAME at SCHOOL, level LEVEL already exists. If this is a different student, enter a distinguishing name, for example Chloe Tan 2.` Two people with the same name, school, and level would otherwise look identical in the app, making it hard to tell whose record you are viewing or changing. If they are different people, give one a distinguishing saved name, such as `Chloe Tan 2`. The comparison does not use phone numbers, subjects, or bands, and it cannot detect every real-world duplicate.
 
