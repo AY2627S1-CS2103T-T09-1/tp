@@ -24,9 +24,18 @@ public class DeleteNoteCommandParser implements Parser<DeleteNoteCommand> {
                     String.format(MESSAGE_INVALID_COMMAND_FORMAT, DeleteNoteCommand.MESSAGE_USAGE));
         }
 
-        Index index = ParserUtil.parseIndex(argMultimap.getPreamble());
+        String[] preambleParts = argMultimap.getPreamble().split("\\s+");
+        boolean isForced = preambleParts.length == 2
+                && preambleParts[0].equals(DeleteNoteCommand.FORCE_OPTION);
+        if (preambleParts.length > 2 || preambleParts.length == 0
+                || (preambleParts.length == 2 && !isForced)) {
+            throw new ParseException(String.format(
+                    MESSAGE_INVALID_COMMAND_FORMAT, DeleteNoteCommand.MESSAGE_USAGE));
+        }
+        String indexArgument = isForced ? preambleParts[1] : preambleParts[0];
+        Index index = ParserUtil.parseIndex(indexArgument);
         argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NID);
         Index nid = ParserUtil.parseNid(argMultimap.getValue(PREFIX_NID).get());
-        return new DeleteNoteCommand(index, nid);
+        return new DeleteNoteCommand(index, nid, isForced);
     }
 }
