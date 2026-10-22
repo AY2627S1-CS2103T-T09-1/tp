@@ -702,7 +702,7 @@ Use case ends.
 2.  TuteeBook3 shows the student's record with numbered notes
 3.  Tutor requests to edit a specific note, giving the student's index, note number and new text
 4.  TuteeBook3 validates the text and replaces the note's text
-5.  TuteeBook3 shows the updated record
+5.  TuteeBook3 shows the updated record and a success message with the note's old and new text
 
     Use case ends.
 
