@@ -166,8 +166,8 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT ban
 * You can remove a person's phone number by typing `p/` without specifying any number after it.
 * The displayed list and any open student record stay as they are, so the other students keep their index numbers. If the edited student no longer matches your last `filter`, they stay in the list until you enter `list` or `filter` again. The result box tells you when an edit makes a student stop matching.
 * If the student already has a guardian, `gn/` or `gp/` on its own changes just that part of the guardian.
-* If the student has no guardian yet, give both `gn/` and `gp/` to add one. Giving only one of them shows `This person has no guardian yet. Give both gn/ and gp/ to add one.`
-* You can remove the guardian by typing `gn/ gp/` with no values after either. Leaving only one of them empty, such as `gn/` alone or `gn/ gp/91234567`, is rejected so that the guardian is not removed by mistake. If the student has no guardian, `gn/ gp/` shows `This person has no guardian to remove.`
+* If the student has no guardian yet, give both `gn/` and `gp/` to add one. Giving only one of them shows `This student has no guardian yet. Give both gn/ and gp/ to add one.`
+* You can remove the guardian by typing `gn/ gp/` with no values after either. Leaving only one of them empty, such as `gn/` alone or `gn/ gp/91234567`, is rejected so that the guardian is not removed by mistake. If the student has no guardian, `gn/ gp/` shows `This student has no guardian to remove.`
 
 Examples:
 *  `edit 1 p/91234567 sch/Victoria School` Edits the phone number and school of the 1st person to be `91234567` and `Victoria School` respectively.
@@ -227,7 +227,7 @@ If the command is wrong, `addnote` shows one of these messages and does not chan
 Problem | Message
 --------|--------
 `INDEX` is not a positive integer, such as `0` or `abc` | `Index must be a positive integer.`
-`INDEX` is larger than the number of students shown | `The person index provided is invalid.`
+`INDEX` is larger than the number of students shown | `The student index provided is invalid.`
 `TEXT` is empty or only spaces | `Note text cannot be blank.`
 `TEXT` is longer than 500 characters | `Note text must be at most 500 characters.`
 `t/` appears more than once | `Multiple values specified for the following single-valued field(s): t/`
@@ -261,7 +261,7 @@ Problem | Message
 --------|--------
 `INDEX` is not a positive integer, such as `0` or `abc` | `Index must be a positive integer.`
 There is other text between `INDEX` and `nid/`, such as `deletenote 1 abc nid/2` | `Invalid command format!` followed by how to use `deletenote`
-`INDEX` is larger than the number of students shown | `The person index provided is invalid.`
+`INDEX` is larger than the number of students shown | `The student index provided is invalid.`
 `NID` is empty or is not a positive integer, such as `0`, `-1`, or `abc` | `NID must be a positive integer.`
 The student has no notes | `{NAME} has no notes to delete.`
 `NID` is larger than the number of notes the student has | `NID {NID} does not exist. {NAME} has only {COUNT} notes.` (or `1 note` if the student has one note)

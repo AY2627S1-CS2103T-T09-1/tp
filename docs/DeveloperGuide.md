@@ -981,7 +981,7 @@ testers are expected to do more *exploratory* testing.
       Expected: Only the guardian's phone changes. Viewing Tim Tan's student details shows guardian Mary Tan with phone number `98765432`.
 
    1. Test case: `edit 1 gn/Peter Lim` on Ken Lim<br>
-      Expected: Ken Lim is unchanged. The status message shows `This person has no guardian yet. Give both gn/ and gp/ to add one.`
+      Expected: Ken Lim is unchanged. The status message shows `This student has no guardian yet. Give both gn/ and gp/ to add one.`
 
    1. Test case: `edit 1 gn/ gp/91234567` on Tim Tan<br>
       Expected: Tim Tan is unchanged. The status message says that guardian name and guardian phone cannot be empty.
@@ -990,7 +990,7 @@ testers are expected to do more *exploratory* testing.
       Expected: The guardian is removed, and viewing the student's details shows `Not provided` for both guardian name and guardian phone.
 
    1. Test case: `edit 1 gn/ gp/` on Ken Lim<br>
-      Expected: Ken Lim is unchanged. The status message shows `This person has no guardian to remove.`
+      Expected: Ken Lim is unchanged. The status message shows `This student has no guardian to remove.`
 
 ### Entering phone numbers
 

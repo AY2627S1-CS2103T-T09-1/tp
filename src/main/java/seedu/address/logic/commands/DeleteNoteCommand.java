@@ -22,7 +22,7 @@ public class DeleteNoteCommand extends Command implements ConfirmationCommand {
     public static final String FORCE_OPTION = "-f";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD
-            + ": Deletes the note numbered NID from the person at INDEX.\n"
+            + ": Deletes the note numbered NID from the student at INDEX.\n"
             + "Parameters: [" + FORCE_OPTION + "] INDEX (must be a positive integer) "
             + "nid/NID (must be a positive integer)\n"
             + "Example: " + COMMAND_WORD + " 1 nid/2 (asks for confirmation)\n"

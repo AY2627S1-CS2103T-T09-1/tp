@@ -20,7 +20,7 @@ public class DeleteCommand extends Command implements ConfirmationCommand {
     public static final String FORCE_OPTION = "-f";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD
-            + ": Deletes the person identified by the index number used in the displayed person list.\n"
+            + ": Deletes the student identified by the index number used in the displayed student list.\n"
             + "Parameters: [" + FORCE_OPTION + "] INDEX (must be a positive integer)\n"
             + "Example: " + COMMAND_WORD + " 1 (asks for confirmation)\n"
             + COMMAND_WORD + " " + FORCE_OPTION + " 1 (deletes immediately)";
