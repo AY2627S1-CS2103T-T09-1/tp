@@ -246,7 +246,7 @@ public class MainWindowStudentDetailTest {
 
     private void assertNoStudentSelectedMessage() {
         Label emptyState = (Label) getDetailPlaceholder().lookup("#noStudentSelected");
-        assertEquals("No student card selected.", emptyState.getText());
+        assertEquals("View a student to see details.", emptyState.getText());
     }
 
     private MouseEvent createPrimaryMousePress() {
