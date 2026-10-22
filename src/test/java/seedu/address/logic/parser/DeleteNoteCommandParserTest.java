@@ -27,6 +27,20 @@ public class DeleteNoteCommandParserTest {
     }
 
     @Test
+    public void parse_forceOption_returnsForcedDeleteNoteCommand() {
+        assertParseSuccess(parser, "-f 1 nid/2",
+                new DeleteNoteCommand(INDEX_FIRST_PERSON, Index.fromOneBased(2), true));
+    }
+
+    @Test
+    public void parse_forceOptionWrongPositionOrCase_throwsParseException() {
+        String expectedMessage = String.format(
+                MESSAGE_INVALID_COMMAND_FORMAT, DeleteNoteCommand.MESSAGE_USAGE);
+        assertParseFailure(parser, "1 -f nid/2", expectedMessage);
+        assertParseFailure(parser, "-F 1 nid/2", expectedMessage);
+    }
+
+    @Test
     public void parse_maxIntNid_returnsDeleteNoteCommand() {
         assertParseSuccess(parser, "1 nid/2147483647",
                 new DeleteNoteCommand(INDEX_FIRST_PERSON, Index.fromOneBased(Integer.MAX_VALUE)));
@@ -63,9 +77,10 @@ public class DeleteNoteCommandParserTest {
     }
 
     @Test
-    public void parse_extraTextBeforePrefix_throwsIndexError() {
-        assertParseFailure(parser, " 1 abc nid/2", MESSAGE_INVALID_INDEX);
-        assertParseFailure(parser, " 1 2 nid/3", MESSAGE_INVALID_INDEX);
+    public void parse_extraTextBeforePrefix_throwsCommandFormatError() {
+        String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, DeleteNoteCommand.MESSAGE_USAGE);
+        assertParseFailure(parser, " 1 abc nid/2", expectedMessage);
+        assertParseFailure(parser, " 1 2 nid/3", expectedMessage);
     }
 
     @Test

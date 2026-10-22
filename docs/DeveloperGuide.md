@@ -114,6 +114,28 @@ How the parsing works:
 * When called upon to parse a user command, the `AddressBookParser` class creates an `XYZCommandParser` (`XYZ` is a placeholder for the specific command name, e.g., `AddCommandParser`). The parser uses the other classes shown above to parse the user command and create an `XYZCommand` object (e.g., `AddCommand`). The `AddressBookParser` returns that object as a `Command` object.
 * All `XYZCommandParser` classes, such as `AddCommandParser` and `DeleteCommandParser`, implement the `Parser` interface so they can be treated similarly where appropriate, for example during testing.
 
+### Command confirmations
+
+`ClearCommand`, `DeleteCommand`, and `DeleteNoteCommand` implement `ConfirmationCommand`. Before running one of these commands, `LogicManager` asks it whether a prompt is needed. `ConfirmationManager` stores the command and returns a warning `CommandResult`, which the UI displays in amber. The next input confirms the stored command only when trimming leading and trailing spaces produces the exact uppercase word `CONFIRM`. Every other input first clears the pending command, then follows normal command parsing and execution. A red cancellation notice is displayed above the new command's unchanged output; if parsing or execution fails, the cancellation notice and error are both red. If the new command needs confirmation, it replaces the old request. These destructive commands accept `-f` to execute without prompting.
+
+#### Design considerations
+
+**Aspect: How the user confirms a destructive command**
+
+* **Alternative 1:** Ask for `y` or `n`.
+  * Pros: Fast to type and familiar to many command-line users.
+  * Cons: A one-letter response is easy to enter accidentally. If other input is blocked while the prompt is pending, the user must enter `n` before they can run a command such as `list` to check an index. If other input runs as a command, `y` and `n` become reserved responses that cannot be used as command names during that prompt.
+
+* **Alternative 2:** Ask for `yes` or `no`.
+  * Pros: The response is more explicit than a single letter and reads naturally in a prompt.
+  * Cons: Accepting both `y`/`n` and `yes`/`no` adds four confirmation spellings to remember and test. Accepting only `yes`/`no` still reserves those inputs while a prompt is pending.
+
+* **Alternative 3 (current choice):** Ask the user to type the exact uppercase word `CONFIRM`; trim leading and trailing spaces before comparing.
+  * Pros: The word makes the destructive intent explicit and is less likely to be entered accidentally. Lowercase `confirm`, `CONFIRM extra`, and `y` do not confirm. Any other input cancels the pending action and follows normal command handling, so the user can run `list` or another command immediately. A new destructive command starts its own confirmation prompt and replaces the old pending action.
+  * Cons: It takes longer to type than `y`, requires uppercase, and a mistyped response cancels the pending action before being handled as a command.
+
+The current prompt names the action and tells the user to type uppercase `CONFIRM`; it also says that any other input cancels the request and runs as a command. Prompts use the existing amber warning style. The cancellation notice uses the red error style; successful command output keeps its usual white style beneath it, and an invalid command is shown in red. The design does not accept `yes`/`no` aliases.
+
 ### Model component
 **API** : [`Model.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/model/Model.java)
 
@@ -540,23 +562,11 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case resumes at step 2.
 
-* 5a. Tutor cancels the deletion.
+* 5a. Tutor enters anything other than the exact uppercase word `CONFIRM` after trimming leading and trailing spaces.
 
-    * 5a1. TuteeBook3 discards the pending deletion request and keeps the student.
+    * 5a1. TuteeBook3 cancels the pending deletion, displays a red cancellation notice, and processes the input as a command.
 
-      Use case ends.
-
-* 5b. Tutor enters any other command instead of confirming or cancelling.
-
-    * 5b1. TuteeBook3 discards the pending deletion request, then processes the new command as normal.
-
-      Use case ends.
-
-* 5c. Tutor's confirmation does not match the pending request.
-
-    * 5c1. TuteeBook3 discards the pending request and shows an error message that there is no matching deletion request.
-
-      Use case resumes at step 3.
+      Use case resumes at the relevant step for that command.
 
 * 6a. TuteeBook3 fails to save the change.
 
@@ -731,7 +741,8 @@ Use case ends.
 1.  Tutor requests to view a specific student by index
 2.  TuteeBook3 shows the student's record with numbered notes
 3.  Tutor requests to delete a specific note, giving the student's index and NID
-4.  TuteeBook3 deletes the note, renumbers the remaining notes, and shows a confirmation message
+4.  TuteeBook3 asks Tutor to confirm deleting the note.
+5.  Tutor confirms, and TuteeBook3 deletes the note, renumbers the remaining notes, and shows a success message.
 
     Use case ends.
 
@@ -752,6 +763,12 @@ Use case ends.
     * 3a1. TuteeBook3 shows an error message.
 
       Use case resumes at step 2.
+
+* 4a. Tutor cancels the deletion.
+
+    * 4a1. TuteeBook3 keeps the note and reports that no changes were made.
+
+      Use case ends.
 
 ---
 
@@ -806,8 +823,8 @@ Use case ends.
 1.  Tutor requests to list students
 2.  TuteeBook3 shows the students, including the sample students
 3.  Tutor requests to clear all students
-4.  TuteeBook3 warns that all students and notes will be deleted, and asks Tutor to type `clear` again
-5.  Tutor requests to clear all students again
+4.  TuteeBook3 shows an amber warning that all students and notes will be deleted, and asks Tutor to enter `CONFIRM`; any other input cancels the request and runs as a command
+5.  Tutor enters `CONFIRM`
 6.  TuteeBook3 removes all students and their notes
 7.  TuteeBook3 shows an empty roster
 
@@ -828,11 +845,11 @@ Use case ends.
 
       Use case ends.
 
-* 5a. Tutor enters any other command instead of confirming.
+* 5a. Tutor enters anything other than the exact uppercase word `CONFIRM` after trimming leading and trailing spaces.
 
-    * 5a1. TuteeBook3 cancels the pending `clear` request and processes the new input as usual.
+    * 5a1. TuteeBook3 cancels the pending `clear` request, displays a red cancellation notice, and processes the input as a command.
 
-      Use case ends.
+      Use case resumes at the relevant step for that command.
 
 ### Non-Functional Requirements
 
@@ -964,7 +981,7 @@ testers are expected to do more *exploratory* testing.
       Expected: Only the guardian's phone changes. Viewing Tim Tan's student details shows guardian Mary Tan with phone number `98765432`.
 
    1. Test case: `edit 1 gn/Peter Lim` on Ken Lim<br>
-      Expected: Ken Lim is unchanged. The status message shows `This person has no guardian yet. Give both gn/ and gp/ to add one.`
+      Expected: Ken Lim is unchanged. The status message shows `This student has no guardian yet. Give both gn/ and gp/ to add one.`
 
    1. Test case: `edit 1 gn/ gp/91234567` on Tim Tan<br>
       Expected: Tim Tan is unchanged. The status message says that guardian name and guardian phone cannot be empty.
@@ -973,7 +990,7 @@ testers are expected to do more *exploratory* testing.
       Expected: The guardian is removed, and viewing the student's details shows `Not provided` for both guardian name and guardian phone.
 
    1. Test case: `edit 1 gn/ gp/` on Ken Lim<br>
-      Expected: Ken Lim is unchanged. The status message shows `This person has no guardian to remove.`
+      Expected: Ken Lim is unchanged. The status message shows `This student has no guardian to remove.`
 
 ### Entering phone numbers
 
