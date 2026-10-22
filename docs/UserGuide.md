@@ -21,7 +21,7 @@ TuteeBook3 is a **desktop app for private tutors who teach secondary school stud
 
 1. Open a terminal, `cd` to the folder containing the JAR file, and run `java -jar TuteeBook3.jar`.<br>
    A GUI similar to the one below should appear in a few seconds. Note how the app contains some sample data.<br>
-   ![Ui](images/Ui.png)
+   ![img.png](img.png)
 
 1. Familiarize yourself with TuteeBook3 by trying its commands using the sample data. Type a command in the command box and press Enter to execute it. For example, type **`help`** and press Enter to show the available commands in the feedback box.<br>
    Some other commands you can try:
@@ -326,7 +326,7 @@ Filter | Matches students whose…
 
 Examples:
 * `filter n/c` returns `SAMPLE Chloe Tan` and `SAMPLE Marcus Lim` from the sample student list.<br>
-  ![Results for filter c](images/findChloeMarcusResult.png)
+  ![img_1.png](img_1.png)
 * `filter sch/victoria` returns `SAMPLE Daniel Lee`.
 * `filter n/lim sch/secondary` returns `SAMPLE Marcus Lim`.
 
