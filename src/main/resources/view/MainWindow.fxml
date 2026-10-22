@@ -3,6 +3,7 @@
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Scene?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -51,7 +52,18 @@
           <padding>
             <Insets top="10" right="10" bottom="10" left="10" />
           </padding>
-          <StackPane fx:id="contentPanelPlaceholder" VBox.vgrow="ALWAYS"/>
+          <StackPane fx:id="contentPanelPlaceholder" VBox.vgrow="ALWAYS">
+            <SplitPane fx:id="mainContentSplitPane" dividerPositions="0.4"
+                       styleClass="main-content-split-pane">
+              <items>
+                <StackPane fx:id="personListPanelPlaceholder" minWidth="180" />
+                <StackPane fx:id="studentDetailPanelPlaceholder" minWidth="280">
+                  <Label fx:id="noStudentSelected" styleClass="student-detail-empty-selection"
+                         text="No student card selected." wrapText="true" />
+                </StackPane>
+              </items>
+            </SplitPane>
+          </StackPane>
         </VBox>
 
         <StackPane fx:id="statusbarPlaceholder" VBox.vgrow="NEVER" />

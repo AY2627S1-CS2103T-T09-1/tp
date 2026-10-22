@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.KeyCombination;
@@ -13,6 +14,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
+import seedu.address.commons.core.index.Index;
 import seedu.address.logic.Logic;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.CommandResult.DisplayMode;
@@ -46,7 +48,13 @@ public class MainWindow extends UiPart<Stage> {
     private MenuItem helpMenuItem;
 
     @FXML
-    private StackPane contentPanelPlaceholder;
+    private StackPane personListPanelPlaceholder;
+
+    @FXML
+    private StackPane studentDetailPanelPlaceholder;
+
+    @FXML
+    private Label noStudentSelected;
 
     @FXML
     private StackPane resultDisplayPlaceholder;
@@ -115,7 +123,8 @@ public class MainWindow extends UiPart<Stage> {
      */
     void fillInnerParts() {
         personListPanel = new PersonListPanel(logic.getFilteredPersonList());
-        showPersonList();
+        personListPanelPlaceholder.getChildren().add(personListPanel.getRoot());
+        showNoStudentSelected();
 
         resultDisplay = new ResultDisplay();
         resultDisplayPlaceholder.getChildren().add(resultDisplay.getRoot());
@@ -203,18 +212,21 @@ public class MainWindow extends UiPart<Stage> {
     private void updateMainContent(CommandResult commandResult) {
         DisplayMode displayMode = commandResult.getDisplayMode();
         if (displayMode == DisplayMode.SHOW_LIST) {
-            showPersonList();
+            showNoStudentSelected();
         } else if (displayMode == DisplayMode.SHOW_STUDENT) {
+            Index displayedIndex = commandResult.getDisplayedIndex().orElseThrow();
             studentDetailPanel = new StudentDetailPanel(
                     commandResult.getPersonToDisplay().orElseThrow(),
-                    commandResult.getDisplayedIndex().orElseThrow(),
+                    displayedIndex,
                     logic.getFilteredPersonList());
-            contentPanelPlaceholder.getChildren().setAll(studentDetailPanel.getRoot());
+            studentDetailPanelPlaceholder.getChildren().setAll(studentDetailPanel.getRoot());
+            personListPanel.selectPerson(displayedIndex);
         }
     }
 
-    private void showPersonList() {
+    private void showNoStudentSelected() {
         studentDetailPanel = null;
-        contentPanelPlaceholder.getChildren().setAll(personListPanel.getRoot());
+        studentDetailPanelPlaceholder.getChildren().setAll(noStudentSelected);
+        personListPanel.clearSelection();
     }
 }

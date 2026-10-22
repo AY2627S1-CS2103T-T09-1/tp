@@ -112,7 +112,7 @@ Examples:
 
 ### Listing all persons: `list`
 
-Shows a list of all persons in the address book. Each entry shows the student's index, name, phone number (if provided), school, and level. Use `view INDEX` to see the remaining details.
+Shows a list of all persons in the address book. Each entry shows the student's index, name, phone number (if provided), school, and level. The panel on the right shows `No student card selected.` until you use `view INDEX` to see a student's remaining details.
 
 Format: `list`
 
@@ -120,18 +120,18 @@ The command does not accept additional arguments.
 
 ### Viewing a student: `view`
 
-Shows the full record of the student at the specified index in the main content area.
+Shows the full record of the student at the specified index beside the displayed student list.
 
-The detail panel contains the student's name, school, level, subject-band pairs, student phone number, guardian name, guardian phone number, and notes. Optional fields without a recorded value, such as the student phone number or guardian details, are shown as `Not provided`.
+The student list remains on the left. On the right, the detail panel shows the student's name, school, level, subject-band pairs, student phone number, guardian name, and guardian phone number, followed by the student's notes. Optional fields without a recorded value, such as the student phone number or guardian details, are shown as `Not provided`.
 
 Format: `view INDEX`
 
 * The index refers to the index number shown in the displayed student list.
 * The index must be a positive integer, such as 1, 2, or 3.
-* The current search results are preserved while you view the student.
-* Entering `view` again replaces the current student record instead of opening another panel.
-* Enter `list` to return to the full student list, or `filter` to display new search results.
-* Commands that add or delete students return to the student list after they succeed. `edit` keeps the current list and student record. If the open record is the student you edited, it shows the changes. A confirmed `clear`, or `clear -f`, also returns to the (cleared) student list.
+* The current search results remain visible on the left while you view the student. The viewed student's row is highlighted.
+* Entering `view` again updates the student record on the right instead of opening another panel.
+* Enter `list` to clear the student record and show the full student list, or `filter` to clear the record and display new search results. The right panel then shows `No student card selected.`.
+* Commands that add or delete students clear the student record after they succeed. `edit` keeps the current list and student record. If the open record is the student you edited, it shows the changes. A confirmed `clear`, or `clear -f`, also clears the student record.
 * Help and invalid commands leave the student record visible.
 
 Example: `view 2` shows the full record of the second student in the currently displayed list.
@@ -296,7 +296,7 @@ Format: `delete [-f] INDEX`
 * `delete` shows an amber prompt, such as `This will delete Alex Tan and all their notes. Continue? Type CONFIRM (uppercase) to proceed; any other input cancels this request and runs as a command.` Enter `CONFIRM` to confirm. Use `delete -f INDEX` to delete immediately.
 * After `view`, use the index shown at the top of the student detail view when running `delete`.
 * After a student is deleted, the student list shows all remaining students, even if you used `filter` before. The index numbers of the remaining students may change, so check the list before you run another command that uses an index.
-* If the student detail view was open, it closes and the student list is shown.
+* If the student detail view was open, the right panel returns to `No student card selected.`.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
 After you confirm with `CONFIRM`, `delete` removes the student and all their notes immediately. `delete -f` skips confirmation. You cannot undo the deletion. Check `INDEX` in the student list before you confirm.
