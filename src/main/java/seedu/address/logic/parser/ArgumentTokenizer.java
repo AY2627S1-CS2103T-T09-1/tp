@@ -29,6 +29,29 @@ public class ArgumentTokenizer {
     }
 
     /**
+     * Tokenizes an arguments string whose last argument is free text, and returns an {@code ArgumentMultimap}.
+     * Everything after the first valid occurrence of {@code trailingPrefix} becomes its value, even if it
+     * contains other prefixes. Only text before {@code trailingPrefix} is searched for {@code prefixes}.
+     *
+     * @param argsString Arguments string of the form: {@code preamble <prefix>value ... <trailingPrefix>text}.
+     * @param trailingPrefix Prefix whose value runs to the end of {@code argsString}.
+     * @param prefixes Prefixes to recognize before {@code trailingPrefix}.
+     * @return ArgumentMultimap object that maps prefixes to their arguments.
+     */
+    public static ArgumentMultimap tokenizeWithTrailingText(String argsString, Prefix trailingPrefix,
+            Prefix... prefixes) {
+        int trailingPrefixPosition = findPrefixPosition(argsString, trailingPrefix.getPrefix(), 0);
+        if (trailingPrefixPosition == -1) {
+            return tokenize(argsString, prefixes);
+        }
+
+        ArgumentMultimap argMultimap = tokenize(argsString.substring(0, trailingPrefixPosition), prefixes);
+        int trailingTextStart = trailingPrefixPosition + trailingPrefix.getPrefix().length();
+        argMultimap.put(trailingPrefix, argsString.substring(trailingTextStart).trim());
+        return argMultimap;
+    }
+
+    /**
      * Finds all zero-based prefix positions in the given arguments string.
      *
      * @param argsString Arguments string of the form: {@code preamble <prefix>value <prefix>value ...}

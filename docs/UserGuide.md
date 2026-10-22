@@ -147,7 +147,7 @@ Format: `view INDEX`
 * The current search results are preserved while you view the student.
 * Entering `view` again replaces the current student record instead of opening another panel.
 * Enter `list` to return to the full student list, or `filter` to display new search results.
-* Commands that add or delete students return to the student list after they succeed. `edit` keeps the current list and student record. If the open record is the student you edited, it shows the changes. A confirmed `clear`, or `clear -f`, also returns to the (cleared) student list.
+* Commands that add or delete students return to the student list after they succeed. `edit`, `addnote`, `editnote`, and `deletenote` keep the current list and student record. If the open record is the student you changed, it shows the changes. A confirmed `clear`, or `clear -f`, also returns to the (cleared) student list.
 * Help and invalid commands leave the student record visible.
 
 Example: `view 2` shows the full record of the second student in the currently displayed list.
@@ -233,6 +233,42 @@ Problem | Message
 `t/` appears more than once | `Multiple values specified for the following single-valued field(s): t/`
 `INDEX` or `t/TEXT` is missing, or there is no space before `t/` | `Invalid command format!` followed by how to use `addnote`
 
+### Editing a note of a student: `editnote`
+
+Replaces the text of one of a student's notes.
+
+Format: `editnote INDEX nid/NID t/TEXT`
+
+* `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
+* `NID` is the number shown before the note in the student detail view. It must be a positive integer, such as 1, 2, or 3. To see a student's notes and their NIDs, use `view INDEX`.
+* `TEXT` is the new text of the note. It follows the same rules as in `addnote`: 1 to 500 characters, with spaces before and after the text removed.
+* `nid/NID` must come before `t/TEXT`. Everything after `t/` is the note text, so `TEXT` can contain anything, including `t/f`, `nid/`, or another `t/`. For example, `editnote 1 nid/2 t/Revise t/f questions` saves the note `Revise t/f questions`.
+* The edited note keeps its NID, and the student's other notes do not change.
+* If the new text is the same as the current text, the note stays as it is and `editnote` shows the message `No changes made: note {NID} of {NAME} already says: {TEXT}` in amber. Changing only uppercase and lowercase letters, such as `algebra` to `Algebra`, counts as a change.
+* Editing a note does not change which students are shown.
+* After `view`, use the index shown at the top of the student detail view when running `editnote`.
+
+Examples:
+
+* `editnote 1 nid/2 t/Improving in algebra` replaces note 2 of the 1st student in the displayed list with `Improving in algebra`.
+* `view 3` followed by `editnote 3 nid/1 t/WA2 Math: 42/50` replaces the first note of the student shown by `view 3`.
+
+If the command is wrong, `editnote` shows one of these messages and does not change any student. When several parts are wrong, `editnote` reports the first one in this table.
+
+Problem | Message
+--------|--------
+`nid/NID` comes after `t/TEXT`, such as `editnote 1 t/hi nid/2` | `Put nid/NID before t/TEXT. Everything after t/ is read as the note text.`
+`INDEX`, `nid/NID`, or `t/TEXT` is missing, or there is no space before `nid/` or `t/` | `Invalid command format!` followed by how to use `editnote`
+`INDEX` is not a positive integer, such as `0` or `abc` | `Index must be a positive integer.`
+There is other text between `INDEX` and the first prefix, such as `editnote 1 abc nid/2 t/hi` | `Index must be a positive integer.`
+`nid/` appears more than once before `t/` | `Multiple values specified for the following single-valued field(s): nid/`
+`NID` is empty or is not a positive integer, such as `0`, `-1`, or `abc` | `NID must be a positive integer.`
+`TEXT` is empty or only spaces | `Note text cannot be blank.`
+`TEXT` is longer than 500 characters | `Note text must be at most 500 characters.`
+`INDEX` is larger than the number of students shown | `The student index provided is invalid.`
+The student has no notes | `{NAME} has no notes to edit.`
+`NID` is larger than the number of notes the student has | `NID {NID} does not exist. {NAME} has only {COUNT} notes.` (or `1 note` if the student has one note)
+
 ### Deleting a note from a student: `deletenote`
 
 Deletes one note from a student's notes.
@@ -272,7 +308,7 @@ The student has no notes | `{NAME} has no notes to delete.`
 
 Shows the students who match every filter you give.
 
-Format: `filter [n/NAME] [sch/SCHOOL] [p/PHONE] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`
+Format: `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/PHONE] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`
 
 * Give at least one filter, and each filter at most once.
 * A student must match every filter you give. For example, `filter n/tan sch/bedok` shows students whose name contains `tan` and whose school contains `bedok`.
@@ -281,12 +317,16 @@ Filter | Matches students whose… | Match
 -------|-------------------------|------
 `n/NAME` | name contains `NAME` | partial matching
 `sch/SCHOOL` | school contains `SCHOOL` | partial matching
+`lvl/LEVEL` | level is `LEVEL`, one of `S1` to `S5` | exact matching
+`sub/SUBJECT` | subjects include `SUBJECT` | exact matching
+`sub/SUBJECT band/BAND` | subjects include `SUBJECT` at `BAND` (`G1` to `G3`) | exact matching
 `p/PHONE` | own phone number is `PHONE` | exact matching
 `gn/GUARDIAN_NAME` | guardian's name contains `GUARDIAN_NAME` | partial matching
 `gp/GUARDIAN_PHONE` | guardian's phone number is `GUARDIAN_PHONE` | exact matching
 
 * A filter with partial matching can match any part of the value, even part of a word. For example, `sch/vic` matches `Victoria School`.
-* A filter with exact matching must match the whole value. For example, `p/9123` does not match `91234567`.
+* A filter with exact matching must match the whole value. For example, `lvl/S3` matches only students in S3, `sub/math` does not match `Mathematics`, and `p/9123` does not match `91234567`.
+* `band/` must come right after `sub/`, and the band must belong to that subject. For example, a student taking Mathematics at G1 and Science at G2 does not match `sub/Mathematics band/G2`.
 * Phone numbers are compared the way they are saved: spaces, hyphens, and a leading `+65` are removed. For example, `p/9123 4567` and `p/+65 9123-4567` both match `91234567`. An overseas number must include its `+` and country code.
 * A student without a phone never matches `p/`, and a student without a guardian never matches `gn/` or `gp/`.
 * Filters are not case-sensitive, and extra spaces are ignored.
@@ -299,6 +339,10 @@ Examples:
   ![Results for filter c](images/findChloeMarcusResult.png)
 * `filter sch/victoria` returns `SAMPLE Daniel Lee`.
 * `filter n/lim sch/secondary` returns `SAMPLE Marcus Lim`.
+* `filter lvl/s2` returns `SAMPLE Chloe Tan` and `SAMPLE Ethan Kumar`.
+* `filter sch/bedok lvl/S2` returns `SAMPLE Chloe Tan`.
+* `filter sub/mathematics band/G2` returns `SAMPLE Marcus Lim` and `SAMPLE Daniel Lee`.
+* `filter sub/chemistry` returns `SAMPLE Aisha Rahman` and `SAMPLE Natalie Goh`.
 * `filter p/9123 4567` returns `SAMPLE Chloe Tan`.
 * `filter gp/98765432` returns `SAMPLE Marcus Lim`, whose guardian is Grace Lim.
 * `filter gn/goh` returns `SAMPLE Natalie Goh`, whose guardian is Michelle Goh.
@@ -309,9 +353,13 @@ No filter is given | `Give at least one filter.` followed by how to use `filter`
 There is text before the first filter | `Invalid command format!` followed by how to use `filter`
 A filter is empty, such as `sch/` | `The school to search for cannot be blank.` (or `name`)
 A filter appears more than once | `Multiple values specified for the following single-valued field(s): sch/`
+`LEVEL` is not one of `S1` to `S5`, or is empty | `Level must be one of S1, S2, S3, S4, S5.`
+`SUBJECT` is empty or invalid | `Subjects must be 1-40 characters using only letters, spaces and hyphens, with at least one letter.`
+`BAND` is not one of `G1` to `G3`, or is empty | `Band must be one of G1, G2, G3.`
+`band/` is not right after `sub/`, or there is no `sub/` | `band/ must come right after sub/, such as: filter sub/Mathematics band/G2`
 `PHONE` or `GUARDIAN_PHONE` is empty or not a valid phone number | The same message as `add`, such as `Phone cannot be empty.`
 `GUARDIAN_NAME` is empty | `The guardian name to search for cannot be blank.`
-`t/` or `nid/` is given | `filter cannot search notes. Filter by name or school instead, such as: filter n/tan sch/bedok`
+`t/` or `nid/` is given | `filter cannot search notes. Filter by the student's details instead, such as: filter n/tan sch/bedok lvl/S3`
 
 ### Deleting a student: `delete`
 
@@ -424,6 +472,7 @@ Action | Format, Examples
 **Delete** | `delete [-f] INDEX`<br> e.g., `delete 3`
 **Delete note** | `deletenote [-f] INDEX nid/NID`<br> e.g., `deletenote 1 nid/2`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `edit 2 sub/Mathematics band/G2 sub/English band/G3`, `edit 1 gn/ gp/`
-**Filter** | `filter [n/NAME] [sch/SCHOOL] [p/PHONE] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `filter gp/98765432`
+**Edit note** | `editnote INDEX nid/NID t/TEXT`<br> e.g., `editnote 1 nid/2 t/Improving in algebra`
+**Filter** | `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/PHONE] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `filter lvl/S5 sub/mathematics band/G2`
 **List** | `list`
 **Help** | `help`
