@@ -231,7 +231,7 @@ public class DeleteNoteCommandTest {
     public void toStringMethod() {
         DeleteNoteCommand deleteNoteCommand = new DeleteNoteCommand(INDEX_FIRST_PERSON, NID_SECOND);
         String expected = DeleteNoteCommand.class.getCanonicalName() + "{targetIndex=" + INDEX_FIRST_PERSON
-                + ", targetNid=" + NID_SECOND + "}";
+                + ", targetNid=" + NID_SECOND + ", isForced=false}";
 
         assertEquals(expected, deleteNoteCommand.toString());
     }

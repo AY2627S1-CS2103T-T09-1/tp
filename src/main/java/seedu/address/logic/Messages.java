@@ -9,6 +9,7 @@ import java.util.stream.Stream;
 import seedu.address.logic.parser.Prefix;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
+import seedu.address.model.person.Subject;
 
 /**
  * Container for user visible messages.
@@ -17,11 +18,13 @@ public class Messages {
 
     public static final String MESSAGE_UNKNOWN_COMMAND = "Unknown command.";
     public static final String MESSAGE_INVALID_COMMAND_FORMAT = "Invalid command format!\n%1$s";
-    public static final String MESSAGE_INVALID_PERSON_DISPLAYED_INDEX = "The person index provided is invalid.";
-    public static final String MESSAGE_PERSONS_LISTED_OVERVIEW = "%1$d person(s) listed!";
+    public static final String MESSAGE_INVALID_PERSON_DISPLAYED_INDEX = "The student index provided is invalid.";
+    public static final String MESSAGE_PERSONS_LISTED_OVERVIEW = "%1$d student(s) listed!";
     public static final String MESSAGE_PHONE_NOT_PROVIDED = "Not provided";
     public static final String MESSAGE_DUPLICATE_FIELDS =
                 "Multiple values specified for the following single-valued field(s): ";
+    public static final String MESSAGE_MISSING_PREFIX = "Missing required parameter: %1$s.";
+    public static final String MESSAGE_MISSING_PREFIXES = "Missing required parameters: %1$s.";
     public static final String MESSAGE_NOT_SINGAPORE_PHONE = "Warning: %1$s doesn't look like a Singapore number "
             + "(8 digits starting with 6, 8, or 9, with or without +65). Use edit to fix it if it's wrong.";
     public static final String MESSAGE_NOT_SINGAPORE_PHONES = "Warning: %1$s don't look like Singapore numbers "
@@ -39,6 +42,17 @@ public class Messages {
                 Stream.of(duplicatePrefixes).map(Prefix::toString).collect(Collectors.toSet());
 
         return MESSAGE_DUPLICATE_FIELDS + String.join(" ", duplicateFields);
+    }
+
+    /**
+     * Returns an error message naming the missing prefixes, in the order given.
+     */
+    public static String getErrorMessageForMissingPrefixes(Prefix... missingPrefixes) {
+        assert missingPrefixes.length > 0;
+
+        String missingFields = Stream.of(missingPrefixes).map(Prefix::toString).collect(Collectors.joining(", "));
+        String format = missingPrefixes.length == 1 ? MESSAGE_MISSING_PREFIX : MESSAGE_MISSING_PREFIXES;
+        return String.format(format, missingFields);
     }
 
     /**
@@ -74,15 +88,17 @@ public class Messages {
     public static String format(Person person) {
         final StringBuilder builder = new StringBuilder();
         builder.append(person.getName())
-                .append("; Phone: ")
+                .append("; Student phone: ")
                 .append(person.getPhone().map(Phone::toString).orElse(MESSAGE_PHONE_NOT_PROVIDED))
                 .append("; School: ")
                 .append(person.getSchool())
                 .append("; Level: ")
                 .append(person.getLevel())
                 .append("; Subjects: ")
-                .append(person.getSubjects());
-        person.getGuardian().ifPresent(guardian -> builder.append("; Guardian: ").append(guardian));
+                .append(person.getSubjects().stream().map(Subject::toString).collect(Collectors.joining(", ")));
+        // labels match the student detail panel
+        person.getGuardian().ifPresent(guardian -> builder.append("; Guardian name: ").append(guardian.getName())
+                .append("; Guardian phone: ").append(guardian.getPhone()));
         return builder.toString();
     }
 

@@ -175,7 +175,8 @@ public class MainWindow extends UiPart<Stage> {
         try {
             CommandResult commandResult = logic.execute(commandText);
             logger.info("Result: " + commandResult.getFeedbackToUser());
-            resultDisplay.setFeedbackToUser(commandResult.getFeedbackToUser(), commandResult.isWarning());
+            resultDisplay.setFeedbackToUser(commandResult.getFeedbackToUser(), commandResult.isWarning(),
+                    commandResult.getCancellationNotice().orElse(null), false);
 
             updateMainContent(commandResult);
 
@@ -186,7 +187,15 @@ public class MainWindow extends UiPart<Stage> {
             return commandResult;
         } catch (CommandException | ParseException e) {
             logger.info("An error occurred while executing command: " + commandText);
-            resultDisplay.setFeedbackToUser(e.getMessage());
+            String errorMessage = e.getMessage();
+            int lineBreak = errorMessage.indexOf('\n');
+            if (lineBreak > 0 && errorMessage.substring(0, lineBreak).stripTrailing()
+                    .endsWith("command has been cancelled.")) {
+                resultDisplay.setFeedbackToUser(errorMessage.substring(lineBreak + 1), false,
+                        errorMessage.substring(0, lineBreak), true);
+            } else {
+                resultDisplay.setFeedbackToUser(errorMessage, false, null, true);
+            }
             throw e;
         }
     }

@@ -29,6 +29,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import seedu.address.commons.core.GuiSettings;
+import seedu.address.logic.ConfirmationManager;
 import seedu.address.logic.Logic;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.exceptions.CommandException;
@@ -128,6 +129,28 @@ public class MainWindowStudentDetailTest {
     }
 
     @Test
+    public void execute_cancelledCommand_showsRedNoticeAndKeepsResultColor(FxRobot robot) {
+        enterCommand(robot, "cancelled");
+        Label cancellationDisplay = (Label) mainWindow.getRoot().getScene().lookup("#cancellationDisplay");
+        TextArea resultDisplay = getResultDisplay();
+        robot.interact(() -> mainWindow.getRoot().getScene().getRoot().applyCss());
+
+        assertEquals("The 'clear' command has been cancelled.", cancellationDisplay.getText());
+        assertTrue(cancellationDisplay.getStyleClass().contains(ResultDisplay.ERROR_STYLE_CLASS));
+        assertEquals("Listed students", resultDisplay.getText());
+        assertFalse(resultDisplay.getStyleClass().contains(ResultDisplay.WARNING_STYLE_CLASS));
+        assertFalse(resultDisplay.getStyleClass().contains(ResultDisplay.ERROR_STYLE_CLASS));
+
+        enterCommand(robot, "replacement");
+        assertTrue(cancellationDisplay.getStyleClass().contains(ResultDisplay.ERROR_STYLE_CLASS));
+        assertTrue(resultDisplay.getStyleClass().contains(ResultDisplay.WARNING_STYLE_CLASS));
+
+        enterCommand(robot, "cancelled-fail");
+        assertTrue(cancellationDisplay.getStyleClass().contains(ResultDisplay.ERROR_STYLE_CLASS));
+        assertTrue(resultDisplay.getStyleClass().contains(ResultDisplay.ERROR_STYLE_CLASS));
+    }
+
+    @Test
     public void warningAndErrorStyles_defaultStyles_haveDifferentTextColors(FxRobot robot) {
         Label warningLabel = new Label("Warning");
         warningLabel.getStyleClass().add(ResultDisplay.WARNING_STYLE_CLASS);
@@ -176,6 +199,14 @@ public class MainWindowStudentDetailTest {
                 case "addnote 1 t/New note" -> addNoteToFirstPerson();
                 case "keep" -> new CommandResult("No display change");
                 case "warn" -> CommandResult.warning("Warning");
+                case "cancelled" -> new CommandResult("Listed students").withCancellationNotice(
+                        String.format(ConfirmationManager.MESSAGE_CANCELLED_FORMAT, "clear"));
+                case "replacement" -> CommandResult.warning("Delete student?"
+                        + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX)
+                        .withCancellationNotice(String.format(ConfirmationManager.MESSAGE_CANCELLED_FORMAT,
+                                "clear"));
+                case "cancelled-fail" -> throw new CommandException(
+                        "The 'clear' command has been cancelled." + System.lineSeparator() + "Invalid command");
                 case "fail" -> throw new CommandException("Invalid command");
                 default -> throw new AssertionError("Unexpected command: " + commandText);
             };

@@ -123,6 +123,38 @@ public class StringUtilTest {
         assertTrue(StringUtil.containsWordIgnoreCase("AAA bBb ccc  bbb", "bbB"));
     }
 
+    //---------------- Tests for containsIgnoreCaseAndSpaces ----------------------
+
+    @Test
+    public void containsIgnoreCaseAndSpaces_partOfWordInAnyCase_returnsTrue() {
+        assertTrue(StringUtil.containsIgnoreCaseAndSpaces("Victoria School", "vic"));
+        assertTrue(StringUtil.containsIgnoreCaseAndSpaces("Victoria School", "TORIA SCH"));
+    }
+
+    @Test
+    public void containsIgnoreCaseAndSpaces_extraSpaces_returnsTrue() {
+        assertTrue(StringUtil.containsIgnoreCaseAndSpaces("Victoria   School", "toria sch"));
+        assertTrue(StringUtil.containsIgnoreCaseAndSpaces("Victoria School", " toria \t  sch "));
+    }
+
+    @Test
+    public void containsIgnoreCaseAndSpaces_textNotPresent_returnsFalse() {
+        assertFalse(StringUtil.containsIgnoreCaseAndSpaces("Victoria School", "raffles"));
+        assertFalse(StringUtil.containsIgnoreCaseAndSpaces("Victoria School", "school victoria"));
+    }
+
+    @Test
+    public void containsIgnoreCaseAndSpaces_nullArgument_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> StringUtil.containsIgnoreCaseAndSpaces(null, "a"));
+        assertThrows(NullPointerException.class, () -> StringUtil.containsIgnoreCaseAndSpaces("a", null));
+    }
+
+    @Test
+    public void containsIgnoreCaseAndSpaces_blankSearchText_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> StringUtil.containsIgnoreCaseAndSpaces("a", ""));
+        assertThrows(IllegalArgumentException.class, () -> StringUtil.containsIgnoreCaseAndSpaces("a", "  "));
+    }
+
     //---------------- Tests for getDetails --------------------------------------
 
     /*

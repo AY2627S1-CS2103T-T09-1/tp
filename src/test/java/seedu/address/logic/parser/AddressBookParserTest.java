@@ -31,6 +31,7 @@ import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
 import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.StudentMatchesAllPredicate;
 import seedu.address.testutil.EditPersonDescriptorBuilder;
 import seedu.address.testutil.PersonBuilder;
 import seedu.address.testutil.PersonUtil;
@@ -125,7 +126,9 @@ public class AddressBookParserTest {
     public void parseCommand_filter() throws Exception {
         FilterCommand command = (FilterCommand) parser.parseCommand(
                 FilterCommand.COMMAND_WORD + " " + PREFIX_NAME + "foo bar");
-        assertEquals(new FilterCommand(new NameContainsKeywordsPredicate(List.of("foo bar"))), command);
+        StudentMatchesAllPredicate expectedPredicate = new StudentMatchesAllPredicate(
+                List.of(new NameContainsKeywordsPredicate(List.of("foo bar"))));
+        assertEquals(new FilterCommand(expectedPredicate), command);
     }
 
     @Test
