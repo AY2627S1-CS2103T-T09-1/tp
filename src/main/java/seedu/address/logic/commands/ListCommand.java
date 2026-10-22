@@ -16,7 +16,7 @@ public class ListCommand extends Command {
             + "Additional arguments are not allowed.\n"
             + "Example: " + COMMAND_WORD;
 
-    public static final String MESSAGE_SUCCESS = "Listed all persons.";
+    public static final String MESSAGE_SUCCESS = "Listed all students.";
 
 
     @Override

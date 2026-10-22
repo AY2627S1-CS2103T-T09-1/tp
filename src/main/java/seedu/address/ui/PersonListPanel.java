@@ -6,8 +6,10 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import seedu.address.commons.core.LogsCenter;
+import seedu.address.commons.core.index.Index;
 import seedu.address.model.person.Person;
 
 /**
@@ -27,12 +29,27 @@ public class PersonListPanel extends UiPart<Region> {
         super(FXML);
         personListView.setItems(personList);
         personListView.setCellFactory(listView -> new PersonListViewCell());
+        personListView.setFocusTraversable(false);
+    }
+
+    void selectPerson(Index index) {
+        int zeroBasedIndex = index.getZeroBased();
+        personListView.getSelectionModel().select(zeroBasedIndex);
+        personListView.scrollTo(zeroBasedIndex);
+    }
+
+    void clearSelection() {
+        personListView.getSelectionModel().clearSelection();
     }
 
     /**
      * Custom {@code ListCell} that displays the graphics of a {@code Person} using a {@code PersonCard}.
      */
     class PersonListViewCell extends ListCell<Person> {
+        PersonListViewCell() {
+            addEventFilter(MouseEvent.MOUSE_PRESSED, event -> event.consume());
+        }
+
         @Override
         protected void updateItem(Person person, boolean empty) {
             super.updateItem(person, empty);

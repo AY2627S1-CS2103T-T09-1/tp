@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.geometry.Orientation?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SplitPane?>
@@ -9,7 +10,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<SplitPane dividerPositions="0.5" styleClass="student-detail-split-pane"
+<SplitPane dividerPositions="0.58" orientation="VERTICAL" styleClass="student-detail-split-pane"
            xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
   <items>
     <ScrollPane fitToWidth="true" hbarPolicy="NEVER" pannable="true" styleClass="student-detail-scroll-pane">
@@ -51,7 +52,7 @@
         </GridPane>
       </VBox>
     </ScrollPane>
-    <VBox minWidth="180" spacing="12" styleClass="student-detail-notes-panel">
+    <VBox minHeight="140" spacing="12" styleClass="student-detail-notes-panel">
       <padding>
         <Insets top="20" right="20" bottom="20" left="20" />
       </padding>

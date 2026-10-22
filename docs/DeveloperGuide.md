@@ -72,7 +72,7 @@ The **API** of this component is specified in [`Ui.java`](https://github.com/se-
 
 ![Structure of the UI Component](images/UiClassDiagram.png)
 
-The UI consists of a `MainWindow` and its parts, such as `CommandBox`, `ResultDisplay`, `PersonListPanel`, `StudentDetailPanel`, and `StatusBarFooter`. `MainWindow` replaces the list panel with a student detail panel when a `view` command succeeds, so only one main content panel is visible at a time. All of these classes inherit from the abstract `UiPart` class, which captures common behavior among classes that represent visible GUI parts.
+The UI consists of a `MainWindow` and its parts, such as `CommandBox`, `ResultDisplay`, `PersonListPanel`, `StudentDetailPanel`, and `StatusBarFooter`. `MainWindow` always keeps the student list on the left. When a `view` command succeeds, it shows the selected student's details on the right, with the student's fields above their notes. When no student is selected, the right panel shows an empty-state message. All of these classes inherit from the abstract `UiPart` class, which captures common behavior among classes that represent visible GUI parts.
 
 The `UI` component uses the JavaFX UI framework. The layouts of these UI parts are defined in matching `.fxml` files in `src/main/resources/view`. For example, [`MainWindow.fxml`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/resources/view/MainWindow.fxml) specifies the layout of [`MainWindow`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/ui/MainWindow.java).
 
@@ -229,6 +229,8 @@ The filter matches the edited student with `Person#isSamePerson`, the same name-
 
 Each edit wraps the current filter, so after several edits in a row, every edited student stays in the list, not just the last one. The next `filter` or `list` replaces the whole filter, so the extra rules never build up across searches.
 
+`editnote` and `deletenote` keep the list the same way. Both call `NoteCommandUtil#setPersonKeepingIndex`, which calls `keepPersonInFilteredList` before `setPerson` and adds the same line to the result. While `filter` matches only name and school, changing a note never makes a student stop matching, so this matters once the list can be filtered by note text.
+
 #### Design considerations
 
 **Aspect: What to show after an edit**
@@ -244,6 +246,65 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 * **Alternative 3 (current choice):** Keep the filter, plus the edited student.
   * Pros: Every student keeps their index number, and an open student record stays on the same student.
   * Cons: A student who no longer matches the search stays in the list until the next `filter` or `list`. The result box and the User Guide both say so, so the tutor is not left wondering why they are there.
+
+### Filtering students
+
+`filter` shows the students who match every filter the tutor gives, such as `filter lvl/S3 sub/Mathematics band/G2`.
+
+#### Implementation
+
+<img src="images/FilterClassDiagram.png" width="650" />
+
+1. `FilterCommandParser` splits the arguments at the filter prefixes `n/`, `sch/`, `lvl/`, `sub/`, `band/`, `p/`, `gn/`, and `gp/`. It also recognizes `t/` and `nid/`, only to reject them with a message that `filter` cannot search notes, so that they are not read as part of another value.
+1. It then checks, in order, that there is no text before the first prefix, that at least one filter is given, that no prefix is repeated, and that `band/` comes with `sub/`.
+1. It creates one `Predicate<Person>` for each filter given:
+
+   Prefix | Predicate | Matches when the student's…
+   -------|-----------|----------------------------
+   `n/` | `NameContainsKeywordsPredicate` | name contains the text
+   `sch/` | `SchoolContainsTextPredicate` | school contains the text
+   `lvl/` | `LevelMatchesPredicate` | level is that level
+   `sub/` [`band/`] | `SubjectMatchesPredicate` | subjects include that subject, at that band if given
+   `p/` | `PhoneMatchesPredicate` | own phone is that number
+   `gn/` | `GuardianNameContainsTextPredicate` | guardian's name contains the text
+   `gp/` | `GuardianPhoneMatchesPredicate` | guardian's phone is that number
+
+1. It wraps the predicates in a `StudentMatchesAllPredicate`, which returns `true` only if every predicate does, and returns a `FilterCommand` holding it.
+1. `FilterCommand#execute` passes the predicate to `Model#updateFilteredPersonList` and returns `CommandResult.showList(...)` with the number of students found, or a no-match message.
+
+The partial-match predicates (`n/`, `sch/`, `gn/`) use `StringUtil#containsIgnoreCaseAndSpaces`, which lowercases both strings and squeezes runs of whitespace before comparing. The exact-match filters are parsed first with the same `ParserUtil` methods as `add`, into a `Level`, `Band`, or `Phone`. So `lvl/s3` becomes `S3` and `p/+65 9123 4567` becomes `91234567`, the form in which they are stored, and the predicates can compare values directly. `SubjectMatchesPredicate` compares names with `Subject#hasName`, the same rule `add` uses to detect a repeated subject, and requires the band to belong to that same subject.
+
+#### Design considerations
+
+**Aspect: How to represent the filters**
+
+* **Alternative 1:** One predicate class with an optional field for each filter.
+  * Pros: Fewer classes.
+  * Cons: Every new filter changes the same constructor, `test`, and `equals`, and each matching rule can only be tested through the whole class.
+
+* **Alternative 2 (current choice):** One predicate class per filter, combined by `StudentMatchesAllPredicate`.
+  * Pros: Each matching rule is small and tested on its own. Adding a filter adds one class and one parser branch, without changing the others.
+  * Cons: More classes.
+
+**Aspect: Whether filters match part of a value or the whole value**
+
+* **Alternative 1:** Partial matching for every field.
+  * Pros: One rule for the tutor to learn.
+  * Cons: Short, fixed values become ambiguous: `sub/math` would match both Mathematics and Additional Mathematics, and `p/9123` would match every number containing those digits.
+
+* **Alternative 2 (current choice):** Partial matching for free text (name, school, guardian name), exact matching for fixed values (level, subject, band, phone).
+  * Pros: Tutors can type part of a name or school they half remember, while fixed values match only what they mean.
+  * Cons: Two rules to learn. The User Guide's filter table says which fields match partially.
+
+**Aspect: How several filters combine**
+
+* **Alternative 1:** A student matches if they match any filter (OR).
+  * Pros: Finds more students.
+  * Cons: Each extra filter widens the list, but tutors add filters to narrow it, such as all S3 students taking Mathematics.
+
+* **Alternative 2 (current choice):** A student must match every filter (AND).
+  * Pros: Each filter narrows the list, which fits planning a lesson for one group.
+  * Cons: To see two schools, the tutor runs `filter` twice.
 
 ### \[Proposed\] Undo/redo feature
 
@@ -696,31 +757,29 @@ Use case ends.
 
 **MSS**
 
-1.  Tutor requests to view a specific student by index
+1.  Tutor views a specific student's record (UC5)
 2.  TuteeBook3 shows the student's record with numbered notes
 3.  Tutor requests to edit a specific note, giving the student's index, note number and new text
 4.  TuteeBook3 validates the text and replaces the note's text
-5.  TuteeBook3 shows the updated record
+5.  TuteeBook3 shows the updated record and a success message with the note's old and new text
 
     Use case ends.
 
 **Extensions**
 
-* 1a. The given index is invalid.
+* 1a. Tutor already knows the student's index and the note's number.
 
-    * 1a1. TuteeBook3 shows an error message.
-
-      Use case ends.
+    Use case resumes at step 3.
 
 * 2a. The student has no notes.
 
     Use case ends.
 
-* 3a. The given note number does not exist for that student.
+* 3a. The given index is invalid, or the given note number does not exist for that student.
 
     * 3a1. TuteeBook3 shows an error message.
 
-      Use case resumes at step 2.
+      Use case resumes at step 3.
 
 * 3b. The new text is blank or too long.
 
@@ -731,6 +790,12 @@ Use case ends.
       Steps 3b1-3b2 are repeated until the text is valid.
 
       Use case resumes at step 4.
+
+* 3c. The new text is the same as the note's current text.
+
+    * 3c1. TuteeBook3 keeps the note as it is and warns that the note was not changed.
+
+      Use case ends.
 
 ---
 
@@ -900,10 +965,10 @@ Use case ends.
 #### Screen layout
 
 * **Command box**: The text field at the top of the window where the user types commands.
-* **Detail view**: The view that shows everything about one student, including all their notes. It takes the place of the student list, so only one student is shown at a time. The user can return to the student list with `list` or `filter`.
+* **Detail view**: The panel on the right that shows everything about one student, including all their notes. The panel shows `No student card selected.` when no record is open. The user can clear an open record with `list` or `filter`.
 * **Result display**: The area below the command box that tells the user whether their last command worked, and why not if it failed.
 * **Student card**: One student's entry in the student list.
-* **Student list**: The view that lists students with their main details. It takes the place of the detail view when the user enters `list` or `filter`.
+* **Student list**: The panel on the left that always lists students with their main details. A `view` command highlights the viewed student; mouse clicks do not change this highlight.
 
 #### Code
 
@@ -981,7 +1046,7 @@ testers are expected to do more *exploratory* testing.
       Expected: Only the guardian's phone changes. Viewing Tim Tan's student details shows guardian Mary Tan with phone number `98765432`.
 
    1. Test case: `edit 1 gn/Peter Lim` on Ken Lim<br>
-      Expected: Ken Lim is unchanged. The status message shows `This person has no guardian yet. Give both gn/ and gp/ to add one.`
+      Expected: Ken Lim is unchanged. The status message shows `This student has no guardian yet. Give both gn/ and gp/ to add one.`
 
    1. Test case: `edit 1 gn/ gp/91234567` on Tim Tan<br>
       Expected: Tim Tan is unchanged. The status message says that guardian name and guardian phone cannot be empty.
@@ -990,7 +1055,7 @@ testers are expected to do more *exploratory* testing.
       Expected: The guardian is removed, and viewing the student's details shows `Not provided` for both guardian name and guardian phone.
 
    1. Test case: `edit 1 gn/ gp/` on Ken Lim<br>
-      Expected: Ken Lim is unchanged. The status message shows `This person has no guardian to remove.`
+      Expected: Ken Lim is unchanged. The status message shows `This student has no guardian to remove.`
 
 ### Entering phone numbers
 

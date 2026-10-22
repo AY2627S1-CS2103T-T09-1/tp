@@ -13,6 +13,7 @@ import java.util.Optional;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.StringUtil;
+import seedu.address.logic.Messages;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Band;
 import seedu.address.model.person.Guardian;
@@ -214,7 +215,7 @@ public class ParserUtil {
      */
     public static List<Subject> parseSubjects(ArgumentMultimap arguments) throws ParseException {
         if (arguments.getAllValues(PREFIX_SUBJECT).isEmpty()) {
-            throw new ParseException("Missing required parameter: sub/.");
+            throw new ParseException(Messages.getErrorMessageForMissingPrefixes(PREFIX_SUBJECT));
         }
         validateSubjectBandPairs(arguments.getPrefixes());
         List<String> names = arguments.getAllValues(PREFIX_SUBJECT);

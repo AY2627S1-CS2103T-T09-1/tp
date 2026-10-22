@@ -179,21 +179,30 @@ public class PersonTest {
     @Test
     public void format_noPhone_showsNotProvided() {
         Person aliceWithoutPhone = new PersonBuilder(ALICE).withoutPhone().build();
-        assertEquals(ALICE.getName() + "; Phone: " + Messages.MESSAGE_PHONE_NOT_PROVIDED + "; School: "
-                + ALICE.getSchool() + "; Level: S1; Subjects: " + ALICE.getSubjects(),
+        assertEquals("Alice Pauline; Student phone: " + Messages.MESSAGE_PHONE_NOT_PROVIDED
+                + "; School: Maplewood Secondary School; Level: S1; Subjects: Mathematics (G1)",
                 Messages.format(aliceWithoutPhone));
     }
 
     @Test
     public void format_withLevel_includesLevel() {
-        assertEquals(ALICE.getName() + "; Phone: " + ALICE.getPhone().get() + "; School: " + ALICE.getSchool()
-                + "; Level: S1; Subjects: " + ALICE.getSubjects(), Messages.format(ALICE));
+        assertEquals("Alice Pauline; Student phone: 94351253; School: Maplewood Secondary School; Level: S1; "
+                + "Subjects: Mathematics (G1)", Messages.format(ALICE));
     }
 
     @Test
     public void format_withGuardian_includesGuardian() {
         Person aliceWithGuardian = new PersonBuilder(ALICE).withGuardian("Mary Tan", "91234567").build();
-        assertEquals(Messages.format(ALICE) + "; Guardian: Mary Tan (91234567)", Messages.format(aliceWithGuardian));
+        assertEquals(Messages.format(ALICE) + "; Guardian name: Mary Tan; Guardian phone: 91234567",
+                Messages.format(aliceWithGuardian));
+    }
+
+    @Test
+    public void format_multipleSubjects_commaSeparated() {
+        Person aliceWithTwoSubjects = new PersonBuilder(ALICE)
+                .withSubjects(new Subject("Mathematics", Band.G1), new Subject("Science", Band.G2)).build();
+        assertEquals("Alice Pauline; Student phone: 94351253; School: Maplewood Secondary School; Level: S1; "
+                + "Subjects: Mathematics (G1), Science (G2)", Messages.format(aliceWithTwoSubjects));
     }
 
     @Test

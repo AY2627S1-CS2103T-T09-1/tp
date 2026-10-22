@@ -3,6 +3,8 @@ package seedu.address.ui;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
@@ -24,8 +26,13 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import seedu.address.commons.core.GuiSettings;
@@ -53,50 +60,79 @@ public class MainWindowStudentDetailTest {
     }
 
     @Test
-    public void execute_viewCommand_replacesListWithStudentDetails(FxRobot robot) {
-        enterCommand(robot, "view 1");
-
-        assertEquals("Alice Pauline", ((Label) mainWindow.getRoot().getScene().lookup("#name")).getText());
-        assertEquals(1, getContentPlaceholder().getChildren().size());
+    public void startup_noViewedStudent_showsPermanentSplitAndEmptyState() {
+        assertEquals(List.of(getListPlaceholder(), getDetailPlaceholder()), getContentSplitPane().getItems());
+        assertNoStudentSelectedMessage();
+        assertNull(getPersonListView().getSelectionModel().getSelectedItem());
     }
 
     @Test
-    public void execute_repeatedViewCommand_replacesExistingDetails(FxRobot robot) {
+    public void execute_viewCommand_showsListBesideStudentDetails(FxRobot robot) {
         enterCommand(robot, "view 1");
+
+        assertEquals("Alice Pauline", ((Label) getDetailPlaceholder().lookup("#name")).getText());
+        assertEquals(List.of(getListPlaceholder(), getDetailPlaceholder()), getContentSplitPane().getItems());
+    }
+
+    @Test
+    public void execute_viewCommand_selectsViewedStudentInList(FxRobot robot) {
+        enterCommand(robot, "view 1");
+
+        assertSame(ALICE, getPersonListView().getSelectionModel().getSelectedItem());
+    }
+
+    @Test
+    public void click_differentStudentCard_keepsViewedStudentSelected(FxRobot robot) {
+        enterCommand(robot, "view 1");
+
+        robot.interact(() -> getPersonListCell(BENSON).fireEvent(createPrimaryMousePress()));
+
+        assertSame(ALICE, getPersonListView().getSelectionModel().getSelectedItem());
+        assertEquals("Alice Pauline", ((Label) getDetailPlaceholder().lookup("#name")).getText());
+    }
+
+    @Test
+    public void execute_repeatedViewCommand_replacesOnlyExistingDetails(FxRobot robot) {
+        enterCommand(robot, "view 1");
+        Node originalDetails = getOnlyDetailNode();
         enterCommand(robot, "view 2");
 
-        assertEquals("Benson Meier", ((Label) mainWindow.getRoot().getScene().lookup("#name")).getText());
-        assertEquals(1, getContentPlaceholder().getChildren().size());
+        assertEquals("Benson Meier", ((Label) getDetailPlaceholder().lookup("#name")).getText());
+        assertEquals(2, getContentSplitPane().getItems().size());
+        assertNotSame(originalDetails, getOnlyDetailNode());
     }
 
     @Test
-    public void execute_listCommand_restoresOriginalListPanel(FxRobot robot) {
+    public void execute_listCommand_keepsSplitAndShowsEmptyState(FxRobot robot) {
         PersonListPanel personListPanel = mainWindow.getPersonListPanel();
         enterCommand(robot, "view 1");
 
         enterCommand(robot, "list");
 
-        assertSame(personListPanel.getRoot(), getOnlyContentNode());
+        assertEquals(List.of(getListPlaceholder(), getDetailPlaceholder()), getContentSplitPane().getItems());
+        assertSame(personListPanel.getRoot(), getListPlaceholder().getChildren().get(0));
+        assertNoStudentSelectedMessage();
+        assertNull(getPersonListView().getSelectionModel().getSelectedItem());
     }
 
     @Test
     public void execute_failedCommand_keepsStudentDetails(FxRobot robot) {
         enterCommand(robot, "view 1");
-        Node originalDetails = getOnlyContentNode();
+        Node originalDetails = getOnlyDetailNode();
 
         enterCommand(robot, "fail");
 
-        assertSame(originalDetails, getOnlyContentNode());
+        assertSame(originalDetails, getOnlyDetailNode());
     }
 
     @Test
     public void execute_commandWithoutDisplayInstruction_keepsStudentDetails(FxRobot robot) {
         enterCommand(robot, "view 1");
-        Node originalDetails = getOnlyContentNode();
+        Node originalDetails = getOnlyDetailNode();
 
         enterCommand(robot, "keep");
 
-        assertSame(originalDetails, getOnlyContentNode());
+        assertSame(originalDetails, getOnlyDetailNode());
     }
 
     @Test
@@ -178,8 +214,44 @@ public class MainWindowStudentDetailTest {
         return (StackPane) mainWindow.getRoot().getScene().lookup("#contentPanelPlaceholder");
     }
 
-    private Node getOnlyContentNode() {
-        return getContentPlaceholder().getChildren().get(0);
+    private SplitPane getContentSplitPane() {
+        return (SplitPane) mainWindow.getRoot().getScene().lookup("#mainContentSplitPane");
+    }
+
+    private StackPane getListPlaceholder() {
+        return (StackPane) mainWindow.getRoot().getScene().lookup("#personListPanelPlaceholder");
+    }
+
+    private StackPane getDetailPlaceholder() {
+        return (StackPane) mainWindow.getRoot().getScene().lookup("#studentDetailPanelPlaceholder");
+    }
+
+    @SuppressWarnings("unchecked")
+    private ListView<Person> getPersonListView() {
+        return (ListView<Person>) mainWindow.getRoot().getScene().lookup("#personListView");
+    }
+
+    @SuppressWarnings("unchecked")
+    private ListCell<Person> getPersonListCell(Person person) {
+        return getPersonListView().lookupAll(".list-cell").stream()
+                .map(node -> (ListCell<Person>) node)
+                .filter(cell -> person.equals(cell.getItem()))
+                .findFirst()
+                .orElseThrow();
+    }
+
+    private Node getOnlyDetailNode() {
+        return getDetailPlaceholder().getChildren().get(0);
+    }
+
+    private void assertNoStudentSelectedMessage() {
+        Label emptyState = (Label) getDetailPlaceholder().lookup("#noStudentSelected");
+        assertEquals("No student card selected.", emptyState.getText());
+    }
+
+    private MouseEvent createPrimaryMousePress() {
+        return new MouseEvent(MouseEvent.MOUSE_PRESSED, 0, 0, 0, 0, MouseButton.PRIMARY, 1,
+                false, false, false, false, true, false, false, true, false, false, null);
     }
 
     private TextArea getResultDisplay() {
