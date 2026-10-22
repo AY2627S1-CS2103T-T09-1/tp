@@ -35,8 +35,8 @@ public class EditCommand extends Command {
 
     public static final String COMMAND_WORD = "edit";
 
-    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Edits the details of the person identified "
-            + "by the index number used in the displayed person list. "
+    public static final String MESSAGE_USAGE = COMMAND_WORD + ": Edits the details of the student identified "
+            + "by the index number used in the displayed student list. "
             + "Existing values will be overwritten by the input values. "
             + "Use " + PREFIX_PHONE + " with no number to remove the phone, and "
             + PREFIX_GUARDIAN_NAME + " " + PREFIX_GUARDIAN_PHONE + " with no values to remove the guardian.\n"
@@ -53,7 +53,7 @@ public class EditCommand extends Command {
             + PREFIX_SCHOOL + "Victoria School "
             + PREFIX_LEVEL + "S3";
 
-    public static final String MESSAGE_EDIT_PERSON_SUCCESS = "Edited person: %1$s";
+    public static final String MESSAGE_EDIT_PERSON_SUCCESS = "Edited student: %1$s";
     public static final String MESSAGE_NO_LONGER_MATCHES = "%1$s no longer matches your last search, "
             + "but stays in the list until you enter list or filter.";
     public static final String MESSAGE_NOT_EDITED = "At least one field to edit must be provided.";
@@ -61,9 +61,9 @@ public class EditCommand extends Command {
     public static final String MESSAGE_GUARDIAN_REMOVAL = "Guardian name (" + PREFIX_GUARDIAN_NAME
             + ") and guardian phone (" + PREFIX_GUARDIAN_PHONE + ") cannot be empty. To remove the guardian, use "
             + PREFIX_GUARDIAN_NAME + " " + PREFIX_GUARDIAN_PHONE + " with no values.";
-    public static final String MESSAGE_GUARDIAN_INCOMPLETE = "This person has no guardian yet. Give both "
+    public static final String MESSAGE_GUARDIAN_INCOMPLETE = "This student has no guardian yet. Give both "
             + PREFIX_GUARDIAN_NAME + " and " + PREFIX_GUARDIAN_PHONE + " to add one.";
-    public static final String MESSAGE_NO_GUARDIAN_TO_REMOVE = "This person has no guardian to remove.";
+    public static final String MESSAGE_NO_GUARDIAN_TO_REMOVE = "This student has no guardian to remove.";
 
     private final Index index;
     private final EditPersonDescriptor editPersonDescriptor;

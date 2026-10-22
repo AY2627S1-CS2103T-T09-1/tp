@@ -81,6 +81,7 @@ Adds a person to the address book.
 
 Format: `add n/NAME [p/PHONE] sch/SCHOOL lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]`
 
+* `NAME` can contain only letters, digits, and spaces. Symbols such as `/`, `-`, and `'` aren't supported yet, so type `Rajesh s/o Kumar` as `Rajesh so Kumar`.
 * The phone number is optional, since younger students may not have their own phone.
 * When you add a student, TuteeBook3 trims leading and trailing spaces and collapses repeated ordinary spaces to one in the name, school, subject names, and guardian name. It keeps the capitalization you enter. For example, `add n/John  Doe sch/Victoria  School lvl/S3 sub/Additional  Mathematics band/G1` stores `John Doe`, `Victoria School`, and `Additional Mathematics`.
 * `PHONE` is the number you use to reach the student. It can only contain digits, with an optional `+` at the start, and must have 3 to 15 digits, counting the country code. You can type spaces or hyphens (`-`), such as `9123 4567` or `9123-4567`, and they are removed when it is saved. Other dashes, such as `–`, are not allowed.
@@ -100,6 +101,21 @@ Each student and guardian has one phone number, which is the number you use to r
 * `BAND` accepts `G1`, `G2`, or `G3`, ignoring case and surrounding spaces. Bands are displayed in uppercase, for example `Mathematics (G1)`.
 * A subject name cannot appear twice, even with different bands. Duplicate checks ignore case and repeated internal spaces, so `Additional Mathematics` and `additional  mathematics` are the same subject.
 * `LEVEL` must be one of `S1`, `S2`, `S3`, `S4` or `S5`. It is not case-sensitive, so `s3` also works.
+
+If the command is wrong, `add` shows one of these messages and does not add the student. If there is more than one problem, `add` reports only the first, checking in this order: text before the first parameter, missing parameters, repeated parameters, and then each value in the order `NAME`, `PHONE`, `SCHOOL`, `LEVEL`, subjects, and guardian.
+
+Problem | Message
+--------|--------
+There are no parameters at all, or there is text between `add` and the first parameter, such as `add John Doe sch/Victoria School ...` | `Invalid command format!` followed by how to use `add`
+`n/`, `sch/`, `lvl/`, or `sub/` is missing, or has no space before it | Every missing one is named, such as `Missing required parameters: sch/, lvl/.`
+`n/`, `p/`, `sch/`, `lvl/`, `gn/`, or `gp/` appears more than once | `Multiple values specified for the following single-valued field(s): p/`
+`NAME` is invalid | `Names should only contain alphanumeric characters and spaces, and should not be blank`
+`SCHOOL` is invalid | `School names must be 1-100 characters and contain at least one letter.`
+`LEVEL` is not S1 to S5 | `Level must be one of S1, S2, S3, S4, S5.`
+Only one of `gn/` and `gp/` is given | `Guardian name (gn/) and guardian phone (gp/) must be given together.`
+A student with the same name already exists. Capitalization must match, but repeated spaces count as one, so `John  Doe` matches `John Doe` and `john doe` doesn't | `This student already exists in TuteeBook3.`
+`PHONE` or `GUARDIAN_PHONE` is invalid | The message says why, as described above
+A subject or band is wrong | See [Subject and band errors](#subject-and-band-errors)
 
 Examples:
 
@@ -150,8 +166,8 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT ban
 * You can remove a person's phone number by typing `p/` without specifying any number after it.
 * The displayed list and any open student record stay as they are, so the other students keep their index numbers. If the edited student no longer matches your last `filter`, they stay in the list until you enter `list` or `filter` again. The result box tells you when an edit makes a student stop matching.
 * If the student already has a guardian, `gn/` or `gp/` on its own changes just that part of the guardian.
-* If the student has no guardian yet, give both `gn/` and `gp/` to add one. Giving only one of them shows `This person has no guardian yet. Give both gn/ and gp/ to add one.`
-* You can remove the guardian by typing `gn/ gp/` with no values after either. Leaving only one of them empty, such as `gn/` alone or `gn/ gp/91234567`, is rejected so that the guardian is not removed by mistake. If the student has no guardian, `gn/ gp/` shows `This person has no guardian to remove.`
+* If the student has no guardian yet, give both `gn/` and `gp/` to add one. Giving only one of them shows `This student has no guardian yet. Give both gn/ and gp/ to add one.`
+* You can remove the guardian by typing `gn/ gp/` with no values after either. Leaving only one of them empty, such as `gn/` alone or `gn/ gp/91234567`, is rejected so that the guardian is not removed by mistake. If the student has no guardian, `gn/ gp/` shows `This student has no guardian to remove.`
 
 Examples:
 *  `edit 1 p/91234567 sch/Victoria School` Edits the phone number and school of the 1st person to be `91234567` and `Victoria School` respectively.
@@ -172,7 +188,7 @@ The following errors apply to subject-band input in `add` and `edit`. For `edit`
 
 | Problem | Message |
 | --- | --- |
-| No `sub/` in `add`, or `band/` supplied alone in `edit` | `Missing required parameter: sub/.` |
+| No `sub/` in `add`, or `band/` supplied alone in `edit` | `Missing required parameter: sub/.` In `add`, any other missing parameters are listed too, such as `Missing required parameters: lvl/, sub/.` |
 | Missing, misplaced, or repeated `band/` within a pair | `Each sub/ must be immediately followed by one band/.` |
 | Empty band or a value other than G1, G2, or G3 | `Band must be one of G1, G2, G3.` |
 | Invalid subject name | `Subjects must be 1-40 characters using only letters, spaces and hyphens, with at least one letter.` |
@@ -211,11 +227,47 @@ If the command is wrong, `addnote` shows one of these messages and does not chan
 Problem | Message
 --------|--------
 `INDEX` is not a positive integer, such as `0` or `abc` | `Index must be a positive integer.`
-`INDEX` is larger than the number of students shown | `The person index provided is invalid.`
+`INDEX` is larger than the number of students shown | `The student index provided is invalid.`
 `TEXT` is empty or only spaces | `Note text cannot be blank.`
 `TEXT` is longer than 500 characters | `Note text must be at most 500 characters.`
 `t/` appears more than once | `Multiple values specified for the following single-valued field(s): t/`
 `INDEX` or `t/TEXT` is missing, or there is no space before `t/` | `Invalid command format!` followed by how to use `addnote`
+
+### Editing a note of a student: `editnote`
+
+Replaces the text of one of a student's notes.
+
+Format: `editnote INDEX nid/NID t/TEXT`
+
+* `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
+* `NID` is the number shown before the note in the student detail view. It must be a positive integer, such as 1, 2, or 3. To see a student's notes and their NIDs, use `view INDEX`.
+* `TEXT` is the new text of the note. It follows the same rules as in `addnote`: 1 to 500 characters, with spaces before and after the text removed.
+* `nid/NID` must come before `t/TEXT`. Everything after `t/` is the note text, so `TEXT` can contain anything, including `t/f`, `nid/`, or another `t/`. For example, `editnote 1 nid/2 t/Revise t/f questions` saves the note `Revise t/f questions`.
+* The edited note keeps its NID, and the student's other notes do not change.
+* If the new text is the same as the current text, the note stays as it is and `editnote` shows the message `No changes made: note {NID} of {NAME} already says: {TEXT}` in amber. Changing only uppercase and lowercase letters, such as `algebra` to `Algebra`, counts as a change.
+* Editing a note does not change which students are shown.
+* After `view`, use the index shown at the top of the student detail view when running `editnote`.
+
+Examples:
+
+* `editnote 1 nid/2 t/Improving in algebra` replaces note 2 of the 1st student in the displayed list with `Improving in algebra`.
+* `view 3` followed by `editnote 3 nid/1 t/WA2 Math: 42/50` replaces the first note of the student shown by `view 3`.
+
+If the command is wrong, `editnote` shows one of these messages and does not change any student. When several parts are wrong, `editnote` reports the first one in this table.
+
+Problem | Message
+--------|--------
+`nid/NID` comes after `t/TEXT`, such as `editnote 1 t/hi nid/2` | `Put nid/NID before t/TEXT. Everything after t/ is read as the note text.`
+`INDEX`, `nid/NID`, or `t/TEXT` is missing, or there is no space before `nid/` or `t/` | `Invalid command format!` followed by how to use `editnote`
+`INDEX` is not a positive integer, such as `0` or `abc` | `Index must be a positive integer.`
+There is other text between `INDEX` and the first prefix, such as `editnote 1 abc nid/2 t/hi` | `Index must be a positive integer.`
+`nid/` appears more than once before `t/` | `Multiple values specified for the following single-valued field(s): nid/`
+`NID` is empty or is not a positive integer, such as `0`, `-1`, or `abc` | `NID must be a positive integer.`
+`TEXT` is empty or only spaces | `Note text cannot be blank.`
+`TEXT` is longer than 500 characters | `Note text must be at most 500 characters.`
+`INDEX` is larger than the number of students shown | `The student index provided is invalid.`
+The student has no notes | `{NAME} has no notes to edit.`
+`NID` is larger than the number of notes the student has | `NID {NID} does not exist. {NAME} has only {COUNT} notes.` (or `1 note` if the student has one note)
 
 ### Deleting a note from a student: `deletenote`
 
@@ -245,7 +297,7 @@ Problem | Message
 --------|--------
 `INDEX` is not a positive integer, such as `0` or `abc` | `Index must be a positive integer.`
 There is other text between `INDEX` and `nid/`, such as `deletenote 1 abc nid/2` | `Invalid command format!` followed by how to use `deletenote`
-`INDEX` is larger than the number of students shown | `The person index provided is invalid.`
+`INDEX` is larger than the number of students shown | `The student index provided is invalid.`
 `NID` is empty or is not a positive integer, such as `0`, `-1`, or `abc` | `NID must be a positive integer.`
 The student has no notes | `{NAME} has no notes to delete.`
 `NID` is larger than the number of notes the student has | `NID {NID} does not exist. {NAME} has only {COUNT} notes.` (or `1 note` if the student has one note)
@@ -397,6 +449,7 @@ Action | Format, Examples
 **Delete** | `delete [-f] INDEX`<br> e.g., `delete 3`
 **Delete note** | `deletenote [-f] INDEX nid/NID`<br> e.g., `deletenote 1 nid/2`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `edit 2 sub/Mathematics band/G2 sub/English band/G3`, `edit 1 gn/ gp/`
+**Edit note** | `editnote INDEX nid/NID t/TEXT`<br> e.g., `editnote 1 nid/2 t/Improving in algebra`
 **Filter** | `filter [n/NAME] [sch/SCHOOL]`<br> e.g., `filter n/lim sch/secondary`
 **List** | `list`
 **Help** | `help`
