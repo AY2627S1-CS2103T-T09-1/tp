@@ -123,7 +123,7 @@ public class Person {
     }
 
     /**
-     * Returns true if both persons have the same name.
+     * Returns true if both persons have the same normalized name.
      * This defines a weaker notion of equality between two persons.
      */
     public boolean isSamePerson(Person otherPerson) {
@@ -131,8 +131,24 @@ public class Person {
             return true;
         }
 
+        return hasSameName(otherPerson);
+    }
+
+    /**
+     * Returns true if both persons have the same name after normalization.
+     */
+    public boolean hasSameName(Person otherPerson) {
+        return otherPerson != null && name.hasSameNormalizedName(otherPerson.name);
+    }
+
+    /**
+     * Returns true if both persons have the same normalized name, school, and level.
+     */
+    public boolean hasSameStudentKey(Person otherPerson) {
         return otherPerson != null
-                && otherPerson.getName().equals(getName());
+                && hasSameName(otherPerson)
+                && school.equals(otherPerson.school)
+                && level == otherPerson.level;
     }
 
     /**

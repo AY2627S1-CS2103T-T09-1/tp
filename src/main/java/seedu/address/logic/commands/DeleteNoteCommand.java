@@ -28,9 +28,10 @@ public class DeleteNoteCommand extends Command implements ConfirmationCommand {
             + "Example: " + COMMAND_WORD + " 1 nid/2 (asks for confirmation)\n"
             + COMMAND_WORD + " " + FORCE_OPTION + " 1 nid/2 (deletes immediately)";
 
-    public static final String MESSAGE_SUCCESS = "Deleted note %1$d from %2$s: %3$s";
-    public static final String MESSAGE_NO_NOTES = "%1$s has no notes to delete.";
-    public static final String MESSAGE_NID_NOT_FOUND = "NID %1$d does not exist. %2$s has only %3$d %4$s.";
+    public static final String MESSAGE_SUCCESS = "Deleted note %1$d from %2$s at %3$s (%4$s): %5$s";
+    public static final String MESSAGE_NO_NOTES = "%1$s at %2$s (%3$s) has no notes to delete.";
+    public static final String MESSAGE_NID_NOT_FOUND =
+            "NID %1$d does not exist. %2$s at %3$s (%4$s) has only %5$d %6$s.";
 
     private final Index targetIndex;
     private final Index targetNid;
@@ -67,7 +68,8 @@ public class DeleteNoteCommand extends Command implements ConfirmationCommand {
     public String getConfirmationMessage(Model model) throws CommandException {
         Person person = getTargetPerson(model);
         verifyNoteExists(person);
-        return "This will delete note " + targetNid.getOneBased() + " from " + person.getName() + ". Continue?";
+        return "This will delete note " + targetNid.getOneBased() + " from " + person.getName() + " at "
+                + person.getSchool() + " (" + person.getLevel() + "). Continue?";
     }
 
     @Override
@@ -80,8 +82,8 @@ public class DeleteNoteCommand extends Command implements ConfirmationCommand {
         Person editedPerson = person.copyWithNotes(notes);
 
         model.setPerson(person, editedPerson);
-        return new CommandResult(String.format(MESSAGE_SUCCESS, targetNid.getOneBased(),
-                editedPerson.getName(), deletedNote));
+        return new CommandResult(String.format(MESSAGE_SUCCESS, targetNid.getOneBased(), editedPerson.getName(),
+                editedPerson.getSchool(), editedPerson.getLevel(), deletedNote));
     }
 
     private Person getTargetPerson(Model model) throws CommandException {
@@ -98,12 +100,13 @@ public class DeleteNoteCommand extends Command implements ConfirmationCommand {
     private void verifyNoteExists(Person person) throws CommandException {
         int noteCount = person.getNotes().size();
         if (noteCount == 0) {
-            throw new CommandException(String.format(MESSAGE_NO_NOTES, person.getName()));
+            throw new CommandException(String.format(MESSAGE_NO_NOTES, person.getName(), person.getSchool(),
+                    person.getLevel()));
         }
         if (targetNid.getZeroBased() >= noteCount) {
             String noteWord = noteCount == 1 ? "note" : "notes";
             throw new CommandException(String.format(MESSAGE_NID_NOT_FOUND, targetNid.getOneBased(),
-                    person.getName(), noteCount, noteWord));
+                    person.getName(), person.getSchool(), person.getLevel(), noteCount, noteWord));
         }
     }
 
