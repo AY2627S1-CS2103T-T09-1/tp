@@ -32,7 +32,7 @@ public class EditNoteCommand extends Command {
     public static final String MESSAGE_SUCCESS = "Edited note %1$d of %2$s.\nOld: %3$s\nNew: %4$s";
     public static final String MESSAGE_NO_NOTES = "%1$s has no notes to edit.";
     public static final String MESSAGE_NOTE_UNCHANGED =
-            "Note %1$d of %2$s was not changed because it already says: %3$s";
+            "No changes made: note %1$d of %2$s already says: %3$s";
 
     private final Index targetIndex;
     private final Index targetNid;

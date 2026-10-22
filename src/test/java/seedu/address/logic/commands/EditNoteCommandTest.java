@@ -211,7 +211,7 @@ public class EditNoteCommandTest {
         addNotesToFirstPerson(NOTE_ALGEBRA, NOTE_TEST_SCORE);
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         CommandResult expectedResult = CommandResult.warning(
-                "Note 2 of Alice Pauline was not changed because it already says: WA2 Math: 36/50");
+                "No changes made: note 2 of Alice Pauline already says: WA2 Math: 36/50");
 
         assertCommandSuccess(new EditNoteCommand(INDEX_FIRST_PERSON, NID_SECOND, new Note(NOTE_TEST_SCORE)),
                 model, expectedResult, expectedModel);
