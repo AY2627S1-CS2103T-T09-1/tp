@@ -308,7 +308,7 @@ The student has no notes | `{NAME} has no notes to delete.`
 
 Shows the students who match every filter you give.
 
-Format: `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL]`
+Format: `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]]`
 
 * Give at least one filter, and each filter at most once.
 * A student must match every filter you give. For example, `filter n/tan sch/bedok` shows students whose name contains `tan` and whose school contains `bedok`.
@@ -318,9 +318,12 @@ Filter | Matches students whose… | Match
 `n/NAME` | name contains `NAME` | partial matching
 `sch/SCHOOL` | school contains `SCHOOL` | partial matching
 `lvl/LEVEL` | level is `LEVEL`, one of `S1` to `S5` | exact matching
+`sub/SUBJECT` | subjects include `SUBJECT` | exact matching
+`sub/SUBJECT band/BAND` | subjects include `SUBJECT` at `BAND` (`G1` to `G3`) | exact matching
 
 * A filter with partial matching can match any part of the value, even part of a word. For example, `sch/vic` matches `Victoria School`.
-* A filter with exact matching must match the whole value. For example, `lvl/S3` matches only students in S3.
+* A filter with exact matching must match the whole value. For example, `lvl/S3` matches only students in S3, and `sub/math` does not match `Mathematics`.
+* `band/` must come right after `sub/`, and the band must belong to that subject. For example, a student taking Mathematics at G1 and Science at G2 does not match `sub/Mathematics band/G2`.
 * Filters are not case-sensitive, and extra spaces are ignored.
 * Each value is matched as one piece of text, including its spaces: `n/david lim` matches `David Lim`, but `n/lim david` does not.
 * If no student matches, the student list is empty and a message tells you how to see all students again.
@@ -333,6 +336,8 @@ Examples:
 * `filter n/lim sch/secondary` returns `SAMPLE Marcus Lim`.
 * `filter lvl/s2` returns `SAMPLE Chloe Tan` and `SAMPLE Ethan Kumar`.
 * `filter sch/bedok lvl/S2` returns `SAMPLE Chloe Tan`.
+* `filter sub/mathematics band/G2` returns `SAMPLE Marcus Lim` and `SAMPLE Daniel Lee`.
+* `filter sub/chemistry` returns `SAMPLE Aisha Rahman` and `SAMPLE Natalie Goh`.
 
 Problem | Message
 --------|--------
@@ -341,6 +346,9 @@ There is text before the first filter | `Invalid command format!` followed by ho
 A filter is empty, such as `sch/` | `The school to search for cannot be blank.` (or `name`)
 A filter appears more than once | `Multiple values specified for the following single-valued field(s): sch/`
 `LEVEL` is not one of `S1` to `S5`, or is empty | `Level must be one of S1, S2, S3, S4, S5.`
+`SUBJECT` is empty or invalid | `Subjects must be 1-40 characters using only letters, spaces and hyphens, with at least one letter.`
+`BAND` is not one of `G1` to `G3`, or is empty | `Band must be one of G1, G2, G3.`
+`band/` is not right after `sub/`, or there is no `sub/` | `band/ must come right after sub/, such as: filter sub/Mathematics band/G2`
 `t/` or `nid/` is given | `filter cannot search notes. Filter by the student's details instead, such as: filter n/tan sch/bedok lvl/S3`
 
 ### Deleting a student: `delete`
@@ -455,6 +463,6 @@ Action | Format, Examples
 **Delete note** | `deletenote [-f] INDEX nid/NID`<br> e.g., `deletenote 1 nid/2`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `edit 2 sub/Mathematics band/G2 sub/English band/G3`, `edit 1 gn/ gp/`
 **Edit note** | `editnote INDEX nid/NID t/TEXT`<br> e.g., `editnote 1 nid/2 t/Improving in algebra`
-**Filter** | `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL]`<br> e.g., `filter sch/bedok lvl/S2`
+**Filter** | `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]]`<br> e.g., `filter lvl/S5 sub/mathematics band/G2`
 **List** | `list`
 **Help** | `help`

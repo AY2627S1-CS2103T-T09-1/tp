@@ -1,6 +1,8 @@
 package seedu.address.model.person;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
 
 import org.junit.jupiter.api.Test;
@@ -17,5 +19,24 @@ public class SubjectTest {
     @Test
     public void constructor_nullBand_throwsNullPointerException() {
         assertThrows(NullPointerException.class, () -> new Subject("Mathematics", null));
+    }
+
+    @Test
+    public void hasName_sameNameIgnoringCaseAndSpaces_returnsTrue() {
+        Subject mathematics = new Subject("Mathematics", Band.G1);
+        assertTrue(mathematics.hasName("MATHEMATICS"));
+        assertTrue(mathematics.hasName("  mathematics "));
+        assertTrue(new Subject("Additional Mathematics", Band.G3).hasName("Additional  Mathematics"));
+    }
+
+    @Test
+    public void hasName_partialOrDifferentName_returnsFalse() {
+        assertFalse(new Subject("Mathematics", Band.G1).hasName("Math"));
+        assertFalse(new Subject("Additional Mathematics", Band.G3).hasName("Mathematics"));
+    }
+
+    @Test
+    public void hasName_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new Subject("Mathematics", Band.G1).hasName(null));
     }
 }

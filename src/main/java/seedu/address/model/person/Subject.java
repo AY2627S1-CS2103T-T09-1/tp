@@ -28,7 +28,7 @@ public final class Subject {
         checkArgument(isValidSubject(name), MESSAGE_CONSTRAINTS);
         this.name = name;
         this.band = band;
-        comparisonName = name.trim().replaceAll(" +", " ").toLowerCase();
+        comparisonName = toComparisonName(name);
     }
 
     /**
@@ -51,6 +51,18 @@ public final class Subject {
      */
     public boolean hasSameName(Subject other) {
         return other != null && comparisonName.equals(other.comparisonName);
+    }
+
+    /**
+     * Returns true if this subject's name is {@code name}, ignoring case and extra spaces.
+     */
+    public boolean hasName(String name) {
+        requireNonNull(name);
+        return comparisonName.equals(toComparisonName(name));
+    }
+
+    private static String toComparisonName(String name) {
+        return name.trim().replaceAll(" +", " ").toLowerCase();
     }
 
     @Override
