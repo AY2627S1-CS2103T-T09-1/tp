@@ -59,7 +59,8 @@ public class EditCommand extends Command implements ConfirmationCommand {
             + "but stays in the list until you enter list or filter.";
     public static final String MESSAGE_NOT_EDITED = "At least one field to edit must be provided.";
     public static final String MESSAGE_DUPLICATE_PERSON =
-            "Another student named %1$s at %2$s, level %3$s already exists.";
+            "Another student named %1$s at %2$s, level %3$s already exists. If these are different students, "
+                    + "edit the name to include an identifier, for example Chloe Tan 2.";
     public static final String MESSAGE_CONFIRMATION =
             "Another student named %1$s is recorded at %2$s. Save this edit?";
     public static final String MESSAGE_GUARDIAN_REMOVAL = "Guardian name (" + PREFIX_GUARDIAN_NAME

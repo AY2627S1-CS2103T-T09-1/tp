@@ -47,7 +47,8 @@ public class AddCommand extends Command implements ConfirmationCommand {
 
     public static final String MESSAGE_SUCCESS = "New student added: %1$s";
     public static final String MESSAGE_DUPLICATE_PERSON =
-            "A student named %1$s at %2$s, level %3$s already exists.";
+            "A student named %1$s at %2$s, level %3$s already exists. If this is a different student, "
+                    + "enter a distinguishing name, for example Chloe Tan 2.";
     public static final String MESSAGE_CONFIRMATION =
             "A student named %1$s already exists at %2$s. Add another student with this name?";
 
