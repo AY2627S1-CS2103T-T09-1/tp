@@ -1,8 +1,11 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
 
 import java.util.logging.Logger;
 
@@ -20,9 +23,12 @@ public class FilterCommand extends Command {
     public static final String COMMAND_WORD = "filter";
 
     public static final String MESSAGE_USAGE = COMMAND_WORD + ": Shows the students who match every filter "
-            + "given. Each filter matches any part of the value, ignoring case.\n"
-            + "Parameters: [" + PREFIX_NAME + "NAME] [" + PREFIX_SCHOOL + "SCHOOL] (at least one)\n"
-            + "Example: " + COMMAND_WORD + " " + PREFIX_NAME + "tan " + PREFIX_SCHOOL + "bedok";
+            + "given, ignoring case.\n"
+            + "Parameters: [" + PREFIX_NAME + "NAME] [" + PREFIX_SCHOOL + "SCHOOL] "
+            + "[" + PREFIX_LEVEL + "LEVEL] [" + PREFIX_SUBJECT + "SUBJECT [" + PREFIX_BAND + "BAND]] "
+            + "(at least one)\n"
+            + "Example: " + COMMAND_WORD + " " + PREFIX_LEVEL + "S5 " + PREFIX_SUBJECT + "Mathematics "
+            + PREFIX_BAND + "G2";
 
     public static final String MESSAGE_NO_STUDENTS_FOUND =
             "No students match your search. Check the spelling, or type list to see all students.";
