@@ -229,6 +229,8 @@ The filter matches the edited student with `Person#isSamePerson`, the same name-
 
 Each edit wraps the current filter, so after several edits in a row, every edited student stays in the list, not just the last one. The next `filter` or `list` replaces the whole filter, so the extra rules never build up across searches.
 
+`editnote` and `deletenote` keep the list the same way. Both call `NoteCommandUtil#setPersonKeepingIndex`, which calls `keepPersonInFilteredList` before `setPerson` and adds the same line to the result. While `filter` matches only name and school, changing a note never makes a student stop matching, so this matters once the list can be filtered by note text.
+
 #### Design considerations
 
 **Aspect: What to show after an edit**
@@ -696,31 +698,29 @@ Use case ends.
 
 **MSS**
 
-1.  Tutor requests to view a specific student by index
+1.  Tutor views a specific student's record (UC5)
 2.  TuteeBook3 shows the student's record with numbered notes
 3.  Tutor requests to edit a specific note, giving the student's index, note number and new text
 4.  TuteeBook3 validates the text and replaces the note's text
-5.  TuteeBook3 shows the updated record
+5.  TuteeBook3 shows the updated record and a success message with the note's old and new text
 
     Use case ends.
 
 **Extensions**
 
-* 1a. The given index is invalid.
+* 1a. Tutor already knows the student's index and the note's number.
 
-    * 1a1. TuteeBook3 shows an error message.
-
-      Use case ends.
+    Use case resumes at step 3.
 
 * 2a. The student has no notes.
 
     Use case ends.
 
-* 3a. The given note number does not exist for that student.
+* 3a. The given index is invalid, or the given note number does not exist for that student.
 
     * 3a1. TuteeBook3 shows an error message.
 
-      Use case resumes at step 2.
+      Use case resumes at step 3.
 
 * 3b. The new text is blank or too long.
 
@@ -731,6 +731,12 @@ Use case ends.
       Steps 3b1-3b2 are repeated until the text is valid.
 
       Use case resumes at step 4.
+
+* 3c. The new text is the same as the note's current text.
+
+    * 3c1. TuteeBook3 keeps the note as it is and warns that the note was not changed.
+
+      Use case ends.
 
 ---
 
