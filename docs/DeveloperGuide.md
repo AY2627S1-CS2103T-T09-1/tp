@@ -722,7 +722,7 @@ Use case ends.
 
     * 3a1. TuteeBook3 shows an error message.
 
-      Use case resumes at step 2.
+      Use case resumes at step 3.
 
 * 3b. The new text is blank or too long.
 
