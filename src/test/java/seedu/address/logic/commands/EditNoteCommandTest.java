@@ -203,7 +203,8 @@ public class EditNoteCommandTest {
         Index maxIntNid = Index.fromOneBased(Integer.MAX_VALUE);
 
         assertCommandFailure(new EditNoteCommand(INDEX_FIRST_PERSON, maxIntNid, new Note(NOTE_IMPROVING)),
-                model, "NID 2147483647 does not exist. Alice Pauline at Maplewood Secondary School (S1) has only 1 note.");
+                model, "NID 2147483647 does not exist. Alice Pauline at Maplewood Secondary School (S1) has only "
+                        + "1 note.");
     }
 
     @Test
