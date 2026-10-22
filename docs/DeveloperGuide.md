@@ -72,7 +72,7 @@ The **API** of this component is specified in [`Ui.java`](https://github.com/se-
 
 ![Structure of the UI Component](images/UiClassDiagram.png)
 
-The UI consists of a `MainWindow` and its parts, such as `CommandBox`, `ResultDisplay`, `PersonListPanel`, `StudentDetailPanel`, and `StatusBarFooter`. `MainWindow` always keeps the student list on the left. When a `view` command succeeds, it shows the selected student's details on the right, with the student's fields above their notes. When no student is selected, the right panel shows an empty-state message. All of these classes inherit from the abstract `UiPart` class, which captures common behavior among classes that represent visible GUI parts.
+The UI consists of a `MainWindow` and its parts, such as `CommandBox`, `ResultDisplay`, `PersonListPanel`, `StudentDetailPanel`, and `StatusBarFooter`. `MainWindow` replaces the list panel with a student detail panel when a `view` command succeeds, so only one main content panel is visible at a time. All of these classes inherit from the abstract `UiPart` class, which captures common behavior among classes that represent visible GUI parts.
 
 The `UI` component uses the JavaFX UI framework. The layouts of these UI parts are defined in matching `.fxml` files in `src/main/resources/view`. For example, [`MainWindow.fxml`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/resources/view/MainWindow.fxml) specifies the layout of [`MainWindow`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/ui/MainWindow.java).
 
@@ -965,10 +965,10 @@ Use case ends.
 #### Screen layout
 
 * **Command box**: The text field at the top of the window where the user types commands.
-* **Detail view**: The panel on the right that shows everything about one student, including all their notes. The panel shows `No student card selected.` when no record is open. The user can clear an open record with `list` or `filter`.
+* **Detail view**: The view that shows everything about one student, including all their notes. It takes the place of the student list, so only one student is shown at a time. The user can return to the student list with `list` or `filter`.
 * **Result display**: The area below the command box that tells the user whether their last command worked, and why not if it failed.
 * **Student card**: One student's entry in the student list.
-* **Student list**: The panel on the left that always lists students with their main details. A `view` command highlights the viewed student; mouse clicks do not change this highlight.
+* **Student list**: The view that lists students with their main details. It takes the place of the detail view when the user enters `list` or `filter`.
 
 #### Code
 
