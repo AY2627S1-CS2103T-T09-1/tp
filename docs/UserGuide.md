@@ -272,17 +272,23 @@ The student has no notes | `{NAME} has no notes to delete.`
 
 Shows the students who match every filter you give.
 
-Format: `filter [n/NAME] [sch/SCHOOL]`
+Format: `filter [n/NAME] [sch/SCHOOL] [p/PHONE] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`
 
 * Give at least one filter, and each filter at most once.
 * A student must match every filter you give. For example, `filter n/tan sch/bedok` shows students whose name contains `tan` and whose school contains `bedok`.
 
-Filter | Matches students whose…
--------|------------------------
-`n/NAME` | name contains `NAME`
-`sch/SCHOOL` | school contains `SCHOOL`
+Filter | Matches students whose… | Match
+-------|-------------------------|------
+`n/NAME` | name contains `NAME` | partial matching
+`sch/SCHOOL` | school contains `SCHOOL` | partial matching
+`p/PHONE` | own phone number is `PHONE` | exact matching
+`gn/GUARDIAN_NAME` | guardian's name contains `GUARDIAN_NAME` | partial matching
+`gp/GUARDIAN_PHONE` | guardian's phone number is `GUARDIAN_PHONE` | exact matching
 
-* Each filter matches any part of the value, even part of a word. For example, `sch/vic` matches `Victoria School`.
+* A filter with partial matching can match any part of the value, even part of a word. For example, `sch/vic` matches `Victoria School`.
+* A filter with exact matching must match the whole value. For example, `p/9123` does not match `91234567`.
+* Phone numbers are compared the way they are saved: spaces, hyphens, and a leading `+65` are removed. For example, `p/9123 4567` and `p/+65 9123-4567` both match `91234567`. An overseas number must include its `+` and country code.
+* A student without a phone never matches `p/`, and a student without a guardian never matches `gn/` or `gp/`.
 * Filters are not case-sensitive, and extra spaces are ignored.
 * Each value is matched as one piece of text, including its spaces: `n/david lim` matches `David Lim`, but `n/lim david` does not.
 * If no student matches, the student list is empty and a message tells you how to see all students again.
@@ -293,13 +299,18 @@ Examples:
   ![Results for filter c](images/findChloeMarcusResult.png)
 * `filter sch/victoria` returns `SAMPLE Daniel Lee`.
 * `filter n/lim sch/secondary` returns `SAMPLE Marcus Lim`.
+* `filter p/9123 4567` returns `SAMPLE Chloe Tan`.
+* `filter gp/98765432` returns `SAMPLE Marcus Lim`, whose guardian is Grace Lim.
+* `filter gn/goh` returns `SAMPLE Natalie Goh`, whose guardian is Michelle Goh.
 
 Problem | Message
 --------|--------
-No filter is given | `Give at least one filter, such as n/NAME or sch/SCHOOL.`
+No filter is given | `Give at least one filter.` followed by how to use `filter`
 There is text before the first filter | `Invalid command format!` followed by how to use `filter`
 A filter is empty, such as `sch/` | `The school to search for cannot be blank.` (or `name`)
 A filter appears more than once | `Multiple values specified for the following single-valued field(s): sch/`
+`PHONE` or `GUARDIAN_PHONE` is empty or not a valid phone number | The same message as `add`, such as `Phone cannot be empty.`
+`GUARDIAN_NAME` is empty | `The guardian name to search for cannot be blank.`
 `t/` or `nid/` is given | `filter cannot search notes. Filter by name or school instead, such as: filter n/tan sch/bedok`
 
 ### Deleting a student: `delete`
@@ -413,6 +424,6 @@ Action | Format, Examples
 **Delete** | `delete [-f] INDEX`<br> e.g., `delete 3`
 **Delete note** | `deletenote [-f] INDEX nid/NID`<br> e.g., `deletenote 1 nid/2`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `edit 2 sub/Mathematics band/G2 sub/English band/G3`, `edit 1 gn/ gp/`
-**Filter** | `filter [n/NAME] [sch/SCHOOL]`<br> e.g., `filter n/lim sch/secondary`
+**Filter** | `filter [n/NAME] [sch/SCHOOL] [p/PHONE] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `filter gp/98765432`
 **List** | `list`
 **Help** | `help`
