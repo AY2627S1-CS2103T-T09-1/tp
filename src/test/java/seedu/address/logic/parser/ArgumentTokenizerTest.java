@@ -137,6 +137,33 @@ public class ArgumentTokenizerTest {
     }
 
     @Test
+    public void tokenizeWithTrailingText_prefixesInsideText_keptAsText() {
+        String argsString = "SomePreambleString -t dashT-Value p/ text with -t and p/ inside ";
+        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenizeWithTrailingText(argsString, pSlash, dashT);
+        assertPreamblePresent(argMultimap, "SomePreambleString");
+        assertArgumentPresent(argMultimap, dashT, "dashT-Value");
+        assertArgumentPresent(argMultimap, pSlash, "text with -t and p/ inside");
+    }
+
+    @Test
+    public void tokenizeWithTrailingText_noTrailingPrefix_tokenizesNormally() {
+        String argsString = "SomePreambleString -t dashT-Value -t another";
+        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenizeWithTrailingText(argsString, pSlash, dashT);
+        assertPreamblePresent(argMultimap, "SomePreambleString");
+        assertArgumentPresent(argMultimap, dashT, "dashT-Value", "another");
+        assertArgumentAbsent(argMultimap, pSlash);
+    }
+
+    @Test
+    public void tokenizeWithTrailingText_trailingPrefixFirst_laterPrefixesKeptAsText() {
+        String argsString = "SomePreambleString p/ text -t dashT-Value";
+        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenizeWithTrailingText(argsString, pSlash, dashT);
+        assertPreamblePresent(argMultimap, "SomePreambleString");
+        assertArgumentPresent(argMultimap, pSlash, "text -t dashT-Value");
+        assertArgumentAbsent(argMultimap, dashT);
+    }
+
+    @Test
     public void equalsMethod() {
         Prefix aaa = new Prefix("aaa");
 

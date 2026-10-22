@@ -25,6 +25,7 @@ public class HelpCommandTest {
             "view - Shows a student's full record on a single screen.",
             "list - Shows the entire student roster.",
             "addnote - Adds a note about a student.",
+            "editnote - Replaces the text of the note with the given NID of a student of the given index.",
             "deletenote - Deletes the note with the given NID from a student of the given index. "
                     + "Use -f to skip confirmation.",
             "exit - Exits TuteeBook3.",

@@ -395,7 +395,7 @@ public class LogicManagerTest {
         Model expectedModel = new ModelManager();
         expectedModel.addPerson(new PersonBuilder(personWithNote).withNotes().build());
         assertCommandSuccess("CONFIRM", new CommandResult(String.format(DeleteNoteCommand.MESSAGE_SUCCESS,
-                1, AMY.getName(), personWithNote.getNotes().getFirst())),
+                1, AMY.getName(), AMY.getSchool(), AMY.getLevel(), personWithNote.getNotes().getFirst())),
                 expectedModel);
         logic.execute("addnote 1 t/Review geometry");
         CommandResult forcedResult = logic.execute("deletenote -f 1 nid/1");

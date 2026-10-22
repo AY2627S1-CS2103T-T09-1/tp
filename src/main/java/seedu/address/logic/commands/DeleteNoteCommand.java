@@ -67,7 +67,7 @@ public class DeleteNoteCommand extends Command implements ConfirmationCommand {
     @Override
     public String getConfirmationMessage(Model model) throws CommandException {
         Person person = getTargetPerson(model);
-        verifyNoteExists(person);
+        NoteCommandUtil.verifyNoteExists(person, targetNid, MESSAGE_NO_NOTES);
         return "This will delete note " + targetNid.getOneBased() + " from " + person.getName() + " at "
                 + person.getSchool() + " (" + person.getLevel() + "). Continue?";
     }
@@ -76,14 +76,15 @@ public class DeleteNoteCommand extends Command implements ConfirmationCommand {
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
         Person person = getTargetPerson(model);
-        verifyNoteExists(person);
+        NoteCommandUtil.verifyNoteExists(person, targetNid, MESSAGE_NO_NOTES, MESSAGE_NID_NOT_FOUND);
         List<Note> notes = new ArrayList<>(person.getNotes());
         Note deletedNote = notes.remove(targetNid.getZeroBased());
         Person editedPerson = person.copyWithNotes(notes);
 
-        model.setPerson(person, editedPerson);
-        return new CommandResult(String.format(MESSAGE_SUCCESS, targetNid.getOneBased(), editedPerson.getName(),
-                editedPerson.getSchool(), editedPerson.getLevel(), deletedNote));
+        String successMessage = String.format(MESSAGE_SUCCESS, targetNid.getOneBased(),
+                editedPerson.getName(), editedPerson.getSchool(), editedPerson.getLevel(), deletedNote);
+        return new CommandResult(
+                NoteCommandUtil.setPersonKeepingIndex(model, person, editedPerson, successMessage));
     }
 
     private Person getTargetPerson(Model model) throws CommandException {
@@ -92,22 +93,6 @@ public class DeleteNoteCommand extends Command implements ConfirmationCommand {
             throw new CommandException(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
         }
         return lastShownList.get(targetIndex.getZeroBased());
-    }
-
-    /**
-     * Throws a {@code CommandException} if {@code person} has no note numbered {@code targetNid}.
-     */
-    private void verifyNoteExists(Person person) throws CommandException {
-        int noteCount = person.getNotes().size();
-        if (noteCount == 0) {
-            throw new CommandException(String.format(MESSAGE_NO_NOTES, person.getName(), person.getSchool(),
-                    person.getLevel()));
-        }
-        if (targetNid.getZeroBased() >= noteCount) {
-            String noteWord = noteCount == 1 ? "note" : "notes";
-            throw new CommandException(String.format(MESSAGE_NID_NOT_FOUND, targetNid.getOneBased(),
-                    person.getName(), person.getSchool(), person.getLevel(), noteCount, noteWord));
-        }
     }
 
     @Override
