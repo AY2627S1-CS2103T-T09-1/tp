@@ -113,7 +113,7 @@ There are no parameters at all, or there is text between `add` and the first par
 `SCHOOL` is invalid | `School names must be 1-100 characters and contain at least one letter.`
 `LEVEL` is not S1 to S5 | `Level must be one of S1, S2, S3, S4, S5.`
 Only one of `gn/` and `gp/` is given | `Guardian name (gn/) and guardian phone (gp/) must be given together.`
-A student with exactly the same name, including capitalization and spaces, already exists | `This student already exists in TuteeBook3.`
+A student with the same name already exists. Capitalization must match, but repeated spaces count as one, so `John  Doe` matches `John Doe` and `john doe` doesn't | `This student already exists in TuteeBook3.`
 `PHONE` or `GUARDIAN_PHONE` is invalid | The message says why, as described above
 A subject or band is wrong | See [Subject and band errors](#subject-and-band-errors)
 
