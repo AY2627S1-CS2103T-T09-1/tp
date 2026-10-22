@@ -59,7 +59,7 @@
                 <StackPane fx:id="personListPanelPlaceholder" minWidth="180" />
                 <StackPane fx:id="studentDetailPanelPlaceholder" minWidth="280">
                   <Label fx:id="noStudentSelected" styleClass="student-detail-empty-selection"
-                         text="No student card selected." wrapText="true" />
+                         text="View a student to see details." wrapText="true" />
                 </StackPane>
               </items>
             </SplitPane>

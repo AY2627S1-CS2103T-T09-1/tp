@@ -112,7 +112,7 @@ Examples:
 
 ### Listing all persons: `list`
 
-Shows a list of all persons in the address book. Each entry shows the student's index, name, phone number (if provided), school, and level. The panel on the right shows `No student card selected.` until you use `view INDEX` to see a student's remaining details.
+Shows the list of all students on the left, and an empty panel on the right. On the student list, each entry shows the student's index, name, phone number (if provided), school and level. The panel on the right shows `No student card selected.` until you use view `INDEX` to see a student's remaining details.
 
 Format: `list`
 
