@@ -1,6 +1,7 @@
 package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailure;
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.FilterCommand;
+import seedu.address.model.person.Level;
+import seedu.address.model.person.LevelMatchesPredicate;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.SchoolContainsTextPredicate;
@@ -108,12 +111,49 @@ public class FilterCommandParserTest {
         assertParseFailure(parser, " n/tan t/algebra", FilterCommandParser.MESSAGE_NOTES_NOT_FILTERABLE);
     }
 
+    @Test
+    public void parse_validLevel_returnsFilterCommand() {
+        FilterCommand expectedFilterCommand = filterCommandOf(level(Level.S3));
+        assertParseSuccess(parser, " lvl/S3", expectedFilterCommand);
+        assertParseSuccess(parser, " lvl/s3", expectedFilterCommand);
+        assertParseSuccess(parser, " lvl/  S3 ", expectedFilterCommand);
+    }
+
+    @Test
+    public void parse_invalidLevel_throwsParseException() {
+        assertParseFailure(parser, " lvl/S6", Level.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, " lvl/3", Level.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, " lvl/Sec 3", Level.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_blankLevel_throwsParseException() {
+        assertParseFailure(parser, " lvl/", Level.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_repeatedLevel_throwsParseException() {
+        assertParseFailure(parser, " lvl/S1 lvl/S2",
+                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_LEVEL));
+    }
+
+    @Test
+    public void parse_allFiltersInAnyOrder_returnsSameCommand() {
+        FilterCommand expectedFilterCommand = filterCommandOf(name("tan"), school("bedok"), level(Level.S2));
+        assertParseSuccess(parser, " n/tan sch/bedok lvl/S2", expectedFilterCommand);
+        assertParseSuccess(parser, " lvl/S2 n/tan sch/bedok", expectedFilterCommand);
+    }
+
     private static Predicate<Person> name(String text) {
         return new NameContainsKeywordsPredicate(List.of(text));
     }
 
     private static Predicate<Person> school(String text) {
         return new SchoolContainsTextPredicate(text);
+    }
+
+    private static Predicate<Person> level(Level level) {
+        return new LevelMatchesPredicate(level);
     }
 
     @SafeVarargs
