@@ -698,7 +698,7 @@ Use case ends.
 
 **MSS**
 
-1.  Tutor requests to view a specific student by index
+1.  Tutor views a specific student's record (UC5)
 2.  TuteeBook3 shows the student's record with numbered notes
 3.  Tutor requests to edit a specific note, giving the student's index, note number and new text
 4.  TuteeBook3 validates the text and replaces the note's text
@@ -708,17 +708,15 @@ Use case ends.
 
 **Extensions**
 
-* 1a. The given index is invalid.
+* 1a. Tutor already knows the student's index and the note's number.
 
-    * 1a1. TuteeBook3 shows an error message.
-
-      Use case ends.
+    Use case resumes at step 3.
 
 * 2a. The student has no notes.
 
     Use case ends.
 
-* 3a. The given note number does not exist for that student.
+* 3a. The given index is invalid, or the given note number does not exist for that student.
 
     * 3a1. TuteeBook3 shows an error message.
 
