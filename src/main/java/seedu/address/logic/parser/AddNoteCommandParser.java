@@ -10,6 +10,7 @@ import seedu.address.model.person.Note;
 
 /**
  * Parses input arguments and creates a new {@code AddNoteCommand} object.
+ * Everything after the note text prefix is the note text.
  */
 public class AddNoteCommandParser implements Parser<AddNoteCommand> {
 
@@ -19,13 +20,12 @@ public class AddNoteCommandParser implements Parser<AddNoteCommand> {
      * @throws ParseException if the user input does not conform to the expected format.
      */
     public AddNoteCommand parse(String args) throws ParseException {
-        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(args, PREFIX_NOTE);
+        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenizeWithTrailingText(args, PREFIX_NOTE);
         if (argMultimap.getPreamble().isEmpty() || argMultimap.getValue(PREFIX_NOTE).isEmpty()) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddNoteCommand.MESSAGE_USAGE));
         }
 
         Index index = ParserUtil.parseIndex(argMultimap.getPreamble());
-        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NOTE);
         Note note = ParserUtil.parseNote(argMultimap.getValue(PREFIX_NOTE).get());
         return new AddNoteCommand(index, note);
     }
