@@ -23,10 +23,14 @@ import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
 import seedu.address.model.person.Band;
+import seedu.address.model.person.GuardianNameContainsTextPredicate;
+import seedu.address.model.person.GuardianPhoneMatchesPredicate;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.LevelMatchesPredicate;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.Phone;
+import seedu.address.model.person.PhoneMatchesPredicate;
 import seedu.address.model.person.SchoolContainsTextPredicate;
 import seedu.address.model.person.StudentMatchesAllPredicate;
 import seedu.address.model.person.Subject;
@@ -38,12 +42,16 @@ import seedu.address.testutil.PersonBuilder;
  * Contains integration tests (interaction with the Model) for {@code FilterCommand}.
  */
 public class FilterCommandTest {
-    private static final Person CHLOE = new PersonBuilder().withName("Chloe Tan").withSubjects(
-            new Subject("Mathematics", Band.G1), new Subject("Science", Band.G2)).build();
-    private static final Person MARCUS = new PersonBuilder().withName("Marcus Lim").withSubjects(
-            new Subject("English", Band.G2), new Subject("Mathematics", Band.G2)).build();
+    private static final Person CHLOE = new PersonBuilder().withName("Chloe Tan").withPhone("91234567")
+            .withGuardian("Amy Tan", "92345678")
+            .withSubjects(new Subject("Mathematics", Band.G1), new Subject("Science", Band.G2)).build();
+    private static final Person MARCUS = new PersonBuilder().withName("Marcus Lim").withPhone("82345678")
+            .withGuardian("Grace Lim", "98765432")
+            .withSubjects(new Subject("English", Band.G2), new Subject("Mathematics", Band.G2)).build();
     private static final Person AISHA = new PersonBuilder().withName("Aisha Rahman").withSubjects(
             new Subject("Chemistry", Band.G3), new Subject("Mathematics", Band.G3)).build();
+    private static final Person DANIEL_LEE = new PersonBuilder().withName("Daniel Lee").withoutPhone()
+            .withoutGuardian().build();
 
     private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
     private Model expectedModel = new ModelManager(getTypicalAddressBook(), new UserPrefs());
@@ -174,6 +182,22 @@ public class FilterCommandTest {
     }
 
     @Test
+    public void execute_phone_onlyExactPhoneFound() {
+        assertContactFilterFinds(new PhoneMatchesPredicate(new Phone("91234567")), List.of(CHLOE));
+    }
+
+    @Test
+    public void execute_guardianName_studentsWithMatchingGuardianFound() {
+        // Daniel Lee has no guardian, so he is never matched by a guardian filter
+        assertContactFilterFinds(new GuardianNameContainsTextPredicate("lim"), List.of(MARCUS));
+    }
+
+    @Test
+    public void execute_guardianPhone_onlyExactGuardianPhoneFound() {
+        assertContactFilterFinds(new GuardianPhoneMatchesPredicate(new Phone("92345678")), List.of(CHLOE));
+    }
+
+    @Test
     public void toStringMethod() {
         StudentMatchesAllPredicate predicate =
                 filterOf(new NameContainsKeywordsPredicate(List.of("keyword")));
@@ -191,6 +215,23 @@ public class FilterCommandTest {
 
     private static AddressBook getSubjectAddressBook() {
         return new AddressBookBuilder().withPerson(CHLOE).withPerson(MARCUS).withPerson(AISHA).build();
+    }
+
+    /**
+     * Runs {@code filter} on a model of students with and without phones and guardians,
+     * and checks that exactly {@code expectedStudents} are shown.
+     */
+    private static void assertContactFilterFinds(Predicate<Person> filter, List<Person> expectedStudents) {
+        AddressBook addressBook = new AddressBookBuilder().withPerson(CHLOE).withPerson(MARCUS)
+                .withPerson(DANIEL_LEE).build();
+        Model contactModel = new ModelManager(addressBook, new UserPrefs());
+        Model expectedContactModel = new ModelManager(addressBook, new UserPrefs());
+        StudentMatchesAllPredicate predicate = filterOf(filter);
+        String expectedMessage = String.format(MESSAGE_PERSONS_LISTED_OVERVIEW, expectedStudents.size());
+        expectedContactModel.updateFilteredPersonList(predicate);
+        assertCommandSuccess(new FilterCommand(predicate), contactModel,
+                CommandResult.showList(expectedMessage), expectedContactModel);
+        assertEquals(expectedStudents, contactModel.getFilteredPersonList());
     }
 
     @SafeVarargs
