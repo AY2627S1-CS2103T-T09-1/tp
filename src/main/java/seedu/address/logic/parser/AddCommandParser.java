@@ -26,6 +26,9 @@ import seedu.address.model.person.Subject;
  * Parses input arguments and creates a new AddCommand object
  */
 public class AddCommandParser implements Parser<AddCommand> {
+    private static final String REPEATED_SPACES_REGEX = " {2,}";
+    private static final String SINGLE_SPACE = " ";
+
 
     /**
      * Parses the given {@code String} of arguments in the context of the AddCommand
@@ -34,7 +37,8 @@ public class AddCommandParser implements Parser<AddCommand> {
      */
     public AddCommand parse(String args) throws ParseException {
         ArgumentMultimap argMultimap =
-                ArgumentTokenizer.tokenize(args, PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_LEVEL,
+                ArgumentTokenizer.tokenize(normalizeRepeatedSpaces(args), PREFIX_NAME, PREFIX_PHONE,
+                        PREFIX_SCHOOL, PREFIX_LEVEL,
                         PREFIX_SUBJECT, PREFIX_BAND, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE);
 
         // no parameters, or text before the first prefix, means the user needs the format, so show the usage
@@ -61,4 +65,10 @@ public class AddCommandParser implements Parser<AddCommand> {
         return new AddCommand(person);
     }
 
+    /**
+     * Returns the arguments with repeated ordinary spaces collapsed to one.
+     */
+    private static String normalizeRepeatedSpaces(String args) {
+        return args.replaceAll(REPEATED_SPACES_REGEX, SINGLE_SPACE);
+    }
 }

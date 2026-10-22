@@ -106,6 +106,22 @@ public class AddCommandParserTest {
     }
 
     @Test
+    public void parse_repeatedSpacesInTextFields_collapsesSpaces() {
+        Person expectedPerson = new PersonBuilder(BOB)
+                .withName("John Doe")
+                .withoutPhone()
+                .withSchool("Victoria School")
+                .withLevel("S2")
+                .withSubjects(new Subject("Additional Mathematics", Band.G2))
+                .withGuardian("Mary Jane", VALID_GUARDIAN_PHONE_BOB)
+                .build();
+        String args = " n/  John   Doe  sch/  Victoria   School  lvl/S2 sub/  Additional   Mathematics  band/G2 "
+                + "gn/  Mary   Jane  gp/" + VALID_GUARDIAN_PHONE_BOB;
+
+        assertParseSuccess(parser, args, new AddCommand(expectedPerson));
+    }
+
+    @Test
     public void parse_formattedPhone_savesCleanedPhone() {
         Person expectedPerson = new PersonBuilder(BOB).withPhone("91234567").build();
         assertParseSuccess(parser, NAME_DESC_BOB + " " + PREFIX_PHONE + "+65 9123 4567" + LEVEL_DESC_BOB
