@@ -22,6 +22,8 @@ public class Messages {
     public static final String MESSAGE_PHONE_NOT_PROVIDED = "Not provided";
     public static final String MESSAGE_DUPLICATE_FIELDS =
                 "Multiple values specified for the following single-valued field(s): ";
+    public static final String MESSAGE_MISSING_PREFIX = "Missing required parameter: %1$s.";
+    public static final String MESSAGE_MISSING_PREFIXES = "Missing required parameters: %1$s.";
     public static final String MESSAGE_NOT_SINGAPORE_PHONE = "Warning: %1$s doesn't look like a Singapore number "
             + "(8 digits starting with 6, 8, or 9, with or without +65). Use edit to fix it if it's wrong.";
     public static final String MESSAGE_NOT_SINGAPORE_PHONES = "Warning: %1$s don't look like Singapore numbers "
@@ -39,6 +41,17 @@ public class Messages {
                 Stream.of(duplicatePrefixes).map(Prefix::toString).collect(Collectors.toSet());
 
         return MESSAGE_DUPLICATE_FIELDS + String.join(" ", duplicateFields);
+    }
+
+    /**
+     * Returns an error message naming the missing prefixes, in the order given.
+     */
+    public static String getErrorMessageForMissingPrefixes(Prefix... missingPrefixes) {
+        assert missingPrefixes.length > 0;
+
+        String missingFields = Stream.of(missingPrefixes).map(Prefix::toString).collect(Collectors.joining(", "));
+        String format = missingPrefixes.length == 1 ? MESSAGE_MISSING_PREFIX : MESSAGE_MISSING_PREFIXES;
+        return String.format(format, missingFields);
     }
 
     /**
