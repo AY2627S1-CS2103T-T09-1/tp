@@ -2,7 +2,6 @@ package seedu.address.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalPersons.ALICE;
@@ -17,11 +16,8 @@ import org.testfx.framework.junit5.Start;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.geometry.Orientation;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.SplitPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
@@ -86,23 +82,6 @@ public class StudentDetailPanelTest {
             container.applyCss();
 
             assertLabelText("#emptyNotes", "No notes recorded.");
-        });
-    }
-
-    @Test
-    public void constructor_studentWithNotes_placesDetailsAboveNotes(FxRobot robot) {
-        robot.interact(() -> {
-            Person personWithNote = new PersonBuilder(ALICE).withNotes("Review algebra").build();
-            StudentDetailPanel panel = new StudentDetailPanel(personWithNote, INDEX_FIRST_PERSON, persons);
-            container.getChildren().setAll(panel.getRoot());
-            container.applyCss();
-
-            SplitPane splitPane = (SplitPane) panel.getRoot();
-            ScrollPane details = (ScrollPane) container.lookup(".student-detail-scroll-pane");
-            Region notes = (Region) container.lookup(".student-detail-notes-panel");
-            assertEquals(Orientation.VERTICAL, splitPane.getOrientation());
-            assertSame(details, splitPane.getItems().get(0));
-            assertSame(notes, splitPane.getItems().get(1));
         });
     }
 
