@@ -329,7 +329,7 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 
 <img src="images/FilterClassDiagram.png" width="650" />
 
-1. `FilterCommandParser` splits the arguments at the filter prefixes `n/`, `sch/`, `lvl/`, `sub/`, `band/`, `p/`, `gn/`, and `gp/`. It also recognizes `t/` and `nid/`, only to reject them with a message that `filter` cannot search notes, so that they are not read as part of another value.
+1. `FilterCommandParser` splits the arguments at the filter prefixes `n/`, `sch/`, `lvl/`, `sub/`, `band/`, `p/`, `gn/`, `gp/`, and `note/`. It also recognizes `t/` and `nid/`, the note prefixes of `addnote` and `deletenote`, only to reject them with a message pointing to `note/`, so that they are not read as part of another value.
 1. It then checks, in order, that there is no text before the first prefix, that at least one filter is given, that no prefix is repeated, and that `band/` comes with `sub/`.
 1. It creates one `Predicate<Person>` for each filter given:
 
@@ -342,11 +342,12 @@ Each edit wraps the current filter, so after several edits in a row, every edite
    `p/` | `PhoneMatchesPredicate` | own phone is that number
    `gn/` | `GuardianNameContainsTextPredicate` | guardian's name contains the text
    `gp/` | `GuardianPhoneMatchesPredicate` | guardian's phone is that number
+   `note/` | `NoteContainsTextPredicate` | notes include one that contains the text
 
 1. It wraps the predicates in a `StudentMatchesAllPredicate`, which returns `true` only if every predicate does, and returns a `FilterCommand` holding it.
 1. `FilterCommand#execute` passes the predicate to `Model#updateFilteredPersonList` and returns `CommandResult.showList(...)` with the number of students found, or a no-match message.
 
-The partial-match predicates (`n/`, `sch/`, `gn/`) use `StringUtil#containsIgnoreCaseAndSpaces`, which lowercases both strings and squeezes runs of whitespace before comparing. The exact-match filters are parsed first with the same `ParserUtil` methods as `add`, into a `Level`, `Band`, or `Phone`. So `lvl/s3` becomes `S3` and `p/+65 9123 4567` becomes `91234567`, the form in which they are stored, and the predicates can compare values directly. `SubjectMatchesPredicate` compares names with `Subject#hasName`, the same rule `add` uses to detect a repeated subject, and requires the band to belong to that same subject.
+The partial-match predicates (`n/`, `sch/`, `gn/`, `note/`) use `StringUtil#containsIgnoreCaseAndSpaces`, which lowercases both strings and squeezes runs of whitespace before comparing. The exact-match filters are parsed first with the same `ParserUtil` methods as `add`, into a `Level`, `Band`, or `Phone`. So `lvl/s3` becomes `S3` and `p/+65 9123 4567` becomes `91234567`, the form in which they are stored, and the predicates can compare values directly. `SubjectMatchesPredicate` compares names with `Subject#hasName`, the same rule `add` uses to detect a repeated subject, and requires the band to belong to that same subject.
 
 #### Design considerations
 
@@ -379,6 +380,16 @@ The partial-match predicates (`n/`, `sch/`, `gn/`) use `StringUtil#containsIgnor
 * **Alternative 2 (current choice):** A student must match every filter (AND).
   * Pros: Each filter narrows the list, which fits planning a lesson for one group.
   * Cons: To see two schools, the tutor runs `filter` twice.
+
+**Aspect: Whether to search notes with a separate command or with `filter`**
+
+* **Alternative 1:** A separate `findnote` command.
+  * Pros: The result can list which notes matched for each student.
+  * Cons: Two search commands to learn, and a note search cannot be combined with other filters.
+
+* **Alternative 2 (current choice):** A `note/` filter in `filter`.
+  * Pros: One search command. A note search combines with other filters, such as `filter lvl/S3 note/algebra`.
+  * Cons: The result shows students, not which of their notes matched. The note text cannot contain another prefix after a space.
 
 ### \[Proposed\] Undo/redo feature
 

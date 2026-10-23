@@ -28,6 +28,7 @@ import seedu.address.model.person.GuardianPhoneMatchesPredicate;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.LevelMatchesPredicate;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
+import seedu.address.model.person.NoteContainsTextPredicate;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.PhoneMatchesPredicate;
@@ -195,6 +196,23 @@ public class FilterCommandTest {
     @Test
     public void execute_guardianPhone_onlyExactGuardianPhoneFound() {
         assertContactFilterFinds(new GuardianPhoneMatchesPredicate(new Phone("92345678")), List.of(CHLOE));
+    }
+
+    @Test
+    public void execute_note_studentsWithMatchingNoteFound() {
+        Person weakInAlgebra = new PersonBuilder().withName("Chloe Tan").withNotes("Weak in algebra").build();
+        Person strongInGeometry = new PersonBuilder().withName("Marcus Lim")
+                .withNotes("Strong in geometry").build();
+        AddressBook addressBook = new AddressBookBuilder().withPerson(weakInAlgebra)
+                .withPerson(strongInGeometry).build();
+        Model noteModel = new ModelManager(addressBook, new UserPrefs());
+        Model expectedNoteModel = new ModelManager(addressBook, new UserPrefs());
+        String expectedMessage = String.format(MESSAGE_PERSONS_LISTED_OVERVIEW, 1);
+        StudentMatchesAllPredicate predicate = filterOf(new NoteContainsTextPredicate("algebra"));
+        expectedNoteModel.updateFilteredPersonList(predicate);
+        assertCommandSuccess(new FilterCommand(predicate), noteModel,
+                CommandResult.showList(expectedMessage), expectedNoteModel);
+        assertEquals(List.of(weakInAlgebra), noteModel.getFilteredPersonList());
     }
 
     @Test
