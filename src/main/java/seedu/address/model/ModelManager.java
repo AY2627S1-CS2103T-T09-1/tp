@@ -119,7 +119,7 @@ public class ModelManager implements Model {
         }
         // checked before widening the filter, which would then always match person
         boolean isOutsideFilter = !currentPredicate.test(person);
-        filteredPersons.setPredicate(p -> currentPredicate.test(p) || p.isSamePerson(person));
+        filteredPersons.setPredicate(p -> currentPredicate.test(p) || p.hasSameStudentKey(person));
         return isOutsideFilter;
     }
 

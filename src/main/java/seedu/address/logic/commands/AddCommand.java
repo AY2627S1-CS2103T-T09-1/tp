@@ -10,6 +10,9 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
@@ -20,7 +23,7 @@ import seedu.address.model.person.Person;
 /**
  * Adds a person to the address book.
  */
-public class AddCommand extends Command {
+public class AddCommand extends Command implements ConfirmationCommand {
 
     public static final String COMMAND_WORD = "add";
 
@@ -43,7 +46,11 @@ public class AddCommand extends Command {
             + PREFIX_GUARDIAN_PHONE + "91234567";
 
     public static final String MESSAGE_SUCCESS = "New student added: %1$s";
-    public static final String MESSAGE_DUPLICATE_PERSON = "This student already exists in TuteeBook3.";
+    public static final String MESSAGE_DUPLICATE_PERSON =
+            "A student named %1$s at %2$s, level %3$s already exists. If this is a different student, "
+                    + "enter a distinguishing name, for example Chloe Tan 2.";
+    public static final String MESSAGE_CONFIRMATION =
+            "A student named %1$s already exists at %2$s. Add another student with this name?";
 
     private final Person toAdd;
 
@@ -56,18 +63,56 @@ public class AddCommand extends Command {
     }
 
     @Override
+    public boolean isForced() {
+        return false;
+    }
+
+    @Override
+    public String getCommandWord() {
+        return COMMAND_WORD;
+    }
+
+    @Override
+    public String getConfirmationMessage(Model model) throws CommandException {
+        requireNonNull(model);
+        ensureNoExactDuplicate(model, toAdd);
+        List<Person> sameNamePersons = model.getAddressBook().getPersonList().stream()
+                .filter(toAdd::hasSameName)
+                .toList();
+        if (sameNamePersons.isEmpty()) {
+            return null;
+        }
+        String existingStudents = formatMatchingStudents(sameNamePersons);
+        return String.format(MESSAGE_CONFIRMATION, toAdd.getName(), existingStudents);
+    }
+
+    @Override
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
 
-        if (model.hasPerson(toAdd)) {
-            throw new CommandException(MESSAGE_DUPLICATE_PERSON);
-        }
+        ensureNoExactDuplicate(model, toAdd);
 
         model.addPerson(toAdd);
         CommandResult result = CommandResult.showList(String.format(MESSAGE_SUCCESS, Messages.format(toAdd)));
         return Messages.getNonSingaporePhoneWarning(toAdd.getPhone(), toAdd.getGuardian().map(Guardian::getPhone))
                 .map(result::withWarning)
                 .orElse(result);
+    }
+
+    private static void ensureNoExactDuplicate(Model model, Person person) throws CommandException {
+        boolean hasDuplicate = model.getAddressBook().getPersonList().stream()
+                .anyMatch(person::hasSameStudentKey);
+        if (hasDuplicate) {
+            throw new CommandException(String.format(MESSAGE_DUPLICATE_PERSON, person.getName(),
+                    person.getSchool(), person.getLevel()));
+        }
+    }
+
+    private static String formatMatchingStudents(List<Person> persons) {
+        return persons.stream()
+                .map(person -> person.getSchool() + " (" + person.getLevel() + ")")
+                .distinct()
+                .collect(Collectors.joining(", "));
     }
 
     @Override

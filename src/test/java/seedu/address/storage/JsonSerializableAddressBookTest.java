@@ -44,6 +44,18 @@ public class JsonSerializableAddressBookTest {
     }
 
     @Test
+    public void toModelType_sameNameDifferentSchoolAndLevel_success() throws Exception {
+        AddressBook source = new AddressBook();
+        Person sameNameOtherSchool = new PersonBuilder(ALICE).withSchool("Victoria School").withLevel("S2").build();
+        source.addPerson(ALICE);
+        source.addPerson(sameNameOtherSchool);
+
+        JsonSerializableAddressBook jsonAddressBook = new JsonSerializableAddressBook(source);
+
+        assertEquals(List.of(ALICE, sameNameOtherSchool), jsonAddressBook.toModelType().getPersonList());
+    }
+
+    @Test
     public void toModelType_oldFormatFileWithRemovedFields_ignoresRemovedFields() throws Exception {
         JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(OLD_FORMAT_TYPICAL_PERSONS_FILE,
                 JsonSerializableAddressBook.class).get();

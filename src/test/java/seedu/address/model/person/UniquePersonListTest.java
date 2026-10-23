@@ -38,11 +38,11 @@ public class UniquePersonListTest {
     }
 
     @Test
-    public void contains_personWithSameIdentityFieldsInList_returnsTrue() {
+    public void contains_personWithSameNameButDifferentSchool_returnsFalse() {
         uniquePersonList.add(ALICE);
         Person editedAlice = new PersonBuilder(ALICE).withPhone(VALID_PHONE_BOB).withSchool(VALID_SCHOOL_BOB)
                 .build();
-        assertTrue(uniquePersonList.contains(editedAlice));
+        assertFalse(uniquePersonList.contains(editedAlice));
     }
 
     @Test
@@ -54,6 +54,23 @@ public class UniquePersonListTest {
     public void add_duplicatePerson_throwsDuplicatePersonException() {
         uniquePersonList.add(ALICE);
         assertThrows(DuplicatePersonException.class, () -> uniquePersonList.add(ALICE));
+    }
+
+    @Test
+    public void add_sameNameDifferentSchool_addsPerson() {
+        Person sameNameOtherSchool = new PersonBuilder(ALICE).withSchool(VALID_SCHOOL_BOB).build();
+        uniquePersonList.add(ALICE);
+        uniquePersonList.add(sameNameOtherSchool);
+        assertEquals(List.of(ALICE, sameNameOtherSchool), uniquePersonList.asUnmodifiableObservableList());
+    }
+
+    @Test
+    public void add_sameNameSchoolAndLevelDifferentCaseAndSpaces_throwsDuplicatePersonException() {
+        String repeatedSpaceName = ALICE.getName().toString().replace(" ", "   ").toLowerCase();
+        Person normalizedDuplicate = new PersonBuilder(ALICE).withName(repeatedSpaceName)
+                .withSchool(ALICE.getSchool().toString().replace(" ", "  ").toLowerCase()).build();
+        uniquePersonList.add(ALICE);
+        assertThrows(DuplicatePersonException.class, () -> uniquePersonList.add(normalizedDuplicate));
     }
 
     @Test

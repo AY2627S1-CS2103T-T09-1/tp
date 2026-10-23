@@ -28,8 +28,10 @@ public class DeleteNoteCommand extends Command implements ConfirmationCommand {
             + "Example: " + COMMAND_WORD + " 1 nid/2 (asks for confirmation)\n"
             + COMMAND_WORD + " " + FORCE_OPTION + " 1 nid/2 (deletes immediately)";
 
-    public static final String MESSAGE_SUCCESS = "Deleted note %1$d from %2$s: %3$s";
-    public static final String MESSAGE_NO_NOTES = "%1$s has no notes to delete.";
+    public static final String MESSAGE_SUCCESS = "Deleted note %1$d from %2$s at %3$s (%4$s): %5$s";
+    public static final String MESSAGE_NO_NOTES = "%1$s at %2$s (%3$s) has no notes to delete.";
+    public static final String MESSAGE_NID_NOT_FOUND =
+            "NID %1$d does not exist. %2$s at %3$s (%4$s) has only %5$d %6$s.";
 
     private final Index targetIndex;
     private final Index targetNid;
@@ -66,20 +68,21 @@ public class DeleteNoteCommand extends Command implements ConfirmationCommand {
     public String getConfirmationMessage(Model model) throws CommandException {
         Person person = getTargetPerson(model);
         NoteCommandUtil.verifyNoteExists(person, targetNid, MESSAGE_NO_NOTES);
-        return "This will delete note " + targetNid.getOneBased() + " from " + person.getName() + ". Continue?";
+        return "This will delete note " + targetNid.getOneBased() + " from " + person.getName() + " at "
+                + person.getSchool() + " (" + person.getLevel() + "). Continue?";
     }
 
     @Override
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
         Person person = getTargetPerson(model);
-        NoteCommandUtil.verifyNoteExists(person, targetNid, MESSAGE_NO_NOTES);
+        NoteCommandUtil.verifyNoteExists(person, targetNid, MESSAGE_NO_NOTES, MESSAGE_NID_NOT_FOUND);
         List<Note> notes = new ArrayList<>(person.getNotes());
         Note deletedNote = notes.remove(targetNid.getZeroBased());
         Person editedPerson = person.copyWithNotes(notes);
 
         String successMessage = String.format(MESSAGE_SUCCESS, targetNid.getOneBased(),
-                editedPerson.getName(), deletedNote);
+                editedPerson.getName(), editedPerson.getSchool(), editedPerson.getLevel(), deletedNote);
         return new CommandResult(
                 NoteCommandUtil.setPersonKeepingIndex(model, person, editedPerson, successMessage));
     }
