@@ -149,6 +149,17 @@ The `Model` component,
 * stores a `UserPrefs` object that represents the user’s preferences (currently, just the GUI settings). This is exposed to the outside as a `ReadOnlyUserPrefs` object.
 * does not depend on any of the other three components (as the `Model` represents data entities of the domain, they should make sense on their own without depending on other components)
 
+Each `Person` is one student. The classes that make up a `Person` are shown below.
+
+<img src="images/PersonClassDiagram.png" width="550" />
+
+The diagram does not show these rules, which the classes check when an object is created:
+
+* A student has 1 to 8 subjects, and no two of them have the same name, ignoring case. `Person#validateSubjects` checks both, so the same subject cannot be taken at two bands.
+* A note's NID is its position in the student's list of notes. A new note goes at the end, and deleting a note renumbers the notes after it.
+* A `Guardian` always has both a name and a phone. A student has a complete guardian or none. See [Guardian details](#guardian-details).
+* `Guardian` reuses `Name` and `Phone`, so a guardian's name and phone follow the same rules as a student's.
+
 
 ### Storage component
 
@@ -212,6 +223,69 @@ Students and guardians each have one phone number, stored as a `Phone`. The same
 * **Alternative 2:** Keep numbers exactly as typed, apart from spaces and hyphens.
   * Pros: Simpler.
   * Cons: The same Singapore number could be stored as `91234567` or `+6591234567`, so comparing or searching phone numbers would have to handle both.
+
+### Guardian details
+
+A student can have one guardian, whom the tutor contacts about the student. The guardian is optional, but a guardian always has both a name (`gn/`) and a phone (`gp/`).
+
+#### Implementation
+
+A `Guardian` holds a `Name` and a `Phone`, and its constructor rejects `null` for either. `Person` stores the guardian as a field that is `null` when the student has no guardian, and `Person#getGuardian` returns it as an `Optional<Guardian>`.
+
+`add` creates the guardian in `ParserUtil#parseGuardian`:
+
+1. If neither `gn/` nor `gp/` is given, it returns an empty `Optional`, and the student is added without a guardian.
+1. If only one of them is given, it throws a `ParseException` with `ParserUtil.MESSAGE_GUARDIAN_PAIR`.
+1. Otherwise, it parses the values with `ParserUtil#parseGuardianName` and `ParserUtil#parseGuardianPhone`. These use the same rules as `n/` and `p/`, but name the field as `Guardian name` or `Guardian phone` in the error message.
+
+`edit` checks the guardian in two places, because some checks need the student's current guardian, which the parser cannot see:
+
+1. `EditCommandParser#parseGuardianForEdit` handles empty values. If both `gn/` and `gp/` are given with no value, it marks the guardian for removal in the `EditPersonDescriptor`. If only one of them is empty, it throws a `ParseException` with `EditCommand.MESSAGE_GUARDIAN_REMOVAL`, which explains how to remove the guardian. Otherwise, it parses and stores the values that were given.
+1. `EditCommand#createEditedGuardian` then combines the descriptor with the student's current guardian, as shown below.
+
+<img src="images/GuardianEditActivityDiagram.png" width="750" />
+
+So a student who has a guardian can change just the guardian's name or phone, but a student without one needs both to get one, the same as in `add`.
+
+In the data file, `JsonAdaptedPerson` stores the guardian as a nested `JsonAdaptedGuardian`, and leaves it out when the student has no guardian. A file without a guardian, such as one from before guardians were added, loads as a student without a guardian.
+
+`Person#isSamePerson` compares only names, so the guardian does not affect whether two students count as duplicates.
+
+#### Design considerations
+
+**Aspect: How to store the guardian**
+
+* **Alternative 1:** Two optional fields on `Person`, a guardian name and a guardian phone.
+  * Pros: No new class.
+  * Cons: A student could end up with only half a guardian, and every command that changes the guardian would need its own check to prevent that.
+
+* **Alternative 2 (current choice):** A `Guardian` class with both fields required, and an optional `Guardian` on `Person`.
+  * Pros: A half-filled guardian cannot be created, so the "both or neither" rule is kept in one place. `Guardian` reuses `Name` and `Phone`, so their validation is not duplicated.
+  * Cons: One more class, and one more nested object in the data file.
+
+* **Alternative 3:** Guardians as separate entries that several students can share.
+  * Pros: A guardian of siblings is updated once for all of them.
+  * Cons: Deleting or editing a student would have to handle the guardians they share, and the data file would need references between entries. This serves a low-priority user story, so it is not worth the extra complexity for now.
+
+**Aspect: Whether a guardian can have only a name or only a phone**
+
+* **Alternative 1:** Allow either field on its own.
+  * Pros: The tutor can record whatever they know.
+  * Cons: A guardian without a phone cannot be contacted, and a phone without a name does not say who answers. The user stories for guardians are about contacting them.
+
+* **Alternative 2 (current choice):** Require both.
+  * Pros: Every saved guardian can be contacted and identified.
+  * Cons: The tutor must know both before saving a guardian.
+
+**Aspect: How to remove a guardian**
+
+* **Alternative 1 (current choice):** `edit INDEX gn/ gp/` with both values empty.
+  * Pros: Works the same way as `edit INDEX p/`, which removes the student's phone, so there is nothing new to learn.
+  * Cons: An empty prefix is easy to type by mistake. To limit this, giving only one empty prefix is an error, not a removal.
+
+* **Alternative 2:** A separate prefix or command, such as `removeguardian INDEX`.
+  * Pros: Harder to trigger by mistake.
+  * Cons: One more command to learn for a rare action.
 
 ### Keeping the list after an edit
 
