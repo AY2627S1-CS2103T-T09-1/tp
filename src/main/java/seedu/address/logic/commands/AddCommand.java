@@ -10,6 +10,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
 
+import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
@@ -64,7 +65,9 @@ public class AddCommand extends Command {
         }
 
         model.addPerson(toAdd);
-        CommandResult result = CommandResult.showList(String.format(MESSAGE_SUCCESS, Messages.format(toAdd)));
+        Index addedPersonIndex = Index.fromOneBased(model.getFilteredPersonList().size());
+        CommandResult result = CommandResult.showStudent(
+                String.format(MESSAGE_SUCCESS, Messages.format(toAdd)), toAdd, addedPersonIndex);
         return Messages.getNonSingaporePhoneWarning(toAdd.getPhone(), toAdd.getGuardian().map(Guardian::getPhone))
                 .map(result::withWarning)
                 .orElse(result);

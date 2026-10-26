@@ -107,8 +107,8 @@ public class DeleteNoteCommandTest {
         expectedModel.setPerson(person, editedPerson);
         expectedModel.updateFilteredPersonList(editedPerson::equals);
 
-        assertCommandSuccess(new DeleteNoteCommand(INDEX_FIRST_PERSON, NID_FIRST), model, expectedMessage,
-                expectedModel);
+        assertCommandSuccess(new DeleteNoteCommand(INDEX_FIRST_PERSON, NID_FIRST), model,
+                CommandResult.showStudent(expectedMessage, editedPerson, INDEX_FIRST_PERSON), expectedModel);
     }
 
     @Test
@@ -125,8 +125,8 @@ public class DeleteNoteCommandTest {
         expectedModel.setPerson(first, editedFirst);
         expectedModel.updateFilteredPersonList(person -> person.equals(editedFirst) || person.equals(second));
 
-        assertCommandSuccess(new DeleteNoteCommand(INDEX_FIRST_PERSON, NID_FIRST), model, expectedMessage,
-                expectedModel);
+        assertCommandSuccess(new DeleteNoteCommand(INDEX_FIRST_PERSON, NID_FIRST), model,
+                CommandResult.showStudent(expectedMessage, editedFirst, INDEX_FIRST_PERSON), expectedModel);
         assertEquals(List.of(editedFirst, second), model.getFilteredPersonList());
     }
 
@@ -143,8 +143,8 @@ public class DeleteNoteCommandTest {
         expectedModel.setPerson(first, editedFirst);
         expectedModel.updateFilteredPersonList(HAS_ALGEBRA_NOTE);
 
-        assertCommandSuccess(new DeleteNoteCommand(INDEX_FIRST_PERSON, NID_SECOND), model, expectedMessage,
-                expectedModel);
+        assertCommandSuccess(new DeleteNoteCommand(INDEX_FIRST_PERSON, NID_SECOND), model,
+                CommandResult.showStudent(expectedMessage, editedFirst, INDEX_FIRST_PERSON), expectedModel);
         assertEquals(List.of(editedFirst, second), model.getFilteredPersonList());
     }
 
@@ -249,8 +249,8 @@ public class DeleteNoteCommandTest {
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.setPerson(person, editedPerson);
 
-        assertCommandSuccess(new DeleteNoteCommand(INDEX_FIRST_PERSON, nid), model, expectedMessage,
-                expectedModel);
+        assertCommandSuccess(new DeleteNoteCommand(INDEX_FIRST_PERSON, nid), model,
+                CommandResult.showStudent(expectedMessage, editedPerson, INDEX_FIRST_PERSON), expectedModel);
     }
 
     /**

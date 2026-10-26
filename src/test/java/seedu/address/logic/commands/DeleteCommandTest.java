@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
 import static seedu.address.logic.commands.CommandTestUtil.showPersonAtIndex;
-import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
@@ -61,21 +60,19 @@ public class DeleteCommandTest {
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.deletePerson(personToDelete);
+        expectedModel.updateFilteredPersonList(person -> false);
 
         assertCommandSuccess(deleteCommand, model, CommandResult.showList(expectedMessage), expectedModel);
     }
 
     @Test
-    public void execute_validIndexFilteredList_showsAllRemainingStudents() throws Exception {
+    public void execute_validIndexFilteredList_keepsFilter() throws Exception {
         showPersonAtIndex(model, INDEX_SECOND_PERSON);
         Person personToDelete = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
 
         new DeleteCommand(INDEX_FIRST_PERSON).execute(model);
 
-        Model expectedModel = new ModelManager(getTypicalAddressBook(), new UserPrefs());
-        expectedModel.deletePerson(personToDelete);
-        expectedModel.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
-        assertEquals(expectedModel.getFilteredPersonList(), model.getFilteredPersonList());
+        assertTrue(model.getFilteredPersonList().isEmpty());
     }
 
     @Test

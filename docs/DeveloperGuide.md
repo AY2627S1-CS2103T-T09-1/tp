@@ -676,12 +676,12 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 **MSS**
 
-1.  Tutor requests to list students
-2.  TuteeBook3 shows a list of students
+1.  Tutor requests to list or filter students
+2.  TuteeBook3 shows the corresponding list of students
 3.  Tutor requests to delete a specific student by index
 4.  TuteeBook3 asks Tutor to confirm the deletion
 5.  Tutor confirms the deletion
-6.  TuteeBook3 deletes the student and all of the student's notes, and shows the remaining roster
+6.  TuteeBook3 deletes the student and all of the student's notes, preserves any active filter, and shows the remaining students
 
     Use case ends.
 
@@ -742,7 +742,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 **MSS**
 
 1. Tutor requests to view a specific student by index.
-2. TuteeBook3 opens the student detail view, showing all of the student's details, including all notes.
+2. TuteeBook3 keeps the fixed, equal-width student list on the left and opens the student's details on the right, with all notes below the details.
 
 Use case ends.
 
@@ -799,7 +799,7 @@ Use case ends.
 2.  TuteeBook3 shows a list of students
 3.  Tutor requests to add a note to a specific student in the list
 4.  TuteeBook3 adds the note to the student's notes
-5.  TuteeBook3 confirms that the note is added
+5.  TuteeBook3 shows the student's updated record and confirms that the note is added
 
     Use case ends.
 
@@ -867,7 +867,7 @@ Use case ends.
 
 * 3c. The new text is the same as the note's current text.
 
-    * 3c1. TuteeBook3 keeps the note as it is and warns that the note was not changed.
+    * 3c1. TuteeBook3 keeps the note as it is, shows the student's record, and warns that the note was not changed.
 
       Use case ends.
 
@@ -881,7 +881,7 @@ Use case ends.
 2.  TuteeBook3 shows the student's record with numbered notes
 3.  Tutor requests to delete a specific note, giving the student's index and NID
 4.  TuteeBook3 asks Tutor to confirm deleting the note.
-5.  Tutor confirms, and TuteeBook3 deletes the note, renumbers the remaining notes, and shows a success message.
+5.  Tutor confirms, and TuteeBook3 deletes the note, renumbers the remaining notes, and shows the updated student record and a success message.
 
     Use case ends.
 

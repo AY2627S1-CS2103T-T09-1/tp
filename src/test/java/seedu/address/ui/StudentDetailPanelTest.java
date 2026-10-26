@@ -18,9 +18,12 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import seedu.address.model.person.Person;
 import seedu.address.testutil.PersonBuilder;
@@ -75,6 +78,26 @@ public class StudentDetailPanelTest {
     }
 
     @Test
+    public void constructor_studentWithDetails_displaysDetailsBeforeNotes(FxRobot robot) {
+        Person personWithNotes = new PersonBuilder(ALICE).withNotes("Strong in algebra").build();
+
+        robot.interact(() -> {
+            StudentDetailPanel panel = new StudentDetailPanel(personWithNotes, INDEX_FIRST_PERSON, persons);
+            container.getChildren().setAll(panel.getRoot());
+            container.applyCss();
+            ScrollPane detailScrollPane = (ScrollPane) panel.getRoot();
+            VBox detailContent = (VBox) detailScrollPane.getContent();
+
+            assertTrue(detailContent.getChildren().indexOf(container.lookup("#name").getParent())
+                    < detailContent.getChildren().indexOf(container.lookup(".student-detail-section-separator")));
+            assertTrue(detailContent.getChildren().indexOf(container.lookup(".student-detail-section-separator"))
+                    < detailContent.getChildren().indexOf(container.lookup(".student-detail-notes-heading")));
+            assertTrue(detailContent.getChildren().indexOf(container.lookup(".student-detail-notes-heading"))
+                    < detailContent.getChildren().indexOf(container.lookup("#noteCards")));
+        });
+    }
+
+    @Test
     public void constructor_studentWithoutNotes_displaysEmptyState(FxRobot robot) {
         robot.interact(() -> {
             StudentDetailPanel panel = new StudentDetailPanel(ALICE, INDEX_FIRST_PERSON, persons);
@@ -118,6 +141,9 @@ public class StudentDetailPanelTest {
             assertLabelWraps("#guardianPhone");
             assertLabelWraps(".student-detail-note-card");
             assertViewportMatchesPanelBackground();
+            ScrollPane detailScrollPane = (ScrollPane) panel.getRoot();
+            assertTrue(detailScrollPane.isFitToWidth());
+            assertEquals(ScrollBarPolicy.NEVER, detailScrollPane.getHbarPolicy());
         });
     }
 

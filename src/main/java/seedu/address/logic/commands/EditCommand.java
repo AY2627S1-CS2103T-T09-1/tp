@@ -103,7 +103,7 @@ public class EditCommand extends Command {
         if (isOutsideFilter) {
             feedback += "\n" + String.format(MESSAGE_NO_LONGER_MATCHES, editedPerson.getName());
         }
-        CommandResult result = new CommandResult(feedback);
+        CommandResult result = CommandResult.showStudent(feedback, editedPerson, index);
         // only warn about phones typed in this command, not ones the person already had
         return Messages.getNonSingaporePhoneWarning(editPersonDescriptor.getPhone(),
                         editPersonDescriptor.getGuardianPhone())

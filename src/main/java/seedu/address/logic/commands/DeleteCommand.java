@@ -1,7 +1,6 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
-import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
 import java.util.List;
 
@@ -71,7 +70,6 @@ public class DeleteCommand extends Command implements ConfirmationCommand {
         requireNonNull(model);
         Person personToDelete = getTargetPerson(model);
         model.deletePerson(personToDelete);
-        model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
         String message = String.format(MESSAGE_DELETE_STUDENT_SUCCESS, personToDelete.getName());
         return CommandResult.showList(message);
     }

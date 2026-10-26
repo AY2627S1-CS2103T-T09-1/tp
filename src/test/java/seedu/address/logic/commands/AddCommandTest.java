@@ -7,14 +7,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
 import org.junit.jupiter.api.Test;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import seedu.address.commons.core.GuiSettings;
+import seedu.address.commons.core.index.Index;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.AddressBook;
@@ -40,7 +41,9 @@ public class AddCommandTest {
 
         assertEquals(String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(validPerson)),
                 commandResult.getFeedbackToUser());
-        assertEquals(CommandResult.DisplayMode.SHOW_LIST, commandResult.getDisplayMode());
+        assertEquals(CommandResult.DisplayMode.SHOW_STUDENT, commandResult.getDisplayMode());
+        assertEquals(validPerson, commandResult.getPersonToDisplay().orElseThrow());
+        assertEquals(Index.fromOneBased(1), commandResult.getDisplayedIndex().orElseThrow());
         assertFalse(commandResult.isWarning());
         assertEquals(List.of(validPerson), modelStub.personsAdded);
     }
@@ -84,7 +87,9 @@ public class AddCommandTest {
         assertEquals(String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(person)) + "\n" + expectedWarning,
                 commandResult.getFeedbackToUser());
         assertTrue(commandResult.isWarning());
-        assertEquals(CommandResult.DisplayMode.SHOW_LIST, commandResult.getDisplayMode());
+        assertEquals(CommandResult.DisplayMode.SHOW_STUDENT, commandResult.getDisplayMode());
+        assertEquals(person, commandResult.getPersonToDisplay().orElseThrow());
+        assertEquals(Index.fromOneBased(1), commandResult.getDisplayedIndex().orElseThrow());
         assertEquals(List.of(person), modelStub.personsAdded);
     }
 
@@ -215,7 +220,7 @@ public class AddCommandTest {
      * A Model stub that always accepts the person being added.
      */
     private class ModelStubAcceptingPersonAdded extends ModelStub {
-        final ArrayList<Person> personsAdded = new ArrayList<>();
+        final ObservableList<Person> personsAdded = FXCollections.observableArrayList();
 
         @Override
         public boolean hasPerson(Person person) {
@@ -227,6 +232,11 @@ public class AddCommandTest {
         public void addPerson(Person person) {
             requireNonNull(person);
             personsAdded.add(person);
+        }
+
+        @Override
+        public ObservableList<Person> getFilteredPersonList() {
+            return personsAdded;
         }
 
         @Override

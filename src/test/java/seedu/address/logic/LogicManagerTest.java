@@ -10,6 +10,7 @@ import static seedu.address.logic.commands.CommandTestUtil.NAME_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.PHONE_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.SCHOOL_DESC_AMY;
 import static seedu.address.testutil.Assert.assertThrows;
+import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalPersons.AMY;
 
 import java.io.IOException;
@@ -239,10 +240,12 @@ public class LogicManagerTest {
                 + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX, prompt.getFeedbackToUser());
 
         Model expectedModel = new ModelManager();
-        expectedModel.addPerson(new PersonBuilder(personWithNote).withNotes().build());
-        assertCommandSuccess("CONFIRM", new CommandResult(String.format(DeleteNoteCommand.MESSAGE_SUCCESS,
-                1, AMY.getName(), personWithNote.getNotes().getFirst())),
-                expectedModel);
+        Person editedPerson = new PersonBuilder(personWithNote).withNotes().build();
+        expectedModel.addPerson(editedPerson);
+        assertCommandSuccess("CONFIRM", CommandResult.showStudent(
+                String.format(DeleteNoteCommand.MESSAGE_SUCCESS,
+                        1, AMY.getName(), personWithNote.getNotes().getFirst()),
+                editedPerson, INDEX_FIRST_PERSON), expectedModel);
         logic.execute("addnote 1 t/Review geometry");
         CommandResult forcedResult = logic.execute("deletenote -f 1 nid/1");
         assertFalse(forcedResult.isWarning());

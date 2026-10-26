@@ -61,8 +61,8 @@ public class EditNoteCommand extends Command {
         NoteCommandUtil.verifyNoteExists(person, targetNid, MESSAGE_NO_NOTES);
         Note oldNote = person.getNotes().get(targetNid.getZeroBased());
         if (oldNote.equals(newNote)) {
-            return CommandResult.warning(String.format(MESSAGE_NOTE_UNCHANGED, targetNid.getOneBased(),
-                    person.getName(), oldNote));
+            return CommandResult.showStudentWarning(String.format(MESSAGE_NOTE_UNCHANGED, targetNid.getOneBased(),
+                    person.getName(), oldNote), person, targetIndex);
         }
 
         List<Note> notes = new ArrayList<>(person.getNotes());
@@ -71,8 +71,8 @@ public class EditNoteCommand extends Command {
 
         String successMessage = String.format(MESSAGE_SUCCESS, targetNid.getOneBased(),
                 editedPerson.getName(), oldNote, newNote);
-        return new CommandResult(
-                NoteCommandUtil.setPersonKeepingIndex(model, person, editedPerson, successMessage));
+        String feedback = NoteCommandUtil.setPersonKeepingIndex(model, person, editedPerson, successMessage);
+        return CommandResult.showStudent(feedback, editedPerson, targetIndex);
     }
 
     @Override
