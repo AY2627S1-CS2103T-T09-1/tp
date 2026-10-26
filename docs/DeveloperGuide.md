@@ -232,11 +232,11 @@ A student can have one guardian, whom the tutor contacts about the student. The 
 
 A `Guardian` holds a `Name` and a `Phone`, and its constructor rejects `null` for either. `Person` stores the guardian as a field that is `null` when the student has no guardian, and `Person#getGuardian` returns it as an `Optional<Guardian>`.
 
-`add` creates the guardian in `ParserUtil#parseGuardian`:
+`add` creates the guardian in `AddCommandParser`:
 
-1. If neither `gn/` nor `gp/` is given, it returns an empty `Optional`, and the student is added without a guardian.
-1. If only one of them is given, it throws a `ParseException` with `ParserUtil.MESSAGE_GUARDIAN_PAIR`.
-1. Otherwise, it parses the values with `ParserUtil#parseGuardianName` and `ParserUtil#parseGuardianPhone`. These use the same rules as `n/` and `p/`, but name the field as `Guardian name` or `Guardian phone` in the error message.
+1. `ArgumentMultimap#verifyGivenTogether` checks that `gn/` and `gp/` are both given or both left out. If only one is given, it throws a `ParseException` with `Messages.MESSAGE_GUARDIAN_PAIR`.
+1. If neither is given, the student is added without a guardian.
+1. Otherwise, `ParserUtil#parseGuardian` parses the values with `ParserUtil#parseGuardianName` and `ParserUtil#parseGuardianPhone`. These use the same rules as `n/` and `p/`, but name the field as `Guardian name` or `Guardian phone` in the error message.
 
 `edit` checks the guardian in two places, because some checks need the student's current guardian, which the parser cannot see:
 
