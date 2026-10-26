@@ -132,10 +132,15 @@
     -fx-text-fill: #010504;
 }
 
-.student-detail-scroll-pane,
-.student-detail-scroll-pane > .viewport,
+.student-detail-notes-scroll-pane,
+.student-detail-notes-scroll-pane > .viewport,
 .student-detail-panel {
     -fx-background-color: derive(#1d1d1d, 20%);
+}
+
+.student-detail-notes-scroll-pane {
+    -fx-background-insets: 0;
+    -fx-padding: 0;
 }
 
 .student-detail-section-separator .line {

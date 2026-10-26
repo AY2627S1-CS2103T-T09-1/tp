@@ -2,6 +2,7 @@ package seedu.address.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalPersons.ALICE;
@@ -21,6 +22,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.ScrollPane.ScrollBarPolicy;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -85,15 +87,17 @@ public class StudentDetailPanelTest {
             StudentDetailPanel panel = new StudentDetailPanel(personWithNotes, INDEX_FIRST_PERSON, persons);
             container.getChildren().setAll(panel.getRoot());
             container.applyCss();
-            ScrollPane detailScrollPane = (ScrollPane) panel.getRoot();
-            VBox detailContent = (VBox) detailScrollPane.getContent();
+            VBox detailPanel = (VBox) panel.getRoot();
+            ScrollPane notesScrollPane = (ScrollPane) container.lookup("#notesScrollPane");
 
-            assertTrue(detailContent.getChildren().indexOf(container.lookup("#name").getParent())
-                    < detailContent.getChildren().indexOf(container.lookup(".student-detail-section-separator")));
-            assertTrue(detailContent.getChildren().indexOf(container.lookup(".student-detail-section-separator"))
-                    < detailContent.getChildren().indexOf(container.lookup(".student-detail-notes-heading")));
-            assertTrue(detailContent.getChildren().indexOf(container.lookup(".student-detail-notes-heading"))
-                    < detailContent.getChildren().indexOf(container.lookup("#noteCards")));
+            assertTrue(detailPanel.getChildren().indexOf(container.lookup("#name").getParent())
+                    < detailPanel.getChildren().indexOf(container.lookup(".student-detail-section-separator")));
+            assertTrue(detailPanel.getChildren().indexOf(container.lookup(".student-detail-section-separator"))
+                    < detailPanel.getChildren().indexOf(container.lookup(".student-detail-notes-heading")));
+            assertTrue(detailPanel.getChildren().indexOf(container.lookup(".student-detail-notes-heading"))
+                    < detailPanel.getChildren().indexOf(notesScrollPane));
+            assertNull(notesScrollPane.lookup("#name"));
+            assertSame(container.lookup("#noteCards"), notesScrollPane.getContent());
         });
     }
 
@@ -141,9 +145,11 @@ public class StudentDetailPanelTest {
             assertLabelWraps("#guardianPhone");
             assertLabelWraps(".student-detail-note-card");
             assertViewportMatchesPanelBackground();
-            ScrollPane detailScrollPane = (ScrollPane) panel.getRoot();
-            assertTrue(detailScrollPane.isFitToWidth());
-            assertEquals(ScrollBarPolicy.NEVER, detailScrollPane.getHbarPolicy());
+            ScrollPane notesScrollPane = (ScrollPane) container.lookup("#notesScrollPane");
+            assertTrue(notesScrollPane.isFitToWidth());
+            assertEquals(ScrollBarPolicy.NEVER, notesScrollPane.getHbarPolicy());
+            assertEquals(ScrollBarPolicy.AS_NEEDED, notesScrollPane.getVbarPolicy());
+            assertEquals(Priority.ALWAYS, VBox.getVgrow(notesScrollPane));
         });
     }
 
@@ -182,7 +188,7 @@ public class StudentDetailPanelTest {
     }
 
     private void assertViewportMatchesPanelBackground() {
-        Region viewport = (Region) container.lookup(".student-detail-scroll-pane > .viewport");
+        Region viewport = (Region) container.lookup(".student-detail-notes-scroll-pane > .viewport");
         Region panel = (Region) container.lookup(".student-detail-panel");
         assertEquals(panel.getBackground(), viewport.getBackground());
     }

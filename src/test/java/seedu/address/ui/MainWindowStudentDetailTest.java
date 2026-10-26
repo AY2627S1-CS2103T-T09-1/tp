@@ -24,8 +24,11 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -60,7 +63,11 @@ public class MainWindowStudentDetailTest {
         assertEquals(2, contentGridPane.getColumnConstraints().size());
         assertEquals(50, contentGridPane.getColumnConstraints().get(0).getPercentWidth());
         assertEquals(50, contentGridPane.getColumnConstraints().get(1).getPercentWidth());
+        assertEquals(contentGridPane.getHeight(), getPersonListPanelPlaceholder().getHeight(), 0.1);
+        assertEquals(contentGridPane.getHeight(), getStudentDetailPanelPlaceholder().getHeight(), 0.1);
         assertEquals("View a student to see details.", getEmptyStateLabel().getText());
+        assertEquals(-1, getPersonListView().getSelectionModel().getSelectedIndex());
+        assertFalse(getPersonListView().isFocusTraversable());
         assertTrue(contentGridPane.lookupAll(".split-pane-divider").isEmpty());
     }
 
@@ -71,8 +78,19 @@ public class MainWindowStudentDetailTest {
         enterCommand(robot, "view 1");
 
         assertEquals("Alice Pauline", ((Label) getStudentDetailNode().lookup("#name")).getText());
+        assertEquals(INDEX_FIRST_PERSON.getZeroBased(), getPersonListView().getSelectionModel().getSelectedIndex());
         assertEquals(2, getContentGridPane().getChildren().size());
         assertSame(originalList, getPersonListPanelPlaceholder().getChildren().get(0));
+
+        Label secondPersonName = mainWindow.getPersonListPanel().getRoot().lookupAll("#name").stream()
+                .map(Label.class::cast)
+                .filter(label -> label.getText().equals(BENSON.getName().fullName))
+                .findFirst()
+                .orElseThrow();
+        robot.interact(() -> secondPersonName.fireEvent(createPrimaryMousePress()));
+
+        assertEquals(INDEX_FIRST_PERSON.getZeroBased(), getPersonListView().getSelectionModel().getSelectedIndex());
+        assertEquals("Alice Pauline", ((Label) getStudentDetailNode().lookup("#name")).getText());
     }
 
     @Test
@@ -82,6 +100,8 @@ public class MainWindowStudentDetailTest {
         enterCommand(robot, "view 2");
 
         assertEquals("Benson Meier", ((Label) getStudentDetailNode().lookup("#name")).getText());
+        assertEquals(INDEX_SECOND_PERSON.getZeroBased(),
+                getPersonListView().getSelectionModel().getSelectedIndex());
         assertEquals(2, getContentGridPane().getChildren().size());
         assertSame(originalList, getPersonListPanelPlaceholder().getChildren().get(0));
     }
@@ -96,6 +116,7 @@ public class MainWindowStudentDetailTest {
         assertEquals(2, getContentGridPane().getChildren().size());
         assertSame(personListPanel.getRoot(), getPersonListPanelPlaceholder().getChildren().get(0));
         assertEquals("View a student to see details.", getEmptyStateLabel().getText());
+        assertEquals(-1, getPersonListView().getSelectionModel().getSelectedIndex());
     }
 
     @Test
@@ -142,6 +163,7 @@ public class MainWindowStudentDetailTest {
                 .toList();
         assertEquals("Alice Edited", listNames.get(0));
         assertEquals("Alice Edited", ((Label) getStudentDetailNode().lookup("#name")).getText());
+        assertEquals(INDEX_FIRST_PERSON.getZeroBased(), getPersonListView().getSelectionModel().getSelectedIndex());
     }
 
     @Test
@@ -205,12 +227,22 @@ public class MainWindowStudentDetailTest {
         });
     }
 
+    private MouseEvent createPrimaryMousePress() {
+        return new MouseEvent(MouseEvent.MOUSE_PRESSED, 0, 0, 0, 0, MouseButton.PRIMARY, 1,
+                false, false, false, false, true, false, false, true, false, false, null);
+    }
+
     private GridPane getContentGridPane() {
         return (GridPane) mainWindow.getRoot().getScene().lookup("#contentGridPane");
     }
 
     private StackPane getPersonListPanelPlaceholder() {
         return (StackPane) mainWindow.getRoot().getScene().lookup("#personListPanelPlaceholder");
+    }
+
+    @SuppressWarnings("unchecked")
+    private ListView<Person> getPersonListView() {
+        return (ListView<Person>) mainWindow.getRoot().getScene().lookup("#personListView");
     }
 
     private Node getStudentDetailNode() {

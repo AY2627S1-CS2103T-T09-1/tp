@@ -742,7 +742,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 **MSS**
 
 1. Tutor requests to view a specific student by index.
-2. TuteeBook3 keeps the fixed, equal-width student list on the left and opens the student's details on the right, with all notes below the details.
+2. TuteeBook3 keeps the fixed, equal-width student list on the left, highlights the student's non-clickable list card, and opens the student's details on the right, with a separately scrollable notes section below the fixed details.
 
 Use case ends.
 

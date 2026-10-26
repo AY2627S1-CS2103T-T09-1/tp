@@ -14,6 +14,7 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
+import seedu.address.commons.core.index.Index;
 import seedu.address.logic.Logic;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.CommandResult.DisplayMode;
@@ -213,16 +214,19 @@ public class MainWindow extends UiPart<Stage> {
         if (displayMode == DisplayMode.SHOW_LIST) {
             showEmptyStudentDetails();
         } else if (displayMode == DisplayMode.SHOW_STUDENT) {
+            Index displayedIndex = commandResult.getDisplayedIndex().orElseThrow();
             studentDetailPanel = new StudentDetailPanel(
                     commandResult.getPersonToDisplay().orElseThrow(),
-                    commandResult.getDisplayedIndex().orElseThrow(),
+                    displayedIndex,
                     logic.getFilteredPersonList());
             studentDetailPanelPlaceholder.getChildren().setAll(studentDetailPanel.getRoot());
+            personListPanel.selectPerson(displayedIndex);
         }
     }
 
     private void showEmptyStudentDetails() {
         studentDetailPanel = null;
         studentDetailPanelPlaceholder.getChildren().setAll(studentDetailEmptyState);
+        personListPanel.clearSelection();
     }
 }
