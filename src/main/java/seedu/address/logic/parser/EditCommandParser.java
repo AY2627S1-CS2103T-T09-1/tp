@@ -2,6 +2,7 @@ package seedu.address.logic.parser;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.logic.Messages.MESSAGE_SUBJECT_BAND_PAIR;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
@@ -67,7 +68,11 @@ public class EditCommandParser implements Parser<EditCommand> {
         }
 
         if (argMultimap.getValue(PREFIX_SUBJECT).isPresent() || argMultimap.getValue(PREFIX_BAND).isPresent()) {
-            editPersonDescriptor.setSubjects(ParserUtil.parseSubjects(argMultimap));
+            // checked first so that band/ alone reports the missing sub/
+            argMultimap.verifyAllPrefixesPresent(PREFIX_SUBJECT);
+            argMultimap.verifyEachFollowedBy(PREFIX_SUBJECT, PREFIX_BAND, MESSAGE_SUBJECT_BAND_PAIR);
+            editPersonDescriptor.setSubjects(ParserUtil.parseSubjects(
+                    argMultimap.getAllValues(PREFIX_SUBJECT), argMultimap.getAllValues(PREFIX_BAND)));
         }
         parseGuardianForEdit(argMultimap, editPersonDescriptor);
 

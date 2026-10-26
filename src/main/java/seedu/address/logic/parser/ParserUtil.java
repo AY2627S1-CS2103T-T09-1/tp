@@ -2,10 +2,8 @@ package seedu.address.logic.parser;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,9 +27,6 @@ import seedu.address.model.person.Subject;
  * Contains utility methods used for parsing strings in the various *Parser classes.
  */
 public class ParserUtil {
-
-    public static final String MESSAGE_SUBJECT_BAND_PAIR =
-            "Each sub/ must be immediately followed by one band/.";
 
     public static final String MESSAGE_GUARDIAN_PAIR =
             "Guardian name (" + PREFIX_GUARDIAN_NAME + ") and guardian phone (" + PREFIX_GUARDIAN_PHONE
@@ -211,18 +206,22 @@ public class ParserUtil {
     }
 
     /**
-     * Parses ordered subject-band pairs and validates their count and uniqueness.
+     * Parses subject names and their bands into subjects, and validates their count and uniqueness.
+     * The band at each position in {@code bands} belongs to the subject name at the same position in
+     * {@code names}.
+     *
+     * @throws ParseException if {@code names} and {@code bands} differ in size, there are too many subjects,
+     *     or a subject is invalid or repeated.
      */
-    public static List<Subject> parseSubjects(ArgumentMultimap arguments) throws ParseException {
-        if (arguments.getAllValues(PREFIX_SUBJECT).isEmpty()) {
-            throw new ParseException(Messages.getErrorMessageForMissingPrefixes(PREFIX_SUBJECT));
+    public static List<Subject> parseSubjects(List<String> names, List<String> bands) throws ParseException {
+        requireNonNull(names);
+        requireNonNull(bands);
+        if (names.size() != bands.size()) {
+            throw new ParseException(Messages.MESSAGE_SUBJECT_BAND_PAIR);
         }
-        validateSubjectBandPairs(arguments.getPrefixes());
-        List<String> names = arguments.getAllValues(PREFIX_SUBJECT);
         if (names.size() > Person.MAX_SUBJECTS) {
             throw new ParseException(Person.MESSAGE_TOO_MANY_SUBJECTS);
         }
-        List<String> bands = arguments.getAllValues(PREFIX_BAND);
         List<Subject> subjects = new ArrayList<>();
         for (int i = 0; i < names.size(); i++) {
             subjects.add(ParserUtil.parseSubject(names.get(i), bands.get(i)));
@@ -233,22 +232,6 @@ public class ParserUtil {
             throw new ParseException(e.getMessage(), e);
         }
         return subjects;
-    }
-
-    /**
-     * Rejects unmatched or non-adjacent subject and band prefixes.
-     */
-    private static void validateSubjectBandPairs(List<Prefix> prefixes) throws ParseException {
-        for (int i = 0; i < prefixes.size(); i++) {
-            if (PREFIX_SUBJECT.equals(prefixes.get(i))) {
-                if (i + 1 >= prefixes.size() || !PREFIX_BAND.equals(prefixes.get(i + 1))) {
-                    throw new ParseException(MESSAGE_SUBJECT_BAND_PAIR);
-                }
-                i++;
-            } else if (PREFIX_BAND.equals(prefixes.get(i))) {
-                throw new ParseException(MESSAGE_SUBJECT_BAND_PAIR);
-            }
-        }
     }
 
     /**
