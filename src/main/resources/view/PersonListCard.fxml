@@ -10,7 +10,7 @@
       xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
   <VBox alignment="CENTER_LEFT" maxWidth="Infinity" minHeight="75" HBox.hgrow="ALWAYS">
     <padding>
-      <Insets top="5" right="5" bottom="5" left="15" />
+      <Insets top="12" right="14" bottom="12" left="18" />
     </padding>
     <HBox spacing="0.5" alignment="TOP_LEFT">
       <Label fx:id="id" styleClass="cell_big_label">

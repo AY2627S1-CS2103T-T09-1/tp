@@ -12,9 +12,11 @@ import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import seedu.address.model.person.Person;
 import seedu.address.testutil.PersonBuilder;
@@ -49,6 +51,8 @@ public class PersonCardTest {
             assertLabelWraps(card, "#school");
             assertLabelWraps(card, "#level");
             assertEquals(Pos.TOP_LEFT, ((HBox) card.getRoot().lookup("#name").getParent()).getAlignment());
+            VBox cardContents = (VBox) card.getRoot().lookup("#phone").getParent();
+            assertEquals(new Insets(12, 14, 12, 18), cardContents.getPadding());
             assertNull(card.getRoot().lookup("#guardian"));
             assertNull(card.getRoot().lookup("#subjects"));
             assertNull(card.getRoot().lookup("#notes"));
