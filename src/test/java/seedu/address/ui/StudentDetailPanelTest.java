@@ -57,6 +57,7 @@ public class StudentDetailPanelTest {
             assertLabelText(".student-detail-heading", "Index: 1");
             assertLabelText("#name", ALICE.getName().fullName);
             assertLabelText("#school", ALICE.getSchool().value);
+            assertLabelText("#address", ALICE.getAddress().orElseThrow().value);
             assertLabelText("#level", ALICE.getLevel().toString());
             assertLabelText("#subjects", "Mathematics (G1)");
             assertLabelText("#phone", ALICE.getPhone().orElseThrow().value);
@@ -67,8 +68,9 @@ public class StudentDetailPanelTest {
             assertGridRow("#school", 2);
             assertGridRow("#level", 3);
             assertGridRow("#subjects", 4);
-            assertGridRow("#guardianName", 5);
-            assertGridRow("#guardianPhone", 6);
+            assertGridRow("#address", 5);
+            assertGridRow("#guardianName", 6);
+            assertGridRow("#guardianPhone", 7);
             assertNull(container.lookup("#heading"));
             assertNoteCardTexts("1. Strong in algebra", "2. Revise geometry");
         });

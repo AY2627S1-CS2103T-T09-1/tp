@@ -27,6 +27,7 @@ import static seedu.address.logic.commands.CommandTestUtil.VALID_GUARDIAN_NAME_B
 import static seedu.address.logic.commands.CommandTestUtil.VALID_GUARDIAN_PHONE_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_NAME_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_PHONE_BOB;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
@@ -220,12 +221,13 @@ public class AddCommandParserTest {
 
         // multiple schools
         assertParseFailure(parser, SCHOOL_AND_ADDRESS_DESC_AMY + validExpectedPersonString + SUBJECT_DESC,
-                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_SCHOOL));
+                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_SCHOOL, PREFIX_ADDRESS));
 
         // multiple fields repeated
         assertParseFailure(parser,
                 validExpectedPersonString + PHONE_DESC_AMY + NAME_DESC_AMY + validExpectedPersonString + SUBJECT_DESC,
-                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_LEVEL));
+                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_ADDRESS,
+                        PREFIX_LEVEL));
 
         // invalid value followed by valid value
 

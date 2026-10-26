@@ -66,7 +66,10 @@ public class JsonSerializableAddressBookTest {
         List<String> addresses = addressBookFromFile.getPersonList().stream()
                 .map(person -> person.getAddress().map(Object::toString).orElse(null))
                 .toList();
-        assertEquals(TypicalPersons.getTypicalAddressBook().getPersonList(), personsWithoutAddress);
+        List<Person> typicalPersonsWithoutAddress = TypicalPersons.getTypicalAddressBook().getPersonList().stream()
+                .map(person -> new PersonBuilder(person).withoutAddress().build())
+                .toList();
+        assertEquals(typicalPersonsWithoutAddress, personsWithoutAddress);
         assertEquals(List.of("123, Jurong West Ave 6, #08-111", "311, Clementi Ave 2, #02-25", "wall street",
                 "10th street", "michegan ave", "little tokyo", "4th street"), addresses);
     }
