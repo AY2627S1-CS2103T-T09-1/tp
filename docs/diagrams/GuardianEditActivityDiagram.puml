@@ -1,0 +1,29 @@
+@startuml
+skin rose
+skinparam ActivityFontSize 15
+skinparam ArrowFontSize 12
+start
+:EditCommand#createEditedGuardian;
+
+if () then ([guardian is to be removed])
+    if () then ([student has a guardian])
+        :Return no guardian;
+    else ([else])
+        :Throw CommandException
+        "no guardian to remove";
+    endif
+elseif () then ([neither gn/ nor gp/ given])
+    :Return the current guardian;
+elseif () then ([student has a guardian])
+    :Return a new Guardian, taking
+    each missing field from the
+    current guardian;
+elseif () then ([both gn/ and gp/ given])
+    :Return a new Guardian
+    with both values;
+else ([else])
+    :Throw CommandException
+    "give both gn/ and gp/";
+endif
+stop
+@enduml
