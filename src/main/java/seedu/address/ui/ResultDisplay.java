@@ -5,6 +5,8 @@ import static java.util.Objects.requireNonNull;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 
 /**
@@ -22,8 +24,13 @@ public class ResultDisplay extends UiPart<Region> {
     @FXML
     private Label cancellationDisplay;
 
+    /**
+     * Creates a {@code ResultDisplay} whose feedback can be selected and copied, but not deleted.
+     */
     public ResultDisplay() {
         super(FXML);
+        // on macOS, Cmd+Delete and Option+Delete still delete text from a TextArea that is not editable
+        resultDisplay.addEventFilter(KeyEvent.KEY_PRESSED, ResultDisplay::blockDeleteKeys);
     }
 
     public void setFeedbackToUser(String feedbackToUser) {
@@ -60,4 +67,13 @@ public class ResultDisplay extends UiPart<Region> {
         }
     }
 
+    /**
+     * Consumes Backspace and Delete key presses, with any modifier, so they cannot change the feedback.
+     */
+    private static void blockDeleteKeys(KeyEvent event) {
+        boolean isDeleteKey = event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE;
+        if (isDeleteKey) {
+            event.consume();
+        }
+    }
 }
