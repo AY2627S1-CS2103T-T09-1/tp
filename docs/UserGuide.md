@@ -327,7 +327,7 @@ Filter | Matches students whose… | Match
 * Phone numbers are compared the way they are saved: spaces, hyphens, and a leading `+65` are removed. For example, `p/9123 4567` and `p/+65 9123-4567` both match `91234567`. An overseas number must include its `+` and country code.
 * A student without a phone never matches `p/`, and a student without a guardian never matches `gn/` or `gp/`.
 * `note/` searches all of a student's notes. `TEXT` can be up to 500 characters, the same as a note.
-* `TEXT` cannot contain another filter's prefix, `t/`, or `nid/` right after a space, because the app reads it as a separate prefix. For example, `filter note/revise t/f` shows an error.
+* Everything after `note/` is the note text, so put `note/` last. For example, `filter note/revise t/f` finds notes containing `revise t/f`. In `filter note/algebra lvl/S3`, `lvl/S3` is read as part of the note text, so write `filter lvl/S3 note/algebra` instead.
 * Filters are not case-sensitive, and extra spaces are ignored.
 * Each value is matched as one piece of text, including its spaces: `n/david lim` matches `David Lim`, but `n/lim david` does not.
 * If no student matches, the student list is empty and a message tells you how to see all students again.

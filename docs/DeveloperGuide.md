@@ -329,7 +329,7 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 
 <img src="images/FilterClassDiagram.png" width="650" />
 
-1. `FilterCommandParser` splits the arguments at the filter prefixes `n/`, `sch/`, `lvl/`, `sub/`, `band/`, `p/`, `gn/`, `gp/`, and `note/`. It also recognizes `t/` and `nid/`, the note prefixes of `addnote` and `deletenote`, only to reject them with a message pointing to `note/`, so that they are not read as part of another value.
+1. `FilterCommandParser` splits the arguments at the filter prefixes `n/`, `sch/`, `lvl/`, `sub/`, `band/`, `p/`, `gn/`, `gp/`, and `note/`. It also recognizes `t/` and `nid/`, the note prefixes of `addnote` and `deletenote`, only to reject them with a message pointing to `note/`, so that they are not read as part of another value. `note/` is read with `ArgumentTokenizer#tokenizeWithTrailingText`, so everything after it is the note text, as in `addnote`.
 1. It then checks, in order, that there is no text before the first prefix, that at least one filter is given, that no prefix is repeated, and that `band/` comes with `sub/`.
 1. It creates one `Predicate<Person>` for each filter given:
 
@@ -389,7 +389,7 @@ The partial-match predicates (`n/`, `sch/`, `gn/`, `note/`) use `StringUtil#cont
 
 * **Alternative 2 (current choice):** A `note/` filter in `filter`.
   * Pros: One search command. A note search combines with other filters, such as `filter lvl/S3 note/algebra`.
-  * Cons: The result shows students, not which of their notes matched. The note text cannot contain another prefix after a space.
+  * Cons: The result shows students, not which of their notes matched. `note/` must be the last filter.
 
 ### \[Proposed\] Undo/redo feature
 
