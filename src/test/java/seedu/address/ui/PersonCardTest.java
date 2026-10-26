@@ -3,6 +3,7 @@ package seedu.address.ui;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,10 @@ public class PersonCardTest {
             assertLabelText(card, "#phone", person.getPhone().orElseThrow().value);
             assertLabelText(card, "#school", person.getSchool().value);
             assertLabelText(card, "#level", person.getLevel().name());
+            assertLabelWraps(card, "#name");
+            assertLabelWraps(card, "#phone");
+            assertLabelWraps(card, "#school");
+            assertLabelWraps(card, "#level");
             assertNull(card.getRoot().lookup("#guardian"));
             assertNull(card.getRoot().lookup("#subjects"));
             assertNull(card.getRoot().lookup("#notes"));
@@ -61,5 +66,9 @@ public class PersonCardTest {
 
     private static void assertLabelText(PersonCard card, String query, String expectedText) {
         assertEquals(expectedText, ((Label) card.getRoot().lookup(query)).getText());
+    }
+
+    private static void assertLabelWraps(PersonCard card, String query) {
+        assertTrue(((Label) card.getRoot().lookup(query)).isWrapText());
     }
 }

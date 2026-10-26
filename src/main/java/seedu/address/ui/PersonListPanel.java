@@ -3,13 +3,13 @@ package seedu.address.ui;
 import java.util.logging.Logger;
 
 import javafx.collections.ObservableList;
+import javafx.css.PseudoClass;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Region;
 import seedu.address.commons.core.LogsCenter;
-import seedu.address.commons.core.index.Index;
 import seedu.address.model.person.Person;
 
 /**
@@ -17,7 +17,10 @@ import seedu.address.model.person.Person;
  */
 public class PersonListPanel extends UiPart<Region> {
     private static final String FXML = "PersonListPanel.fxml";
+    private static final PseudoClass DISPLAYED_PSEUDO_CLASS = PseudoClass.getPseudoClass("displayed");
+
     private final Logger logger = LogsCenter.getLogger(PersonListPanel.class);
+    private Person displayedPerson;
 
     @FXML
     private ListView<Person> personListView;
@@ -33,18 +36,22 @@ public class PersonListPanel extends UiPart<Region> {
     }
 
     /**
-     * Highlights the person at the given index without changing the displayed list.
+     * Highlights the person whose details are displayed without changing the list selection.
      */
-    public void selectPerson(Index index) {
-        personListView.getSelectionModel().select(index.getZeroBased());
-        personListView.scrollTo(index.getZeroBased());
+    public void highlightPerson(Person person) {
+        displayedPerson = person;
+        personListView.getSelectionModel().clearSelection();
+        personListView.refresh();
+        personListView.scrollTo(person);
     }
 
     /**
-     * Removes the current person highlight.
+     * Removes the displayed-person highlight.
      */
-    public void clearSelection() {
+    public void clearHighlight() {
+        displayedPerson = null;
         personListView.getSelectionModel().clearSelection();
+        personListView.refresh();
     }
 
     /**
@@ -58,12 +65,16 @@ public class PersonListPanel extends UiPart<Region> {
         @Override
         protected void updateItem(Person person, boolean empty) {
             super.updateItem(person, empty);
+            boolean isDisplayed = !empty && person != null && person.equals(displayedPerson);
+            pseudoClassStateChanged(DISPLAYED_PSEUDO_CLASS, isDisplayed);
 
             if (empty || person == null) {
                 setGraphic(null);
                 setText(null);
             } else {
-                setGraphic(new PersonCard(person, getIndex() + 1).getRoot());
+                Region card = new PersonCard(person, getIndex() + 1).getRoot();
+                card.prefWidthProperty().bind(widthProperty());
+                setGraphic(card);
             }
         }
     }

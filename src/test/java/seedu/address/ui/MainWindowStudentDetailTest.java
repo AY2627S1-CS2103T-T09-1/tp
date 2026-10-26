@@ -21,16 +21,20 @@ import org.testfx.framework.junit5.Start;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.logic.ConfirmationManager;
@@ -46,6 +50,8 @@ import seedu.address.testutil.PersonBuilder;
  */
 @ExtendWith(ApplicationExtension.class)
 public class MainWindowStudentDetailTest {
+
+    private static final PseudoClass DISPLAYED_PSEUDO_CLASS = PseudoClass.getPseudoClass("displayed");
 
     private MainWindow mainWindow;
 
@@ -78,9 +84,20 @@ public class MainWindowStudentDetailTest {
         enterCommand(robot, "view 1");
 
         assertEquals("Alice Pauline", ((Label) getStudentDetailNode().lookup("#name")).getText());
-        assertEquals(INDEX_FIRST_PERSON.getZeroBased(), getPersonListView().getSelectionModel().getSelectedIndex());
+        assertTrue(isPersonHighlighted(ALICE.getName().fullName));
+        assertFalse(isPersonHighlighted(BENSON.getName().fullName));
+        assertEquals(-1, getPersonListView().getSelectionModel().getSelectedIndex());
         assertEquals(2, getContentGridPane().getChildren().size());
         assertSame(originalList, getPersonListPanelPlaceholder().getChildren().get(0));
+        robot.interact(() -> {
+            mainWindow.getRoot().getScene().getRoot().applyCss();
+            mainWindow.getRoot().getScene().getRoot().layout();
+        });
+        ScrollPane notesScrollPane = (ScrollPane) getStudentDetailNode().lookup("#notesScrollPane");
+        VBox noteCards = (VBox) getStudentDetailNode().lookup("#noteCards");
+        assertTrue(noteCards.getHeight() > notesScrollPane.getViewportBounds().getHeight());
+        assertEquals(getContentGridPane().getHeight(), getPersonListPanelPlaceholder().getHeight(), 0.1);
+        assertEquals(getContentGridPane().getHeight(), getStudentDetailPanelPlaceholder().getHeight(), 0.1);
 
         Label secondPersonName = mainWindow.getPersonListPanel().getRoot().lookupAll("#name").stream()
                 .map(Label.class::cast)
@@ -89,7 +106,9 @@ public class MainWindowStudentDetailTest {
                 .orElseThrow();
         robot.interact(() -> secondPersonName.fireEvent(createPrimaryMousePress()));
 
-        assertEquals(INDEX_FIRST_PERSON.getZeroBased(), getPersonListView().getSelectionModel().getSelectedIndex());
+        assertTrue(isPersonHighlighted(ALICE.getName().fullName));
+        assertFalse(isPersonHighlighted(BENSON.getName().fullName));
+        assertEquals(-1, getPersonListView().getSelectionModel().getSelectedIndex());
         assertEquals("Alice Pauline", ((Label) getStudentDetailNode().lookup("#name")).getText());
     }
 
@@ -100,8 +119,9 @@ public class MainWindowStudentDetailTest {
         enterCommand(robot, "view 2");
 
         assertEquals("Benson Meier", ((Label) getStudentDetailNode().lookup("#name")).getText());
-        assertEquals(INDEX_SECOND_PERSON.getZeroBased(),
-                getPersonListView().getSelectionModel().getSelectedIndex());
+        assertFalse(isPersonHighlighted(ALICE.getName().fullName));
+        assertTrue(isPersonHighlighted(BENSON.getName().fullName));
+        assertEquals(-1, getPersonListView().getSelectionModel().getSelectedIndex());
         assertEquals(2, getContentGridPane().getChildren().size());
         assertSame(originalList, getPersonListPanelPlaceholder().getChildren().get(0));
     }
@@ -116,6 +136,8 @@ public class MainWindowStudentDetailTest {
         assertEquals(2, getContentGridPane().getChildren().size());
         assertSame(personListPanel.getRoot(), getPersonListPanelPlaceholder().getChildren().get(0));
         assertEquals("View a student to see details.", getEmptyStateLabel().getText());
+        assertFalse(isPersonHighlighted(ALICE.getName().fullName));
+        assertFalse(isPersonHighlighted(BENSON.getName().fullName));
         assertEquals(-1, getPersonListView().getSelectionModel().getSelectedIndex());
     }
 
@@ -151,6 +173,7 @@ public class MainWindowStudentDetailTest {
                 .map(Label::getText)
                 .toList();
         assertEquals(List.of("1. New note"), noteTexts);
+        assertTrue(isPersonHighlighted(ALICE.getName().fullName));
     }
 
     @Test
@@ -161,9 +184,10 @@ public class MainWindowStudentDetailTest {
                 .map(Label.class::cast)
                 .map(Label::getText)
                 .toList();
-        assertEquals("Alice Edited", listNames.get(0));
+        assertTrue(listNames.contains("Alice Edited"));
         assertEquals("Alice Edited", ((Label) getStudentDetailNode().lookup("#name")).getText());
-        assertEquals(INDEX_FIRST_PERSON.getZeroBased(), getPersonListView().getSelectionModel().getSelectedIndex());
+        assertTrue(isPersonHighlighted("Alice Edited"));
+        assertEquals(-1, getPersonListView().getSelectionModel().getSelectedIndex());
     }
 
     @Test
@@ -232,6 +256,19 @@ public class MainWindowStudentDetailTest {
                 false, false, false, false, true, false, false, true, false, false, null);
     }
 
+    private boolean isPersonHighlighted(String name) {
+        Label nameLabel = mainWindow.getPersonListPanel().getRoot().lookupAll("#name").stream()
+                .map(Label.class::cast)
+                .filter(label -> label.getText().equals(name))
+                .findFirst()
+                .orElseThrow();
+        Node currentNode = nameLabel;
+        while (!(currentNode instanceof ListCell<?>)) {
+            currentNode = currentNode.getParent();
+        }
+        return currentNode.getPseudoClassStates().contains(DISPLAYED_PSEUDO_CLASS);
+    }
+
     private GridPane getContentGridPane() {
         return (GridPane) mainWindow.getRoot().getScene().lookup("#contentGridPane");
     }
@@ -263,12 +300,19 @@ public class MainWindowStudentDetailTest {
 
     private static class LogicStub implements Logic {
 
-        private final ObservableList<Person> persons = FXCollections.observableArrayList(ALICE, BENSON);
+        private static final Person ALICE_WITH_MANY_NOTES = new PersonBuilder(ALICE)
+                .withNotes("Note 1", "Note 2", "Note 3", "Note 4", "Note 5", "Note 6",
+                        "Note 7", "Note 8", "Note 9", "Note 10", "Note 11", "Note 12")
+                .build();
+
+        private final ObservableList<Person> persons =
+                FXCollections.observableArrayList(ALICE_WITH_MANY_NOTES, BENSON);
 
         @Override
         public CommandResult execute(String commandText) throws CommandException, ParseException {
             return switch (commandText) {
-                case "view 1" -> CommandResult.showStudent("Viewing Alice", ALICE, INDEX_FIRST_PERSON);
+                case "view 1" -> CommandResult.showStudent(
+                        "Viewing Alice", ALICE_WITH_MANY_NOTES, INDEX_FIRST_PERSON);
                 case "view 2" -> CommandResult.showStudent("Viewing Benson", BENSON, INDEX_SECOND_PERSON);
                 case "list" -> CommandResult.showList("Listed all students");
                 case "addnote 1 t/New note" -> addNoteToFirstPerson();
@@ -282,7 +326,8 @@ public class MainWindowStudentDetailTest {
                         .withCancellationNotice(String.format(ConfirmationManager.MESSAGE_CANCELLED_FORMAT,
                                 "clear"));
                 case "cancelled-fail" -> throw new CommandException(
-                        "The 'clear' command has been cancelled." + System.lineSeparator() + "Invalid command");
+                        "The 'clear' command has been cancelled."
+                                + System.lineSeparator() + "Invalid command");
                 case "fail" -> throw new CommandException("Invalid command");
                 default -> throw new AssertionError("Unexpected command: " + commandText);
             };
@@ -293,7 +338,7 @@ public class MainWindowStudentDetailTest {
                     .withNotes("New note")
                     .build();
             persons.set(INDEX_FIRST_PERSON.getZeroBased(), updatedPerson);
-            return new CommandResult("Added note");
+            return CommandResult.showStudent("Added note", updatedPerson, INDEX_FIRST_PERSON);
         }
 
         private CommandResult editFirstPerson() {

@@ -21,6 +21,7 @@ import seedu.address.logic.commands.CommandResult.DisplayMode;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.person.Person;
 
 /**
  * The Main Window. Provides the basic application layout containing
@@ -215,18 +216,17 @@ public class MainWindow extends UiPart<Stage> {
             showEmptyStudentDetails();
         } else if (displayMode == DisplayMode.SHOW_STUDENT) {
             Index displayedIndex = commandResult.getDisplayedIndex().orElseThrow();
-            studentDetailPanel = new StudentDetailPanel(
-                    commandResult.getPersonToDisplay().orElseThrow(),
-                    displayedIndex,
+            Person displayedPerson = commandResult.getPersonToDisplay().orElseThrow();
+            studentDetailPanel = new StudentDetailPanel(displayedPerson, displayedIndex,
                     logic.getFilteredPersonList());
             studentDetailPanelPlaceholder.getChildren().setAll(studentDetailPanel.getRoot());
-            personListPanel.selectPerson(displayedIndex);
+            personListPanel.highlightPerson(displayedPerson);
         }
     }
 
     private void showEmptyStudentDetails() {
         studentDetailPanel = null;
         studentDetailPanelPlaceholder.getChildren().setAll(studentDetailEmptyState);
-        personListPanel.clearSelection();
+        personListPanel.clearHighlight();
     }
 }
