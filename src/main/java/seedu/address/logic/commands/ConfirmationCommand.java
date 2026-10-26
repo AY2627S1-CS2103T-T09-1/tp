@@ -25,6 +25,13 @@ public interface ConfirmationCommand {
     String getCommandWord();
 
     /**
+     * Returns the action-specific instruction, or {@code null} to use the shared instruction.
+     */
+    default String getConfirmationInstruction() {
+        return null;
+    }
+
+    /**
      * Returns the confirmation message, or {@code null} if confirmation is unnecessary.
      *
      * @throws CommandException if the requested operation is invalid.

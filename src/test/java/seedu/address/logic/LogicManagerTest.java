@@ -93,8 +93,8 @@ public class LogicManagerTest {
         CommandResult prompt = logic.execute("add n/alice pauline sch/Victoria School lvl/S2 "
                 + "sub/Mathematics band/G1");
 
-        assertEquals(CommandResult.warning(String.format(AddCommand.MESSAGE_CONFIRMATION, "alice pauline",
-                "Maplewood Secondary School (S1)") + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX), prompt);
+        assertEquals(confirmationPrompt(String.format(AddCommand.MESSAGE_CONFIRMATION, "alice pauline",
+                "Maplewood Secondary School (S1)"), AddCommand.MESSAGE_CONFIRMATION_INSTRUCTION), prompt);
         assertEquals(expectedModel, model);
 
         logic.execute("CONFIRM");
@@ -127,9 +127,8 @@ public class LogicManagerTest {
 
         CommandResult prompt = logic.execute("edit 2 n/Alice Pauline");
 
-        assertEquals(CommandResult.warning(String.format(EditCommand.MESSAGE_CONFIRMATION, "Alice Pauline",
-                "Maplewood Secondary School (S1)")
-                + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX), prompt);
+        assertEquals(confirmationPrompt(String.format(EditCommand.MESSAGE_CONFIRMATION, "Alice Pauline",
+                "Maplewood Secondary School (S1)"), EditCommand.MESSAGE_CONFIRMATION_INSTRUCTION), prompt);
         logic.execute("CONFIRM");
 
         assertEquals("Alice Pauline", model.getAddressBook().getPersonList().get(1).getName().toString());
@@ -324,7 +323,8 @@ public class LogicManagerTest {
         assertEquals(String.format(ConfirmationManager.MESSAGE_CANCELLED_FORMAT, ClearCommand.COMMAND_WORD),
                 replacementPrompt.getCancellationNotice().orElseThrow());
         assertTrue(replacementPrompt.isWarning());
-        assertTrue(replacementPrompt.getFeedbackToUser().contains("delete " + personAtFirstIndex.getName()));
+        assertTrue(replacementPrompt.getFeedbackToUser().startsWith("This will delete "
+                + personAtFirstIndex.getName()));
 
         logic.execute(" CONFIRM ");
         assertEquals(1, model.getAddressBook().getPersonList().size());
@@ -485,6 +485,11 @@ public class LogicManagerTest {
     @Test
     public void getFilteredPersonList_modifyList_throwsUnsupportedOperationException() {
         assertThrows(UnsupportedOperationException.class, () -> logic.getFilteredPersonList().remove(0));
+    }
+
+    private static CommandResult confirmationPrompt(String message, String instruction) {
+        return CommandResult.warning(message + System.lineSeparator() + instruction + System.lineSeparator()
+                + ConfirmationManager.MESSAGE_CONFIRMATION_CANCELLATION);
     }
 
     /**

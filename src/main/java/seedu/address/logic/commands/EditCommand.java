@@ -62,7 +62,9 @@ public class EditCommand extends Command implements ConfirmationCommand {
             "Another student named %1$s at %2$s, level %3$s already exists. If these are different students, "
                     + "edit the name to include an identifier, for example Chloe Tan 2.";
     public static final String MESSAGE_CONFIRMATION =
-            "Another student named %1$s is recorded at %2$s. Save this edit?";
+            "Edit not saved yet: %1$s is also recorded at %2$s.";
+    public static final String MESSAGE_CONFIRMATION_INSTRUCTION =
+            "Type CONFIRM (uppercase) to save this edit anyway.";
     public static final String MESSAGE_GUARDIAN_REMOVAL = "Guardian name (" + PREFIX_GUARDIAN_NAME
             + ") and guardian phone (" + PREFIX_GUARDIAN_PHONE + ") cannot be empty. To remove the guardian, use "
             + PREFIX_GUARDIAN_NAME + " " + PREFIX_GUARDIAN_PHONE + " with no values.";
@@ -93,6 +95,11 @@ public class EditCommand extends Command implements ConfirmationCommand {
     @Override
     public String getCommandWord() {
         return COMMAND_WORD;
+    }
+
+    @Override
+    public String getConfirmationInstruction() {
+        return MESSAGE_CONFIRMATION_INSTRUCTION;
     }
 
     @Override

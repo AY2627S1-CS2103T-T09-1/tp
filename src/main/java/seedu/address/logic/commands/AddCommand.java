@@ -50,7 +50,9 @@ public class AddCommand extends Command implements ConfirmationCommand {
             "A student named %1$s at %2$s, level %3$s already exists. If this is a different student, "
                     + "enter a distinguishing name, for example Chloe Tan 2.";
     public static final String MESSAGE_CONFIRMATION =
-            "A student named %1$s already exists at %2$s. Add another student with this name?";
+            "Student not added yet: %1$s is also recorded at %2$s.";
+
+    public static final String MESSAGE_CONFIRMATION_INSTRUCTION = "Type CONFIRM (uppercase) to add anyway.";
 
     private final Person toAdd;
 
@@ -70,6 +72,11 @@ public class AddCommand extends Command implements ConfirmationCommand {
     @Override
     public String getCommandWord() {
         return COMMAND_WORD;
+    }
+
+    @Override
+    public String getConfirmationInstruction() {
+        return MESSAGE_CONFIRMATION_INSTRUCTION;
     }
 
     @Override
