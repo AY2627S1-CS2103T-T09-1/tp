@@ -49,11 +49,13 @@ public class EditCommandTest {
     private Model model = new ModelManager(getTypicalAddressBook(), new UserPrefs());
 
     @Test
-    public void execute_schoolOnly_preservesOtherFields() {
+    public void execute_schoolAndAddress_preservesOtherFields() {
         Person original = model.getFilteredPersonList().get(0);
-        Person edited = new PersonBuilder(original).withSchool("Victoria School").build();
+        Person edited = new PersonBuilder(original).withSchool("Victoria School")
+                .withAddress("21 Clementi Road").build();
         EditCommand command = new EditCommand(INDEX_FIRST_PERSON,
-                new EditPersonDescriptorBuilder().withSchool("Victoria School").build());
+                new EditPersonDescriptorBuilder().withSchool("Victoria School")
+                        .withAddress("21 Clementi Road").build());
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setPerson(original, edited);
         String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(edited));

@@ -34,6 +34,8 @@ public class PersonCard extends UiPart<Region> {
     @FXML
     private Label school;
     @FXML
+    private Label address;
+    @FXML
     private Label level;
 
     /**
@@ -49,6 +51,7 @@ public class PersonCard extends UiPart<Region> {
             phone.setManaged(false);
         });
         school.setText(person.getSchool().value);
+        address.setText(person.getAddress().map(a -> a.value).orElse("Not provided"));
         level.setText(person.getLevel().name());
     }
 }

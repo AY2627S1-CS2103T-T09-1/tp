@@ -1,6 +1,7 @@
 package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.logic.commands.CommandTestUtil.ADDRESS_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.GUARDIAN_NAME_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.GUARDIAN_NAME_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.GUARDIAN_PHONE_DESC_AMY;
@@ -53,23 +54,25 @@ import seedu.address.testutil.PersonBuilder;
 
 public class AddCommandParserTest {
     private static final String SUBJECT_DESC = " sub/Mathematics band/G1";
+    private static final String SCHOOL_AND_ADDRESS_DESC_BOB = SCHOOL_DESC_BOB + ADDRESS_DESC_BOB;
+    private static final String SCHOOL_AND_ADDRESS_DESC_AMY = SCHOOL_DESC_AMY
+            + seedu.address.logic.commands.CommandTestUtil.ADDRESS_DESC_AMY;
     private AddCommandParser parser = new AddCommandParser();
 
     @Test
     public void parse_invalidSchool_failure() {
         String person = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB;
         String missingSchoolMessage = "Missing required parameter: sch/.";
-        assertParseFailure(parser, person + SUBJECT_DESC, missingSchoolMessage);
-        assertParseFailure(parser, person + "sch/Victoria School" + SUBJECT_DESC, missingSchoolMessage);
-        assertParseFailure(parser, person + " sch/  " + SUBJECT_DESC, School.MESSAGE_CONSTRAINTS);
-        assertParseFailure(parser, person + SCHOOL_DESC_BOB + " sch/Other School" + SUBJECT_DESC,
+        assertParseFailure(parser, person + SUBJECT_DESC + ADDRESS_DESC_BOB, missingSchoolMessage);
+        assertParseFailure(parser, person + " sch/  " + SUBJECT_DESC + ADDRESS_DESC_BOB, School.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, person + SCHOOL_AND_ADDRESS_DESC_BOB + " sch/Other School" + SUBJECT_DESC,
                 Messages.getErrorMessageForDuplicatePrefixes(PREFIX_SCHOOL));
     }
 
     @Test
     public void parse_allFieldsPresent_success() {
         Person expectedPerson = new PersonBuilder(BOB).build();
-        String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB;
+        String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_AND_ADDRESS_DESC_BOB;
         String[] names = {"Mathematics", "English", "Science", "History", "Geography", "Literature",
             "Physics", "Chemistry"};
         Subject[] subjects = new Subject[names.length];
@@ -89,18 +92,19 @@ public class AddCommandParserTest {
                         .withSubjects(new Subject("A".repeat(40), Band.G2)).build()));
 
         // whitespace only preamble
-        assertParseSuccess(parser, PREAMBLE_WHITESPACE + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + NAME_DESC_BOB
+        assertParseSuccess(parser, PREAMBLE_WHITESPACE + LEVEL_DESC_BOB + SCHOOL_AND_ADDRESS_DESC_BOB + NAME_DESC_BOB
                 + PHONE_DESC_BOB + SUBJECT_DESC,
                 new AddCommand(expectedPerson));
 
         // fields in a different order
-        assertParseSuccess(parser, NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + SUBJECT_DESC,
+        assertParseSuccess(parser, NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_AND_ADDRESS_DESC_BOB
+                + SUBJECT_DESC,
                 new AddCommand(expectedPerson));
     }
 
     @Test
     public void parse_phoneMissing_success() {
-        Person expectedPerson = new PersonBuilder(BOB).withoutPhone().build();
+        Person expectedPerson = new PersonBuilder(BOB).withoutPhone().withoutAddress().build();
         assertParseSuccess(parser, NAME_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + SUBJECT_DESC,
                 new AddCommand(expectedPerson));
     }
@@ -115,7 +119,8 @@ public class AddCommandParserTest {
                 .withSubjects(new Subject("Additional Mathematics", Band.G2))
                 .withGuardian("Mary Jane", VALID_GUARDIAN_PHONE_BOB)
                 .build();
-        String args = " n/  John   Doe  sch/  Victoria   School  lvl/S2 sub/  Additional   Mathematics  band/G2 "
+        String args = " n/  John   Doe  sch/  Victoria   School  a/Not   provided lvl/S2 "
+                + "sub/  Additional   Mathematics  band/G2 "
                 + "gn/  Mary   Jane  gp/" + VALID_GUARDIAN_PHONE_BOB;
 
         assertParseSuccess(parser, args, new AddCommand(expectedPerson));
@@ -125,14 +130,14 @@ public class AddCommandParserTest {
     public void parse_formattedPhone_savesCleanedPhone() {
         Person expectedPerson = new PersonBuilder(BOB).withPhone("91234567").build();
         assertParseSuccess(parser, NAME_DESC_BOB + " " + PREFIX_PHONE + "+65 9123 4567" + LEVEL_DESC_BOB
-                + SCHOOL_DESC_BOB + SUBJECT_DESC, new AddCommand(expectedPerson));
+                + SCHOOL_AND_ADDRESS_DESC_BOB + SUBJECT_DESC, new AddCommand(expectedPerson));
     }
 
     @Test
     public void parse_withGuardian_success() {
         Person expectedPerson = new PersonBuilder(BOB)
                 .withGuardian(VALID_GUARDIAN_NAME_BOB, VALID_GUARDIAN_PHONE_BOB).build();
-        String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + SUBJECT_DESC;
+        String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_AND_ADDRESS_DESC_BOB + SUBJECT_DESC;
 
         assertParseSuccess(parser, details + GUARDIAN_NAME_DESC_BOB + GUARDIAN_PHONE_DESC_BOB,
                 new AddCommand(expectedPerson));
@@ -143,14 +148,14 @@ public class AddCommandParserTest {
                 new AddCommand(expectedPerson));
 
         // student without a phone can still have a guardian
-        assertParseSuccess(parser, NAME_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + SUBJECT_DESC
+        assertParseSuccess(parser, NAME_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_AND_ADDRESS_DESC_BOB + SUBJECT_DESC
                 + GUARDIAN_NAME_DESC_BOB + GUARDIAN_PHONE_DESC_BOB,
                 new AddCommand(new PersonBuilder(expectedPerson).withoutPhone().build()));
     }
 
     @Test
     public void parse_guardianPartlyGiven_failure() {
-        String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + SUBJECT_DESC;
+        String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_AND_ADDRESS_DESC_BOB + SUBJECT_DESC;
 
         // name only
         assertParseFailure(parser, details + GUARDIAN_NAME_DESC_BOB, ParserUtil.MESSAGE_GUARDIAN_PAIR);
@@ -161,7 +166,7 @@ public class AddCommandParserTest {
 
     @Test
     public void parse_invalidGuardian_failure() {
-        String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + SUBJECT_DESC;
+        String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_AND_ADDRESS_DESC_BOB + SUBJECT_DESC;
 
         // invalid name
         assertParseFailure(parser, details + INVALID_GUARDIAN_NAME_DESC + GUARDIAN_PHONE_DESC_BOB,
@@ -187,16 +192,19 @@ public class AddCommandParserTest {
     @Test
     public void parse_emptyPhone_failure() {
         // p/ with no number is rejected; leave out p/ to add a student without a phone
-        assertParseFailure(parser, NAME_DESC_BOB + " " + PREFIX_PHONE + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + SUBJECT_DESC,
+        assertParseFailure(parser, NAME_DESC_BOB + " " + PREFIX_PHONE + LEVEL_DESC_BOB
+                + SCHOOL_AND_ADDRESS_DESC_BOB + SUBJECT_DESC,
                 "Phone cannot be empty.");
-        assertParseFailure(parser, NAME_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + " " + PREFIX_PHONE + "  "
+        assertParseFailure(parser, NAME_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_AND_ADDRESS_DESC_BOB
+                + " " + PREFIX_PHONE + "  "
                 + SUBJECT_DESC,
                 "Phone cannot be empty.");
     }
 
     @Test
     public void parse_repeatedValue_failure() {
-        String validExpectedPersonString = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB;
+        String validExpectedPersonString = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB
+                + SCHOOL_AND_ADDRESS_DESC_BOB;
 
         // multiple names
         assertParseFailure(parser, NAME_DESC_AMY + validExpectedPersonString + SUBJECT_DESC,
@@ -211,7 +219,7 @@ public class AddCommandParserTest {
                 Messages.getErrorMessageForDuplicatePrefixes(PREFIX_LEVEL));
 
         // multiple schools
-        assertParseFailure(parser, SCHOOL_DESC_AMY + validExpectedPersonString + SUBJECT_DESC,
+        assertParseFailure(parser, SCHOOL_AND_ADDRESS_DESC_AMY + validExpectedPersonString + SUBJECT_DESC,
                 Messages.getErrorMessageForDuplicatePrefixes(PREFIX_SCHOOL));
 
         // multiple fields repeated
@@ -242,17 +250,17 @@ public class AddCommandParserTest {
 
     @Test
     public void parse_compulsoryFieldMissing_failure() {
-        assertParseFailure(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB,
+        assertParseFailure(parser, NAME_DESC_BOB + SCHOOL_AND_ADDRESS_DESC_BOB + LEVEL_DESC_BOB,
                 "Missing required parameter: sub/.");
 
         // missing level prefix
-        assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + SCHOOL_DESC_BOB + SUBJECT_DESC,
+        assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + SCHOOL_AND_ADDRESS_DESC_BOB + SUBJECT_DESC,
                 "Missing required parameter: lvl/.");
     }
 
     @Test
     public void parse_missingName_failure() {
-        assertParseFailure(parser, SCHOOL_DESC_BOB + LEVEL_DESC_BOB + PHONE_DESC_BOB + SUBJECT_DESC,
+        assertParseFailure(parser, SCHOOL_AND_ADDRESS_DESC_BOB + LEVEL_DESC_BOB + PHONE_DESC_BOB + SUBJECT_DESC,
                 "Missing required parameter: n/.");
     }
 
@@ -279,7 +287,7 @@ public class AddCommandParserTest {
         String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddCommand.MESSAGE_USAGE);
 
         // name typed without n/
-        assertParseFailure(parser, VALID_NAME_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB + SUBJECT_DESC,
+        assertParseFailure(parser, VALID_NAME_BOB + SCHOOL_AND_ADDRESS_DESC_BOB + LEVEL_DESC_BOB + SUBJECT_DESC,
                 expectedMessage);
 
         // all prefixes missing
@@ -289,38 +297,41 @@ public class AddCommandParserTest {
     @Test
     public void parse_invalidValue_failure() {
         // invalid name
-        assertParseFailure(parser, LEVEL_DESC_BOB + SCHOOL_DESC_BOB + INVALID_NAME_DESC + PHONE_DESC_BOB + SUBJECT_DESC,
+        assertParseFailure(parser, LEVEL_DESC_BOB + SCHOOL_AND_ADDRESS_DESC_BOB + INVALID_NAME_DESC + PHONE_DESC_BOB
+                + SUBJECT_DESC,
                 Name.MESSAGE_CONSTRAINTS);
 
         // invalid phone
-        assertParseFailure(parser, LEVEL_DESC_BOB + SCHOOL_DESC_BOB + NAME_DESC_BOB + INVALID_PHONE_DESC + SUBJECT_DESC,
+        assertParseFailure(parser, LEVEL_DESC_BOB + SCHOOL_AND_ADDRESS_DESC_BOB + NAME_DESC_BOB + INVALID_PHONE_DESC
+                + SUBJECT_DESC,
                 INVALID_PHONE_MESSAGE);
 
         // invalid level
-        assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + INVALID_LEVEL_DESC + SCHOOL_DESC_BOB + SUBJECT_DESC,
+        assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + INVALID_LEVEL_DESC + SCHOOL_AND_ADDRESS_DESC_BOB
+                + SUBJECT_DESC,
                 Level.MESSAGE_CONSTRAINTS);
 
         // two invalid values, only first invalid value reported
-        assertParseFailure(parser, LEVEL_DESC_BOB + SCHOOL_DESC_BOB + INVALID_NAME_DESC + INVALID_PHONE_DESC
+        assertParseFailure(parser, LEVEL_DESC_BOB + SCHOOL_AND_ADDRESS_DESC_BOB + INVALID_NAME_DESC + INVALID_PHONE_DESC
                 + SUBJECT_DESC,
                 Name.MESSAGE_CONSTRAINTS);
 
         // removed prefixes are no longer recognized, so their text joins the preceding value
         assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB
-                + " e/bob@example.com" + SUBJECT_DESC,
+                + " e/bob@example.com" + ADDRESS_DESC_BOB + SUBJECT_DESC,
                 School.MESSAGE_CONSTRAINTS);
-        assertParseFailure(parser, NAME_DESC_BOB + " a/Clementi Road" + PHONE_DESC_BOB + LEVEL_DESC_BOB
-                + SCHOOL_DESC_BOB + SUBJECT_DESC,
-                Name.MESSAGE_CONSTRAINTS);
+        assertParseSuccess(parser, NAME_DESC_BOB + " a/Clementi Road" + PHONE_DESC_BOB + LEVEL_DESC_BOB
+                + SCHOOL_DESC_BOB + SUBJECT_DESC, new AddCommand(new PersonBuilder(BOB)
+                        .withAddress("Clementi Road").build()));
         assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + " t/friend"
-                + SUBJECT_DESC,
+                + ADDRESS_DESC_BOB + SUBJECT_DESC,
                 School.MESSAGE_CONSTRAINTS);
 
         // non-empty preamble
         assertParseFailure(parser, PREAMBLE_NON_EMPTY + NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB
-                + SCHOOL_DESC_BOB + SUBJECT_DESC,
+                + SCHOOL_AND_ADDRESS_DESC_BOB + SUBJECT_DESC,
                 String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddCommand.MESSAGE_USAGE));
-        String details = NAME_DESC_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB;
+        String details = NAME_DESC_BOB + SCHOOL_AND_ADDRESS_DESC_BOB + LEVEL_DESC_BOB;
         for (String pairs : List.of(" sub/English", " band/G1 sub/English band/G2",
                 " sub/English sub/Science band/G1", " sub/English band/G1 band/G2",
                 " sub/English p/91234567 band/G1", " sub/Englishband/G1")) {

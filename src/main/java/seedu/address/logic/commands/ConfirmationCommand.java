@@ -25,6 +25,13 @@ public interface ConfirmationCommand {
     String getCommandWord();
 
     /**
+     * Returns the action-specific instruction displayed when this command needs confirmation.
+     */
+    default String getConfirmationInstruction() {
+        return "Type CONFIRM (uppercase) to proceed.";
+    }
+
+    /**
      * Returns the confirmation message, or {@code null} if confirmation is unnecessary.
      *
      * @throws CommandException if the requested operation is invalid.

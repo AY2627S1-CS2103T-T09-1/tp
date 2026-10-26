@@ -42,6 +42,9 @@ public class StudentDetailPanel extends UiPart<Region> {
     private Label school;
 
     @FXML
+    private Label address;
+
+    @FXML
     private Label level;
 
     @FXML
@@ -81,6 +84,7 @@ public class StudentDetailPanel extends UiPart<Region> {
         studentIndex.setText(String.format("Index: %d", displayedIndex.getOneBased()));
         name.setText(person.getName().fullName);
         school.setText(person.getSchool().value);
+        address.setText(person.getAddress().map(Object::toString).orElse(NOT_PROVIDED_MESSAGE));
         level.setText(person.getLevel().toString());
         subjects.setText(formatSubjects(person));
         phone.setText(person.getPhone().map(Object::toString).orElse(NOT_PROVIDED_MESSAGE));

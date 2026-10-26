@@ -92,6 +92,8 @@ public class Messages {
                 .append(person.getPhone().map(Phone::toString).orElse(MESSAGE_PHONE_NOT_PROVIDED))
                 .append("; School: ")
                 .append(person.getSchool())
+                .append("; Address: ")
+                .append(person.getAddress().map(Object::toString).orElse("Not provided"))
                 .append("; Level: ")
                 .append(person.getLevel())
                 .append("; Subjects: ")

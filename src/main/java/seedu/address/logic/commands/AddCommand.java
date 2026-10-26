@@ -1,6 +1,7 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
@@ -32,6 +33,7 @@ public class AddCommand extends Command implements ConfirmationCommand {
             + PREFIX_NAME + "NAME "
             + "[" + PREFIX_PHONE + "PHONE] "
             + PREFIX_SCHOOL + "SCHOOL "
+            + "[" + PREFIX_ADDRESS + "ADDRESS] "
             + PREFIX_LEVEL + "LEVEL "
             + PREFIX_SUBJECT + "SUBJECT " + PREFIX_BAND + "BAND "
             + "[" + PREFIX_SUBJECT + "SUBJECT " + PREFIX_BAND + "BAND]... "
@@ -40,6 +42,7 @@ public class AddCommand extends Command implements ConfirmationCommand {
             + PREFIX_NAME + "John Doe "
             + PREFIX_PHONE + "98765432 "
             + PREFIX_SCHOOL + "Victoria School "
+            + PREFIX_ADDRESS + "123 Bedok North Road "
             + PREFIX_LEVEL + "S3 "
             + PREFIX_SUBJECT + "Mathematics " + PREFIX_BAND + "G3 "
             + PREFIX_GUARDIAN_NAME + "Mary Doe "
@@ -50,7 +53,9 @@ public class AddCommand extends Command implements ConfirmationCommand {
             "A student named %1$s at %2$s, level %3$s already exists. If this is a different student, "
                     + "enter a distinguishing name, for example Chloe Tan 2.";
     public static final String MESSAGE_CONFIRMATION =
-            "A student named %1$s already exists at %2$s. Add another student with this name?";
+            "Student not added yet: %1$s is also recorded at %2$s.";
+
+    public static final String MESSAGE_CONFIRMATION_INSTRUCTION = "Type CONFIRM (uppercase) to add anyway.";
 
     private final Person toAdd;
 
@@ -70,6 +75,11 @@ public class AddCommand extends Command implements ConfirmationCommand {
     @Override
     public String getCommandWord() {
         return COMMAND_WORD;
+    }
+
+    @Override
+    public String getConfirmationInstruction() {
+        return MESSAGE_CONFIRMATION_INSTRUCTION;
     }
 
     @Override

@@ -47,8 +47,8 @@ import seedu.address.testutil.TypicalPersons;
 public class LogicManagerTest {
     private static final IOException DUMMY_IO_EXCEPTION = new IOException("dummy IO exception");
     private static final IOException DUMMY_AD_EXCEPTION = new AccessDeniedException("dummy access denied exception");
-    private static final CommandResult CLEAR_CONFIRMATION_RESULT = CommandResult.warning(
-            ClearCommand.MESSAGE_CONFIRMATION + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX);
+    private static final CommandResult CLEAR_CONFIRMATION_RESULT = confirmationPrompt(
+            "This will delete all students and notes.", ClearCommand.MESSAGE_CONFIRMATION_INSTRUCTION);
     private static final String CLEAR_CANCELLED = String.format(
             ConfirmationManager.MESSAGE_CANCELLED_FORMAT, ClearCommand.COMMAND_WORD);
 
@@ -90,11 +90,11 @@ public class LogicManagerTest {
         model.addPerson(TypicalPersons.ALICE);
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
 
-        CommandResult prompt = logic.execute("add n/alice pauline sch/Victoria School lvl/S2 "
+        CommandResult prompt = logic.execute("add n/alice pauline sch/Victoria School a/Not provided lvl/S2 "
                 + "sub/Mathematics band/G1");
 
-        assertEquals(CommandResult.warning(String.format(AddCommand.MESSAGE_CONFIRMATION, "alice pauline",
-                "Maplewood Secondary School (S1)") + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX), prompt);
+        assertEquals(confirmationPrompt(String.format(AddCommand.MESSAGE_CONFIRMATION, "alice pauline",
+                "Maplewood Secondary School (S1)"), AddCommand.MESSAGE_CONFIRMATION_INSTRUCTION), prompt);
         assertEquals(expectedModel, model);
 
         logic.execute("CONFIRM");
@@ -112,7 +112,7 @@ public class LogicManagerTest {
         logic.execute(ListCommand.COMMAND_WORD);
         String initialStoredData = Files.readString(addressBookFile);
 
-        assertCommandException("add n/alice  pauline sch/maplewood  secondary school lvl/S1 "
+        assertCommandException("add n/alice  pauline sch/maplewood  secondary school a/Not provided lvl/S1 "
                 + "sub/Mathematics band/G1", String.format(AddCommand.MESSAGE_DUPLICATE_PERSON,
                         "alice pauline", "maplewood secondary school", "S1"));
 
@@ -127,9 +127,8 @@ public class LogicManagerTest {
 
         CommandResult prompt = logic.execute("edit 2 n/Alice Pauline");
 
-        assertEquals(CommandResult.warning(String.format(EditCommand.MESSAGE_CONFIRMATION, "Alice Pauline",
-                "Maplewood Secondary School (S1)")
-                + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX), prompt);
+        assertEquals(confirmationPrompt(String.format(EditCommand.MESSAGE_CONFIRMATION, "Alice Pauline",
+                "Maplewood Secondary School (S1)"), EditCommand.MESSAGE_CONFIRMATION_INSTRUCTION), prompt);
         logic.execute("CONFIRM");
 
         assertEquals("Alice Pauline", model.getAddressBook().getPersonList().get(1).getName().toString());
@@ -174,8 +173,9 @@ public class LogicManagerTest {
 
         CommandResult prompt = logic.execute("delete 2");
 
-        assertEquals("This will delete Alice Pauline at Victoria School (S2) and all their notes. Continue?"
-                + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX, prompt.getFeedbackToUser());
+        assertEquals(confirmationPrompt("This will delete Alice Pauline at Victoria School (S2) and all their notes.",
+                DeleteCommand.MESSAGE_CONFIRMATION_INSTRUCTION)
+                .getFeedbackToUser(), prompt.getFeedbackToUser());
         assertTrue(prompt.isWarning());
         assertEquals(2, model.getAddressBook().getPersonList().size());
     }
@@ -189,8 +189,9 @@ public class LogicManagerTest {
 
         CommandResult prompt = logic.execute("deletenote 2 nid/1");
 
-        assertEquals("This will delete note 1 from Alice Pauline at Victoria School (S2). Continue?"
-                + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX, prompt.getFeedbackToUser());
+        assertEquals(confirmationPrompt("This will delete note 1 from Alice Pauline at Victoria School (S2).",
+                DeleteNoteCommand.MESSAGE_CONFIRMATION_INSTRUCTION)
+                .getFeedbackToUser(), prompt.getFeedbackToUser());
         assertTrue(prompt.isWarning());
         assertEquals(List.of("Review algebra"), model.getAddressBook().getPersonList().get(1).getNotes().stream()
                 .map(note -> note.toString()).toList());
@@ -217,7 +218,7 @@ public class LogicManagerTest {
         logic.execute(ListCommand.COMMAND_WORD);
         String initialStoredData = Files.readString(addressBookFile);
 
-        logic.execute("add n/Alice Pauline sch/Victoria School lvl/S2 sub/Mathematics band/G1");
+        logic.execute("add n/Alice Pauline sch/Victoria School a/Not provided lvl/S2 sub/Mathematics band/G1");
         CommandResult addCancellation = logic.execute(ListCommand.COMMAND_WORD);
         assertEquals(String.format(ConfirmationManager.MESSAGE_CANCELLED_FORMAT, AddCommand.COMMAND_WORD),
                 addCancellation.getCancellationNotice().orElseThrow());
@@ -324,7 +325,10 @@ public class LogicManagerTest {
         assertEquals(String.format(ConfirmationManager.MESSAGE_CANCELLED_FORMAT, ClearCommand.COMMAND_WORD),
                 replacementPrompt.getCancellationNotice().orElseThrow());
         assertTrue(replacementPrompt.isWarning());
-        assertTrue(replacementPrompt.getFeedbackToUser().contains("delete " + personAtFirstIndex.getName()));
+        assertEquals(confirmationPrompt("This will delete " + personAtFirstIndex.getName() + " at "
+                + personAtFirstIndex.getSchool() + " (" + personAtFirstIndex.getLevel()
+                + ") and all their notes.", DeleteCommand.MESSAGE_CONFIRMATION_INSTRUCTION).getFeedbackToUser(),
+                replacementPrompt.getFeedbackToUser());
 
         logic.execute(" CONFIRM ");
         assertEquals(1, model.getAddressBook().getPersonList().size());
@@ -348,9 +352,9 @@ public class LogicManagerTest {
         model.addPerson(AMY);
         CommandResult prompt = logic.execute("delete 1");
         assertTrue(prompt.isWarning());
-        assertEquals("This will delete " + AMY.getName() + " at " + AMY.getSchool() + " (" + AMY.getLevel()
-                + ") and all their notes. Continue?"
-                + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX, prompt.getFeedbackToUser());
+        assertEquals(confirmationPrompt("This will delete " + AMY.getName() + " at " + AMY.getSchool() + " ("
+                + AMY.getLevel() + ") and all their notes.", DeleteCommand.MESSAGE_CONFIRMATION_INSTRUCTION)
+                .getFeedbackToUser(), prompt.getFeedbackToUser());
 
         Model expectedModel = new ModelManager();
         assertCommandSuccess("CONFIRM", CommandResult.showList(
@@ -388,9 +392,9 @@ public class LogicManagerTest {
         model.addPerson(personWithNote);
         CommandResult prompt = logic.execute("deletenote 1 nid/1");
         assertTrue(prompt.isWarning());
-        assertEquals("This will delete note 1 from " + AMY.getName() + " at " + AMY.getSchool() + " ("
-                + AMY.getLevel() + "). Continue?"
-                + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX, prompt.getFeedbackToUser());
+        assertEquals(confirmationPrompt("This will delete note 1 from " + AMY.getName() + " at " + AMY.getSchool()
+                + " (" + AMY.getLevel() + ").", DeleteNoteCommand.MESSAGE_CONFIRMATION_INSTRUCTION)
+                .getFeedbackToUser(), prompt.getFeedbackToUser());
 
         Model expectedModel = new ModelManager();
         expectedModel.addPerson(new PersonBuilder(personWithNote).withNotes().build());
@@ -485,6 +489,11 @@ public class LogicManagerTest {
     @Test
     public void getFilteredPersonList_modifyList_throwsUnsupportedOperationException() {
         assertThrows(UnsupportedOperationException.class, () -> logic.getFilteredPersonList().remove(0));
+    }
+
+    private static CommandResult confirmationPrompt(String message, String instruction) {
+        return CommandResult.warning(message + System.lineSeparator() + instruction + System.lineSeparator()
+                + ConfirmationManager.MESSAGE_CONFIRMATION_CANCELLATION);
     }
 
     /**

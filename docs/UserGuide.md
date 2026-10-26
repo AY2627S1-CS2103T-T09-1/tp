@@ -79,10 +79,12 @@ The command does not accept additional arguments.
 
 Adds a person to the address book.
 
-Format: `add n/NAME [p/PHONE] sch/SCHOOL lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]`
+Format: `add n/NAME [p/PHONE] sch/SCHOOL [a/ADDRESS] lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]`
 
 * `NAME` can contain only letters, digits, and spaces. Symbols such as `/`, `-`, and `'` aren't supported yet, so type `Rajesh s/o Kumar` as `Rajesh so Kumar`.
 * The phone number is optional, since younger students may not have their own phone.
+* `ADDRESS` can contain any value except a blank or whitespace-only value. It is required when adding a student.
+* You can omit `a/ADDRESS`. Older data files without an `address` field also load without an address. The student list and detail view show `Not provided` when there is no address.
 * When you add a student, TuteeBook3 trims leading and trailing spaces and collapses repeated ordinary spaces to one in the name, school, subject names, and guardian name. It keeps the capitalization you enter. For example, `add n/John  Doe sch/Victoria  School lvl/S3 sub/Additional  Mathematics band/G1` stores `John Doe`, `Victoria School`, and `Additional Mathematics`.
 * `PHONE` is the number you use to reach the student. It can only contain digits, with an optional `+` at the start, and must have 3 to 15 digits, counting the country code. You can type spaces or hyphens (`-`), such as `9123 4567` or `9123-4567`, and they are removed when it is saved. Other dashes, such as `–`, are not allowed.
 * A Singapore number (8 digits starting with 6, 8, or 9) is saved as those 8 digits. A leading `+65` is removed, so `+65 9123 4567` is saved as `91234567`. If what follows `+65` isn't a Singapore number, the `+65` is kept.
@@ -102,35 +104,36 @@ Each student and guardian has one phone number, which is the number you use to r
 * A subject name cannot appear twice, even with different bands. Duplicate checks ignore case and repeated internal spaces, so `Additional Mathematics` and `additional  mathematics` are the same subject.
 * `LEVEL` must be one of `S1`, `S2`, `S3`, `S4` or `S5`. It is not case-sensitive, so `s3` also works.
 
-If the command is wrong, `add` shows one of these messages and does not add the student. If there is more than one input problem, `add` reports only the first. It checks for text before the first parameter, missing parameters, repeated parameters, and then invalid values in the order `NAME`, `PHONE`, `SCHOOL`, `LEVEL`, subjects, and guardian. After all input is valid, TuteeBook3 checks whether the student is a duplicate.
+If the command is wrong, `add` shows one of these messages and does not add the student. If there is more than one input problem, `add` reports only the first. It checks for text before the first parameter, missing parameters, repeated parameters, and then invalid values in the order `NAME`, `PHONE`, `SCHOOL`, `ADDRESS`, `LEVEL`, subjects, and guardian. After all input is valid, TuteeBook3 checks whether the student is a duplicate.
 
 Problem | Message
 --------|--------
 There are no parameters at all, or there is text between `add` and the first parameter, such as `add John Doe sch/Victoria School ...` | `Invalid command format!` followed by how to use `add`
 `n/`, `sch/`, `lvl/`, or `sub/` is missing, or has no space before it | Every missing one is named, such as `Missing required parameters: sch/, lvl/.`
-`n/`, `p/`, `sch/`, `lvl/`, `gn/`, or `gp/` appears more than once | `Multiple values specified for the following single-valued field(s): p/`
+`n/`, `p/`, `sch/`, `a/`, `lvl/`, `gn/`, or `gp/` appears more than once | `Multiple values specified for the following single-valued field(s): p/`
 `NAME` is invalid | `Names should only contain alphanumeric characters and spaces, and should not be blank`
 `PHONE` or `GUARDIAN_PHONE` is invalid | The message says why, as described above
 `SCHOOL` is invalid | `School names must be 1-100 characters and contain at least one letter.`
+`ADDRESS` is blank or only whitespace | `Addresses can take any values, and should not be blank`
 `LEVEL` is not S1 to S5 | `Level must be one of S1, S2, S3, S4, S5.`
 A subject or band is wrong | See [Subject and band errors](#subject-and-band-errors)
 Only one of `gn/` and `gp/` is given | `Guardian name (gn/) and guardian phone (gp/) must be given together.`
 A student with the same normalized name, school, and level already exists | `A student named NAME at SCHOOL, level LEVEL already exists. If this is a different student, enter a distinguishing name, for example Chloe Tan 2.`
 
-TuteeBook3 checks for likely duplicates using the student's name. It ignores capitalization and repeated spaces when comparing names and school names; it compares levels directly. If another student has the same name but a different school or level, `add` shows an amber prompt such as `A student named NAME already exists at SCHOOL (LEVEL). Add another student with this name?` Type `CONFIRM` to add the record. Any other input cancels the add and is processed as a command. If the normalized name, school, and level all match, `add` rejects the new record. TuteeBook3 displays the red error `A student named NAME at SCHOOL, level LEVEL already exists. If this is a different student, enter a distinguishing name, for example Chloe Tan 2.` Two people with the same name, school, and level would otherwise look identical in the app, making it hard to tell whose record you are viewing or changing. If they are different people, give one a distinguishing saved name, such as `Chloe Tan 2`. The comparison does not use phone numbers, subjects, or bands, and it cannot detect every real-world duplicate.
+TuteeBook3 checks for likely duplicates using the student's name. It ignores capitalization and repeated spaces when comparing names and school names; it compares levels directly. If another student has the same name but a different school or level, `add` shows an amber prompt such as `Student not added yet: NAME is also recorded at SCHOOL (LEVEL).` The next line says `Type CONFIRM (uppercase) to add anyway.` A final line says that any other input cancels the request and runs as a command. If the normalized name, school, and level all match, `add` rejects the new record. TuteeBook3 displays the red error `A student named NAME at SCHOOL, level LEVEL already exists. If this is a different student, enter a distinguishing name, for example Chloe Tan 2.` Two people with the same name, school, and level would otherwise look identical in the app, making it hard to tell whose record you are viewing or changing. If they are different people, give one a distinguishing saved name, such as `Chloe Tan 2`. The comparison does not use phone numbers, subjects, or bands, and it cannot detect every real-world duplicate.
 
 Examples:
 
-* `add n/John Doe p/98765432 sch/Victoria School lvl/S3 sub/Mathematics band/G1`
-* `add n/Betsy Crowe lvl/S1 sch/Bedok Green Secondary School p/81234567 sub/Mathematics band/G1`
-* `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1` adds a student without a phone number.
-* `add n/Chloe Tan sch/Bedok Green Secondary School lvl/S2 sub/Mathematics band/G1 sub/English band/G3` adds a student taking two subjects at different bands.
-* `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Tan gp/91234567` adds a student with guardian Mary Tan. Use `view INDEX` to see the guardian details.
-* `add n/Aisha Rahman sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Farah Rahman gp/+60 12-345 6789` adds a student whose guardian has a Malaysian number. It is saved as `+60123456789`, with a warning that it doesn't look like a Singapore number.
+* `add n/John Doe p/98765432 sch/Victoria School a/21 Clementi Road lvl/S3 sub/Mathematics band/G1`
+* `add n/Betsy Crowe lvl/S1 sch/Bedok Green Secondary School a/12 Example Road p/81234567 sub/Mathematics band/G1`
+* `add n/Tim Tan sch/Victoria School a/5 Example Road lvl/S2 sub/Mathematics band/G1` adds a student without a phone number.
+* `add n/Chloe Tan sch/Bedok Green Secondary School a/8 Example Road lvl/S2 sub/Mathematics band/G1 sub/English band/G3` adds a student taking two subjects at different bands.
+* `add n/Tim Tan sch/Victoria School a/5 Example Road lvl/S2 sub/Mathematics band/G1 gn/Mary Tan gp/91234567` adds a student with guardian Mary Tan. Use `view INDEX` to see the guardian details.
+* `add n/Aisha Rahman sch/Victoria School a/3 Example Road lvl/S2 sub/Mathematics band/G1 gn/Farah Rahman gp/+60 12-345 6789` adds a student whose guardian has a Malaysian number. It is saved as `+60123456789`, with a warning that it doesn't look like a Singapore number.
 
 ### Listing all persons: `list`
 
-Shows a list of all persons in the address book. Each entry shows the student's index, name, phone number (if provided), school, and level. Use `view INDEX` to see the remaining details.
+Shows a list of all persons in the address book. Each entry shows the student's index, name, phone number (if provided), school, address, and level. Use `view INDEX` to see the remaining details.
 
 Format: `list`
 
@@ -158,11 +161,12 @@ Example: `view 2` shows the full record of the second student in the currently d
 
 Edits an existing person in the address book.
 
-Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`
+Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [a/ADDRESS] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`
 
 * Edits the person at the specified `INDEX`. The index refers to the index number shown in the displayed person list. The index **must be a positive integer** 1, 2, 3, …​
 * At least one of the optional fields must be provided.
 * Existing values will be updated to the input values.
+* `a/ADDRESS` replaces the student's address. The address can contain any value except a blank or whitespace-only value; omitting `a/` keeps the current address.
 * Supplying subject-band pairs replaces the entire subject list; omitting them preserves existing subjects. The replacement list must contain at least 1 subject and a maximum of 8 distinct subjects, following the same pairing and validation rules as `add`. Notes are preserved when editing a student.
 * `PHONE` and `GUARDIAN_PHONE` follow the same rules as in `add`, so `p/9123 4567` is saved as `91234567`. The warning about a number not looking like a Singapore number only appears when you type `p/` or `gp/` in that command.
 * You can remove a person's phone number by typing `p/` without specifying any number after it.
@@ -170,7 +174,7 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT ban
 * If the student already has a guardian, `gn/` or `gp/` on its own changes just that part of the guardian.
 * If the student has no guardian yet, give both `gn/` and `gp/` to add one. Giving only one of them shows `This student has no guardian yet. Give both gn/ and gp/ to add one.`
 * You can remove the guardian by typing `gn/ gp/` with no values after either. Leaving only one of them empty, such as `gn/` alone or `gn/ gp/91234567`, is rejected so that the guardian is not removed by mistake. If the student has no guardian, `gn/ gp/` shows `This student has no guardian to remove.`
-* If a change to the student's name, school, or level results in a name match with another student, `edit` shows an amber prompt such as `Another student named NAME is recorded at SCHOOL (LEVEL). Save this edit?` Type `CONFIRM` to save the edit. Any other input cancels the edit and is processed as a command. The student being edited is excluded from this check, and changes to other fields do not trigger a name prompt.
+* If a change to the student's name, school, or level results in a name match with another student, `edit` shows an amber prompt such as `Edit not saved yet: NAME is also recorded at SCHOOL (LEVEL).` The next line says `Type CONFIRM (uppercase) to save this edit anyway.` A final line says that any other input cancels the request and runs as a command. The student being edited is excluded from this check, and changes to other fields do not trigger a name prompt.
 * If another student has the same normalized name, school, and level as the proposed record, `edit` rejects the change and leaves the student unchanged. It shows the red error `Another student named NAME at SCHOOL, level LEVEL already exists. If these are different students, edit the name to include an identifier, for example Chloe Tan 2.` Two records with the same name, school, and level would be hard to tell apart in the app. Name and school comparisons ignore capitalization and repeated spaces; levels are compared directly. Subjects, bands, and phone numbers are not part of this duplicate check.
 
 Examples:
@@ -277,7 +281,7 @@ Format: `deletenote [-f] INDEX nid/NID`
 
 * `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
 * `NID` is the number shown before the note in the student detail view. It must be a positive integer, such as 1, 2, or 3. To see a student's notes and their NIDs, use `view INDEX`.
-* The command shows an amber prompt, such as `This will delete note 1 from Alex Tan at Example Secondary School (S3). Continue? Type CONFIRM (uppercase) to proceed; any other input cancels this request and runs as a command.` Enter `CONFIRM` to confirm. The prompt includes the school and level to distinguish students with the same name. You can use `deletenote -f INDEX nid/NID` to delete immediately.
+* The command shows an amber prompt. Its first line identifies the note and student: `This will delete note NID from NAME at SCHOOL (LEVEL).` The next line says `Type CONFIRM (uppercase) to delete this note.` A final line says that any other input cancels the request and runs as a command. You can use `deletenote -f INDEX nid/NID` to delete immediately.
 * After you delete a note, the notes after it move up one number. For example, if a student has 3 notes and you delete note 2, the old note 3 becomes note 2. Check the student detail view for the new numbers before you delete another note.
 * Deleting a note does not change which students are shown.
 * After `view`, use the index shown at the top of the student detail view when running `deletenote`.
@@ -368,7 +372,7 @@ Deletes a student, together with their guardian details and all of their notes.
 Format: `delete [-f] INDEX`
 
 * `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
-* `delete` shows an amber prompt, such as `This will delete Alex Tan at Example Secondary School (S3) and all their notes. Continue? Type CONFIRM (uppercase) to proceed; any other input cancels this request and runs as a command.` Enter `CONFIRM` to confirm. The prompt includes the school and level to distinguish students with the same name. Use `delete -f INDEX` to delete immediately.
+* `delete` shows an amber prompt. Its first line identifies the student and says what will happen: `This will delete NAME at SCHOOL (LEVEL) and all their notes.` The next line says `Type CONFIRM (uppercase) to delete this student and all their notes.` A final line says that any other input cancels the request and runs as a command. Use `delete -f INDEX` to delete immediately.
 * After `view`, use the index shown at the top of the student detail view when running `delete`.
 * After a student is deleted, the student list shows all remaining students, even if you used `filter` before. The index numbers of the remaining students may change, so check the list before you run another command that uses an index.
 * If the student detail view was open, it closes and the student list is shown.
@@ -398,7 +402,7 @@ Format: `clear [-f]`
 
 The command accepts only the optional `-f` argument.
 
-* `clear` shows the amber prompt `This will delete all students and notes. Continue? Type CONFIRM (uppercase) to proceed; any other input cancels this request and runs as a command.` without changing your data. Enter `CONFIRM` to confirm.
+* `clear` shows the amber prompt `This will delete all students and notes.` The next line says `Type CONFIRM (uppercase) to clear all students and notes.` A final line says that any other input cancels the request and runs as a command. Your data remains unchanged until you confirm.
 * `clear -f` clears all students and notes immediately without asking for confirmation.
 * While a confirmation is pending, only the exact uppercase word `CONFIRM` (with optional leading or trailing spaces) confirms it. Any other input cancels the pending command and is processed normally. A cancellation notice appears in red above the command result; command output keeps its usual color, and command errors appear in red.
 * If TuteeBook3 is already empty, `clear` shows `TuteeBook3 is already empty.` without asking you to confirm.
@@ -466,12 +470,12 @@ _Details coming soon ..._
 
 Action | Format, Examples
 --------|------------------
-**Add** | `add n/NAME [p/PHONE] sch/SCHOOL lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Ho gp/91234567`
+**Add** | `add n/NAME [p/PHONE] sch/SCHOOL [a/ADDRESS] lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School a/12 Example Road lvl/S2 sub/Mathematics band/G1 gn/Mary Ho gp/91234567`
 **Add note** | `addnote INDEX t/TEXT`<br> e.g., `addnote 1 t/Weak in algebra`
 **Clear** | `clear`, followed by `CONFIRM` to confirm (Alternatively, `clear -f` to clear immediately)
 **Delete** | `delete [-f] INDEX`<br> e.g., `delete 3`
 **Delete note** | `deletenote [-f] INDEX nid/NID`<br> e.g., `deletenote 1 nid/2`
-**Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `edit 2 sub/Mathematics band/G2 sub/English band/G3`, `edit 1 gn/ gp/`
+**Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [a/ADDRESS] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `edit 2 a/12 Example Road`, `edit 1 gn/ gp/`
 **Edit note** | `editnote INDEX nid/NID t/TEXT`<br> e.g., `editnote 1 nid/2 t/Improving in algebra`
 **Filter** | `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/PHONE] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `filter lvl/S5 sub/mathematics band/G2`
 **List** | `list`

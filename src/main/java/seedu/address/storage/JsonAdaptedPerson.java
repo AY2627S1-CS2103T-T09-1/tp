@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import seedu.address.commons.exceptions.IllegalValueException;
+import seedu.address.model.person.Address;
 import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
@@ -32,6 +33,8 @@ class JsonAdaptedPerson {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private final String phone;
     private final String school;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private final String address;
     private final String level;
     private final List<JsonAdaptedSubject> subjects = new ArrayList<>();
     // Set by Jackson directly, so files without notes still load
@@ -46,11 +49,13 @@ class JsonAdaptedPerson {
      */
     @JsonCreator
     public JsonAdaptedPerson(@JsonProperty("name") String name, @JsonProperty("phone") String phone,
-            @JsonProperty("school") String school, @JsonProperty("level") String level,
+            @JsonProperty("school") String school, @JsonProperty("address") String address,
+            @JsonProperty("level") String level,
             @JsonProperty("subjects") List<JsonAdaptedSubject> subjects) {
         this.name = name;
         this.phone = phone;
         this.school = school == null ? School.DEFAULT_VALUE : school;
+        this.address = address;
         this.level = level;
         if (subjects != null) {
             this.subjects.addAll(subjects);
@@ -64,6 +69,7 @@ class JsonAdaptedPerson {
         name = source.getName().fullName;
         phone = source.getPhone().map(p -> p.value).orElse(null);
         school = source.getSchool().value;
+        address = source.getAddress().map(a -> a.value).orElse(null);
         level = source.getLevel().name();
         subjects.addAll(source.getSubjects().stream().map(JsonAdaptedSubject::new).toList());
         notes.addAll(source.getNotes().stream()
@@ -98,6 +104,11 @@ class JsonAdaptedPerson {
         }
         final School modelSchool = new School(school);
 
+        if (address != null && !Address.isValidAddress(address)) {
+            throw new IllegalValueException(Address.MESSAGE_CONSTRAINTS);
+        }
+        final Address modelAddress = address == null ? null : new Address(address);
+
         if (level == null) {
             throw new IllegalValueException(String.format(MISSING_FIELD_MESSAGE_FORMAT, Level.class.getSimpleName()));
         }
@@ -120,7 +131,7 @@ class JsonAdaptedPerson {
         // Guardian is optional, so a missing guardian means the person has no guardian
         final Guardian modelGuardian = guardian == null ? null : guardian.toModelType();
         try {
-            return new Person(modelName, modelPhone, modelSchool, modelLevel, modelSubjects, modelNotes,
+            return new Person(modelName, modelPhone, modelSchool, modelAddress, modelLevel, modelSubjects, modelNotes,
                     modelGuardian);
         } catch (IllegalArgumentException e) {
             throw new IllegalValueException(e.getMessage(), e);

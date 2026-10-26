@@ -29,7 +29,7 @@ public class PersonTest {
                 .withSubjects().build());
         List<Subject> subjects = new ArrayList<>(person.getSubjects());
         Person copy = new Person(person.getName(), person.getPhone().orElse(null), person.getSchool(),
-                person.getLevel(), subjects);
+                person.getAddress().orElse(null), person.getLevel(), subjects);
         subjects.clear();
         assertEquals(person.getSubjects(), copy.getSubjects());
         assertThrows(IllegalArgumentException.class, "Subject is repeated: mathematics.", () -> new PersonBuilder()
@@ -196,13 +196,14 @@ public class PersonTest {
     public void format_noPhone_showsNotProvided() {
         Person aliceWithoutPhone = new PersonBuilder(ALICE).withoutPhone().build();
         assertEquals("Alice Pauline; Student phone: " + Messages.MESSAGE_PHONE_NOT_PROVIDED
-                + "; School: Maplewood Secondary School; Level: S1; Subjects: Mathematics (G1)",
+                + "; School: Maplewood Secondary School; Address: Not provided; Level: S1; Subjects: Mathematics (G1)",
                 Messages.format(aliceWithoutPhone));
     }
 
     @Test
     public void format_withLevel_includesLevel() {
-        assertEquals("Alice Pauline; Student phone: 94351253; School: Maplewood Secondary School; Level: S1; "
+        assertEquals("Alice Pauline; Student phone: 94351253; School: Maplewood Secondary School; Address: "
+                + "Not provided; Level: S1; "
                 + "Subjects: Mathematics (G1)", Messages.format(ALICE));
     }
 
@@ -217,14 +218,17 @@ public class PersonTest {
     public void format_multipleSubjects_commaSeparated() {
         Person aliceWithTwoSubjects = new PersonBuilder(ALICE)
                 .withSubjects(new Subject("Mathematics", Band.G1), new Subject("Science", Band.G2)).build();
-        assertEquals("Alice Pauline; Student phone: 94351253; School: Maplewood Secondary School; Level: S1; "
+        assertEquals("Alice Pauline; Student phone: 94351253; School: Maplewood Secondary School; Address: "
+                + "Not provided; Level: S1; "
                 + "Subjects: Mathematics (G1), Science (G2)", Messages.format(aliceWithTwoSubjects));
     }
 
     @Test
     public void toStringMethod() {
         String expected = Person.class.getCanonicalName() + "{name=" + ALICE.getName() + ", phone="
-                + ALICE.getPhone().get() + ", school=" + ALICE.getSchool() + ", level=" + ALICE.getLevel()
+                + ALICE.getPhone().get() + ", school=" + ALICE.getSchool() + ", address="
+                + ALICE.getAddress().get()
+                + ", level=" + ALICE.getLevel()
                 + ", subjects=" + ALICE.getSubjects() + ", guardian=null"
                 + "}";
         assertEquals(expected, ALICE.toString());
