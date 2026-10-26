@@ -14,6 +14,7 @@ import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.commons.util.JsonUtil;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Band;
+import seedu.address.model.person.Email;
 import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
@@ -64,6 +65,31 @@ public class JsonAdaptedPersonTest {
         String jsonWithoutAddress = json.replace("\"address\" : \"12 Example Road\",", "");
         assertEquals(new PersonBuilder(BENSON).withoutAddress().build(),
                 JsonUtil.fromJsonString(jsonWithoutAddress, JsonAdaptedPerson.class).toModelType());
+    }
+
+    @Test
+    public void toModelType_emailRoundTripsAndMissingEmailLoads() throws Exception {
+        Person personWithEmail = new PersonBuilder(BENSON).withEmail("benson@example.com").build();
+        String json = JsonUtil.toJsonString(new JsonAdaptedPerson(personWithEmail));
+        assertEquals(personWithEmail, JsonUtil.fromJsonString(json, JsonAdaptedPerson.class).toModelType());
+
+        String jsonWithoutEmail = json.replaceAll(",\\s*\"email\" : \"benson@example.com\"", "");
+        assertFalse(jsonWithoutEmail.contains("email"));
+        assertEquals(BENSON, JsonUtil.fromJsonString(jsonWithoutEmail, JsonAdaptedPerson.class).toModelType());
+    }
+
+    @Test
+    public void toModelType_personWithoutEmail_omitsEmailKey() throws Exception {
+        assertFalse(JsonUtil.toJsonString(new JsonAdaptedPerson(BENSON)).contains("email"));
+    }
+
+    @Test
+    public void toModelType_invalidEmail_throwsIllegalValueException() throws Exception {
+        Person personWithEmail = new PersonBuilder(BENSON).withEmail("benson@example.com").build();
+        String json = JsonUtil.toJsonString(new JsonAdaptedPerson(personWithEmail))
+                .replace("benson@example.com", "benson.example.com");
+        JsonAdaptedPerson person = JsonUtil.fromJsonString(json, JsonAdaptedPerson.class);
+        assertThrows(IllegalValueException.class, Email.MESSAGE_CONSTRAINTS, person::toModelType);
     }
 
     @Test

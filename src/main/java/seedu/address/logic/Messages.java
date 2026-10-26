@@ -105,7 +105,9 @@ public class Messages {
                 .append("; Subjects: ")
                 .append(person.getSubjects().stream().map(Subject::toString).collect(Collectors.joining(", ")))
                 .append("; Address: ")
-                .append(person.getAddress().map(Object::toString).orElse(MESSAGE_NOT_PROVIDED));
+                .append(person.getAddress().map(Object::toString).orElse(MESSAGE_NOT_PROVIDED))
+                .append("; Email: ")
+                .append(person.getEmail().map(Object::toString).orElse(MESSAGE_NOT_PROVIDED));
         // labels match the student detail panel
         person.getGuardian().ifPresent(guardian -> builder.append("; Guardian name: ").append(guardian.getName())
                 .append("; Guardian phone: ").append(guardian.getPhone()));

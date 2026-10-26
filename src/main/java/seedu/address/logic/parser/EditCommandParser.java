@@ -5,6 +5,7 @@ import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.Messages.MESSAGE_SUBJECT_BAND_PAIR;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
@@ -33,8 +34,8 @@ public class EditCommandParser implements Parser<EditCommand> {
     public EditCommand parse(String args) throws ParseException {
         requireNonNull(args);
         ArgumentMultimap argMultimap =
-                ArgumentTokenizer.tokenize(args, PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_ADDRESS, PREFIX_LEVEL,
-                        PREFIX_SUBJECT, PREFIX_BAND, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE);
+                ArgumentTokenizer.tokenize(args, PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_ADDRESS, PREFIX_EMAIL,
+                        PREFIX_LEVEL, PREFIX_SUBJECT, PREFIX_BAND, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE);
 
         Index index;
 
@@ -44,8 +45,8 @@ public class EditCommandParser implements Parser<EditCommand> {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditCommand.MESSAGE_USAGE), pe);
         }
 
-        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_ADDRESS, PREFIX_LEVEL,
-                PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE);
+        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_ADDRESS, PREFIX_EMAIL,
+                PREFIX_LEVEL, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE);
 
         EditPersonDescriptor editPersonDescriptor = new EditPersonDescriptor();
 
@@ -70,6 +71,15 @@ public class EditCommandParser implements Parser<EditCommand> {
                 editPersonDescriptor.setAddressRemoved();
             } else {
                 editPersonDescriptor.setAddress(ParserUtil.parseAddress(address));
+            }
+        }
+        if (argMultimap.getValue(PREFIX_EMAIL).isPresent()) {
+            String email = argMultimap.getValue(PREFIX_EMAIL).get();
+            // e/ with no value removes the email
+            if (email.isBlank()) {
+                editPersonDescriptor.setEmailRemoved();
+            } else {
+                editPersonDescriptor.setEmail(ParserUtil.parseEmail(email));
             }
         }
         if (argMultimap.getValue(PREFIX_LEVEL).isPresent()) {

@@ -3,6 +3,7 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
@@ -23,6 +24,7 @@ import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.person.Address;
+import seedu.address.model.person.Email;
 import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
@@ -42,13 +44,15 @@ public class EditCommand extends Command implements ConfirmationCommand {
             + "by the index number used in the displayed student list. "
             + "Existing values will be overwritten by the input values. "
             + "Use " + PREFIX_PHONE + " with no number to remove the phone, and "
-            + PREFIX_ADDRESS + " with no value to remove the address. Use "
+            + PREFIX_ADDRESS + " with no value to remove the address, "
+            + PREFIX_EMAIL + " with no value to remove the email. Use "
             + PREFIX_GUARDIAN_NAME + " " + PREFIX_GUARDIAN_PHONE + " with no values to remove the guardian.\n"
             + "Parameters: INDEX (must be a positive integer) "
             + "[" + PREFIX_NAME + "NAME] "
             + "[" + PREFIX_PHONE + "PHONE] "
             + "[" + PREFIX_SCHOOL + "SCHOOL] "
             + "[" + PREFIX_ADDRESS + "ADDRESS] "
+            + "[" + PREFIX_EMAIL + "EMAIL] "
             + "[" + PREFIX_LEVEL + "LEVEL] "
             + "[" + PREFIX_SUBJECT + "SUBJECT " + PREFIX_BAND + "BAND]... "
             + "[" + PREFIX_GUARDIAN_NAME + "GUARDIAN_NAME] "
@@ -195,11 +199,14 @@ public class EditCommand extends Command implements ConfirmationCommand {
         Address updatedAddress = editPersonDescriptor.isAddressRemoved()
                 ? null
                 : editPersonDescriptor.getAddress().orElse(personToEdit.getAddress().orElse(null));
+        Email updatedEmail = editPersonDescriptor.isEmailRemoved()
+                ? null
+                : editPersonDescriptor.getEmail().orElse(personToEdit.getEmail().orElse(null));
         Level updatedLevel = editPersonDescriptor.getLevel().orElse(personToEdit.getLevel());
 
         List<Subject> updatedSubjects = editPersonDescriptor.getSubjects().orElse(personToEdit.getSubjects());
         Guardian updatedGuardian = createEditedGuardian(personToEdit.getGuardian(), editPersonDescriptor);
-        return new Person(updatedName, updatedPhone, updatedSchool, updatedAddress, updatedLevel,
+        return new Person(updatedName, updatedPhone, updatedSchool, updatedAddress, updatedEmail, updatedLevel,
                 updatedSubjects, personToEdit.getNotes(), updatedGuardian);
     }
 
@@ -267,6 +274,8 @@ public class EditCommand extends Command implements ConfirmationCommand {
         private School school;
         private Address address;
         private boolean isAddressRemoved;
+        private Email email;
+        private boolean isEmailRemoved;
         private Level level;
         private List<Subject> subjects;
         private Name guardianName;
@@ -285,6 +294,8 @@ public class EditCommand extends Command implements ConfirmationCommand {
             setSchool(toCopy.school);
             setAddress(toCopy.address);
             isAddressRemoved = toCopy.isAddressRemoved;
+            setEmail(toCopy.email);
+            isEmailRemoved = toCopy.isEmailRemoved;
             setLevel(toCopy.level);
             setSubjects(toCopy.subjects);
             setGuardianName(toCopy.guardianName);
@@ -296,9 +307,9 @@ public class EditCommand extends Command implements ConfirmationCommand {
          * Returns true if at least one field is edited.
          */
         public boolean isAnyFieldEdited() {
-            return CollectionUtil.isAnyNonNull(name, phone, school, address, level, subjects, guardianName,
+            return CollectionUtil.isAnyNonNull(name, phone, school, address, email, level, subjects, guardianName,
                     guardianPhone)
-                    || isPhoneRemoved || isAddressRemoved || isGuardianRemoved;
+                    || isPhoneRemoved || isAddressRemoved || isEmailRemoved || isGuardianRemoved;
         }
 
         public void setName(Name name) {
@@ -356,6 +367,27 @@ public class EditCommand extends Command implements ConfirmationCommand {
 
         public Optional<Address> getAddress() {
             return Optional.ofNullable(address);
+        }
+
+        public void setEmail(Email email) {
+            this.email = email;
+            this.isEmailRemoved = false;
+        }
+
+        /**
+         * Marks the email to be removed from the person.
+         */
+        public void setEmailRemoved() {
+            this.email = null;
+            this.isEmailRemoved = true;
+        }
+
+        public boolean isEmailRemoved() {
+            return isEmailRemoved;
+        }
+
+        public Optional<Email> getEmail() {
+            return Optional.ofNullable(email);
         }
 
         public void setLevel(Level level) {
@@ -426,6 +458,8 @@ public class EditCommand extends Command implements ConfirmationCommand {
                     && Objects.equals(school, otherEditPersonDescriptor.school)
                     && Objects.equals(address, otherEditPersonDescriptor.address)
                     && isAddressRemoved == otherEditPersonDescriptor.isAddressRemoved
+                    && Objects.equals(email, otherEditPersonDescriptor.email)
+                    && isEmailRemoved == otherEditPersonDescriptor.isEmailRemoved
                     && Objects.equals(level, otherEditPersonDescriptor.level)
                     && Objects.equals(subjects, otherEditPersonDescriptor.subjects)
                     && Objects.equals(guardianName, otherEditPersonDescriptor.guardianName)
@@ -442,6 +476,8 @@ public class EditCommand extends Command implements ConfirmationCommand {
                     .add("school", school)
                     .add("address", address)
                     .add("isAddressRemoved", isAddressRemoved)
+                    .add("email", email)
+                    .add("isEmailRemoved", isEmailRemoved)
                     .add("level", level)
                     .add("subjects", subjects)
                     .add("guardianName", guardianName)

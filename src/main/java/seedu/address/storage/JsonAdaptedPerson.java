@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.model.person.Address;
+import seedu.address.model.person.Email;
 import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
@@ -39,6 +40,10 @@ class JsonAdaptedPerson {
     private final List<JsonAdaptedSubject> subjects = new ArrayList<>();
     // Set by Jackson directly, so files without notes still load
     private final List<JsonAdaptedNote> notes = new ArrayList<>();
+    // Set by Jackson directly, so files without an email still load.
+    // Left out of the file when the person has no email.
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String email;
     // Set by Jackson directly, so files without a guardian still load.
     // Left out of the file when the person has no guardian.
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -70,6 +75,7 @@ class JsonAdaptedPerson {
         phone = source.getPhone().map(p -> p.value).orElse(null);
         school = source.getSchool().value;
         address = source.getAddress().map(a -> a.value).orElse(null);
+        email = source.getEmail().map(e -> e.value).orElse(null);
         level = source.getLevel().name();
         subjects.addAll(source.getSubjects().stream().map(JsonAdaptedSubject::new).toList());
         notes.addAll(source.getNotes().stream()
@@ -109,6 +115,11 @@ class JsonAdaptedPerson {
         }
         final Address modelAddress = address == null ? null : new Address(address);
 
+        if (email != null && !Email.isValidEmail(email)) {
+            throw new IllegalValueException(Email.MESSAGE_CONSTRAINTS);
+        }
+        final Email modelEmail = email == null ? null : new Email(email);
+
         if (level == null) {
             throw new IllegalValueException(String.format(MISSING_FIELD_MESSAGE_FORMAT, Level.class.getSimpleName()));
         }
@@ -131,8 +142,8 @@ class JsonAdaptedPerson {
         // Guardian is optional, so a missing guardian means the person has no guardian
         final Guardian modelGuardian = guardian == null ? null : guardian.toModelType();
         try {
-            return new Person(modelName, modelPhone, modelSchool, modelAddress, modelLevel, modelSubjects, modelNotes,
-                    modelGuardian);
+            return new Person(modelName, modelPhone, modelSchool, modelAddress, modelEmail, modelLevel, modelSubjects,
+                    modelNotes, modelGuardian);
         } catch (IllegalArgumentException e) {
             throw new IllegalValueException(e.getMessage(), e);
         }
