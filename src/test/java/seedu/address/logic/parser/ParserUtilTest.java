@@ -18,6 +18,7 @@ import seedu.address.commons.core.index.Index;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Band;
+import seedu.address.model.person.Email;
 import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Note;
@@ -29,10 +30,12 @@ public class ParserUtilTest {
     private static final String INVALID_NAME = "R@chel";
     private static final String INVALID_PHONE = "12";
     private static final String INVALID_GUARDIAN_PHONE = "911a";
+    private static final String INVALID_EMAIL = "example.com";
 
     private static final String VALID_NAME = "Rachel Walker";
     private static final String VALID_PHONE = "91234567";
     private static final String VALID_NOTE = "WA2 Math: 36/50";
+    private static final String VALID_EMAIL = "rachel@example.com";
 
     private static final String WHITESPACE = " \t\r\n";
 
@@ -229,6 +232,27 @@ public class ParserUtilTest {
     public void parseGuardian_null_throwsNullPointerException() {
         assertThrows(NullPointerException.class, () -> ParserUtil.parseGuardian(null, VALID_PHONE));
         assertThrows(NullPointerException.class, () -> ParserUtil.parseGuardian(VALID_NAME, null));
+    }
+
+    @Test
+    public void parseEmail_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> ParserUtil.parseEmail(null));
+    }
+
+    @Test
+    public void parseEmail_invalidValue_throwsParseException() {
+        assertThrows(ParseException.class, Email.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseEmail(INVALID_EMAIL));
+    }
+
+    @Test
+    public void parseEmail_validValueWithoutWhitespace_returnsEmail() throws Exception {
+        assertEquals(new Email(VALID_EMAIL), ParserUtil.parseEmail(VALID_EMAIL));
+    }
+
+    @Test
+    public void parseEmail_validValueWithWhitespace_returnsTrimmedEmail() throws Exception {
+        String emailWithWhitespace = WHITESPACE + VALID_EMAIL + WHITESPACE;
+        assertEquals(new Email(VALID_EMAIL), ParserUtil.parseEmail(emailWithWhitespace));
     }
 
     @Test
