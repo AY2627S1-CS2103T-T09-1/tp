@@ -95,7 +95,7 @@ Format: `add n/NAME [p/PHONE] sch/SCHOOL [a/ADDRESS] lvl/LEVEL sub/SUBJECT band/
 * `GUARDIAN_NAME` follows the same rules as `NAME`, and `GUARDIAN_PHONE` follows the same rules as `PHONE`. Error messages for these start with `Guardian name` or `Guardian phone`.
 
 <div markdown="span" class="alert alert-info">:information_source: **Note:**
-Each student and guardian has one phone number, which is the number you use to reach them. TuteeBook3 does not support a second phone number or an email address. To keep one, add it as a note on that student with `addnote`, for example `addnote 1 t/Mum's office: 6123 4567`.
+Each student and guardian has one phone number, which is the number you use to reach them. TuteeBook3 does not support a second phone number or an email address. To keep one, add it as a note on that student with `addnote`, for example `addnote 1 note/Mum's office: 6123 4567`.
 </div>
 
 * Each student must have at least 1 subject and a maximum of 8 distinct subjects. Each `sub/SUBJECT` must be immediately followed by its `band/BAND`.
@@ -209,12 +209,12 @@ For example, `edit 1 sub/Mathematics band/G1 sub/mathematics band/G2` fails with
 
 Adds a note to the end of a student's notes.
 
-Format: `addnote INDEX t/TEXT`
+Format: `addnote INDEX note/TEXT`
 
 * `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
 * `TEXT` must be 1 to 500 characters long, including spaces between words. Spaces before and after the text are removed and not counted.
 * `TEXT` can contain any characters, including digits, punctuation, and slashes, such as `WA2 Math: 36/50`, `Rajesh s/o Kumar`, or `Call Mrs Tan c/o school`.
-* Everything after `t/` is the note text, so `TEXT` can contain `t/f` or another `t/`. For example, `addnote 1 t/Revise t/f questions` adds the note `Revise t/f questions`.
+* Everything after `note/` is the note text, so `TEXT` can contain other prefixes, such as `t/f` or another `note/`. For example, `addnote 1 note/Revise t/f questions` adds the note `Revise t/f questions`.
 * You can add the same note text more than once.
 * New notes appear in the student detail view after the existing notes.
 * Notes are numbered in the order you added them, such as `1. Weak in algebra`.
@@ -224,8 +224,8 @@ Format: `addnote INDEX t/TEXT`
 
 Examples:
 
-* `addnote 1 t/Weak in algebra` adds the note `Weak in algebra` to the 1st student in the displayed list.
-* `view 2` followed by `addnote 2 t/WA2 Math: 36/50` adds the note to the student shown by `view 2`.
+* `addnote 1 note/Weak in algebra` adds the note `Weak in algebra` to the 1st student in the displayed list.
+* `view 2` followed by `addnote 2 note/WA2 Math: 36/50` adds the note to the student shown by `view 2`.
 
 If the command is wrong, `addnote` shows one of these messages and does not change any student. If `INDEX` is not a positive integer, `addnote` reports that first, even if `TEXT` is also wrong.
 
@@ -235,18 +235,18 @@ Problem | Message
 `INDEX` is larger than the number of students shown | `The student index provided is invalid.`
 `TEXT` is empty or only spaces | `Note text cannot be blank.`
 `TEXT` is longer than 500 characters | `Note text must be at most 500 characters.`
-`INDEX` or `t/TEXT` is missing, or there is no space before `t/` | `Invalid command format!` followed by how to use `addnote`
+`INDEX` or `note/TEXT` is missing, or there is no space before `note/` | `Invalid command format!` followed by how to use `addnote`
 
 ### Editing a note of a student: `editnote`
 
 Replaces the text of one of a student's notes.
 
-Format: `editnote INDEX nid/NID t/TEXT`
+Format: `editnote INDEX nid/NID note/TEXT`
 
 * `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
 * `NID` is the number shown before the note in the student detail view. It must be a positive integer, such as 1, 2, or 3. To see a student's notes and their NIDs, use `view INDEX`.
 * `TEXT` is the new text of the note. It follows the same rules as in `addnote`: 1 to 500 characters, with spaces before and after the text removed.
-* `nid/NID` must come before `t/TEXT`. Everything after `t/` is the note text, so `TEXT` can contain anything, including `t/f`, `nid/`, or another `t/`. For example, `editnote 1 nid/2 t/Revise t/f questions` saves the note `Revise t/f questions`.
+* `nid/NID` must come before `note/TEXT`. Everything after `note/` is the note text, so `TEXT` can contain anything, including `t/f`, `nid/`, or another `note/`. For example, `editnote 1 nid/2 note/Revise t/f questions` saves the note `Revise t/f questions`.
 * The edited note keeps its NID, and the student's other notes do not change.
 * If the new text is the same as the current text, the note stays as it is and `editnote` shows the message `No changes made: note {NID} of {NAME} already says: {TEXT}` in amber. Changing only uppercase and lowercase letters, such as `algebra` to `Algebra`, counts as a change.
 * Editing a note does not change which students are shown.
@@ -254,18 +254,18 @@ Format: `editnote INDEX nid/NID t/TEXT`
 
 Examples:
 
-* `editnote 1 nid/2 t/Improving in algebra` replaces note 2 of the 1st student in the displayed list with `Improving in algebra`.
-* `view 3` followed by `editnote 3 nid/1 t/WA2 Math: 42/50` replaces the first note of the student shown by `view 3`.
+* `editnote 1 nid/2 note/Improving in algebra` replaces note 2 of the 1st student in the displayed list with `Improving in algebra`.
+* `view 3` followed by `editnote 3 nid/1 note/WA2 Math: 42/50` replaces the first note of the student shown by `view 3`.
 
 If the command is wrong, `editnote` shows one of these messages and does not change any student. When several parts are wrong, `editnote` reports the first one in this table.
 
 Problem | Message
 --------|--------
-`nid/NID` comes after `t/TEXT`, such as `editnote 1 t/hi nid/2` | `Put nid/NID before t/TEXT. Everything after t/ is read as the note text.`
-`INDEX`, `nid/NID`, or `t/TEXT` is missing, or there is no space before `nid/` or `t/` | `Invalid command format!` followed by how to use `editnote`
+`nid/NID` comes after `note/TEXT`, such as `editnote 1 note/hi nid/2` | `Put nid/NID before note/TEXT. Everything after note/ is read as the note text.`
+`INDEX`, `nid/NID`, or `note/TEXT` is missing, or there is no space before `nid/` or `note/` | `Invalid command format!` followed by how to use `editnote`
 `INDEX` is not a positive integer, such as `0` or `abc` | `Index must be a positive integer.`
-There is other text between `INDEX` and the first prefix, such as `editnote 1 abc nid/2 t/hi` | `Index must be a positive integer.`
-`nid/` appears more than once before `t/` | `Multiple values specified for the following single-valued field(s): nid/`
+There is other text between `INDEX` and the first prefix, such as `editnote 1 abc nid/2 note/hi` | `Index must be a positive integer.`
+`nid/` appears more than once before `note/` | `Multiple values specified for the following single-valued field(s): nid/`
 `NID` is empty or is not a positive integer, such as `0`, `-1`, or `abc` | `NID must be a positive integer.`
 `TEXT` is empty or only spaces | `Note text cannot be blank.`
 `TEXT` is longer than 500 characters | `Note text must be at most 500 characters.`
@@ -312,7 +312,7 @@ The student has no notes | `{NAME} at {SCHOOL} ({LEVEL}) has no notes to delete.
 
 Shows the students who match every filter you give.
 
-Format: `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/PHONE] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`
+Format: `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/PHONE] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE] [note/TEXT]`
 
 * Give at least one filter, and each filter at most once.
 * A student must match every filter you give. For example, `filter n/tan sch/bedok` shows students whose name contains `tan` and whose school contains `bedok`.
@@ -327,12 +327,15 @@ Filter | Matches students whose… | Match
 `p/PHONE` | own phone number is `PHONE` | exact matching
 `gn/GUARDIAN_NAME` | guardian's name contains `GUARDIAN_NAME` | partial matching
 `gp/GUARDIAN_PHONE` | guardian's phone number is `GUARDIAN_PHONE` | exact matching
+`note/TEXT` | notes include one that contains `TEXT` | partial matching
 
 * A filter with partial matching can match any part of the value, even part of a word. For example, `sch/vic` matches `Victoria School`.
 * A filter with exact matching must match the whole value. For example, `lvl/S3` matches only students in S3, `sub/math` does not match `Mathematics`, and `p/9123` does not match `91234567`.
 * `band/` must come right after `sub/`, and the band must belong to that subject. For example, a student taking Mathematics at G1 and Science at G2 does not match `sub/Mathematics band/G2`.
 * Phone numbers are compared the way they are saved: spaces, hyphens, and a leading `+65` are removed. For example, `p/9123 4567` and `p/+65 9123-4567` both match `91234567`. An overseas number must include its `+` and country code.
 * A student without a phone never matches `p/`, and a student without a guardian never matches `gn/` or `gp/`.
+* `note/` searches all of a student's notes. `TEXT` can be up to 500 characters, the same as a note.
+* Everything after `note/` is the note text, so put `note/` last. For example, `filter note/revise t/f` finds notes containing `revise t/f`. In `filter note/algebra lvl/S3`, `lvl/S3` is read as part of the note text, so write `filter lvl/S3 note/algebra` instead.
 * Filters are not case-sensitive, and extra spaces are ignored.
 * Each value is matched as one piece of text, including its spaces: `n/david lim` matches `David Lim`, but `n/lim david` does not.
 * If no student matches, the student list is empty and a message tells you how to see all students again.
@@ -350,6 +353,8 @@ Examples:
 * `filter p/9123 4567` returns `SAMPLE Chloe Tan`.
 * `filter gp/98765432` returns `SAMPLE Marcus Lim`, whose guardian is Grace Lim.
 * `filter gn/goh` returns `SAMPLE Natalie Goh`, whose guardian is Michelle Goh.
+* `filter note/algebra` returns `SAMPLE Chloe Tan`.
+* `filter lvl/S1 note/next lesson` returns `SAMPLE Daniel Lee`.
 
 Problem | Message
 --------|--------
@@ -363,7 +368,9 @@ A filter appears more than once | `Multiple values specified for the following s
 `band/` is not right after `sub/`, or there is no `sub/` | `band/ must come right after sub/, such as: filter sub/Mathematics band/G2`
 `PHONE` or `GUARDIAN_PHONE` is empty or not a valid phone number | The same message as `add`, such as `Phone cannot be empty.`
 `GUARDIAN_NAME` is empty | `The guardian name to search for cannot be blank.`
-`t/` or `nid/` is given | `filter cannot search notes. Filter by the student's details instead, such as: filter n/tan sch/bedok lvl/S3`
+`TEXT` after `note/` is empty | `The note text to search for cannot be blank.`
+`TEXT` after `note/` is longer than 500 characters | `The note text to search for must be at most 500 characters.`
+`nid/` is given | `To filter by notes, use note/, such as: filter note/algebra`
 
 ### Deleting a student: `delete`
 

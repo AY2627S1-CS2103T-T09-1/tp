@@ -62,7 +62,7 @@ public class DeleteNoteCommandParserTest {
         assertParseFailure(parser, " 1nid/2", expectedMessage);
 
         // addnote's note text prefix instead of nid/
-        assertParseFailure(parser, " 1 t/2", expectedMessage);
+        assertParseFailure(parser, " 1 note/2", expectedMessage);
 
         // prefixes are case-sensitive
         assertParseFailure(parser, " 1 NID/2", expectedMessage);

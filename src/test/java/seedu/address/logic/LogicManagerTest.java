@@ -203,7 +203,7 @@ public class LogicManagerTest {
         model.addPerson(new PersonBuilder(TypicalPersons.ALICE).withSchool("Victoria School").withLevel("S2")
                 .build());
 
-        logic.execute("addnote 2 t/Review algebra");
+        logic.execute("addnote 2 note/Review algebra");
 
         assertEquals(2, model.getAddressBook().getPersonList().size());
         assertEquals(List.of("Review algebra"), model.getAddressBook().getPersonList().get(1).getNotes().stream()
@@ -401,7 +401,7 @@ public class LogicManagerTest {
         assertCommandSuccess("CONFIRM", new CommandResult(String.format(DeleteNoteCommand.MESSAGE_SUCCESS,
                 1, AMY.getName(), AMY.getSchool(), AMY.getLevel(), personWithNote.getNotes().getFirst())),
                 expectedModel);
-        logic.execute("addnote 1 t/Review geometry");
+        logic.execute("addnote 1 note/Review geometry");
         CommandResult forcedResult = logic.execute("deletenote -f 1 nid/1");
         assertFalse(forcedResult.isWarning());
         assertEquals(String.format(DeleteNoteCommand.MESSAGE_SUCCESS, 1, AMY.getName(), AMY.getSchool(),
