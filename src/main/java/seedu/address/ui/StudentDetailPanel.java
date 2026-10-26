@@ -84,16 +84,16 @@ public class StudentDetailPanel extends UiPart<Region> {
         studentIndex.setText(String.format("Index: %d", displayedIndex.getOneBased()));
         name.setText(person.getName().fullName);
         school.setText(person.getSchool().value);
-        address.setText(person.getAddress().map(Object::toString).orElse(Messages.MESSAGE_ADDRESS_NOT_PROVIDED));
+        address.setText(person.getAddress().map(Object::toString).orElse(Messages.MESSAGE_NOT_PROVIDED));
         level.setText(person.getLevel().toString());
         subjects.setText(formatSubjects(person));
-        phone.setText(person.getPhone().map(Object::toString).orElse(Messages.MESSAGE_PHONE_NOT_PROVIDED));
+        phone.setText(person.getPhone().map(Object::toString).orElse(Messages.MESSAGE_NOT_PROVIDED));
         guardianName.setText(person.getGuardian()
                 .map(guardian -> guardian.getName().fullName)
-                .orElse(Messages.MESSAGE_PHONE_NOT_PROVIDED));
+                .orElse(Messages.MESSAGE_NOT_PROVIDED));
         guardianPhone.setText(person.getGuardian()
                 .map(guardian -> guardian.getPhone().value)
-                .orElse(Messages.MESSAGE_PHONE_NOT_PROVIDED));
+                .orElse(Messages.MESSAGE_NOT_PROVIDED));
 
         showNotes(person);
     }

@@ -84,7 +84,7 @@ Format: `add n/NAME [p/PHONE] sch/SCHOOL [a/ADDRESS] lvl/LEVEL sub/SUBJECT band/
 * `NAME` can contain only letters, digits, and spaces. Symbols such as `/`, `-`, and `'` aren't supported yet, so type `Rajesh s/o Kumar` as `Rajesh so Kumar`.
 * The phone number is optional, since younger students may not have their own phone.
 * `ADDRESS` is optional. If provided, it can contain any value except a blank or whitespace-only value, and must be at most 200 characters. Repeated ordinary spaces are collapsed to one when saved.
-* You can omit `a/ADDRESS`. The student list and detail view show `Not provided` when there is no address.
+* You can omit `a/ADDRESS`. The student list hides the address when none is recorded; the detail view shows `Not provided`.
 * When you add a student, TuteeBook3 trims leading and trailing spaces and collapses repeated ordinary spaces to one in the name, school, address, subject names, and guardian name. It keeps the capitalization you enter. For example, `add n/John  Doe sch/Victoria  School a/21  Clementi  Road lvl/S3 sub/Additional  Mathematics band/G1` stores `John Doe`, `Victoria School`, `21 Clementi Road`, and `Additional Mathematics`.
 * `PHONE` is the number you use to reach the student. It can only contain digits, with an optional `+` at the start, and must have 3 to 15 digits, counting the country code. You can type spaces or hyphens (`-`), such as `9123 4567` or `9123-4567`, and they are removed when it is saved. Other dashes, such as `–`, are not allowed.
 * A Singapore number (8 digits starting with 6, 8, or 9) is saved as those 8 digits. A leading `+65` is removed, so `+65 9123 4567` is saved as `91234567`. If what follows `+65` isn't a Singapore number, the `+65` is kept.
@@ -124,12 +124,12 @@ TuteeBook3 checks for likely duplicates using the student's name. It ignores cap
 
 Examples:
 
-* `add n/John Doe p/98765432 sch/Victoria School a/21 Clementi Road lvl/S3 sub/Mathematics band/G1`
-* `add n/Betsy Crowe lvl/S1 sch/Bedok Green Secondary School a/12 Example Road p/81234567 sub/Mathematics band/G1`
-* `add n/Tim Tan sch/Victoria School a/5 Example Road lvl/S2 sub/Mathematics band/G1` adds a student without a phone number.
-* `add n/Chloe Tan sch/Bedok Green Secondary School a/8 Example Road lvl/S2 sub/Mathematics band/G1 sub/English band/G3` adds a student taking two subjects at different bands.
-* `add n/Tim Tan sch/Victoria School a/5 Example Road lvl/S2 sub/Mathematics band/G1 gn/Mary Tan gp/91234567` adds a student with guardian Mary Tan. Use `view INDEX` to see the guardian details.
-* `add n/Aisha Rahman sch/Victoria School a/3 Example Road lvl/S2 sub/Mathematics band/G1 gn/Farah Rahman gp/+60 12-345 6789` adds a student whose guardian has a Malaysian number. It is saved as `+60123456789`, with a warning that it doesn't look like a Singapore number.
+* `add n/John Doe p/98765432 sch/Victoria School a/311 Clementi Avenue 2, #02-25 lvl/S3 sub/Mathematics band/G1`
+* `add n/Betsy Crowe lvl/S1 sch/Bedok Green Secondary School p/81234567 sub/Mathematics band/G1`
+* `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1` adds a student without a phone number.
+* `add n/Chloe Tan sch/Bedok Green Secondary School lvl/S2 sub/Mathematics band/G1 sub/English band/G3` adds a student taking two subjects at different bands.
+* `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Tan gp/91234567` adds a student with guardian Mary Tan. Use `view INDEX` to see the guardian details.
+* `add n/Aisha Rahman sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Farah Rahman gp/+60 12-345 6789` adds a student whose guardian has a Malaysian number. It is saved as `+60123456789`, with a warning that it doesn't look like a Singapore number.
 
 ### Listing all persons: `list`
 
@@ -470,12 +470,12 @@ _Details coming soon ..._
 
 Action | Format, Examples
 --------|------------------
-**Add** | `add n/NAME [p/PHONE] sch/SCHOOL [a/ADDRESS] lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School a/12 Example Road lvl/S2 sub/Mathematics band/G1 gn/Mary Ho gp/91234567`
+**Add** | `add n/NAME [p/PHONE] sch/SCHOOL [a/ADDRESS] lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School a/311 Clementi Avenue 2, #02-25 lvl/S2 sub/Mathematics band/G1 gn/Mary Ho gp/91234567`
 **Add note** | `addnote INDEX t/TEXT`<br> e.g., `addnote 1 t/Weak in algebra`
 **Clear** | `clear`, followed by `CONFIRM` to confirm (Alternatively, `clear -f` to clear immediately)
 **Delete** | `delete [-f] INDEX`<br> e.g., `delete 3`
 **Delete note** | `deletenote [-f] INDEX nid/NID`<br> e.g., `deletenote 1 nid/2`
-**Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [a/ADDRESS] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `edit 2 a/12 Example Road`, `edit 1 gn/ gp/`
+**Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [a/ADDRESS] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `edit 2 a/311 Clementi Avenue 2, #02-25`, `edit 1 gn/ gp/`
 **Edit note** | `editnote INDEX nid/NID t/TEXT`<br> e.g., `editnote 1 nid/2 t/Improving in algebra`
 **Filter** | `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/PHONE] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `filter lvl/S5 sub/mathematics band/G2`
 **List** | `list`

@@ -186,9 +186,13 @@ The model enforces the strict key through `UniquePersonList` for adds, replaceme
 
 The required subject and band are deliberately excluded from the key. A student can take several subjects and bands, and that list changes as lessons and courses change; using it would allow the same student to be added again merely by changing a subject or band. Subject-band details describe the student's studies, not who the student is. The phone is also excluded because it is optional, can change, and may be shared or unavailable.
 
-Every student record must include a name, school, and level. The optional `Address` value object follows AB3 validation: any nonblank value is accepted. The add parser accepts optional `a/ADDRESS`; the edit parser accepts it to replace an address, and a blank `a/` clears it. `JsonAdaptedPerson` saves and restores a supplied address; older JSON records without one remain address-less. The student list card, detail panel, and add/edit result text show `Not provided` when there is no address.
+Every student record must include a name, school, and level.
 
 Many tutors teach students with common names. School helps distinguish students who attend different schools. Level helps distinguish students at the same school who are in different levels. These fields block many accidental repeat entries while still allowing students with the same name when their school or level differs.
+
+### Student addresses
+
+`Address` is an optional value object. It accepts any nonblank value up to 200 characters and collapses repeated ordinary spaces. The add parser accepts optional `a/ADDRESS`; the edit parser replaces an address, and a blank `a/` removes it. `JsonAdaptedPerson` saves supplied addresses and accepts older JSON records without an address. The student list card shows an address when one is present; the detail panel and command result show `Not provided` when it is absent. Addresses do not contribute to duplicate detection.
 
 ### Command confirmations
 

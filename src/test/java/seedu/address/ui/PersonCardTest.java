@@ -59,6 +59,18 @@ public class PersonCardTest {
         });
     }
 
+    @Test
+    public void constructor_personWithoutAddress_hidesAddressField(FxRobot robot) {
+        Person person = new PersonBuilder(ALICE).withoutAddress().build();
+
+        robot.interact(() -> {
+            PersonCard card = new PersonCard(person, 1);
+            Label address = (Label) card.getRoot().lookup("#address");
+            assertFalse(address.isVisible());
+            assertFalse(address.isManaged());
+        });
+    }
+
     private static void assertLabelText(PersonCard card, String query, String expectedText) {
         assertEquals(expectedText, ((Label) card.getRoot().lookup(query)).getText());
     }

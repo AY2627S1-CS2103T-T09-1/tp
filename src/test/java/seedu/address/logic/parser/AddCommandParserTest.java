@@ -44,6 +44,7 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.AddCommand;
+import seedu.address.model.person.Address;
 import seedu.address.model.person.Band;
 import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
@@ -125,6 +126,12 @@ public class AddCommandParserTest {
                 + "gn/  Mary   Jane  gp/" + VALID_GUARDIAN_PHONE_BOB;
 
         assertParseSuccess(parser, args, new AddCommand(expectedPerson));
+    }
+
+    @Test
+    public void parse_blankAddress_failure() {
+        assertParseFailure(parser, NAME_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + SUBJECT_DESC + " a/",
+                Address.MESSAGE_CONSTRAINTS);
     }
 
     @Test

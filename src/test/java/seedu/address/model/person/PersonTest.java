@@ -206,16 +206,16 @@ public class PersonTest {
     @Test
     public void format_noPhone_showsNotProvided() {
         Person aliceWithoutPhone = new PersonBuilder(ALICE).withoutPhone().build();
-        assertEquals("Alice Pauline; Student phone: " + Messages.MESSAGE_PHONE_NOT_PROVIDED
+        assertEquals("Alice Pauline; Student phone: " + Messages.MESSAGE_NOT_PROVIDED
                 + "; School: Maplewood Secondary School; Level: S1; Subjects: Mathematics (G1); Address: "
-                + Messages.MESSAGE_ADDRESS_NOT_PROVIDED,
+                + Messages.MESSAGE_NOT_PROVIDED,
                 Messages.format(aliceWithoutPhone));
     }
 
     @Test
     public void format_withLevel_includesLevel() {
         assertEquals("Alice Pauline; Student phone: 94351253; School: Maplewood Secondary School; Level: S1; "
-                + "Subjects: Mathematics (G1); Address: " + Messages.MESSAGE_ADDRESS_NOT_PROVIDED,
+                + "Subjects: Mathematics (G1); Address: " + Messages.MESSAGE_NOT_PROVIDED,
                 Messages.format(ALICE));
     }
 
@@ -223,7 +223,7 @@ public class PersonTest {
     public void format_noAddress_showsNotProvided() {
         Person aliceWithoutAddress = new PersonBuilder(ALICE).withoutAddress().build();
         assertTrue(Messages.format(aliceWithoutAddress).endsWith("; Address: "
-                + Messages.MESSAGE_ADDRESS_NOT_PROVIDED));
+                + Messages.MESSAGE_NOT_PROVIDED));
     }
 
     @Test
@@ -238,7 +238,7 @@ public class PersonTest {
         Person aliceWithTwoSubjects = new PersonBuilder(ALICE)
                 .withSubjects(new Subject("Mathematics", Band.G1), new Subject("Science", Band.G2)).build();
         assertEquals("Alice Pauline; Student phone: 94351253; School: Maplewood Secondary School; Level: S1; "
-                + "Subjects: Mathematics (G1), Science (G2); Address: " + Messages.MESSAGE_ADDRESS_NOT_PROVIDED,
+                + "Subjects: Mathematics (G1), Science (G2); Address: " + Messages.MESSAGE_NOT_PROVIDED,
                 Messages.format(aliceWithTwoSubjects));
     }
 
