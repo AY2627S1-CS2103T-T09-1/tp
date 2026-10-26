@@ -6,7 +6,6 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_NOTE_FILTER;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
@@ -125,8 +124,6 @@ public class FilterCommandParserTest {
         // without t/ being recognized, this would search names for "tan t/algebra"
         assertParseFailure(parser, " n/tan t/algebra", FilterCommandParser.MESSAGE_USE_NOTE_FILTER);
 
-        // note text cannot contain another prefix after a space
-        assertParseFailure(parser, " note/revise t/f", FilterCommandParser.MESSAGE_USE_NOTE_FILTER);
     }
 
     @Test
@@ -155,16 +152,31 @@ public class FilterCommandParserTest {
     }
 
     @Test
-    public void parse_repeatedNote_throwsParseException() {
-        assertParseFailure(parser, " note/algebra note/geometry",
-                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_NOTE_FILTER));
+    public void parse_secondNotePrefix_readAsNoteText() {
+        assertParseSuccess(parser, " note/algebra note/geometry",
+                filterCommandOf(note("algebra note/geometry")));
+    }
+
+    @Test
+    public void parse_noteWithPrefixLikeText_keepsWholeText() {
+        assertParseSuccess(parser, " note/revise t/f", filterCommandOf(note("revise t/f")));
+        assertParseSuccess(parser, " note/score n/a", filterCommandOf(note("score n/a")));
+        assertParseSuccess(parser, " lvl/S1 note/check p/s",
+                filterCommandOf(level(Level.S1), note("check p/s")));
+    }
+
+    @Test
+    public void parse_filterAfterNote_readAsNoteText() {
+        assertParseSuccess(parser, " note/next lesson lvl/S1",
+                filterCommandOf(note("next lesson lvl/S1")));
     }
 
     @Test
     public void parse_noteWithOtherFilters_returnsSameCommand() {
-        FilterCommand expectedFilterCommand = filterCommandOf(level(Level.S1), note("next lesson"));
-        assertParseSuccess(parser, " lvl/S1 note/next lesson", expectedFilterCommand);
-        assertParseSuccess(parser, " note/next lesson lvl/S1", expectedFilterCommand);
+        FilterCommand expectedFilterCommand =
+                filterCommandOf(name("tan"), level(Level.S1), note("next lesson"));
+        assertParseSuccess(parser, " n/tan lvl/S1 note/next lesson", expectedFilterCommand);
+        assertParseSuccess(parser, " lvl/S1 n/tan note/next lesson", expectedFilterCommand);
     }
 
     @Test

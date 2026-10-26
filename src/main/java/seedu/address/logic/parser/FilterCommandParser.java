@@ -68,7 +68,9 @@ public class FilterCommandParser implements Parser<FilterCommand> {
      * @throws ParseException if the user input does not conform to the expected format
      */
     public FilterCommand parse(String args) throws ParseException {
-        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(args, allPrefixes());
+        // everything after note/ is note text, as in addnote, so other prefixes there are not split off
+        ArgumentMultimap argMultimap =
+                ArgumentTokenizer.tokenizeWithTrailingText(args, PREFIX_NOTE_FILTER, allPrefixes());
         if (hasAny(argMultimap, NOTE_PREFIXES)) {
             throw new ParseException(MESSAGE_USE_NOTE_FILTER);
         }
