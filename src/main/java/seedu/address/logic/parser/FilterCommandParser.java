@@ -8,7 +8,6 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NOTE;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_NOTE_FILTER;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
@@ -49,18 +48,16 @@ public class FilterCommandParser implements Parser<FilterCommand> {
             "Give at least one filter.\n" + FilterCommand.MESSAGE_USAGE;
     public static final String MESSAGE_BAND_NOT_AFTER_SUBJECT = PREFIX_BAND + " must come right after "
             + PREFIX_SUBJECT + ", such as: filter " + PREFIX_SUBJECT + "Mathematics " + PREFIX_BAND + "G2";
-    public static final String MESSAGE_USE_NOTE_FILTER = "To filter by notes, use " + PREFIX_NOTE_FILTER
-            + ", such as: filter " + PREFIX_NOTE_FILTER + "algebra";
+    public static final String MESSAGE_USE_NOTE_FILTER = "To filter by notes, use " + PREFIX_NOTE
+            + ", such as: filter " + PREFIX_NOTE + "algebra";
     public static final String MESSAGE_BLANK_NOTE = "The note text to search for cannot be blank.";
     public static final String MESSAGE_NOTE_TOO_LONG = "The note text to search for must be at most "
             + Note.MAX_LENGTH + " characters.";
 
     private static final Prefix[] FILTER_PREFIXES = {
         PREFIX_NAME, PREFIX_SCHOOL, PREFIX_LEVEL, PREFIX_SUBJECT, PREFIX_BAND,
-        PREFIX_PHONE, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE, PREFIX_NOTE_FILTER
+        PREFIX_PHONE, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE, PREFIX_NOTE
     };
-    // addnote's and deletenote's prefixes, recognized only to point the user to note/
-    private static final Prefix[] NOTE_PREFIXES = {PREFIX_NOTE, PREFIX_NID};
 
     /**
      * Parses the given {@code String} of arguments in the context of the FilterCommand
@@ -70,8 +67,9 @@ public class FilterCommandParser implements Parser<FilterCommand> {
     public FilterCommand parse(String args) throws ParseException {
         // everything after note/ is note text, as in addnote, so other prefixes there are not split off
         ArgumentMultimap argMultimap =
-                ArgumentTokenizer.tokenizeWithTrailingText(args, PREFIX_NOTE_FILTER, allPrefixes());
-        if (hasAny(argMultimap, NOTE_PREFIXES)) {
+                ArgumentTokenizer.tokenizeWithTrailingText(args, PREFIX_NOTE, allPrefixes());
+        // nid/ is deletenote's and editnote's note index, recognized only to point the user to note/
+        if (hasAny(argMultimap, PREFIX_NID)) {
             throw new ParseException(MESSAGE_USE_NOTE_FILTER);
         }
         if (!argMultimap.getPreamble().isEmpty()) {
@@ -115,7 +113,7 @@ public class FilterCommandParser implements Parser<FilterCommand> {
             Phone guardianPhoneValue = ParserUtil.parseGuardianPhone(guardianPhone.get());
             filters.add(new GuardianPhoneMatchesPredicate(guardianPhoneValue));
         }
-        Optional<String> note = argMultimap.getValue(PREFIX_NOTE_FILTER);
+        Optional<String> note = argMultimap.getValue(PREFIX_NOTE);
         if (note.isPresent()) {
             filters.add(parseNoteFilter(note.get()));
         }
@@ -123,7 +121,7 @@ public class FilterCommandParser implements Parser<FilterCommand> {
     }
 
     private static Prefix[] allPrefixes() {
-        return Stream.concat(Stream.of(FILTER_PREFIXES), Stream.of(NOTE_PREFIXES)).toArray(Prefix[]::new);
+        return Stream.concat(Stream.of(FILTER_PREFIXES), Stream.of(PREFIX_NID)).toArray(Prefix[]::new);
     }
 
     /**
