@@ -22,7 +22,9 @@ public class ClearCommand extends Command implements ConfirmationCommand {
             + COMMAND_WORD + " (asks for confirmation)\n"
             + COMMAND_WORD + " " + FORCE_OPTION + " (clears immediately without confirmation)";
 
-    public static final String MESSAGE_CONFIRMATION = "This will delete all students and notes. Continue?";
+    public static final String MESSAGE_CONFIRMATION = "This will delete all students and notes.";
+    public static final String MESSAGE_CONFIRMATION_INSTRUCTION =
+            "Type CONFIRM (uppercase) to clear all students and notes.";
     public static final String MESSAGE_EMPTY = "TuteeBook3 is already empty.";
     public static final String MESSAGE_SUCCESS = "TuteeBook3 has been cleared!";
 
@@ -50,6 +52,11 @@ public class ClearCommand extends Command implements ConfirmationCommand {
     @Override
     public String getCommandWord() {
         return COMMAND_WORD;
+    }
+
+    @Override
+    public String getConfirmationInstruction() {
+        return MESSAGE_CONFIRMATION_INSTRUCTION;
     }
 
     @Override

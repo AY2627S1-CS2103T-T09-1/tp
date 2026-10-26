@@ -283,7 +283,7 @@ Format: `deletenote [-f] INDEX nid/NID`
 
 * `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
 * `NID` is the number shown before the note in the student detail view. It must be a positive integer, such as 1, 2, or 3. To see a student's notes and their NIDs, use `view INDEX`.
-* The command shows an amber prompt, such as `This will delete note 1 from Alex Tan at Example Secondary School (S3). Continue? Type CONFIRM (uppercase) to proceed; any other input cancels this request and runs as a command.` Enter `CONFIRM` to confirm. The prompt includes the school and level to distinguish students with the same name. You can use `deletenote -f INDEX nid/NID` to delete immediately.
+* The command shows an amber prompt. Its first line identifies the note and student: `This will delete note NID from NAME at SCHOOL (LEVEL).` The next line says `Type CONFIRM (uppercase) to delete this note.` A final line says that any other input cancels the request and runs as a command. You can use `deletenote -f INDEX nid/NID` to delete immediately.
 * The displayed list and student record remain unchanged while confirmation is pending.
 * After you delete a note, the notes after it move up one number. For example, if a student has 3 notes and you delete note 2, the old note 3 becomes note 2. Check the student detail view for the new numbers before you delete another note.
 * Deleting a note does not change which students are shown.
@@ -384,7 +384,7 @@ Deletes a student, together with their guardian details and all of their notes.
 Format: `delete [-f] INDEX`
 
 * `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
-* `delete` shows an amber prompt, such as `This will delete Alex Tan at Example Secondary School (S3) and all their notes. Continue? Type CONFIRM (uppercase) to proceed; any other input cancels this request and runs as a command.` Enter `CONFIRM` to confirm. The prompt includes the school and level to distinguish students with the same name. Use `delete -f INDEX` to delete immediately.
+* `delete` shows an amber prompt. Its first line identifies the student and says what will happen: `This will delete NAME at SCHOOL (LEVEL) and all their notes.` The next line says `Type CONFIRM (uppercase) to delete this student and all their notes.` A final line says that any other input cancels the request and runs as a command. Use `delete -f INDEX` to delete immediately.
 * The displayed list and student record remain unchanged while confirmation is pending.
 * After `view`, use the index shown at the top of the student detail view when running `delete`.
 * After a student is deleted, the current filter remains active while it still has matches. The index numbers of the remaining matching students may change, so check the list before you run another command that uses an index.
@@ -416,7 +416,7 @@ Format: `clear [-f]`
 
 The command accepts only the optional `-f` argument.
 
-* `clear` shows the amber prompt `This will delete all students and notes. Continue? Type CONFIRM (uppercase) to proceed; any other input cancels this request and runs as a command.` without changing your data. Enter `CONFIRM` to confirm.
+* `clear` shows the amber prompt `This will delete all students and notes.` The next line says `Type CONFIRM (uppercase) to clear all students and notes.` A final line says that any other input cancels the request and runs as a command. Your data remains unchanged until you confirm.
 * `clear -f` clears all students and notes immediately without asking for confirmation.
 * The displayed list and student record remain unchanged while confirmation is pending. After clearing, the empty list remains on the left and `View a student to see details.` appears on the right.
 * While a confirmation is pending, only the exact uppercase word `CONFIRM` (with optional leading or trailing spaces) confirms it. Any other input cancels the pending command and is processed normally. A cancellation notice appears in red above the command result; command output keeps its usual color, and command errors appear in red.

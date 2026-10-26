@@ -29,6 +29,9 @@ public class DeleteNoteCommand extends Command implements ConfirmationCommand {
             + COMMAND_WORD + " " + FORCE_OPTION + " 1 nid/2 (deletes immediately)";
 
     public static final String MESSAGE_SUCCESS = "Deleted note %1$d from %2$s at %3$s (%4$s): %5$s";
+    public static final String MESSAGE_CONFIRMATION =
+            "This will delete note %1$d from %2$s at %3$s (%4$s).";
+    public static final String MESSAGE_CONFIRMATION_INSTRUCTION = "Type CONFIRM (uppercase) to delete this note.";
     public static final String MESSAGE_NO_NOTES = "%1$s at %2$s (%3$s) has no notes to delete.";
     public static final String MESSAGE_NID_NOT_FOUND =
             "NID %1$d does not exist. %2$s at %3$s (%4$s) has only %5$d %6$s.";
@@ -65,11 +68,16 @@ public class DeleteNoteCommand extends Command implements ConfirmationCommand {
     }
 
     @Override
+    public String getConfirmationInstruction() {
+        return MESSAGE_CONFIRMATION_INSTRUCTION;
+    }
+
+    @Override
     public String getConfirmationMessage(Model model) throws CommandException {
         Person person = getTargetPerson(model);
         NoteCommandUtil.verifyNoteExists(person, targetNid, MESSAGE_NO_NOTES);
-        return "This will delete note " + targetNid.getOneBased() + " from " + person.getName() + " at "
-                + person.getSchool() + " (" + person.getLevel() + "). Continue?";
+        return String.format(MESSAGE_CONFIRMATION, targetNid.getOneBased(), person.getName(), person.getSchool(),
+                person.getLevel());
     }
 
     @Override
