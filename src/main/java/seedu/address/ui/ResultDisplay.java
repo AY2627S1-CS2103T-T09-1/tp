@@ -29,7 +29,8 @@ public class ResultDisplay extends UiPart<Region> {
      */
     public ResultDisplay() {
         super(FXML);
-        // on macOS, Cmd+Delete and Option+Delete still delete text from a TextArea that is not editable
+        // JavaFX skips the editable check for some delete shortcuts, such as Cmd+Delete and Option+Delete
+        // on macOS and Ctrl+H on Windows and Linux
         resultDisplay.addEventFilter(KeyEvent.KEY_PRESSED, ResultDisplay::blockDeleteKeys);
     }
 
@@ -68,11 +69,14 @@ public class ResultDisplay extends UiPart<Region> {
     }
 
     /**
-     * Consumes Backspace and Delete key presses, with any modifier, so they cannot change the feedback.
+     * Consumes Backspace and Delete key presses, with any modifier, and Ctrl+H,
+     * so they cannot change the feedback.
      */
     private static void blockDeleteKeys(KeyEvent event) {
-        boolean isDeleteKey = event.getCode() == KeyCode.BACK_SPACE || event.getCode() == KeyCode.DELETE;
-        if (isDeleteKey) {
+        KeyCode code = event.getCode();
+        boolean isDeleteKey = code == KeyCode.BACK_SPACE || code == KeyCode.DELETE;
+        boolean isCtrlH = code == KeyCode.H && event.isControlDown();
+        if (isDeleteKey || isCtrlH) {
             event.consume();
         }
     }

@@ -49,6 +49,17 @@ public class ResultDisplayTest {
     }
 
     @Test
+    public void ctrlH_leavesFeedbackUnchanged(FxRobot robot) {
+        robot.interact(() -> {
+            resultDisplay.setFeedbackToUser(FEEDBACK);
+            TextArea textArea = getTextArea();
+            // Ctrl+H deletes the previous character on Windows and Linux, so this fails there without the fix
+            pressAndAssertUnchanged(textArea, KeyCode.H, true, false, false);
+            pressAndAssertUnchanged(textArea, KeyCode.H, false, false, false);
+        });
+    }
+
+    @Test
     public void setFeedbackToUser_afterBlockedDelete_updatesFeedback(FxRobot robot) {
         robot.interact(() -> {
             resultDisplay.setFeedbackToUser(FEEDBACK);
