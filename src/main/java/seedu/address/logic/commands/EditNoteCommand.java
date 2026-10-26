@@ -30,7 +30,7 @@ public class EditNoteCommand extends Command {
             + "Example: " + COMMAND_WORD + " 1 " + PREFIX_NID + "2 " + PREFIX_NOTE + "Improving in algebra";
 
     public static final String MESSAGE_SUCCESS = "Edited note %1$d of %2$s.\nOld: %3$s\nNew: %4$s";
-    public static final String MESSAGE_NO_NOTES = "%1$s has no notes to edit.";
+    public static final String MESSAGE_NO_NOTES = "%1$s at %2$s (%3$s) has no notes to edit.";
     public static final String MESSAGE_NOTE_UNCHANGED =
             "No changes made: note %1$d of %2$s already says: %3$s";
 
@@ -61,8 +61,8 @@ public class EditNoteCommand extends Command {
         NoteCommandUtil.verifyNoteExists(person, targetNid, MESSAGE_NO_NOTES);
         Note oldNote = person.getNotes().get(targetNid.getZeroBased());
         if (oldNote.equals(newNote)) {
-            return CommandResult.warning(String.format(MESSAGE_NOTE_UNCHANGED, targetNid.getOneBased(),
-                    person.getName(), oldNote));
+            return CommandResult.showStudentWarning(String.format(MESSAGE_NOTE_UNCHANGED, targetNid.getOneBased(),
+                    person.getName(), oldNote), person, targetIndex);
         }
 
         List<Note> notes = new ArrayList<>(person.getNotes());
@@ -71,8 +71,8 @@ public class EditNoteCommand extends Command {
 
         String successMessage = String.format(MESSAGE_SUCCESS, targetNid.getOneBased(),
                 editedPerson.getName(), oldNote, newNote);
-        return new CommandResult(
-                NoteCommandUtil.setPersonKeepingIndex(model, person, editedPerson, successMessage));
+        String feedback = NoteCommandUtil.setPersonKeepingIndex(model, person, editedPerson, successMessage);
+        return CommandResult.showStudent(feedback, editedPerson, targetIndex);
     }
 
     @Override

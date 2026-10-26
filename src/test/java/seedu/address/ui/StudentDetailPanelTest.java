@@ -2,6 +2,7 @@ package seedu.address.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalPersons.ALICE;
@@ -18,9 +19,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ScrollPane.ScrollBarPolicy;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import seedu.address.model.person.Person;
 import seedu.address.testutil.PersonBuilder;
@@ -75,6 +80,32 @@ public class StudentDetailPanelTest {
     }
 
     @Test
+    public void constructor_studentWithDetails_displaysDetailsBeforeNotes(FxRobot robot) {
+        Person personWithNotes = new PersonBuilder(ALICE).withNotes("Strong in algebra").build();
+
+        robot.interact(() -> {
+            StudentDetailPanel panel = new StudentDetailPanel(personWithNotes, INDEX_FIRST_PERSON, persons);
+            container.getChildren().setAll(panel.getRoot());
+            container.applyCss();
+            BorderPane detailPanel = (BorderPane) panel.getRoot();
+            VBox fixedStudentDetails = (VBox) detailPanel.getTop();
+            ScrollPane notesScrollPane = (ScrollPane) container.lookup("#notesScrollPane");
+
+            assertTrue(fixedStudentDetails.getChildren().indexOf(container.lookup("#name").getParent())
+                    < fixedStudentDetails.getChildren()
+                            .indexOf(container.lookup(".student-detail-section-separator")));
+            assertTrue(fixedStudentDetails.getChildren()
+                    .indexOf(container.lookup(".student-detail-section-separator"))
+                    < fixedStudentDetails.getChildren()
+                            .indexOf(container.lookup(".student-detail-notes-heading")));
+            assertSame(fixedStudentDetails, detailPanel.getTop());
+            assertSame(notesScrollPane, detailPanel.getCenter());
+            assertNull(notesScrollPane.lookup("#name"));
+            assertSame(container.lookup("#noteCards"), notesScrollPane.getContent());
+        });
+    }
+
+    @Test
     public void constructor_studentWithoutNotes_displaysEmptyState(FxRobot robot) {
         robot.interact(() -> {
             StudentDetailPanel panel = new StudentDetailPanel(ALICE, INDEX_FIRST_PERSON, persons);
@@ -92,7 +123,8 @@ public class StudentDetailPanelTest {
                 .build();
 
         robot.interact(() -> {
-            StudentDetailPanel panel = new StudentDetailPanel(personWithGuardian, INDEX_FIRST_PERSON, persons);
+            StudentDetailPanel panel =
+                    new StudentDetailPanel(personWithGuardian, INDEX_FIRST_PERSON, persons);
             container.getChildren().setAll(panel.getRoot());
             container.applyCss();
 
@@ -105,7 +137,8 @@ public class StudentDetailPanelTest {
     public void constructor_longValues_enablesTextWrapping(FxRobot robot) {
         robot.interact(() -> {
             Person personWithLongNote = new PersonBuilder(ALICE).withNotes("A long note").build();
-            StudentDetailPanel panel = new StudentDetailPanel(personWithLongNote, INDEX_FIRST_PERSON, persons);
+            StudentDetailPanel panel =
+                    new StudentDetailPanel(personWithLongNote, INDEX_FIRST_PERSON, persons);
             container.getChildren().setAll(panel.getRoot());
             container.applyCss();
 
@@ -118,6 +151,10 @@ public class StudentDetailPanelTest {
             assertLabelWraps("#guardianPhone");
             assertLabelWraps(".student-detail-note-card");
             assertViewportMatchesPanelBackground();
+            ScrollPane notesScrollPane = (ScrollPane) container.lookup("#notesScrollPane");
+            assertTrue(notesScrollPane.isFitToWidth());
+            assertEquals(ScrollBarPolicy.NEVER, notesScrollPane.getHbarPolicy());
+            assertEquals(ScrollBarPolicy.AS_NEEDED, notesScrollPane.getVbarPolicy());
         });
     }
 
@@ -156,7 +193,7 @@ public class StudentDetailPanelTest {
     }
 
     private void assertViewportMatchesPanelBackground() {
-        Region viewport = (Region) container.lookup(".student-detail-scroll-pane > .viewport");
+        Region viewport = (Region) container.lookup(".student-detail-notes-scroll-pane > .viewport");
         Region panel = (Region) container.lookup(".student-detail-panel");
         assertEquals(panel.getBackground(), viewport.getBackground());
     }

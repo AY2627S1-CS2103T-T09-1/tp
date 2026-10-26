@@ -107,11 +107,11 @@
     -fx-background-color: #515658;
 }
 
-.list-cell:filled:selected {
+.list-cell:filled:displayed {
     -fx-background-color: #424d5f;
 }
 
-.list-cell:filled:selected #cardPane {
+.list-cell:filled:displayed #cardPane {
     -fx-border-color: #3e7b91;
     -fx-border-width: 1;
 }
@@ -132,16 +132,20 @@
     -fx-text-fill: #010504;
 }
 
-.student-detail-scroll-pane,
-.student-detail-scroll-pane > .viewport,
 .student-detail-notes-scroll-pane,
 .student-detail-notes-scroll-pane > .viewport,
-.student-detail-split-pane {
+.student-detail-panel {
     -fx-background-color: derive(#1d1d1d, 20%);
 }
 
-.student-detail-panel {
-    -fx-background-color: derive(#1d1d1d, 20%);
+.student-detail-notes-scroll-pane {
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.student-detail-section-separator .line {
+    -fx-border-color: derive(#1d1d1d, 45%);
+    -fx-border-width: 1px 0 0 0;
 }
 
 .student-detail-heading {
@@ -168,10 +172,6 @@
     -fx-text-fill: white;
 }
 
-.student-detail-notes-panel {
-    -fx-background-color: derive(#1d1d1d, 20%);
-}
-
 .student-detail-note-card {
     -fx-background-color: derive(#1d1d1d, 10%);
     -fx-background-radius: 4px;
@@ -185,6 +185,18 @@
     -fx-font-family: "Segoe UI";
     -fx-font-size: 14px;
     -fx-text-fill: #b8b8b8;
+}
+
+.student-detail-column {
+    -fx-border-color: transparent transparent transparent #4d4d4d;
+    -fx-border-width: 0 0 0 1px;
+}
+
+.student-detail-empty-state {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 16px;
+    -fx-text-fill: #b8b8b8;
+    -fx-padding: 20px;
 }
 
 .stack-pane {

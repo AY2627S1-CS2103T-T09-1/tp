@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputControl;
 import javafx.scene.input.KeyCombination;
@@ -13,12 +14,14 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.commons.core.LogsCenter;
+import seedu.address.commons.core.index.Index;
 import seedu.address.logic.Logic;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.CommandResult.DisplayMode;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.person.Person;
 
 /**
  * The Main Window. Provides the basic application layout containing
@@ -46,7 +49,13 @@ public class MainWindow extends UiPart<Stage> {
     private MenuItem helpMenuItem;
 
     @FXML
-    private StackPane contentPanelPlaceholder;
+    private StackPane personListPanelPlaceholder;
+
+    @FXML
+    private StackPane studentDetailPanelPlaceholder;
+
+    @FXML
+    private Label studentDetailEmptyState;
 
     @FXML
     private StackPane resultDisplayPlaceholder;
@@ -115,7 +124,8 @@ public class MainWindow extends UiPart<Stage> {
      */
     void fillInnerParts() {
         personListPanel = new PersonListPanel(logic.getFilteredPersonList());
-        showPersonList();
+        personListPanelPlaceholder.getChildren().setAll(personListPanel.getRoot());
+        showEmptyStudentDetails();
 
         resultDisplay = new ResultDisplay();
         resultDisplayPlaceholder.getChildren().add(resultDisplay.getRoot());
@@ -203,18 +213,20 @@ public class MainWindow extends UiPart<Stage> {
     private void updateMainContent(CommandResult commandResult) {
         DisplayMode displayMode = commandResult.getDisplayMode();
         if (displayMode == DisplayMode.SHOW_LIST) {
-            showPersonList();
+            showEmptyStudentDetails();
         } else if (displayMode == DisplayMode.SHOW_STUDENT) {
-            studentDetailPanel = new StudentDetailPanel(
-                    commandResult.getPersonToDisplay().orElseThrow(),
-                    commandResult.getDisplayedIndex().orElseThrow(),
+            Index displayedIndex = commandResult.getDisplayedIndex().orElseThrow();
+            Person displayedPerson = commandResult.getPersonToDisplay().orElseThrow();
+            studentDetailPanel = new StudentDetailPanel(displayedPerson, displayedIndex,
                     logic.getFilteredPersonList());
-            contentPanelPlaceholder.getChildren().setAll(studentDetailPanel.getRoot());
+            studentDetailPanelPlaceholder.getChildren().setAll(studentDetailPanel.getRoot());
+            personListPanel.highlightPerson(displayedPerson);
         }
     }
 
-    private void showPersonList() {
+    private void showEmptyStudentDetails() {
         studentDetailPanel = null;
-        contentPanelPlaceholder.getChildren().setAll(personListPanel.getRoot());
+        studentDetailPanelPlaceholder.getChildren().setAll(studentDetailEmptyState);
+        personListPanel.clearHighlight();
     }
 }

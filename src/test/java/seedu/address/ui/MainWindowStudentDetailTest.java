@@ -21,12 +21,21 @@ import org.testfx.framework.junit5.Start;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.css.PseudoClass;
 import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.logic.ConfirmationManager;
@@ -43,6 +52,8 @@ import seedu.address.testutil.PersonBuilder;
 @ExtendWith(ApplicationExtension.class)
 public class MainWindowStudentDetailTest {
 
+    private static final PseudoClass DISPLAYED_PSEUDO_CLASS = PseudoClass.getPseudoClass("displayed");
+
     private MainWindow mainWindow;
 
     @Start
@@ -53,20 +64,68 @@ public class MainWindowStudentDetailTest {
     }
 
     @Test
-    public void execute_viewCommand_replacesListWithStudentDetails(FxRobot robot) {
+    public void startup_noStudentSelected_showsFixedSplitAndEmptyState(FxRobot robot) {
+        GridPane contentGridPane = getContentGridPane();
+
+        assertEquals(2, contentGridPane.getColumnConstraints().size());
+        assertEquals(50, contentGridPane.getColumnConstraints().get(0).getPercentWidth());
+        assertEquals(50, contentGridPane.getColumnConstraints().get(1).getPercentWidth());
+        assertEquals(contentGridPane.getHeight(), getPersonListPanelPlaceholder().getHeight(), 0.1);
+        assertEquals(contentGridPane.getHeight(), getStudentDetailPanelPlaceholder().getHeight(), 0.1);
+        assertEquals("View a student to see details.", getEmptyStateLabel().getText());
+        assertEquals(-1, getPersonListView().getSelectionModel().getSelectedIndex());
+        assertFalse(getPersonListView().isFocusTraversable());
+        assertTrue(contentGridPane.lookupAll(".split-pane-divider").isEmpty());
+        assertListCellsUseContentHeight(robot);
+    }
+
+    @Test
+    public void execute_viewCommand_showsListBesideStudentDetails(FxRobot robot) {
+        Node originalList = mainWindow.getPersonListPanel().getRoot();
+
         enterCommand(robot, "view 1");
 
-        assertEquals("Alice Pauline", ((Label) mainWindow.getRoot().getScene().lookup("#name")).getText());
-        assertEquals(1, getContentPlaceholder().getChildren().size());
+        assertEquals("Alice Pauline", ((Label) getStudentDetailNode().lookup("#name")).getText());
+        assertTrue(isPersonHighlighted(ALICE.getName().fullName));
+        assertFalse(isPersonHighlighted(BENSON.getName().fullName));
+        assertEquals(-1, getPersonListView().getSelectionModel().getSelectedIndex());
+        assertEquals(2, getContentGridPane().getChildren().size());
+        assertSame(originalList, getPersonListPanelPlaceholder().getChildren().get(0));
+        robot.interact(() -> {
+            mainWindow.getRoot().getScene().getRoot().applyCss();
+            mainWindow.getRoot().getScene().getRoot().layout();
+        });
+        ScrollPane notesScrollPane = (ScrollPane) getStudentDetailNode().lookup("#notesScrollPane");
+        VBox noteCards = (VBox) getStudentDetailNode().lookup("#noteCards");
+        assertTrue(noteCards.getHeight() > notesScrollPane.getViewportBounds().getHeight());
+        assertEquals(getContentGridPane().getHeight(), getPersonListPanelPlaceholder().getHeight(), 0.1);
+        assertEquals(getContentGridPane().getHeight(), getStudentDetailPanelPlaceholder().getHeight(), 0.1);
+
+        Label secondPersonName = mainWindow.getPersonListPanel().getRoot().lookupAll("#name").stream()
+                .map(Label.class::cast)
+                .filter(label -> label.getText().equals(BENSON.getName().fullName))
+                .findFirst()
+                .orElseThrow();
+        robot.interact(() -> secondPersonName.fireEvent(createPrimaryMousePress()));
+
+        assertTrue(isPersonHighlighted(ALICE.getName().fullName));
+        assertFalse(isPersonHighlighted(BENSON.getName().fullName));
+        assertEquals(-1, getPersonListView().getSelectionModel().getSelectedIndex());
+        assertEquals("Alice Pauline", ((Label) getStudentDetailNode().lookup("#name")).getText());
     }
 
     @Test
     public void execute_repeatedViewCommand_replacesExistingDetails(FxRobot robot) {
+        Node originalList = mainWindow.getPersonListPanel().getRoot();
         enterCommand(robot, "view 1");
         enterCommand(robot, "view 2");
 
-        assertEquals("Benson Meier", ((Label) mainWindow.getRoot().getScene().lookup("#name")).getText());
-        assertEquals(1, getContentPlaceholder().getChildren().size());
+        assertEquals("Benson Meier", ((Label) getStudentDetailNode().lookup("#name")).getText());
+        assertFalse(isPersonHighlighted(ALICE.getName().fullName));
+        assertTrue(isPersonHighlighted(BENSON.getName().fullName));
+        assertEquals(-1, getPersonListView().getSelectionModel().getSelectedIndex());
+        assertEquals(2, getContentGridPane().getChildren().size());
+        assertSame(originalList, getPersonListPanelPlaceholder().getChildren().get(0));
     }
 
     @Test
@@ -76,34 +135,39 @@ public class MainWindowStudentDetailTest {
 
         enterCommand(robot, "list");
 
-        assertSame(personListPanel.getRoot(), getOnlyContentNode());
+        assertEquals(2, getContentGridPane().getChildren().size());
+        assertSame(personListPanel.getRoot(), getPersonListPanelPlaceholder().getChildren().get(0));
+        assertEquals("View a student to see details.", getEmptyStateLabel().getText());
+        assertFalse(isPersonHighlighted(ALICE.getName().fullName));
+        assertFalse(isPersonHighlighted(BENSON.getName().fullName));
+        assertEquals(-1, getPersonListView().getSelectionModel().getSelectedIndex());
     }
 
     @Test
     public void execute_failedCommand_keepsStudentDetails(FxRobot robot) {
         enterCommand(robot, "view 1");
-        Node originalDetails = getOnlyContentNode();
+        Node originalDetails = getStudentDetailNode();
 
         enterCommand(robot, "fail");
 
-        assertSame(originalDetails, getOnlyContentNode());
+        assertSame(originalDetails, getStudentDetailNode());
     }
 
     @Test
     public void execute_commandWithoutDisplayInstruction_keepsStudentDetails(FxRobot robot) {
         enterCommand(robot, "view 1");
-        Node originalDetails = getOnlyContentNode();
+        Node originalDetails = getStudentDetailNode();
 
         enterCommand(robot, "keep");
 
-        assertSame(originalDetails, getOnlyContentNode());
+        assertSame(originalDetails, getStudentDetailNode());
     }
 
     @Test
     public void execute_commandUpdatesViewedStudent_refreshesStudentDetails(FxRobot robot) {
         enterCommand(robot, "view 1");
 
-        enterCommand(robot, "addnote 1 t/New note");
+        enterCommand(robot, "addnote 1 note/New note");
 
         List<String> noteTexts = mainWindow.getRoot().getScene().getRoot()
                 .lookupAll(".student-detail-note-card").stream()
@@ -111,6 +175,21 @@ public class MainWindowStudentDetailTest {
                 .map(Label::getText)
                 .toList();
         assertEquals(List.of("1. New note"), noteTexts);
+        assertTrue(isPersonHighlighted(ALICE.getName().fullName));
+    }
+
+    @Test
+    public void execute_editCommand_updatesListCardAndShowsEditedStudent(FxRobot robot) {
+        enterCommand(robot, "edit 1");
+
+        List<String> listNames = mainWindow.getPersonListPanel().getRoot().lookupAll("#name").stream()
+                .map(Label.class::cast)
+                .map(Label::getText)
+                .toList();
+        assertTrue(listNames.contains("Alice Edited"));
+        assertEquals("Alice Edited", ((Label) getStudentDetailNode().lookup("#name")).getText());
+        assertTrue(isPersonHighlighted("Alice Edited"));
+        assertEquals(-1, getPersonListView().getSelectionModel().getSelectedIndex());
     }
 
     @Test
@@ -158,7 +237,7 @@ public class MainWindowStudentDetailTest {
         errorLabel.getStyleClass().add(CommandBox.ERROR_STYLE_CLASS);
 
         robot.interact(() -> {
-            getContentPlaceholder().getChildren().setAll(warningLabel, errorLabel);
+            getPersonListPanelPlaceholder().getChildren().setAll(warningLabel, errorLabel);
             mainWindow.getRoot().getScene().getRoot().applyCss();
         });
 
@@ -174,12 +253,64 @@ public class MainWindowStudentDetailTest {
         });
     }
 
-    private StackPane getContentPlaceholder() {
-        return (StackPane) mainWindow.getRoot().getScene().lookup("#contentPanelPlaceholder");
+    private MouseEvent createPrimaryMousePress() {
+        return new MouseEvent(MouseEvent.MOUSE_PRESSED, 0, 0, 0, 0, MouseButton.PRIMARY, 1,
+                false, false, false, false, true, false, false, true, false, false, null);
     }
 
-    private Node getOnlyContentNode() {
-        return getContentPlaceholder().getChildren().get(0);
+    private boolean isPersonHighlighted(String name) {
+        Label nameLabel = mainWindow.getPersonListPanel().getRoot().lookupAll("#name").stream()
+                .map(Label.class::cast)
+                .filter(label -> label.getText().equals(name))
+                .findFirst()
+                .orElseThrow();
+        Node currentNode = nameLabel;
+        while (!(currentNode instanceof ListCell<?>)) {
+            currentNode = currentNode.getParent();
+        }
+        return currentNode.getPseudoClassStates().contains(DISPLAYED_PSEUDO_CLASS);
+    }
+
+    private void assertListCellsUseContentHeight(FxRobot robot) {
+        robot.interact(() -> {
+            mainWindow.getRoot().getScene().getRoot().applyCss();
+            mainWindow.getRoot().getScene().getRoot().layout();
+        });
+        getPersonListView().lookupAll(".list-cell").stream()
+                .map(ListCell.class::cast)
+                .filter(cell -> !cell.isEmpty())
+                .forEach(cell -> {
+                    Region card = (Region) cell.getGraphic();
+                    VBox cardContents = (VBox) card.lookup("#phone").getParent();
+                    assertEquals(Region.USE_PREF_SIZE, cell.getMaxHeight());
+                    assertEquals(cell.prefHeight(cell.getWidth()), cell.getHeight(), 0.1);
+                    assertEquals(card.getHeight(), cardContents.getHeight(), 0.1);
+                });
+    }
+
+    private GridPane getContentGridPane() {
+        return (GridPane) mainWindow.getRoot().getScene().lookup("#contentGridPane");
+    }
+
+    private StackPane getPersonListPanelPlaceholder() {
+        return (StackPane) mainWindow.getRoot().getScene().lookup("#personListPanelPlaceholder");
+    }
+
+    @SuppressWarnings("unchecked")
+    private ListView<Person> getPersonListView() {
+        return (ListView<Person>) mainWindow.getRoot().getScene().lookup("#personListView");
+    }
+
+    private Node getStudentDetailNode() {
+        return getStudentDetailPanelPlaceholder().getChildren().get(0);
+    }
+
+    private StackPane getStudentDetailPanelPlaceholder() {
+        return (StackPane) mainWindow.getRoot().getScene().lookup("#studentDetailPanelPlaceholder");
+    }
+
+    private Label getEmptyStateLabel() {
+        return (Label) getStudentDetailNode();
     }
 
     private TextArea getResultDisplay() {
@@ -188,15 +319,23 @@ public class MainWindowStudentDetailTest {
 
     private static class LogicStub implements Logic {
 
-        private final ObservableList<Person> persons = FXCollections.observableArrayList(ALICE, BENSON);
+        private static final Person ALICE_WITH_MANY_NOTES = new PersonBuilder(ALICE)
+                .withNotes("Note 1", "Note 2", "Note 3", "Note 4", "Note 5", "Note 6",
+                        "Note 7", "Note 8", "Note 9", "Note 10", "Note 11", "Note 12")
+                .build();
+
+        private final ObservableList<Person> persons =
+                FXCollections.observableArrayList(ALICE_WITH_MANY_NOTES, BENSON);
 
         @Override
         public CommandResult execute(String commandText) throws CommandException, ParseException {
             return switch (commandText) {
-                case "view 1" -> CommandResult.showStudent("Viewing Alice", ALICE, INDEX_FIRST_PERSON);
+                case "view 1" -> CommandResult.showStudent(
+                        "Viewing Alice", ALICE_WITH_MANY_NOTES, INDEX_FIRST_PERSON);
                 case "view 2" -> CommandResult.showStudent("Viewing Benson", BENSON, INDEX_SECOND_PERSON);
                 case "list" -> CommandResult.showList("Listed all students");
-                case "addnote 1 t/New note" -> addNoteToFirstPerson();
+                case "addnote 1 note/New note" -> addNoteToFirstPerson();
+                case "edit 1" -> editFirstPerson();
                 case "keep" -> new CommandResult("No display change");
                 case "warn" -> CommandResult.warning("Warning");
                 case "cancelled" -> new CommandResult("Listed students").withCancellationNotice(
@@ -206,7 +345,8 @@ public class MainWindowStudentDetailTest {
                         .withCancellationNotice(String.format(ConfirmationManager.MESSAGE_CANCELLED_FORMAT,
                                 "clear"));
                 case "cancelled-fail" -> throw new CommandException(
-                        "The 'clear' command has been cancelled." + System.lineSeparator() + "Invalid command");
+                        "The 'clear' command has been cancelled."
+                                + System.lineSeparator() + "Invalid command");
                 case "fail" -> throw new CommandException("Invalid command");
                 default -> throw new AssertionError("Unexpected command: " + commandText);
             };
@@ -217,7 +357,15 @@ public class MainWindowStudentDetailTest {
                     .withNotes("New note")
                     .build();
             persons.set(INDEX_FIRST_PERSON.getZeroBased(), updatedPerson);
-            return new CommandResult("Added note");
+            return CommandResult.showStudent("Added note", updatedPerson, INDEX_FIRST_PERSON);
+        }
+
+        private CommandResult editFirstPerson() {
+            Person updatedPerson = new PersonBuilder(persons.get(INDEX_FIRST_PERSON.getZeroBased()))
+                    .withName("Alice Edited")
+                    .build();
+            persons.set(INDEX_FIRST_PERSON.getZeroBased(), updatedPerson);
+            return CommandResult.showStudent("Edited Alice", updatedPerson, INDEX_FIRST_PERSON);
         }
 
         @Override

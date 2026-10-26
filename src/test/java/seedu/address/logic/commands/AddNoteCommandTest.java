@@ -38,7 +38,8 @@ public class AddNoteCommandTest {
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.setPerson(person, editedPerson);
 
-        assertCommandSuccess(new AddNoteCommand(INDEX_FIRST_PERSON, NOTE), model, expectedMessage, expectedModel);
+        assertCommandSuccess(new AddNoteCommand(INDEX_FIRST_PERSON, NOTE), model,
+                CommandResult.showStudent(expectedMessage, editedPerson, INDEX_FIRST_PERSON), expectedModel);
     }
 
     @Test
@@ -52,7 +53,8 @@ public class AddNoteCommandTest {
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.setPerson(person, editedPerson);
 
-        assertCommandSuccess(new AddNoteCommand(INDEX_FIRST_PERSON, NOTE), model, expectedMessage, expectedModel);
+        assertCommandSuccess(new AddNoteCommand(INDEX_FIRST_PERSON, NOTE), model,
+                CommandResult.showStudent(expectedMessage, editedPerson, INDEX_FIRST_PERSON), expectedModel);
     }
 
     @Test
@@ -64,8 +66,8 @@ public class AddNoteCommandTest {
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.setPerson(person, editedPerson);
 
-        assertCommandSuccess(new AddNoteCommand(INDEX_FIRST_PERSON, OTHER_NOTE), model, expectedMessage,
-                expectedModel);
+        assertCommandSuccess(new AddNoteCommand(INDEX_FIRST_PERSON, OTHER_NOTE), model,
+                CommandResult.showStudent(expectedMessage, editedPerson, INDEX_FIRST_PERSON), expectedModel);
     }
 
     @Test
@@ -77,8 +79,8 @@ public class AddNoteCommandTest {
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.setPerson(person, editedPerson);
 
-        assertCommandSuccess(new AddNoteCommand(INDEX_FIRST_PERSON, NOTE), model, expectedMessage,
-                expectedModel);
+        assertCommandSuccess(new AddNoteCommand(INDEX_FIRST_PERSON, NOTE), model,
+                CommandResult.showStudent(expectedMessage, editedPerson, INDEX_FIRST_PERSON), expectedModel);
     }
 
     @Test
@@ -92,7 +94,8 @@ public class AddNoteCommandTest {
         expectedModel.setPerson(person, editedPerson);
         expectedModel.updateFilteredPersonList(editedPerson::equals);
 
-        assertCommandSuccess(new AddNoteCommand(INDEX_FIRST_PERSON, NOTE), model, expectedMessage, expectedModel);
+        assertCommandSuccess(new AddNoteCommand(INDEX_FIRST_PERSON, NOTE), model,
+                CommandResult.showStudent(expectedMessage, editedPerson, INDEX_FIRST_PERSON), expectedModel);
     }
 
     @Test

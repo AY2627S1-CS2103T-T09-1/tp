@@ -114,7 +114,7 @@ public class EditNoteCommandTest {
         expectedModel.updateFilteredPersonList(editedPerson::equals);
 
         assertCommandSuccess(new EditNoteCommand(INDEX_FIRST_PERSON, NID_FIRST, new Note(NOTE_IMPROVING)),
-                model, expectedMessage, expectedModel);
+                model, CommandResult.showStudent(expectedMessage, editedPerson, INDEX_FIRST_PERSON), expectedModel);
     }
 
     @Test
@@ -132,7 +132,7 @@ public class EditNoteCommandTest {
         expectedModel.updateFilteredPersonList(person -> person.equals(editedFirst) || person.equals(second));
 
         assertCommandSuccess(new EditNoteCommand(INDEX_FIRST_PERSON, NID_FIRST, new Note(NOTE_CALCULATOR)),
-                model, expectedMessage, expectedModel);
+                model, CommandResult.showStudent(expectedMessage, editedFirst, INDEX_FIRST_PERSON), expectedModel);
         assertEquals(List.of(editedFirst, second), model.getFilteredPersonList());
     }
 
@@ -150,7 +150,7 @@ public class EditNoteCommandTest {
         expectedModel.updateFilteredPersonList(HAS_ALGEBRA_NOTE);
 
         assertCommandSuccess(new EditNoteCommand(INDEX_FIRST_PERSON, NID_SECOND, new Note(NOTE_CALCULATOR)),
-                model, expectedMessage, expectedModel);
+                model, CommandResult.showStudent(expectedMessage, editedFirst, INDEX_FIRST_PERSON), expectedModel);
         assertEquals(List.of(editedFirst, second), model.getFilteredPersonList());
     }
 
@@ -186,7 +186,7 @@ public class EditNoteCommandTest {
     @Test
     public void execute_personWithNoNotes_throwsCommandException() {
         assertCommandFailure(new EditNoteCommand(INDEX_FIRST_PERSON, NID_FIRST, new Note(NOTE_IMPROVING)),
-                model, "Alice Pauline has no notes to edit.");
+                model, "Alice Pauline at Maplewood Secondary School (S1) has no notes to edit.");
     }
 
     @Test
@@ -194,7 +194,7 @@ public class EditNoteCommandTest {
         addNotesToFirstPerson(NOTE_ALGEBRA, NOTE_TEST_SCORE);
 
         assertCommandFailure(new EditNoteCommand(INDEX_FIRST_PERSON, NID_THIRD, new Note(NOTE_IMPROVING)),
-                model, "NID 3 does not exist. Alice Pauline has only 2 notes.");
+                model, "NID 3 does not exist. Alice Pauline at Maplewood Secondary School (S1) has only 2 notes.");
     }
 
     @Test
@@ -203,15 +203,18 @@ public class EditNoteCommandTest {
         Index maxIntNid = Index.fromOneBased(Integer.MAX_VALUE);
 
         assertCommandFailure(new EditNoteCommand(INDEX_FIRST_PERSON, maxIntNid, new Note(NOTE_IMPROVING)),
-                model, "NID 2147483647 does not exist. Alice Pauline has only 1 note.");
+                model, "NID 2147483647 does not exist. Alice Pauline at Maplewood Secondary School (S1) has only "
+                        + "1 note.");
     }
 
     @Test
     public void execute_sameText_warnsAndKeepsModelUnchanged() {
         addNotesToFirstPerson(NOTE_ALGEBRA, NOTE_TEST_SCORE);
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
-        CommandResult expectedResult = CommandResult.warning(
-                "No changes made: note 2 of Alice Pauline already says: WA2 Math: 36/50");
+        Person person = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        CommandResult expectedResult = CommandResult.showStudentWarning(
+                "No changes made: note 2 of Alice Pauline already says: WA2 Math: 36/50",
+                person, INDEX_FIRST_PERSON);
 
         assertCommandSuccess(new EditNoteCommand(INDEX_FIRST_PERSON, NID_SECOND, new Note(NOTE_TEST_SCORE)),
                 model, expectedResult, expectedModel);
@@ -280,7 +283,7 @@ public class EditNoteCommandTest {
         expectedModel.setPerson(person, editedPerson);
 
         assertCommandSuccess(new EditNoteCommand(INDEX_FIRST_PERSON, nid, new Note(newText)), model,
-                expectedMessage, expectedModel);
+                CommandResult.showStudent(expectedMessage, editedPerson, INDEX_FIRST_PERSON), expectedModel);
     }
 
     /**
