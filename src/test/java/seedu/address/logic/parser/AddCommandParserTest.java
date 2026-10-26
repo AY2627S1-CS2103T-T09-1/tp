@@ -153,10 +153,10 @@ public class AddCommandParserTest {
         String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + SUBJECT_DESC;
 
         // name only
-        assertParseFailure(parser, details + GUARDIAN_NAME_DESC_BOB, ParserUtil.MESSAGE_GUARDIAN_PAIR);
+        assertParseFailure(parser, details + GUARDIAN_NAME_DESC_BOB, Messages.MESSAGE_GUARDIAN_PAIR);
 
         // phone only
-        assertParseFailure(parser, details + GUARDIAN_PHONE_DESC_BOB, ParserUtil.MESSAGE_GUARDIAN_PAIR);
+        assertParseFailure(parser, details + GUARDIAN_PHONE_DESC_BOB, Messages.MESSAGE_GUARDIAN_PAIR);
     }
 
     @Test
@@ -324,7 +324,7 @@ public class AddCommandParserTest {
         for (String pairs : List.of(" sub/English", " band/G1 sub/English band/G2",
                 " sub/English sub/Science band/G1", " sub/English band/G1 band/G2",
                 " sub/English p/91234567 band/G1", " sub/Englishband/G1")) {
-            assertParseFailure(parser, details + pairs, ParserUtil.MESSAGE_SUBJECT_BAND_PAIR);
+            assertParseFailure(parser, details + pairs, Messages.MESSAGE_SUBJECT_BAND_PAIR);
         }
         for (String name : List.of("", "---", "Maths2", "A".repeat(41))) {
             assertParseFailure(parser, details + " sub/" + name + " band/G1", Subject.MESSAGE_CONSTRAINTS);

@@ -98,4 +98,34 @@ public class ArgumentMultimap {
             throw new ParseException(Messages.getErrorMessageForMissingPrefixes(missingPrefixes));
         }
     }
+
+    /**
+     * Throws a {@code ParseException} with {@code message} unless every {@code first} prefix is immediately
+     * followed by one {@code second} prefix, and every {@code second} prefix immediately follows a {@code first}.
+     */
+    public void verifyEachFollowedBy(Prefix first, Prefix second, String message) throws ParseException {
+        boolean isAwaitingSecond = false;
+        for (Prefix prefix : prefixes) {
+            boolean isSecond = second.equals(prefix);
+            if (isAwaitingSecond != isSecond) {
+                throw new ParseException(message);
+            }
+            isAwaitingSecond = first.equals(prefix);
+        }
+        if (isAwaitingSecond) {
+            throw new ParseException(message);
+        }
+    }
+
+    /**
+     * Throws a {@code ParseException} with {@code message} if only one of {@code first} and {@code second}
+     * appeared among the arguments.
+     */
+    public void verifyGivenTogether(Prefix first, Prefix second, String message) throws ParseException {
+        boolean hasFirst = argMultimap.containsKey(first);
+        boolean hasSecond = argMultimap.containsKey(second);
+        if (hasFirst != hasSecond) {
+            throw new ParseException(message);
+        }
+    }
 }

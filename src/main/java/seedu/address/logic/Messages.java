@@ -1,5 +1,8 @@
 package seedu.address.logic;
 
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -25,6 +28,11 @@ public class Messages {
                 "Multiple values specified for the following single-valued field(s): ";
     public static final String MESSAGE_MISSING_PREFIX = "Missing required parameter: %1$s.";
     public static final String MESSAGE_MISSING_PREFIXES = "Missing required parameters: %1$s.";
+    public static final String MESSAGE_SUBJECT_BAND_PAIR =
+            "Each sub/ must be immediately followed by one band/.";
+    public static final String MESSAGE_GUARDIAN_PAIR =
+            "Guardian name (" + PREFIX_GUARDIAN_NAME + ") and guardian phone (" + PREFIX_GUARDIAN_PHONE
+            + ") must be given together.";
     public static final String MESSAGE_NOT_SINGAPORE_PHONE = "Warning: %1$s doesn't look like a Singapore number "
             + "(8 digits starting with 6, 8, or 9, with or without +65). Use edit to fix it if it's wrong.";
     public static final String MESSAGE_NOT_SINGAPORE_PHONES = "Warning: %1$s don't look like Singapore numbers "
