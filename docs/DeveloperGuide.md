@@ -329,7 +329,7 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 
 <img src="images/FilterClassDiagram.png" width="650" />
 
-1. `FilterCommandParser` splits the arguments at the filter prefixes `n/`, `sch/`, `lvl/`, `sub/`, `band/`, `p/`, `gn/`, and `gp/`. It also recognizes `t/` and `nid/`, only to reject them with a message that `filter` cannot search notes, so that they are not read as part of another value.
+1. `FilterCommandParser` splits the arguments at the filter prefixes `n/`, `sch/`, `lvl/`, `sub/`, `band/`, `p/`, `gn/`, and `gp/`. It also recognizes `note/` and `nid/`, only to reject them with a message that `filter` cannot search notes, so that they are not read as part of another value.
 1. It then checks, in order, that there is no text before the first prefix, that at least one filter is given, that no prefix is repeated, and that `band/` comes with `sub/`.
 1. It creates one `Predicate<Person>` for each filter given:
 
