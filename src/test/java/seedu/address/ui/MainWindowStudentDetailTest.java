@@ -33,6 +33,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -75,6 +76,7 @@ public class MainWindowStudentDetailTest {
         assertEquals(-1, getPersonListView().getSelectionModel().getSelectedIndex());
         assertFalse(getPersonListView().isFocusTraversable());
         assertTrue(contentGridPane.lookupAll(".split-pane-divider").isEmpty());
+        assertListCellsUseContentHeight(robot);
     }
 
     @Test
@@ -267,6 +269,20 @@ public class MainWindowStudentDetailTest {
             currentNode = currentNode.getParent();
         }
         return currentNode.getPseudoClassStates().contains(DISPLAYED_PSEUDO_CLASS);
+    }
+
+    private void assertListCellsUseContentHeight(FxRobot robot) {
+        robot.interact(() -> {
+            mainWindow.getRoot().getScene().getRoot().applyCss();
+            mainWindow.getRoot().getScene().getRoot().layout();
+        });
+        getPersonListView().lookupAll(".list-cell").stream()
+                .map(ListCell.class::cast)
+                .filter(cell -> !cell.isEmpty())
+                .forEach(cell -> {
+                    assertEquals(Region.USE_PREF_SIZE, cell.getMaxHeight());
+                    assertEquals(cell.prefHeight(cell.getWidth()), cell.getHeight(), 0.1);
+                });
     }
 
     private GridPane getContentGridPane() {

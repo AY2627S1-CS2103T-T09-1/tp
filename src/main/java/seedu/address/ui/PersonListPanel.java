@@ -59,6 +59,7 @@ public class PersonListPanel extends UiPart<Region> {
      */
     class PersonListViewCell extends ListCell<Person> {
         PersonListViewCell() {
+            setMaxHeight(Region.USE_PREF_SIZE);
             addEventFilter(MouseEvent.MOUSE_PRESSED, MouseEvent::consume);
         }
 
