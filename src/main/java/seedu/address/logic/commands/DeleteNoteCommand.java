@@ -83,8 +83,8 @@ public class DeleteNoteCommand extends Command implements ConfirmationCommand {
 
         String successMessage = String.format(MESSAGE_SUCCESS, targetNid.getOneBased(),
                 editedPerson.getName(), editedPerson.getSchool(), editedPerson.getLevel(), deletedNote);
-        return new CommandResult(
-                NoteCommandUtil.setPersonKeepingIndex(model, person, editedPerson, successMessage));
+        String feedback = NoteCommandUtil.setPersonKeepingIndex(model, person, editedPerson, successMessage);
+        return CommandResult.showStudent(feedback, editedPerson, targetIndex);
     }
 
     private Person getTargetPerson(Model model) throws CommandException {

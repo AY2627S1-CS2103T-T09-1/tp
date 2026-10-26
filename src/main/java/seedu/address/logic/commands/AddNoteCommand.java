@@ -51,7 +51,8 @@ public class AddNoteCommand extends Command {
         Person editedPerson = person.copyWithNotes(notes);
 
         model.setPerson(person, editedPerson);
-        return new CommandResult(String.format(MESSAGE_SUCCESS, editedPerson.getName(), note));
+        return CommandResult.showStudent(
+                String.format(MESSAGE_SUCCESS, editedPerson.getName(), note), editedPerson, targetIndex);
     }
 
     @Override

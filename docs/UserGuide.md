@@ -79,6 +79,8 @@ The command does not accept additional arguments.
 
 Adds a person to the address book.
 
+After the student is added, the full list is shown on the left and the new student's record is shown on the right.
+
 Format: `add n/NAME [p/PHONE] sch/SCHOOL lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]`
 
 * `NAME` can contain only letters, digits, and spaces. Symbols such as `/`, `-`, and `'` aren't supported yet, so type `Rajesh s/o Kumar` as `Rajesh so Kumar`.
@@ -130,7 +132,7 @@ Examples:
 
 ### Listing all persons: `list`
 
-Shows a list of all persons in the address book. Each entry shows the student's index, name, phone number (if provided), school, and level. Use `view INDEX` to see the remaining details.
+Shows a list of all persons in the address book. Each entry shows the student's index, name, phone number (if provided), school, and level. The right panel returns to `View a student to see details.` Use `view INDEX` to see the remaining details.
 
 Format: `list`
 
@@ -138,18 +140,20 @@ The command does not accept additional arguments.
 
 ### Viewing a student: `view`
 
-Shows the full record of the student at the specified index in the main content area.
+TuteeBook3 always shows a fixed, equal-width student list on the left and student record panel on the right. Both panels fill the available height down to the status bar, and you cannot move the divider. Student details stay fixed at the top of the right panel. If the notes need more space than the area below, only the notes section scrolls. The list cards are not clickable. The card for the student shown on the right is highlighted. When no student is selected, the right panel says `View a student to see details.`
 
-The detail panel contains the student's name, school, level, subject-band pairs, student phone number, guardian name, guardian phone number, and notes. Optional fields without a recorded value, such as the student phone number or guardian details, are shown as `Not provided`.
+`view` shows the full record of the student at the specified index on the right.
+
+The detail panel contains the student's name, school, level, subject-band pairs, student phone number, guardian name, and guardian phone number, followed by the student's notes. Optional fields without a recorded value, such as the student phone number or guardian details, are shown as `Not provided`.
 
 Format: `view INDEX`
 
 * The index refers to the index number shown in the displayed student list.
 * The index must be a positive integer, such as 1, 2, or 3.
-* The current search results are preserved while you view the student.
-* Entering `view` again replaces the current student record instead of opening another panel.
-* Enter `list` to return to the full student list, or `filter` to display new search results.
-* Commands that add or delete students return to the student list after they succeed. `edit`, `addnote`, `editnote`, and `deletenote` keep the current list and student record. If the open record is the student you changed, it shows the changes. A confirmed `clear`, or `clear -f`, also returns to the (cleared) student list.
+* The current search results remain visible on the left while you view the student.
+* Entering `view` again replaces the student record on the right instead of opening another panel.
+* Enter `list` to return to the full student list, or `filter` to display new search results. Both commands clear the selected record and show the empty-state message on the right.
+* A successful `add`, `edit`, `addnote`, `editnote`, or `deletenote` shows the affected student's record on the right. A successful `delete` or `clear` shows the empty-state message.
 * Help and invalid commands leave the student record visible.
 
 Example: `view 2` shows the full record of the second student in the currently displayed list.
@@ -166,7 +170,7 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT ban
 * Supplying subject-band pairs replaces the entire subject list; omitting them preserves existing subjects. The replacement list must contain at least 1 subject and a maximum of 8 distinct subjects, following the same pairing and validation rules as `add`. Notes are preserved when editing a student.
 * `PHONE` and `GUARDIAN_PHONE` follow the same rules as in `add`, so `p/9123 4567` is saved as `91234567`. The warning about a number not looking like a Singapore number only appears when you type `p/` or `gp/` in that command.
 * You can remove a person's phone number by typing `p/` without specifying any number after it.
-* The displayed list and any open student record stay as they are, so the other students keep their index numbers. If the edited student no longer matches your last `filter`, they stay in the list until you enter `list` or `filter` again. The result box tells you when an edit makes a student stop matching.
+* The displayed list stays in place, and the edited student's record opens on the right. Fields shown on the list card are updated immediately. If the edited student no longer matches your last `filter`, they stay in the list until you enter `list` or `filter` again. The result box tells you when an edit makes a student stop matching.
 * If the student already has a guardian, `gn/` or `gp/` on its own changes just that part of the guardian.
 * If the student has no guardian yet, give both `gn/` and `gp/` to add one. Giving only one of them shows `This student has no guardian yet. Give both gn/ and gp/ to add one.`
 * You can remove the guardian by typing `gn/ gp/` with no values after either. Leaving only one of them empty, such as `gn/` alone or `gn/ gp/91234567`, is rejected so that the guardian is not removed by mistake. If the student has no guardian, `gn/ gp/` shows `This student has no guardian to remove.`
@@ -215,6 +219,7 @@ Format: `addnote INDEX note/TEXT`
 * New notes appear in the student detail view after the existing notes.
 * Notes are numbered in the order you added them, such as `1. Weak in algebra`.
 * Adding a note does not change which students are shown.
+* After the note is added, the student's updated record opens on the right.
 * After `view`, use the index shown at the top of the student detail view when running `addnote`.
 * If you edit the data file, each note must follow the same `TEXT` rules. Otherwise, the app starts with an empty student list.
 
@@ -246,6 +251,7 @@ Format: `editnote INDEX nid/NID note/TEXT`
 * The edited note keeps its NID, and the student's other notes do not change.
 * If the new text is the same as the current text, the note stays as it is and `editnote` shows the message `No changes made: note {NID} of {NAME} already says: {TEXT}` in amber. Changing only uppercase and lowercase letters, such as `algebra` to `Algebra`, counts as a change.
 * Editing a note does not change which students are shown.
+* After the note is edited, the student's updated record opens on the right. If the text is unchanged, the same record opens with the warning.
 * After `view`, use the index shown at the top of the student detail view when running `editnote`.
 
 Examples:
@@ -278,8 +284,10 @@ Format: `deletenote [-f] INDEX nid/NID`
 * `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
 * `NID` is the number shown before the note in the student detail view. It must be a positive integer, such as 1, 2, or 3. To see a student's notes and their NIDs, use `view INDEX`.
 * The command shows an amber prompt, such as `This will delete note 1 from Alex Tan at Example Secondary School (S3). Continue? Type CONFIRM (uppercase) to proceed; any other input cancels this request and runs as a command.` Enter `CONFIRM` to confirm. The prompt includes the school and level to distinguish students with the same name. You can use `deletenote -f INDEX nid/NID` to delete immediately.
+* The displayed list and student record remain unchanged while confirmation is pending.
 * After you delete a note, the notes after it move up one number. For example, if a student has 3 notes and you delete note 2, the old note 3 becomes note 2. Check the student detail view for the new numbers before you delete another note.
 * Deleting a note does not change which students are shown.
+* After the deletion is confirmed, or when you use `-f`, the student's updated record opens on the right.
 * After `view`, use the index shown at the top of the student detail view when running `deletenote`.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
@@ -335,6 +343,7 @@ Filter | Matches students whose… | Match
 * Filters are not case-sensitive, and extra spaces are ignored.
 * Each value is matched as one piece of text, including its spaces: `n/david lim` matches `David Lim`, but `n/lim david` does not.
 * If no student matches, the student list is empty and a message tells you how to see all students again.
+* Running `filter` clears the selected student record and shows `View a student to see details.` on the right.
 * Enter `list` to return to the full student list.
 
 Examples:
@@ -376,9 +385,11 @@ Format: `delete [-f] INDEX`
 
 * `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
 * `delete` shows an amber prompt, such as `This will delete Alex Tan at Example Secondary School (S3) and all their notes. Continue? Type CONFIRM (uppercase) to proceed; any other input cancels this request and runs as a command.` Enter `CONFIRM` to confirm. The prompt includes the school and level to distinguish students with the same name. Use `delete -f INDEX` to delete immediately.
+* The displayed list and student record remain unchanged while confirmation is pending.
 * After `view`, use the index shown at the top of the student detail view when running `delete`.
-* After a student is deleted, the student list shows all remaining students, even if you used `filter` before. The index numbers of the remaining students may change, so check the list before you run another command that uses an index.
-* If the student detail view was open, it closes and the student list is shown.
+* After a student is deleted, the current filter remains active while it still has matches. The index numbers of the remaining matching students may change, so check the list before you run another command that uses an index.
+* If you delete the filter's last matching student while other students remain, TuteeBook3 shows the full list and adds `The filtered list is now empty, so all remaining students are shown.` to the result.
+* After deletion, the right panel returns to `View a student to see details.`
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
 After you confirm with `CONFIRM`, `delete` removes the student and all their notes immediately. `delete -f` skips confirmation. You cannot undo the deletion. Check `INDEX` in the student list before you confirm.
@@ -407,6 +418,7 @@ The command accepts only the optional `-f` argument.
 
 * `clear` shows the amber prompt `This will delete all students and notes. Continue? Type CONFIRM (uppercase) to proceed; any other input cancels this request and runs as a command.` without changing your data. Enter `CONFIRM` to confirm.
 * `clear -f` clears all students and notes immediately without asking for confirmation.
+* The displayed list and student record remain unchanged while confirmation is pending. After clearing, the empty list remains on the left and `View a student to see details.` appears on the right.
 * While a confirmation is pending, only the exact uppercase word `CONFIRM` (with optional leading or trailing spaces) confirms it. Any other input cancels the pending command and is processed normally. A cancellation notice appears in red above the command result; command output keeps its usual color, and command errors appear in red.
 * If TuteeBook3 is already empty, `clear` shows `TuteeBook3 is already empty.` without asking you to confirm.
 

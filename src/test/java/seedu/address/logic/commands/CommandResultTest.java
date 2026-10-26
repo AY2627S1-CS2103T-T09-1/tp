@@ -124,6 +124,16 @@ public class CommandResultTest {
     }
 
     @Test
+    public void showStudentWarning_validStudent_containsWarningAndStudentDisplayInstruction() {
+        CommandResult commandResult = CommandResult.showStudentWarning("feedback", ALICE, INDEX_FIRST_PERSON);
+
+        assertTrue(commandResult.isWarning());
+        assertEquals(CommandResult.DisplayMode.SHOW_STUDENT, commandResult.getDisplayMode());
+        assertEquals(ALICE, commandResult.getPersonToDisplay().orElseThrow());
+        assertEquals(INDEX_FIRST_PERSON, commandResult.getDisplayedIndex().orElseThrow());
+    }
+
+    @Test
     public void showStudent_missingStudent_throwsNullPointerException() {
         Executable showMissingStudent = () -> CommandResult.showStudent("feedback", null, INDEX_FIRST_PERSON);
 

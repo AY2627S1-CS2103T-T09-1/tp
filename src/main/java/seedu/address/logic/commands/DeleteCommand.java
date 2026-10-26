@@ -1,7 +1,6 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
-import static seedu.address.model.Model.PREDICATE_SHOW_ALL_PERSONS;
 
 import java.util.List;
 
@@ -26,6 +25,8 @@ public class DeleteCommand extends Command implements ConfirmationCommand {
             + COMMAND_WORD + " " + FORCE_OPTION + " 1 (deletes immediately)";
 
     public static final String MESSAGE_DELETE_STUDENT_SUCCESS = "Deleted student: %1$s at %2$s (%3$s).";
+    public static final String MESSAGE_FILTERED_LIST_EMPTY =
+            "The filtered list is now empty, so all remaining students are shown.";
 
     public static final String MESSAGE_INVALID_FORMAT = "Invalid format. Usage: " + COMMAND_WORD
             + " [-f] INDEX";
@@ -72,9 +73,13 @@ public class DeleteCommand extends Command implements ConfirmationCommand {
         requireNonNull(model);
         Person personToDelete = getTargetPerson(model);
         model.deletePerson(personToDelete);
-        model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
         String message = String.format(MESSAGE_DELETE_STUDENT_SUCCESS, personToDelete.getName(),
                 personToDelete.getSchool(), personToDelete.getLevel());
+        boolean hasRemainingStudents = !model.getAddressBook().getPersonList().isEmpty();
+        if (hasRemainingStudents && model.getFilteredPersonList().isEmpty()) {
+            model.updateFilteredPersonList(Model.PREDICATE_SHOW_ALL_PERSONS);
+            message += System.lineSeparator() + MESSAGE_FILTERED_LIST_EMPTY;
+        }
         return CommandResult.showList(message);
     }
 
