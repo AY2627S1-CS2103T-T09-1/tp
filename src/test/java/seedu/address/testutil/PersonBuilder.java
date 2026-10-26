@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import seedu.address.model.person.Address;
 import seedu.address.model.person.Band;
 import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
@@ -28,6 +29,7 @@ public class PersonBuilder {
     private Name name;
     private Phone phone;
     private School school;
+    private Address address;
     private Level level;
     private List<Subject> subjects;
     private List<Note> notes;
@@ -52,6 +54,7 @@ public class PersonBuilder {
         name = personToCopy.getName();
         phone = personToCopy.getPhone().orElse(null);
         school = personToCopy.getSchool();
+        address = personToCopy.getAddress().orElse(null);
         level = personToCopy.getLevel();
         subjects = personToCopy.getSubjects();
         notes = new ArrayList<>(personToCopy.getNotes());
@@ -87,6 +90,22 @@ public class PersonBuilder {
      */
     public PersonBuilder withSchool(String school) {
         this.school = new School(school);
+        return this;
+    }
+
+    /**
+     * Sets the {@code Address} of the {@code Person} that we are building.
+     */
+    public PersonBuilder withAddress(String address) {
+        this.address = new Address(address);
+        return this;
+    }
+
+    /**
+     * Removes the {@code Address} of the {@code Person} that we are building.
+     */
+    public PersonBuilder withoutAddress() {
+        this.address = null;
         return this;
     }
 
@@ -133,7 +152,7 @@ public class PersonBuilder {
     }
 
     public Person build() {
-        return new Person(name, phone, school, level, subjects, notes, guardian);
+        return new Person(name, phone, school, address, level, subjects, notes, guardian);
     }
 
 }

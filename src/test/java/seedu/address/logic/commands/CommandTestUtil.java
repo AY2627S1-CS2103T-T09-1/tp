@@ -2,6 +2,7 @@ package seedu.address.logic.commands;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
@@ -32,6 +33,7 @@ public class CommandTestUtil {
     public static final String VALID_PHONE_BOB = "82222222";
     public static final String VALID_SCHOOL_AMY = "Bedok Green Secondary School";
     public static final String VALID_SCHOOL_BOB = "Victoria School";
+    public static final String VALID_ADDRESS_BOB = "14 Example Road";
     public static final String VALID_LEVEL_AMY = "S1";
     public static final String VALID_LEVEL_BOB = "S4";
     public static final String VALID_GUARDIAN_NAME_AMY = "Mary Bee";
@@ -45,6 +47,7 @@ public class CommandTestUtil {
     public static final String PHONE_DESC_BOB = " " + PREFIX_PHONE + VALID_PHONE_BOB;
     public static final String SCHOOL_DESC_AMY = " " + PREFIX_SCHOOL + VALID_SCHOOL_AMY;
     public static final String SCHOOL_DESC_BOB = " " + PREFIX_SCHOOL + VALID_SCHOOL_BOB;
+    public static final String ADDRESS_DESC_BOB = " " + PREFIX_ADDRESS + VALID_ADDRESS_BOB;
     public static final String LEVEL_DESC_AMY = " " + PREFIX_LEVEL + VALID_LEVEL_AMY;
     public static final String LEVEL_DESC_BOB = " " + PREFIX_LEVEL + VALID_LEVEL_BOB;
     public static final String GUARDIAN_NAME_DESC_AMY = " " + PREFIX_GUARDIAN_NAME + VALID_GUARDIAN_NAME_AMY;

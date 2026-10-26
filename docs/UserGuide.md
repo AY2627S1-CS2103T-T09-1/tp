@@ -81,11 +81,12 @@ Adds a person to the address book.
 
 After the student is added, the full list is shown on the left and the new student's record is shown on the right.
 
-Format: `add n/NAME [p/PHONE] sch/SCHOOL lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]`
+Format: `add n/NAME [p/PHONE] sch/SCHOOL [a/ADDRESS] lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]`
 
 * `NAME` can contain only letters, digits, and spaces. Symbols such as `/`, `-`, and `'` aren't supported yet, so type `Rajesh s/o Kumar` as `Rajesh so Kumar`.
 * The phone number is optional, since younger students may not have their own phone.
-* When you add a student, TuteeBook3 trims leading and trailing spaces and collapses repeated ordinary spaces to one in the name, school, subject names, and guardian name. It keeps the capitalization you enter. For example, `add n/John  Doe sch/Victoria  School lvl/S3 sub/Additional  Mathematics band/G1` stores `John Doe`, `Victoria School`, and `Additional Mathematics`.
+* `ADDRESS` is optional. If provided, it can contain any nonblank value up to 200 characters. Repeated ordinary spaces are collapsed to one. The list card hides a missing address, while the detail panel shows `Not provided`.
+* When you add a student, TuteeBook3 trims leading and trailing spaces and collapses repeated ordinary spaces to one in the name, school, address, subject names, and guardian name. It keeps the capitalization you enter. For example, `add n/John  Doe sch/Victoria  School a/21  Clementi  Road lvl/S3 sub/Additional  Mathematics band/G1` stores `John Doe`, `Victoria School`, `21 Clementi Road`, and `Additional Mathematics`.
 * `PHONE` is the number you use to reach the student. It can only contain digits, with an optional `+` at the start, and must have 3 to 15 digits, counting the country code. You can type spaces or hyphens (`-`), such as `9123 4567` or `9123-4567`, and they are removed when it is saved. Other dashes, such as `–`, are not allowed.
 * A Singapore number (8 digits starting with 6, 8, or 9) is saved as those 8 digits. A leading `+65` is removed, so `+65 9123 4567` is saved as `91234567`. If what follows `+65` isn't a Singapore number, the `+65` is kept.
 * For an overseas number, type `+` and the country code, such as `+60 12-345 6789`. For Singapore, type `+65`, not `65`.
@@ -114,6 +115,7 @@ There are no parameters at all, or there is text between `add` and the first par
 `NAME` is invalid | `Names should only contain alphanumeric characters and spaces, and should not be blank`
 `PHONE` or `GUARDIAN_PHONE` is invalid | The message says why, as described above
 `SCHOOL` is invalid | `School names must be 1-100 characters and contain at least one letter.`
+`ADDRESS` is blank or longer than 200 characters | `Addresses must not be blank and must be at most 200 characters.`
 `LEVEL` is not S1 to S5 | `Level must be one of S1, S2, S3, S4, S5.`
 A subject or band is wrong | See [Subject and band errors](#subject-and-band-errors)
 Only one of `gn/` and `gp/` is given | `Guardian name (gn/) and guardian phone (gp/) must be given together.`
@@ -132,7 +134,7 @@ Examples:
 
 ### Listing all persons: `list`
 
-Shows a list of all persons in the address book. Each entry shows the student's index, name, phone number (if provided), school, and level. The right panel returns to `View a student to see details.` Use `view INDEX` to see the remaining details.
+Shows a list of all persons in the address book. Each entry shows the student's index, name, phone number (if provided), school, address (if provided), and level. The right panel returns to `View a student to see details.` Use `view INDEX` to see the remaining details.
 
 Format: `list`
 
@@ -144,7 +146,7 @@ TuteeBook3 always shows a fixed, equal-width student list on the left and studen
 
 `view` shows the full record of the student at the specified index on the right.
 
-The detail panel contains the student's name, school, level, subject-band pairs, student phone number, guardian name, and guardian phone number, followed by the student's notes. Optional fields without a recorded value, such as the student phone number or guardian details, are shown as `Not provided`.
+The detail panel contains the student's name, school, level, subject-band pairs, address, student phone number, guardian name, and guardian phone number, followed by the student's notes. Optional fields without a recorded value, such as the address, student phone number, or guardian details, are shown as `Not provided`.
 
 Format: `view INDEX`
 
@@ -162,11 +164,12 @@ Example: `view 2` shows the full record of the second student in the currently d
 
 Edits an existing person in the address book.
 
-Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`
+Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [a/ADDRESS] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`
 
 * Edits the person at the specified `INDEX`. The index refers to the index number shown in the displayed person list. The index **must be a positive integer** 1, 2, 3, …​
 * At least one of the optional fields must be provided.
 * Existing values will be updated to the input values.
+* `a/ADDRESS` replaces the student's address. It follows the same rules as in `add`; use `a/` with no value to remove it. Omitting `a/` keeps the current address.
 * Supplying subject-band pairs replaces the entire subject list; omitting them preserves existing subjects. The replacement list must contain at least 1 subject and a maximum of 8 distinct subjects, following the same pairing and validation rules as `add`. Notes are preserved when editing a student.
 * `PHONE` and `GUARDIAN_PHONE` follow the same rules as in `add`, so `p/9123 4567` is saved as `91234567`. The warning about a number not looking like a Singapore number only appears when you type `p/` or `gp/` in that command.
 * You can remove a person's phone number by typing `p/` without specifying any number after it.

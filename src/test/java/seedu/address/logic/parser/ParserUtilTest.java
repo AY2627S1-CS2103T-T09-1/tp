@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.person.Address;
 import seedu.address.model.person.Band;
 import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Name;
@@ -108,6 +109,17 @@ public class ParserUtilTest {
         String nameWithWhitespace = WHITESPACE + VALID_NAME + WHITESPACE;
         Name expectedName = new Name(VALID_NAME);
         assertEquals(expectedName, ParserUtil.parseName(nameWithWhitespace));
+    }
+
+    @Test
+    public void parseAddress_repeatedOrdinarySpaces_collapsesSpaces() throws Exception {
+        assertEquals(new Address("123 Example Road"), ParserUtil.parseAddress("  123  Example   Road  "));
+    }
+
+    @Test
+    public void parseAddress_overMaximumLength_throwsParseException() {
+        String longAddress = "A".repeat(Address.MAX_LENGTH + 1);
+        assertThrows(ParseException.class, Address.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseAddress(longAddress));
     }
 
     @Test

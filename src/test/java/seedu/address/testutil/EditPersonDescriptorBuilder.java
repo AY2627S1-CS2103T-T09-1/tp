@@ -3,6 +3,7 @@ package seedu.address.testutil;
 import java.util.List;
 
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
+import seedu.address.model.person.Address;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
@@ -33,6 +34,7 @@ public class EditPersonDescriptorBuilder {
         descriptor.setName(person.getName());
         person.getPhone().ifPresentOrElse(descriptor::setPhone, descriptor::setPhoneRemoved);
         descriptor.setSchool(person.getSchool());
+        person.getAddress().ifPresent(descriptor::setAddress);
         descriptor.setLevel(person.getLevel());
         descriptor.setSubjects(person.getSubjects());
         person.getGuardian().ifPresent(guardian -> {
@@ -70,6 +72,22 @@ public class EditPersonDescriptorBuilder {
      */
     public EditPersonDescriptorBuilder withSchool(String school) {
         descriptor.setSchool(new School(school));
+        return this;
+    }
+
+    /**
+     * Sets the {@code Address} of the {@code EditPersonDescriptor} that we are building.
+     */
+    public EditPersonDescriptorBuilder withAddress(String address) {
+        descriptor.setAddress(new Address(address));
+        return this;
+    }
+
+    /**
+     * Marks the {@code Address} to be removed in the {@code EditPersonDescriptor} that we are building.
+     */
+    public EditPersonDescriptorBuilder withAddressRemoved() {
+        descriptor.setAddressRemoved();
         return this;
     }
 

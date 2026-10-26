@@ -63,6 +63,27 @@ public class EditCommandTest {
     }
 
     @Test
+    public void execute_addressSetAndRemoved_updatesStudent() {
+        Person original = model.getFilteredPersonList().get(0);
+        Person withAddress = new PersonBuilder(original).withAddress("12 Example Road").build();
+        EditCommand setAddress = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withAddress("12 Example Road").build());
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(original, withAddress);
+        assertCommandSuccess(setAddress, model, CommandResult.showStudent(String.format(
+                EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(withAddress)), withAddress,
+                INDEX_FIRST_PERSON), expectedModel);
+
+        EditCommand removeAddress = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withAddressRemoved().build());
+        expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(withAddress, original);
+        assertCommandSuccess(removeAddress, model, CommandResult.showStudent(String.format(
+                EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(original)), original, INDEX_FIRST_PERSON),
+                expectedModel);
+    }
+
+    @Test
     public void execute_personWithNotes_keepsNotes() {
         Person original = model.getFilteredPersonList().get(0);
         Person personWithNotes = new PersonBuilder(original)
