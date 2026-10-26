@@ -357,7 +357,7 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 
 <img src="images/FilterClassDiagram.png" width="650" />
 
-1. `FilterCommandParser` splits the arguments at the filter prefixes `n/`, `sch/`, `lvl/`, `sub/`, `band/`, `p/`, `gn/`, `gp/`, and `note/`. It also recognizes `t/` and `nid/`, the note prefixes of `addnote` and `deletenote`, only to reject them with a message pointing to `note/`, so that they are not read as part of another value. `note/` is read with `ArgumentTokenizer#tokenizeWithTrailingText`, so everything after it is the note text, as in `addnote`.
+1. `FilterCommandParser` splits the arguments at the filter prefixes `n/`, `sch/`, `lvl/`, `sub/`, `band/`, `p/`, `gn/`, `gp/`, and `note/`. It also recognizes `nid/`, the note index prefix of `deletenote` and `editnote`, only to reject it with a message pointing to `note/`, so that it is not read as part of another value. `note/` is read with `ArgumentTokenizer#tokenizeWithTrailingText`, so everything after it is the note text, as in `addnote`.
 1. It then checks, in order, that there is no text before the first prefix, that at least one filter is given, that no prefix is repeated, and that `band/` comes with `sub/`.
 1. It creates one `Predicate<Person>` for each filter given:
 
