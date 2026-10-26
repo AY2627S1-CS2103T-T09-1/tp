@@ -29,11 +29,18 @@ public class PersonTest {
                 .withSubjects().build());
         List<Subject> subjects = new ArrayList<>(person.getSubjects());
         Person copy = new Person(person.getName(), person.getPhone().orElse(null), person.getSchool(),
-                person.getLevel(), subjects);
+                person.getAddress().orElse(null), person.getLevel(), subjects);
         subjects.clear();
         assertEquals(person.getSubjects(), copy.getSubjects());
         assertThrows(IllegalArgumentException.class, "Subject is repeated: mathematics.", () -> new PersonBuilder()
                 .withSubjects(new Subject("Mathematics", Band.G1), new Subject("mathematics", Band.G2)).build());
+    }
+
+    @Test
+    public void equals_differentAddress_returnsFalse() {
+        Person person = new PersonBuilder().withAddress("12 Example Road").build();
+        Person differentAddress = new PersonBuilder(person).withAddress("14 Example Road").build();
+        assertFalse(person.equals(differentAddress));
     }
 
     @Test
@@ -64,6 +71,12 @@ public class PersonTest {
 
         assertTrue(copy.getPhone().isEmpty());
         assertTrue(copy.getGuardian().isEmpty());
+    }
+
+    @Test
+    public void copyWithNotes_address_keepsAddress() {
+        Person person = new PersonBuilder(ALICE).withAddress("12 Example Road").build();
+        assertEquals(person.getAddress(), person.copyWithNotes(List.of(new Note("lesson"))).getAddress());
     }
 
     @Test
@@ -195,15 +208,16 @@ public class PersonTest {
     @Test
     public void format_noPhone_showsNotProvided() {
         Person aliceWithoutPhone = new PersonBuilder(ALICE).withoutPhone().build();
-        assertEquals("Alice Pauline; Student phone: " + Messages.MESSAGE_PHONE_NOT_PROVIDED
-                + "; School: Maplewood Secondary School; Level: S1; Subjects: Mathematics (G1)",
+        assertEquals("Alice Pauline; Student phone: " + Messages.MESSAGE_NOT_PROVIDED
+                + "; School: Maplewood Secondary School; Level: S1; Subjects: Mathematics (G1); Address: "
+                + Messages.MESSAGE_NOT_PROVIDED,
                 Messages.format(aliceWithoutPhone));
     }
 
     @Test
     public void format_withLevel_includesLevel() {
         assertEquals("Alice Pauline; Student phone: 94351253; School: Maplewood Secondary School; Level: S1; "
-                + "Subjects: Mathematics (G1)", Messages.format(ALICE));
+                + "Subjects: Mathematics (G1); Address: " + Messages.MESSAGE_NOT_PROVIDED, Messages.format(ALICE));
     }
 
     @Test
@@ -218,13 +232,14 @@ public class PersonTest {
         Person aliceWithTwoSubjects = new PersonBuilder(ALICE)
                 .withSubjects(new Subject("Mathematics", Band.G1), new Subject("Science", Band.G2)).build();
         assertEquals("Alice Pauline; Student phone: 94351253; School: Maplewood Secondary School; Level: S1; "
-                + "Subjects: Mathematics (G1), Science (G2)", Messages.format(aliceWithTwoSubjects));
+                + "Subjects: Mathematics (G1), Science (G2); Address: " + Messages.MESSAGE_NOT_PROVIDED,
+                Messages.format(aliceWithTwoSubjects));
     }
 
     @Test
     public void toStringMethod() {
         String expected = Person.class.getCanonicalName() + "{name=" + ALICE.getName() + ", phone="
-                + ALICE.getPhone().get() + ", school=" + ALICE.getSchool() + ", level=" + ALICE.getLevel()
+                + ALICE.getPhone().get() + ", school=" + ALICE.getSchool() + ", address=null, level=" + ALICE.getLevel()
                 + ", subjects=" + ALICE.getSubjects() + ", guardian=null"
                 + "}";
         assertEquals(expected, ALICE.toString());

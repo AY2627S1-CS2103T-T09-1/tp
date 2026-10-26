@@ -67,6 +67,21 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_addressSetOrRemoved_success() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withAddress("12 Example Road").build();
+        assertParseSuccess(parser, "1 a/12 Example Road", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+
+        descriptor = new EditPersonDescriptorBuilder().withAddressRemoved().build();
+        assertParseSuccess(parser, "1 a/", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
+    public void parse_blankAddressWithSpaces_removesAddress() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withAddressRemoved().build();
+        assertParseSuccess(parser, "1 a/   ", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
     public void parse_invalidSchool_failure() {
         assertParseFailure(parser, "1 sch/  ", School.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, "1 sch/School sch/Other School",
@@ -101,7 +116,7 @@ public class EditCommandParserTest {
 
         // removed prefixes being parsed as preamble
         assertParseFailure(parser, "1 e/bob@example.com", MESSAGE_INVALID_FORMAT);
-        assertParseFailure(parser, "1 a/Clementi Road", MESSAGE_INVALID_FORMAT);
+        assertParseFailure(parser, "1 x/Clementi Road", MESSAGE_INVALID_FORMAT);
         assertParseFailure(parser, "1 t/friend", MESSAGE_INVALID_FORMAT);
     }
 

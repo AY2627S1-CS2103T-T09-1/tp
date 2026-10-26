@@ -35,6 +35,7 @@ public class PersonCardTest {
     @Test
     public void constructor_personWithAllDetails_displaysOnlySummaryFields(FxRobot robot) {
         Person person = new PersonBuilder(ALICE)
+                .withAddress("12 Example Road")
                 .withGuardian("Mary Tan", "91234567")
                 .withNotes("Weak in algebra")
                 .build();
@@ -45,10 +46,12 @@ public class PersonCardTest {
             assertLabelText(card, "#name", person.getName().fullName);
             assertLabelText(card, "#phone", person.getPhone().orElseThrow().value);
             assertLabelText(card, "#school", person.getSchool().value);
+            assertLabelText(card, "#address", "12 Example Road");
             assertLabelText(card, "#level", person.getLevel().name());
             assertLabelWraps(card, "#name");
             assertLabelWraps(card, "#phone");
             assertLabelWraps(card, "#school");
+            assertLabelWraps(card, "#address");
             assertLabelWraps(card, "#level");
             assertEquals(Pos.TOP_LEFT, ((HBox) card.getRoot().lookup("#name").getParent()).getAlignment());
             VBox cardContents = (VBox) card.getRoot().lookup("#phone").getParent();
@@ -68,6 +71,9 @@ public class PersonCardTest {
             Label phone = (Label) card.getRoot().lookup("#phone");
             assertFalse(phone.isVisible());
             assertFalse(phone.isManaged());
+            Label address = (Label) card.getRoot().lookup("#address");
+            assertFalse(address.isVisible());
+            assertFalse(address.isManaged());
         });
     }
 

@@ -1,5 +1,5 @@
 {
-  "_comment": "Save file that still has the removed email, address and tags fields. Loads as TypicalPersons#getTypicalAddressBook()",
+  "_comment": "Save file that still has removed email and tags fields, and now loads its address fields.",
   "persons" : [ {
     "name" : "Alice Pauline",
     "phone" : "94351253",

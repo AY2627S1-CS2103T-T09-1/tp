@@ -1,6 +1,7 @@
 package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.logic.commands.CommandTestUtil.ADDRESS_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.GUARDIAN_NAME_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.GUARDIAN_NAME_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.GUARDIAN_PHONE_DESC_AMY;
@@ -22,6 +23,7 @@ import static seedu.address.logic.commands.CommandTestUtil.PREAMBLE_NON_EMPTY;
 import static seedu.address.logic.commands.CommandTestUtil.PREAMBLE_WHITESPACE;
 import static seedu.address.logic.commands.CommandTestUtil.SCHOOL_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.SCHOOL_DESC_BOB;
+import static seedu.address.logic.commands.CommandTestUtil.VALID_ADDRESS_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_GUARDIAN_NAME_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_GUARDIAN_PHONE_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_NAME_BOB;
@@ -42,6 +44,7 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.AddCommand;
+import seedu.address.model.person.Address;
 import seedu.address.model.person.Band;
 import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
@@ -103,6 +106,19 @@ public class AddCommandParserTest {
         Person expectedPerson = new PersonBuilder(BOB).withoutPhone().build();
         assertParseSuccess(parser, NAME_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + SUBJECT_DESC,
                 new AddCommand(expectedPerson));
+    }
+
+    @Test
+    public void parse_addressProvided_success() {
+        Person expectedPerson = new PersonBuilder(BOB).withoutPhone().withAddress(VALID_ADDRESS_BOB).build();
+        assertParseSuccess(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + ADDRESS_DESC_BOB + LEVEL_DESC_BOB
+                + SUBJECT_DESC, new AddCommand(expectedPerson));
+    }
+
+    @Test
+    public void parse_blankAddress_failure() {
+        assertParseFailure(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + " a/ " + LEVEL_DESC_BOB + SUBJECT_DESC,
+                Address.MESSAGE_CONSTRAINTS);
     }
 
     @Test
@@ -309,7 +325,7 @@ public class AddCommandParserTest {
         assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB
                 + " e/bob@example.com" + SUBJECT_DESC,
                 School.MESSAGE_CONSTRAINTS);
-        assertParseFailure(parser, NAME_DESC_BOB + " a/Clementi Road" + PHONE_DESC_BOB + LEVEL_DESC_BOB
+        assertParseFailure(parser, NAME_DESC_BOB + " x/Clementi Road" + PHONE_DESC_BOB + LEVEL_DESC_BOB
                 + SCHOOL_DESC_BOB + SUBJECT_DESC,
                 Name.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + " t/friend"

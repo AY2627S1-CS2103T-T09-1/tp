@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import seedu.address.commons.exceptions.IllegalValueException;
 import seedu.address.commons.util.JsonUtil;
 import seedu.address.model.AddressBook;
+import seedu.address.model.person.Address;
 import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.testutil.PersonBuilder;
@@ -56,12 +57,16 @@ public class JsonSerializableAddressBookTest {
     }
 
     @Test
-    public void toModelType_oldFormatFileWithRemovedFields_ignoresRemovedFields() throws Exception {
+    public void toModelType_oldFormatFile_loadsAddressesAndRemovedFields() throws Exception {
         JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(OLD_FORMAT_TYPICAL_PERSONS_FILE,
                 JsonSerializableAddressBook.class).get();
         AddressBook addressBookFromFile = dataFromFile.toModelType();
-        AddressBook typicalPersonsAddressBook = TypicalPersons.getTypicalAddressBook();
-        assertEquals(typicalPersonsAddressBook, addressBookFromFile);
+        List<Address> addresses = addressBookFromFile.getPersonList().stream()
+                .map(person -> person.getAddress().orElseThrow()).toList();
+        assertEquals(List.of(new Address("123, Jurong West Ave 6, #08-111"),
+                new Address("311, Clementi Ave 2, #02-25"), new Address("wall street"),
+                new Address("10th street"), new Address("michegan ave"), new Address("little tokyo"),
+                new Address("4th street")), addresses);
     }
 
     @Test

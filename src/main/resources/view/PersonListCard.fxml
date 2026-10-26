@@ -26,6 +26,8 @@
            wrapText="true" />
     <Label fx:id="school" maxWidth="Infinity" styleClass="cell_small_label" text="\$school"
            wrapText="true" />
+    <Label fx:id="address" maxWidth="Infinity" styleClass="cell_small_label"
+           wrapText="true" />
     <Label fx:id="level" maxWidth="Infinity" styleClass="cell_small_label" text="\$level"
            wrapText="true" />
   </VBox>
