@@ -115,12 +115,12 @@ public class FilterCommandParserTest {
 
     @Test
     public void parse_notePrefix_throwsParseException() {
-        assertParseFailure(parser, " t/algebra", FilterCommandParser.MESSAGE_NOTES_NOT_FILTERABLE);
-        assertParseFailure(parser, " t/", FilterCommandParser.MESSAGE_NOTES_NOT_FILTERABLE);
+        assertParseFailure(parser, " note/algebra", FilterCommandParser.MESSAGE_NOTES_NOT_FILTERABLE);
+        assertParseFailure(parser, " note/", FilterCommandParser.MESSAGE_NOTES_NOT_FILTERABLE);
         assertParseFailure(parser, " nid/2", FilterCommandParser.MESSAGE_NOTES_NOT_FILTERABLE);
 
-        // without t/ being recognized, this would search names for "tan t/algebra"
-        assertParseFailure(parser, " n/tan t/algebra", FilterCommandParser.MESSAGE_NOTES_NOT_FILTERABLE);
+        // without note/ being recognized, this would search names for "tan note/algebra"
+        assertParseFailure(parser, " n/tan note/algebra", FilterCommandParser.MESSAGE_NOTES_NOT_FILTERABLE);
     }
 
     @Test

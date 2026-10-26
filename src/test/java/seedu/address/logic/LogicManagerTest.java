@@ -243,7 +243,7 @@ public class LogicManagerTest {
         assertCommandSuccess("CONFIRM", new CommandResult(String.format(DeleteNoteCommand.MESSAGE_SUCCESS,
                 1, AMY.getName(), personWithNote.getNotes().getFirst())),
                 expectedModel);
-        logic.execute("addnote 1 t/Review geometry");
+        logic.execute("addnote 1 note/Review geometry");
         CommandResult forcedResult = logic.execute("deletenote -f 1 nid/1");
         assertFalse(forcedResult.isWarning());
         assertEquals(String.format(DeleteNoteCommand.MESSAGE_SUCCESS, 1, AMY.getName(), "Review geometry"),
