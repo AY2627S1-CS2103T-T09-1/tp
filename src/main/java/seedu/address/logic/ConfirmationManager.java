@@ -9,10 +9,11 @@ import seedu.address.logic.commands.ConfirmationCommand;
  * Manages a pending command that requires the user to confirm or cancel it.
  */
 public class ConfirmationManager {
-    public static final String MESSAGE_CONFIRMATION_SUFFIX = " Type CONFIRM (uppercase) to proceed; any other input "
-            + "cancels this request and runs as a command.";
     public static final String MESSAGE_CONFIRMATION_CANCELLATION =
             "Any other input cancels this request and runs as a command.";
+    public static final String MESSAGE_CONFIRMATION_SUFFIX = System.lineSeparator()
+            + "Type CONFIRM (uppercase) to proceed."
+            + System.lineSeparator() + MESSAGE_CONFIRMATION_CANCELLATION;
     public static final String MESSAGE_CANCELLED_FORMAT = "The '%s' command has been cancelled.";
 
     private ConfirmationCommand pendingCommand;

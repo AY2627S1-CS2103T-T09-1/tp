@@ -25,6 +25,10 @@ public class DeleteCommand extends Command implements ConfirmationCommand {
             + COMMAND_WORD + " " + FORCE_OPTION + " 1 (deletes immediately)";
 
     public static final String MESSAGE_DELETE_STUDENT_SUCCESS = "Deleted student: %1$s at %2$s (%3$s).";
+    public static final String MESSAGE_CONFIRMATION =
+            "This will delete %1$s at %2$s (%3$s) and all their notes.";
+    public static final String MESSAGE_CONFIRMATION_INSTRUCTION =
+            "Type CONFIRM (uppercase) to delete this student and all their notes.";
     public static final String MESSAGE_FILTERED_LIST_EMPTY =
             "The filtered list is now empty, so all remaining students are shown.";
 
@@ -62,10 +66,14 @@ public class DeleteCommand extends Command implements ConfirmationCommand {
     }
 
     @Override
+    public String getConfirmationInstruction() {
+        return MESSAGE_CONFIRMATION_INSTRUCTION;
+    }
+
+    @Override
     public String getConfirmationMessage(Model model) throws CommandException {
         Person person = getTargetPerson(model);
-        return "This will delete " + person.getName() + " at " + person.getSchool() + " (" + person.getLevel()
-                + ") and all their notes. Continue?";
+        return String.format(MESSAGE_CONFIRMATION, person.getName(), person.getSchool(), person.getLevel());
     }
 
     @Override

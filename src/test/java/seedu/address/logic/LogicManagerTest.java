@@ -48,8 +48,8 @@ import seedu.address.testutil.TypicalPersons;
 public class LogicManagerTest {
     private static final IOException DUMMY_IO_EXCEPTION = new IOException("dummy IO exception");
     private static final IOException DUMMY_AD_EXCEPTION = new AccessDeniedException("dummy access denied exception");
-    private static final CommandResult CLEAR_CONFIRMATION_RESULT = CommandResult.warning(
-            ClearCommand.MESSAGE_CONFIRMATION + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX);
+    private static final CommandResult CLEAR_CONFIRMATION_RESULT = confirmationPrompt(
+            ClearCommand.MESSAGE_CONFIRMATION, ClearCommand.MESSAGE_CONFIRMATION_INSTRUCTION);
     private static final String CLEAR_CANCELLED = String.format(
             ConfirmationManager.MESSAGE_CANCELLED_FORMAT, ClearCommand.COMMAND_WORD);
 
@@ -174,8 +174,9 @@ public class LogicManagerTest {
 
         CommandResult prompt = logic.execute("delete 2");
 
-        assertEquals("This will delete Alice Pauline at Victoria School (S2) and all their notes. Continue?"
-                + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX, prompt.getFeedbackToUser());
+        assertEquals(confirmationPrompt(String.format(DeleteCommand.MESSAGE_CONFIRMATION, "Alice Pauline",
+                "Victoria School", "S2"), DeleteCommand.MESSAGE_CONFIRMATION_INSTRUCTION).getFeedbackToUser(),
+                prompt.getFeedbackToUser());
         assertTrue(prompt.isWarning());
         assertEquals(2, model.getAddressBook().getPersonList().size());
     }
@@ -189,8 +190,9 @@ public class LogicManagerTest {
 
         CommandResult prompt = logic.execute("deletenote 2 nid/1");
 
-        assertEquals("This will delete note 1 from Alice Pauline at Victoria School (S2). Continue?"
-                + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX, prompt.getFeedbackToUser());
+        assertEquals(confirmationPrompt(String.format(DeleteNoteCommand.MESSAGE_CONFIRMATION, 1, "Alice Pauline",
+                "Victoria School", "S2"), DeleteNoteCommand.MESSAGE_CONFIRMATION_INSTRUCTION).getFeedbackToUser(),
+                prompt.getFeedbackToUser());
         assertTrue(prompt.isWarning());
         assertEquals(List.of("Review algebra"), model.getAddressBook().getPersonList().get(1).getNotes().stream()
                 .map(note -> note.toString()).toList());
@@ -349,9 +351,9 @@ public class LogicManagerTest {
         model.addPerson(AMY);
         CommandResult prompt = logic.execute("delete 1");
         assertTrue(prompt.isWarning());
-        assertEquals("This will delete " + AMY.getName() + " at " + AMY.getSchool() + " (" + AMY.getLevel()
-                + ") and all their notes. Continue?"
-                + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX, prompt.getFeedbackToUser());
+        assertEquals(confirmationPrompt(String.format(DeleteCommand.MESSAGE_CONFIRMATION, AMY.getName(),
+                AMY.getSchool(), AMY.getLevel()), DeleteCommand.MESSAGE_CONFIRMATION_INSTRUCTION).getFeedbackToUser(),
+                prompt.getFeedbackToUser());
 
         Model expectedModel = new ModelManager();
         assertCommandSuccess("CONFIRM", CommandResult.showList(
@@ -389,9 +391,10 @@ public class LogicManagerTest {
         model.addPerson(personWithNote);
         CommandResult prompt = logic.execute("deletenote 1 nid/1");
         assertTrue(prompt.isWarning());
-        assertEquals("This will delete note 1 from " + AMY.getName() + " at " + AMY.getSchool() + " ("
-                + AMY.getLevel() + "). Continue?"
-                + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX, prompt.getFeedbackToUser());
+        assertEquals(confirmationPrompt(String.format(DeleteNoteCommand.MESSAGE_CONFIRMATION, 1, AMY.getName(),
+                AMY.getSchool(), AMY.getLevel()), DeleteNoteCommand.MESSAGE_CONFIRMATION_INSTRUCTION)
+                .getFeedbackToUser(),
+                prompt.getFeedbackToUser());
 
         Model expectedModel = new ModelManager();
         Person editedPerson = new PersonBuilder(personWithNote).withNotes().build();
