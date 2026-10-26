@@ -376,7 +376,8 @@ Format: `delete [-f] INDEX`
 * `delete` shows an amber prompt, such as `This will delete Alex Tan and all their notes. Continue? Type CONFIRM (uppercase) to proceed; any other input cancels this request and runs as a command.` Enter `CONFIRM` to confirm. Use `delete -f INDEX` to delete immediately.
 * The displayed list and student record remain unchanged while confirmation is pending.
 * After `view`, use the index shown at the top of the student detail view when running `delete`.
-* After a student is deleted, the current filter remains active. The index numbers of the remaining matching students may change, so check the list before you run another command that uses an index.
+* After a student is deleted, the current filter remains active while it still has matches. The index numbers of the remaining matching students may change, so check the list before you run another command that uses an index.
+* If you delete the filter's last matching student while other students remain, TuteeBook3 shows the full list and adds `The filtered list is now empty, so all remaining students are shown.` to the result.
 * After deletion, the right panel returns to `View a student to see details.`
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**

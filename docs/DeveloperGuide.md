@@ -681,7 +681,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 3.  Tutor requests to delete a specific student by index
 4.  TuteeBook3 asks Tutor to confirm the deletion
 5.  Tutor confirms the deletion
-6.  TuteeBook3 deletes the student and all of the student's notes, preserves any active filter, and shows the remaining students
+6.  TuteeBook3 deletes the student and all of the student's notes, preserves any active filter that still has matches, and shows the remaining students
 
     Use case ends.
 
@@ -703,9 +703,15 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case resumes at the relevant step for that command.
 
-* 6a. TuteeBook3 fails to save the change.
+* 6a. The active filter has no matches after the deletion, but other students remain.
 
-    * 6a1. TuteeBook3 shows an error message and no data is changed.
+    * 6a1. TuteeBook3 shows the full list and explains that the filtered list became empty.
+
+      Use case ends.
+
+* 6b. TuteeBook3 fails to save the change.
+
+    * 6b1. TuteeBook3 shows an error message and no data is changed.
 
       Use case ends.
 
