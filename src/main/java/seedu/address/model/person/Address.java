@@ -9,8 +9,12 @@ import static seedu.address.commons.util.AppUtil.checkArgument;
  */
 public class Address {
 
-    public static final String MESSAGE_CONSTRAINTS = "Addresses can take any values, and should not be blank";
+    public static final int MAX_LENGTH = 200;
+    public static final String MESSAGE_CONSTRAINTS =
+            "Addresses must not be blank and must be at most 200 characters.";
     public static final String VALIDATION_REGEX = "[^\\s].*";
+    private static final String REPEATED_SPACES_REGEX = " {2,}";
+    private static final String SINGLE_SPACE = " ";
 
     public final String value;
 
@@ -21,15 +25,21 @@ public class Address {
      */
     public Address(String address) {
         requireNonNull(address);
-        checkArgument(isValidAddress(address), MESSAGE_CONSTRAINTS);
-        value = address;
+        String normalizedAddress = normalizeAddress(address);
+        checkArgument(isValidAddress(normalizedAddress), MESSAGE_CONSTRAINTS);
+        value = normalizedAddress;
     }
 
     /**
      * Returns true if the given string is a valid address.
      */
     public static boolean isValidAddress(String test) {
-        return test.matches(VALIDATION_REGEX);
+        String normalizedAddress = normalizeAddress(test);
+        return normalizedAddress.length() <= MAX_LENGTH && normalizedAddress.matches(VALIDATION_REGEX);
+    }
+
+    private static String normalizeAddress(String address) {
+        return address.replaceAll(REPEATED_SPACES_REGEX, SINGLE_SPACE);
     }
 
     @Override
