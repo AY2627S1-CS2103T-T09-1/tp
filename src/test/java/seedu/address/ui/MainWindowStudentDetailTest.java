@@ -280,8 +280,11 @@ public class MainWindowStudentDetailTest {
                 .map(ListCell.class::cast)
                 .filter(cell -> !cell.isEmpty())
                 .forEach(cell -> {
+                    Region card = (Region) cell.getGraphic();
+                    VBox cardContents = (VBox) card.lookup("#phone").getParent();
                     assertEquals(Region.USE_PREF_SIZE, cell.getMaxHeight());
                     assertEquals(cell.prefHeight(cell.getWidth()), cell.getHeight(), 0.1);
+                    assertEquals(card.getHeight(), cardContents.getHeight(), 0.1);
                 });
     }
 
