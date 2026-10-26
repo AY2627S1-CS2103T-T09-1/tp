@@ -58,8 +58,6 @@ public class FilterCommandParser implements Parser<FilterCommand> {
         PREFIX_NAME, PREFIX_SCHOOL, PREFIX_LEVEL, PREFIX_SUBJECT, PREFIX_BAND,
         PREFIX_PHONE, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE, PREFIX_NOTE
     };
-    // deletenote's and editnote's note index prefix, recognized only to point the user to note/
-    private static final Prefix[] NOTE_PREFIXES = {PREFIX_NID};
 
     /**
      * Parses the given {@code String} of arguments in the context of the FilterCommand
@@ -70,7 +68,8 @@ public class FilterCommandParser implements Parser<FilterCommand> {
         // everything after note/ is note text, as in addnote, so other prefixes there are not split off
         ArgumentMultimap argMultimap =
                 ArgumentTokenizer.tokenizeWithTrailingText(args, PREFIX_NOTE, allPrefixes());
-        if (hasAny(argMultimap, NOTE_PREFIXES)) {
+        // nid/ is deletenote's and editnote's note index, recognized only to point the user to note/
+        if (hasAny(argMultimap, PREFIX_NID)) {
             throw new ParseException(MESSAGE_USE_NOTE_FILTER);
         }
         if (!argMultimap.getPreamble().isEmpty()) {
@@ -122,7 +121,7 @@ public class FilterCommandParser implements Parser<FilterCommand> {
     }
 
     private static Prefix[] allPrefixes() {
-        return Stream.concat(Stream.of(FILTER_PREFIXES), Stream.of(NOTE_PREFIXES)).toArray(Prefix[]::new);
+        return Stream.concat(Stream.of(FILTER_PREFIXES), Stream.of(PREFIX_NID)).toArray(Prefix[]::new);
     }
 
     /**
