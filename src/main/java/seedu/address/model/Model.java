@@ -37,7 +37,7 @@ public interface Model {
     ReadOnlyAddressBook getAddressBook();
 
     /**
-     * Returns true if a person with the same identity as {@code person} exists in the address book.
+     * Returns true if a person with the same normalized name, school, and level exists in the address book.
      */
     boolean hasPerson(Person person);
 
@@ -56,7 +56,7 @@ public interface Model {
     /**
      * Replaces the given person {@code target} with {@code editedPerson}.
      * {@code target} must exist in the address book.
-     * The person identity of {@code editedPerson} must not be the same as another existing person in the address book.
+     * No other person may have the same normalized name, school, and level as {@code editedPerson}.
      */
     void setPerson(Person target, Person editedPerson);
 

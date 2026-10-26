@@ -10,7 +10,8 @@ import seedu.address.model.person.Person;
  */
 class NoteCommandUtil {
 
-    private static final String MESSAGE_NID_NOT_FOUND = "NID %1$d does not exist. %2$s has only %3$d %4$s.";
+    private static final String MESSAGE_NID_NOT_FOUND =
+            "NID %1$d does not exist. %2$s at %3$s (%4$s) has only %5$d %6$s.";
 
     private NoteCommandUtil() {}
 
@@ -19,18 +20,29 @@ class NoteCommandUtil {
      *
      * @param person Person whose notes are checked.
      * @param nid NID of the note.
-     * @param noNotesMessage Error shown when {@code person} has no notes, with {@code %1$s} for their name.
+     * @param noNotesMessage Error shown when {@code person} has no notes, with placeholders for the student's
+     *                       name, school, and level.
      * @throws CommandException If {@code person} has no notes, or fewer notes than {@code nid}.
      */
     static void verifyNoteExists(Person person, Index nid, String noNotesMessage) throws CommandException {
+        verifyNoteExists(person, nid, noNotesMessage, MESSAGE_NID_NOT_FOUND);
+    }
+
+    /**
+     * Throws a {@code CommandException} if {@code person} has no note numbered {@code nid}, using the supplied
+     * message templates for the empty-note and missing-NID cases.
+     */
+    static void verifyNoteExists(Person person, Index nid, String noNotesMessage, String nidNotFoundMessage)
+            throws CommandException {
         int noteCount = person.getNotes().size();
         if (noteCount == 0) {
-            throw new CommandException(String.format(noNotesMessage, person.getName()));
+            throw new CommandException(String.format(noNotesMessage, person.getName(), person.getSchool(),
+                    person.getLevel()));
         }
         if (nid.getZeroBased() >= noteCount) {
             String noteWord = noteCount == 1 ? "note" : "notes";
-            throw new CommandException(String.format(MESSAGE_NID_NOT_FOUND, nid.getOneBased(),
-                    person.getName(), noteCount, noteWord));
+            throw new CommandException(String.format(nidNotFoundMessage, nid.getOneBased(), person.getName(),
+                    person.getSchool(), person.getLevel(), noteCount, noteWord));
         }
     }
 

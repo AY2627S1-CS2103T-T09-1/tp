@@ -25,7 +25,7 @@ public class DeleteCommand extends Command implements ConfirmationCommand {
             + "Example: " + COMMAND_WORD + " 1 (asks for confirmation)\n"
             + COMMAND_WORD + " " + FORCE_OPTION + " 1 (deletes immediately)";
 
-    public static final String MESSAGE_DELETE_STUDENT_SUCCESS = "Deleted student: %1$s.";
+    public static final String MESSAGE_DELETE_STUDENT_SUCCESS = "Deleted student: %1$s at %2$s (%3$s).";
 
     public static final String MESSAGE_INVALID_FORMAT = "Invalid format. Usage: " + COMMAND_WORD
             + " [-f] INDEX";
@@ -63,7 +63,8 @@ public class DeleteCommand extends Command implements ConfirmationCommand {
     @Override
     public String getConfirmationMessage(Model model) throws CommandException {
         Person person = getTargetPerson(model);
-        return "This will delete " + person.getName() + " and all their notes. Continue?";
+        return "This will delete " + person.getName() + " at " + person.getSchool() + " (" + person.getLevel()
+                + ") and all their notes. Continue?";
     }
 
     @Override
@@ -72,7 +73,8 @@ public class DeleteCommand extends Command implements ConfirmationCommand {
         Person personToDelete = getTargetPerson(model);
         model.deletePerson(personToDelete);
         model.updateFilteredPersonList(PREDICATE_SHOW_ALL_PERSONS);
-        String message = String.format(MESSAGE_DELETE_STUDENT_SUCCESS, personToDelete.getName());
+        String message = String.format(MESSAGE_DELETE_STUDENT_SUCCESS, personToDelete.getName(),
+                personToDelete.getSchool(), personToDelete.getLevel());
         return CommandResult.showList(message);
     }
 

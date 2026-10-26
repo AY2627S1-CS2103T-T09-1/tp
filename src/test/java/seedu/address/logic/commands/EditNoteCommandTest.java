@@ -186,7 +186,7 @@ public class EditNoteCommandTest {
     @Test
     public void execute_personWithNoNotes_throwsCommandException() {
         assertCommandFailure(new EditNoteCommand(INDEX_FIRST_PERSON, NID_FIRST, new Note(NOTE_IMPROVING)),
-                model, "Alice Pauline has no notes to edit.");
+                model, "Alice Pauline at Maplewood Secondary School (S1) has no notes to edit.");
     }
 
     @Test
@@ -194,7 +194,7 @@ public class EditNoteCommandTest {
         addNotesToFirstPerson(NOTE_ALGEBRA, NOTE_TEST_SCORE);
 
         assertCommandFailure(new EditNoteCommand(INDEX_FIRST_PERSON, NID_THIRD, new Note(NOTE_IMPROVING)),
-                model, "NID 3 does not exist. Alice Pauline has only 2 notes.");
+                model, "NID 3 does not exist. Alice Pauline at Maplewood Secondary School (S1) has only 2 notes.");
     }
 
     @Test
@@ -203,7 +203,8 @@ public class EditNoteCommandTest {
         Index maxIntNid = Index.fromOneBased(Integer.MAX_VALUE);
 
         assertCommandFailure(new EditNoteCommand(INDEX_FIRST_PERSON, maxIntNid, new Note(NOTE_IMPROVING)),
-                model, "NID 2147483647 does not exist. Alice Pauline has only 1 note.");
+                model, "NID 2147483647 does not exist. Alice Pauline at Maplewood Secondary School (S1) has only "
+                        + "1 note.");
     }
 
     @Test

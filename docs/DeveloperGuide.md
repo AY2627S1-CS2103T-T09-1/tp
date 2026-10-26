@@ -160,6 +160,34 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 
 This section describes some noteworthy details on how certain features are implemented.
 
+### Student duplicate handling
+
+The app compares a student's normalized name, school, and level as the strict duplicate key. Name comparison trims surrounding spaces, collapses repeated spaces, and ignores case. School comparison uses the same case- and space-insensitive behavior. Levels are compared by their `Level` values. The original text remains available for display. Phone, subject, and band do not contribute to the key.
+
+`AddCommand` and `EditCommand` first reject an exact key collision with command-specific error text, which `MainWindow` displays in red. The errors recommend adding a distinguishing identifier to the saved name (for example, `Chloe Tan 2`) when the records are different people; otherwise, identical name, school, and level values would make the students indistinguishable in the app. If only the normalized name matches, the commands request confirmation with command-specific prompt text, displayed in amber. Each command also supplies an action-specific instruction on a separate line, followed by the shared cancellation guidance. On confirmation, they recheck the exact key before changing the model. For an edit, the record being edited is excluded from both checks; edits that leave name, school, and level unchanged do not prompt. This prevents a prompt against itself or an unrelated phone, subject, or note change, and prevents a confirmed operation from bypassing the model's invariant.
+
+The model enforces the strict key through `UniquePersonList` for adds, replacements, and bulk resets. JSON loading uses the same check, so same-name records with different schools or levels load, while strict duplicates are rejected. `addnote` and `deletenote` replace a person without changing the key and remain valid. Delete and clear only remove records. Delete and delete-note prompts and feedback include school and level to distinguish same-name students. Sample data enters through the same model list and is subject to the same rule.
+
+#### Design considerations
+
+**Aspect: Which student records count as duplicates**
+
+* **Alternative 1: Reject every same-name record.**
+  * Pros: Simple rule, simple model invariant, and a same-name record cannot be added accidentally.
+  * Cons: Blocks legitimate students who share a name, including siblings or students at different schools or levels. It provides no way to keep both records.
+
+* **Alternative 2: Allow all duplicates.**
+  * Pros: Never blocks a legitimate enrollment, and the data model stays flexible.
+  * Cons: A repeated command can silently create indistinguishable records. Tutors can select or edit the wrong student, and the app offers no protection against accidental duplicate records.
+
+* **Alternative 3 (chosen): Allow same-name records only when school or level differs; reject a repeated normalized name, school, and level.**
+  * Pros: Supports real students who share a name while blocking the most likely accidental repeat. An amber prompt handles uncertain same-name matches, and the hard model rule prevents an exact key duplicate through add, edit, or data loading. The three fields are required for every student and together distinguish a student's current school-level record better than name alone.
+  * Cons: Two different students with the same name at the same school and level cannot both be entered under identical details, because TuteeBook would display them as indistinguishable records and the tutor could select or change the wrong one. The red add/edit error recommends assigning one a distinguishing saved name, such as `Chloe Tan 2`. A student moving to another school or level can be represented by an updated record, but the app does not retain two concurrent records with the same key. Name-only matching can also prompt for unrelated students.
+
+The required subject and band are deliberately excluded from the key. A student can take several subjects and bands, and that list changes as lessons and courses change; using it would allow the same student to be added again merely by changing a subject or band. Subject-band details describe the student's studies, not who the student is. The phone is also excluded because it is optional, can change, and may be shared or unavailable.
+
+Every student record must include a name, school, and level. Many tutors teach students with common names. School helps distinguish students who attend different schools. Level helps distinguish students at the same school who are in different levels. These fields block many accidental repeat entries while still allowing students with the same name when their school or level differs.
+
 ### Command confirmations
 
 `ClearCommand`, `DeleteCommand`, and `DeleteNoteCommand` implement `ConfirmationCommand`. Before running one of these commands, `LogicManager` asks it whether a prompt is needed. `ConfirmationManager` stores the command and returns a warning `CommandResult`, which the UI displays in amber. The next input confirms the stored command only when trimming leading and trailing spaces produces the exact uppercase word `CONFIRM`. Every other input first clears the pending command, then follows normal command parsing and execution. A red cancellation notice is displayed above the new command's unchanged output; if parsing or execution fails, the cancellation notice and error are both red. If the new command needs confirmation, it replaces the old request. These destructive commands accept `-f` to execute without prompting.
@@ -294,12 +322,12 @@ In the data file, `JsonAdaptedPerson` stores the guardian as a nested `JsonAdapt
 #### Implementation
 
 1. Before replacing the student, `EditCommand` calls `Model#keepPersonInFilteredList` with the edited student.
-1. If the list is filtered, `ModelManager` first checks whether the current filter matches the edited student. It then replaces the filter with one that also accepts the edited student: `current.test(p) || p.isSamePerson(editedPerson)`, and returns `true` if the old filter did not match them. If the list is not filtered, it does nothing and returns `false`.
+1. If the list is filtered, `ModelManager` first checks whether the current filter matches the edited student. It then replaces the filter with one that also accepts the edited student: `current.test(p) || p.hasSameStudentKey(editedPerson)`, and returns `true` if the old filter did not match them. If the list is not filtered, it does nothing and returns `false`.
 1. `Model#setPerson` then replaces the student in place. Since the new filter accepts the edited student, they stay at the same position in the filtered list, even if they no longer match the search.
 1. If `keepPersonInFilteredList` returned `true`, `EditCommand` adds a line to the result saying that the student no longer matches the last search but stays in the list. Any phone warning comes after this line.
 1. `EditCommand` returns a `CommandResult` that keeps the current display, so an open `StudentDetailPanel`, which shows the student at its index in the filtered list, shows the updated details.
 
-The filter matches the edited student with `Person#isSamePerson`, the same name-based check that prevents duplicates, rather than `Person#equals`. A later command that changes the student without renaming them, such as `addnote`, then keeps them in the list too.
+The filter matches the edited student by the normalized name, school, and level key rather than by name alone or `Person#equals`. This distinguishes two allowed same-name students in different schools or levels. A later command that changes only notes, such as `addnote`, still keeps the student in the list.
 
 Each edit wraps the current filter, so after several edits in a row, every edited student stays in the list, not just the last one. The next `filter` or `list` replaces the whole filter, so the extra rules never build up across searches.
 
@@ -329,7 +357,7 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 
 <img src="images/FilterClassDiagram.png" width="650" />
 
-1. `FilterCommandParser` splits the arguments at the filter prefixes `n/`, `sch/`, `lvl/`, `sub/`, `band/`, `p/`, `gn/`, and `gp/`. It also recognizes `note/` and `nid/`, only to reject them with a message that `filter` cannot search notes, so that they are not read as part of another value.
+1. `FilterCommandParser` splits the arguments at the filter prefixes `n/`, `sch/`, `lvl/`, `sub/`, `band/`, `p/`, `gn/`, `gp/`, and `note/`. It also recognizes `nid/`, the note index prefix of `deletenote` and `editnote`, only to reject it with a message pointing to `note/`, so that it is not read as part of another value. `note/` is read with `ArgumentTokenizer#tokenizeWithTrailingText`, so everything after it is the note text, as in `addnote`.
 1. It then checks, in order, that there is no text before the first prefix, that at least one filter is given, that no prefix is repeated, and that `band/` comes with `sub/`.
 1. It creates one `Predicate<Person>` for each filter given:
 
@@ -342,11 +370,12 @@ Each edit wraps the current filter, so after several edits in a row, every edite
    `p/` | `PhoneMatchesPredicate` | own phone is that number
    `gn/` | `GuardianNameContainsTextPredicate` | guardian's name contains the text
    `gp/` | `GuardianPhoneMatchesPredicate` | guardian's phone is that number
+   `note/` | `NoteContainsTextPredicate` | notes include one that contains the text
 
 1. It wraps the predicates in a `StudentMatchesAllPredicate`, which returns `true` only if every predicate does, and returns a `FilterCommand` holding it.
 1. `FilterCommand#execute` passes the predicate to `Model#updateFilteredPersonList` and returns `CommandResult.showList(...)` with the number of students found, or a no-match message.
 
-The partial-match predicates (`n/`, `sch/`, `gn/`) use `StringUtil#containsIgnoreCaseAndSpaces`, which lowercases both strings and squeezes runs of whitespace before comparing. The exact-match filters are parsed first with the same `ParserUtil` methods as `add`, into a `Level`, `Band`, or `Phone`. So `lvl/s3` becomes `S3` and `p/+65 9123 4567` becomes `91234567`, the form in which they are stored, and the predicates can compare values directly. `SubjectMatchesPredicate` compares names with `Subject#hasName`, the same rule `add` uses to detect a repeated subject, and requires the band to belong to that same subject.
+The partial-match predicates (`n/`, `sch/`, `gn/`, `note/`) use `StringUtil#containsIgnoreCaseAndSpaces`, which lowercases both strings and squeezes runs of whitespace before comparing. The exact-match filters are parsed first with the same `ParserUtil` methods as `add`, into a `Level`, `Band`, or `Phone`. So `lvl/s3` becomes `S3` and `p/+65 9123 4567` becomes `91234567`, the form in which they are stored, and the predicates can compare values directly. `SubjectMatchesPredicate` compares names with `Subject#hasName`, the same rule `add` uses to detect a repeated subject, and requires the band to belong to that same subject.
 
 #### Design considerations
 
@@ -379,6 +408,16 @@ The partial-match predicates (`n/`, `sch/`, `gn/`) use `StringUtil#containsIgnor
 * **Alternative 2 (current choice):** A student must match every filter (AND).
   * Pros: Each filter narrows the list, which fits planning a lesson for one group.
   * Cons: To see two schools, the tutor runs `filter` twice.
+
+**Aspect: Whether to search notes with a separate command or with `filter`**
+
+* **Alternative 1:** A separate `findnote` command.
+  * Pros: The result can list which notes matched for each student.
+  * Cons: Two search commands to learn, and a note search cannot be combined with other filters.
+
+* **Alternative 2 (current choice):** A `note/` filter in `filter`.
+  * Pros: One search command. A note search combines with other filters, such as `filter lvl/S3 note/algebra`.
+  * Cons: The result shows students, not which of their notes matched. `note/` must be the last filter.
 
 ### \[Proposed\] Undo/redo feature
 
@@ -523,7 +562,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 | `* *` | tutor receiving unknown calls | find students by their guardian's phone number | identify the caller and see their children's records                        |
 | `* *` | tutor planning lessons | filter students by school, level, or subject | prepare lessons for students at the same school, level, or subject together |
 | `* *` | careless typist | confirm before a student is deleted | avoid erasing the wrong student's history after mistyping an ID             |
-| `* *` | forgetful tutor | be stopped by the app from adding students I already added who have the exact same name | avoid duplicate records                                                     |
+| `* *` | forgetful tutor | be stopped from adding a student with the same name, school, and level as an existing student | avoid duplicate records                                                     |
 | `* *` | tutor | edit a note | update a student's progress without deleting and retyping it                |
 | `* *` | careless typist | undo my last command | recover from a mistyped delete                                              |
 | `* *` | tutor | find students whose notes contain a keyword, such as a topic | group students with the same weakness for revision                          |
@@ -592,15 +631,27 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case resumes at step 3.
 
-* 2e. The student is a duplicate of an existing student.
+* 2e. The student has the same normalized name, school, and level as an existing student.
 
     * 2e1. TuteeBook3 shows an error message identifying the existing student and does not add the student.
 
       Use case ends.
 
-* 2f. The phone number or guardian phone number is not a Singapore number.
+* 2f. Another student has the same normalized name, but a different school or level.
 
-    * 2f1. TuteeBook3 accepts the number, and shows a warning asking Tutor to check it after saving the student.
+    * 2f1. TuteeBook3 shows an amber prompt with the existing student's school and level.
+
+    * 2f2. Tutor confirms the addition by entering `CONFIRM`.
+
+      Use case resumes at step 3.
+
+    * 2f3. Tutor enters any other input.
+
+      The pending add is cancelled, and TuteeBook3 processes the input as a command.
+
+* 2g. The phone number or guardian phone number is not a Singapore number.
+
+    * 2g1. TuteeBook3 accepts the number, and shows a warning asking Tutor to check it after saving the student.
 
       Use case resumes at step 3.
 
@@ -640,27 +691,39 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case resumes at step 4.
 
-* 3c. The edit would make the student a duplicate of another student.
+* 3c. The edit would give the student the same normalized name, school, and level as another student.
 
     * 3c1. TuteeBook3 shows an error message and leaves the student unchanged.
 
       Use case ends.
 
-* 3d. The student has no guardian, and Tutor gives only one of guardian name and guardian phone.
+* 3d. The edited name matches another student, but the school or level is different.
 
-    * 3d1. TuteeBook3 shows an error message that both are needed to add a guardian, and leaves the student unchanged.
+    * 3d1. TuteeBook3 shows an amber prompt with the matching student's school and level.
+
+    * 3d2. Tutor confirms the edit by entering `CONFIRM`.
+
+      Use case resumes at step 4.
+
+    * 3d3. Tutor enters any other input.
+
+      The pending edit is cancelled, and TuteeBook3 processes the input as a command.
+
+* 3e. The student has no guardian, and Tutor gives only one of guardian name and guardian phone.
+
+    * 3e1. TuteeBook3 shows an error message that both are needed to add a guardian, and leaves the student unchanged.
 
       Use case resumes at step 3.
 
-* 3e. Tutor requests to remove the guardian of a student who has no guardian.
+* 3f. Tutor requests to remove the guardian of a student who has no guardian.
 
-    * 3e1. TuteeBook3 shows an error message that the student has no guardian to remove, and leaves the student unchanged.
+    * 3f1. TuteeBook3 shows an error message that the student has no guardian to remove, and leaves the student unchanged.
 
       Use case ends.
 
-* 3f. A new phone number or guardian phone number is not a Singapore number.
+* 3g. A new phone number or guardian phone number is not a Singapore number.
 
-    * 3f1. TuteeBook3 accepts the number, and shows a warning asking Tutor to check it after updating the student.
+    * 3g1. TuteeBook3 accepts the number, and shows a warning asking Tutor to check it after updating the student.
 
       Use case resumes at step 4.
 

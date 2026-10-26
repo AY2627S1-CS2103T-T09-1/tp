@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import seedu.address.logic.commands.ClearCommand;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.DeleteCommand;
 import seedu.address.logic.commands.DeleteNoteCommand;
+import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.ExitCommand;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
@@ -40,6 +42,7 @@ import seedu.address.storage.JsonAddressBookStorage;
 import seedu.address.storage.JsonUserPrefsStorage;
 import seedu.address.storage.StorageManager;
 import seedu.address.testutil.PersonBuilder;
+import seedu.address.testutil.TypicalPersons;
 
 public class LogicManagerTest {
     private static final IOException DUMMY_IO_EXCEPTION = new IOException("dummy IO exception");
@@ -80,6 +83,152 @@ public class LogicManagerTest {
     public void execute_validCommand_success() throws Exception {
         String listCommand = ListCommand.COMMAND_WORD;
         assertCommandSuccess(listCommand, ListCommand.MESSAGE_SUCCESS, model);
+    }
+
+    @Test
+    public void execute_addSameNameDifferentSchool_promptsThenAddsOnConfirmation() throws Exception {
+        model.addPerson(TypicalPersons.ALICE);
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+
+        CommandResult prompt = logic.execute("add n/alice pauline sch/Victoria School lvl/S2 "
+                + "sub/Mathematics band/G1");
+
+        assertEquals(confirmationPrompt(String.format(AddCommand.MESSAGE_CONFIRMATION, "alice pauline",
+                "Maplewood Secondary School (S1)"), AddCommand.MESSAGE_CONFIRMATION_INSTRUCTION), prompt);
+        assertEquals(expectedModel, model);
+
+        logic.execute("CONFIRM");
+
+        assertEquals(2, model.getAddressBook().getPersonList().size());
+        assertEquals("Victoria School", model.getAddressBook().getPersonList().get(1).getSchool().toString());
+        assertEquals("S2", model.getAddressBook().getPersonList().get(1).getLevel().toString());
+    }
+
+    @Test
+    public void execute_addSameNameSchoolAndLevel_rejectsWithoutChangingModel() throws Exception {
+        model.addPerson(TypicalPersons.ALICE);
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        Path addressBookFile = temporaryFolder.resolve("addressBook.json");
+        logic.execute(ListCommand.COMMAND_WORD);
+        String initialStoredData = Files.readString(addressBookFile);
+
+        assertCommandException("add n/alice  pauline sch/maplewood  secondary school lvl/S1 "
+                + "sub/Mathematics band/G1", String.format(AddCommand.MESSAGE_DUPLICATE_PERSON,
+                        "alice pauline", "maplewood secondary school", "S1"));
+
+        assertEquals(expectedModel, model);
+        assertEquals(initialStoredData, Files.readString(addressBookFile));
+    }
+
+    @Test
+    public void execute_editToSameNameDifferentSchool_promptsThenEditsOnConfirmation() throws Exception {
+        model.addPerson(TypicalPersons.ALICE);
+        model.addPerson(TypicalPersons.BOB);
+
+        CommandResult prompt = logic.execute("edit 2 n/Alice Pauline");
+
+        assertEquals(confirmationPrompt(String.format(EditCommand.MESSAGE_CONFIRMATION, "Alice Pauline",
+                "Maplewood Secondary School (S1)"), EditCommand.MESSAGE_CONFIRMATION_INSTRUCTION), prompt);
+        logic.execute("CONFIRM");
+
+        assertEquals("Alice Pauline", model.getAddressBook().getPersonList().get(1).getName().toString());
+        assertEquals("Victoria School", model.getAddressBook().getPersonList().get(1).getSchool().toString());
+    }
+
+    @Test
+    public void execute_editToSameNameSchoolAndLevel_rejectsWithoutChangingModel() throws Exception {
+        model.addPerson(TypicalPersons.ALICE);
+        model.addPerson(TypicalPersons.BOB);
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        Path addressBookFile = temporaryFolder.resolve("addressBook.json");
+        logic.execute(ListCommand.COMMAND_WORD);
+        String initialStoredData = Files.readString(addressBookFile);
+
+        assertCommandException("edit 2 n/Alice Pauline sch/Maplewood Secondary School lvl/S1",
+                String.format(EditCommand.MESSAGE_DUPLICATE_PERSON, "Alice Pauline",
+                        "Maplewood Secondary School", "S1"));
+
+        assertEquals(expectedModel, model);
+        assertEquals(initialStoredData, Files.readString(addressBookFile));
+    }
+
+    @Test
+    public void execute_editNonIdentityFieldForExistingNameMatch_doesNotPrompt() throws Exception {
+        model.addPerson(TypicalPersons.ALICE);
+        model.addPerson(new PersonBuilder(TypicalPersons.ALICE).withSchool("Victoria School").withLevel("S2")
+                .build());
+
+        CommandResult result = logic.execute("edit 2 p/81234567");
+
+        assertFalse(result.isWarning());
+        assertEquals("81234567", model.getAddressBook().getPersonList().get(1).getPhone().orElseThrow().toString());
+        assertEquals(2, model.getAddressBook().getPersonList().size());
+    }
+
+    @Test
+    public void execute_deleteSameNameStudent_confirmationNamesSchoolAndLevel() throws Exception {
+        model.addPerson(TypicalPersons.ALICE);
+        model.addPerson(new PersonBuilder(TypicalPersons.ALICE).withSchool("Victoria School").withLevel("S2")
+                .build());
+
+        CommandResult prompt = logic.execute("delete 2");
+
+        assertEquals("This will delete Alice Pauline at Victoria School (S2) and all their notes. Continue?"
+                + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX, prompt.getFeedbackToUser());
+        assertTrue(prompt.isWarning());
+        assertEquals(2, model.getAddressBook().getPersonList().size());
+    }
+
+    @Test
+    public void execute_deleteNoteFromSameNameStudent_confirmationNamesSchoolAndLevel() throws Exception {
+        model.addPerson(TypicalPersons.ALICE);
+        Person sameNameOtherSchool = new PersonBuilder(TypicalPersons.ALICE).withSchool("Victoria School")
+                .withLevel("S2").withNotes("Review algebra").build();
+        model.addPerson(sameNameOtherSchool);
+
+        CommandResult prompt = logic.execute("deletenote 2 nid/1");
+
+        assertEquals("This will delete note 1 from Alice Pauline at Victoria School (S2). Continue?"
+                + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX, prompt.getFeedbackToUser());
+        assertTrue(prompt.isWarning());
+        assertEquals(List.of("Review algebra"), model.getAddressBook().getPersonList().get(1).getNotes().stream()
+                .map(note -> note.toString()).toList());
+    }
+
+    @Test
+    public void execute_addNoteToSameNameStudent_preservesBothStudents() throws Exception {
+        model.addPerson(TypicalPersons.ALICE);
+        model.addPerson(new PersonBuilder(TypicalPersons.ALICE).withSchool("Victoria School").withLevel("S2")
+                .build());
+
+        logic.execute("addnote 2 note/Review algebra");
+
+        assertEquals(2, model.getAddressBook().getPersonList().size());
+        assertEquals(List.of("Review algebra"), model.getAddressBook().getPersonList().get(1).getNotes().stream()
+                .map(note -> note.toString()).toList());
+    }
+
+    @Test
+    public void execute_addAndEditNameCollisionCancelled_leavesModelAndStorageUnchanged() throws Exception {
+        model.addPerson(TypicalPersons.ALICE);
+        model.addPerson(TypicalPersons.BOB);
+        Path addressBookFile = temporaryFolder.resolve("addressBook.json");
+        logic.execute(ListCommand.COMMAND_WORD);
+        String initialStoredData = Files.readString(addressBookFile);
+
+        logic.execute("add n/Alice Pauline sch/Victoria School lvl/S2 sub/Mathematics band/G1");
+        CommandResult addCancellation = logic.execute(ListCommand.COMMAND_WORD);
+        assertEquals(String.format(ConfirmationManager.MESSAGE_CANCELLED_FORMAT, AddCommand.COMMAND_WORD),
+                addCancellation.getCancellationNotice().orElseThrow());
+        assertEquals(initialStoredData, Files.readString(addressBookFile));
+
+        logic.execute("edit 2 n/Alice Pauline");
+        CommandResult editCancellation = logic.execute(ListCommand.COMMAND_WORD);
+        assertEquals(String.format(ConfirmationManager.MESSAGE_CANCELLED_FORMAT, EditCommand.COMMAND_WORD),
+                editCancellation.getCancellationNotice().orElseThrow());
+        assertEquals(initialStoredData, Files.readString(addressBookFile));
+        assertEquals(2, model.getAddressBook().getPersonList().size());
+        assertEquals("Bob Choo", model.getAddressBook().getPersonList().get(1).getName().toString());
     }
 
     @Test
@@ -174,7 +323,8 @@ public class LogicManagerTest {
         assertEquals(String.format(ConfirmationManager.MESSAGE_CANCELLED_FORMAT, ClearCommand.COMMAND_WORD),
                 replacementPrompt.getCancellationNotice().orElseThrow());
         assertTrue(replacementPrompt.isWarning());
-        assertTrue(replacementPrompt.getFeedbackToUser().contains("delete " + personAtFirstIndex.getName()));
+        assertTrue(replacementPrompt.getFeedbackToUser().startsWith("This will delete "
+                + personAtFirstIndex.getName()));
 
         logic.execute(" CONFIRM ");
         assertEquals(1, model.getAddressBook().getPersonList().size());
@@ -198,15 +348,18 @@ public class LogicManagerTest {
         model.addPerson(AMY);
         CommandResult prompt = logic.execute("delete 1");
         assertTrue(prompt.isWarning());
-        assertEquals("This will delete " + AMY.getName() + " and all their notes. Continue?"
+        assertEquals("This will delete " + AMY.getName() + " at " + AMY.getSchool() + " (" + AMY.getLevel()
+                + ") and all their notes. Continue?"
                 + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX, prompt.getFeedbackToUser());
 
         Model expectedModel = new ModelManager();
         assertCommandSuccess("CONFIRM", CommandResult.showList(
-                String.format(DeleteCommand.MESSAGE_DELETE_STUDENT_SUCCESS, AMY.getName())), expectedModel);
+                String.format(DeleteCommand.MESSAGE_DELETE_STUDENT_SUCCESS, AMY.getName(), AMY.getSchool(),
+                        AMY.getLevel())), expectedModel);
         model.addPerson(AMY);
         assertCommandSuccess("delete -f 1", CommandResult.showList(String.format(
-                DeleteCommand.MESSAGE_DELETE_STUDENT_SUCCESS, AMY.getName())), new ModelManager());
+                DeleteCommand.MESSAGE_DELETE_STUDENT_SUCCESS, AMY.getName(), AMY.getSchool(), AMY.getLevel())),
+                new ModelManager());
     }
 
     @Test
@@ -235,18 +388,20 @@ public class LogicManagerTest {
         model.addPerson(personWithNote);
         CommandResult prompt = logic.execute("deletenote 1 nid/1");
         assertTrue(prompt.isWarning());
-        assertEquals("This will delete note 1 from " + AMY.getName() + ". Continue?"
+        assertEquals("This will delete note 1 from " + AMY.getName() + " at " + AMY.getSchool() + " ("
+                + AMY.getLevel() + "). Continue?"
                 + ConfirmationManager.MESSAGE_CONFIRMATION_SUFFIX, prompt.getFeedbackToUser());
 
         Model expectedModel = new ModelManager();
         expectedModel.addPerson(new PersonBuilder(personWithNote).withNotes().build());
         assertCommandSuccess("CONFIRM", new CommandResult(String.format(DeleteNoteCommand.MESSAGE_SUCCESS,
-                1, AMY.getName(), personWithNote.getNotes().getFirst())),
+                1, AMY.getName(), AMY.getSchool(), AMY.getLevel(), personWithNote.getNotes().getFirst())),
                 expectedModel);
         logic.execute("addnote 1 note/Review geometry");
         CommandResult forcedResult = logic.execute("deletenote -f 1 nid/1");
         assertFalse(forcedResult.isWarning());
-        assertEquals(String.format(DeleteNoteCommand.MESSAGE_SUCCESS, 1, AMY.getName(), "Review geometry"),
+        assertEquals(String.format(DeleteNoteCommand.MESSAGE_SUCCESS, 1, AMY.getName(), AMY.getSchool(),
+                AMY.getLevel(), "Review geometry"),
                 forcedResult.getFeedbackToUser());
     }
 
@@ -330,6 +485,11 @@ public class LogicManagerTest {
     @Test
     public void getFilteredPersonList_modifyList_throwsUnsupportedOperationException() {
         assertThrows(UnsupportedOperationException.class, () -> logic.getFilteredPersonList().remove(0));
+    }
+
+    private static CommandResult confirmationPrompt(String message, String instruction) {
+        return CommandResult.warning(message + System.lineSeparator() + instruction + System.lineSeparator()
+                + ConfirmationManager.MESSAGE_CONFIRMATION_CANCELLATION);
     }
 
     /**
