@@ -30,8 +30,10 @@ public class ConfirmationManager {
      */
     public CommandResult requestConfirmation(ConfirmationCommand command, String message) {
         pendingCommand = command;
-        String suffix = System.lineSeparator() + command.getConfirmationInstruction()
-                + System.lineSeparator() + MESSAGE_CONFIRMATION_CANCELLATION;
+        String instruction = command.getConfirmationInstruction();
+        String suffix = instruction == null ? MESSAGE_CONFIRMATION_SUFFIX
+                : System.lineSeparator() + instruction + System.lineSeparator()
+                        + MESSAGE_CONFIRMATION_CANCELLATION;
         return CommandResult.warning(message + suffix);
     }
 

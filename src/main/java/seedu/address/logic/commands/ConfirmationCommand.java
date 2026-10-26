@@ -25,10 +25,10 @@ public interface ConfirmationCommand {
     String getCommandWord();
 
     /**
-     * Returns the action-specific instruction displayed when this command needs confirmation.
+     * Returns the action-specific instruction, or {@code null} to use the shared instruction.
      */
     default String getConfirmationInstruction() {
-        return "Type CONFIRM (uppercase) to proceed.";
+        return null;
     }
 
     /**
