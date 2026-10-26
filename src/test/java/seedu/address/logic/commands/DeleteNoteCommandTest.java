@@ -101,7 +101,7 @@ public class DeleteNoteCommandTest {
         Person person = addNotesToFirstPerson(NOTE_ALGEBRA, NOTE_TEST_SCORE);
         Person editedPerson = new PersonBuilder(person).withNotes(NOTE_TEST_SCORE).build();
         String expectedMessage = String.format(DeleteNoteCommand.MESSAGE_SUCCESS, 1, person.getName(),
-                NOTE_ALGEBRA);
+                person.getSchool(), person.getLevel(), NOTE_ALGEBRA);
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.setPerson(person, editedPerson);
@@ -118,7 +118,7 @@ public class DeleteNoteCommandTest {
         model.updateFilteredPersonList(HAS_ALGEBRA_NOTE);
         Person editedFirst = new PersonBuilder(first).withNotes(NOTE_TEST_SCORE).build();
         String expectedMessage = String.format(DeleteNoteCommand.MESSAGE_SUCCESS, 1, first.getName(),
-                NOTE_ALGEBRA)
+                first.getSchool(), first.getLevel(), NOTE_ALGEBRA)
                 + "\n" + String.format(EditCommand.MESSAGE_NO_LONGER_MATCHES, first.getName());
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
@@ -137,7 +137,7 @@ public class DeleteNoteCommandTest {
         model.updateFilteredPersonList(HAS_ALGEBRA_NOTE);
         Person editedFirst = new PersonBuilder(first).withNotes(NOTE_ALGEBRA).build();
         String expectedMessage = String.format(DeleteNoteCommand.MESSAGE_SUCCESS, 2, first.getName(),
-                NOTE_TEST_SCORE);
+                first.getSchool(), first.getLevel(), NOTE_TEST_SCORE);
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.setPerson(first, editedFirst);
@@ -167,7 +167,7 @@ public class DeleteNoteCommandTest {
     @Test
     public void execute_personWithNoNotes_throwsCommandException() {
         assertCommandFailure(new DeleteNoteCommand(INDEX_FIRST_PERSON, NID_FIRST), model,
-                "Alice Pauline has no notes to delete.");
+                "Alice Pauline at Maplewood Secondary School (S1) has no notes to delete.");
     }
 
     @Test
@@ -175,7 +175,7 @@ public class DeleteNoteCommandTest {
         addNotesToFirstPerson(NOTE_ALGEBRA, NOTE_TEST_SCORE);
 
         assertCommandFailure(new DeleteNoteCommand(INDEX_FIRST_PERSON, NID_THIRD), model,
-                "NID 3 does not exist. Alice Pauline has only 2 notes.");
+                "NID 3 does not exist. Alice Pauline at Maplewood Secondary School (S1) has only 2 notes.");
     }
 
     @Test
@@ -183,7 +183,7 @@ public class DeleteNoteCommandTest {
         addNotesToFirstPerson(NOTE_ALGEBRA);
 
         assertCommandFailure(new DeleteNoteCommand(INDEX_FIRST_PERSON, NID_SECOND), model,
-                "NID 2 does not exist. Alice Pauline has only 1 note.");
+                "NID 2 does not exist. Alice Pauline at Maplewood Secondary School (S1) has only 1 note.");
     }
 
     @Test
@@ -192,7 +192,7 @@ public class DeleteNoteCommandTest {
         Index maxIntNid = Index.fromOneBased(Integer.MAX_VALUE);
 
         assertCommandFailure(new DeleteNoteCommand(INDEX_FIRST_PERSON, maxIntNid), model,
-                "NID 2147483647 does not exist. Alice Pauline has only 1 note.");
+                "NID 2147483647 does not exist. Alice Pauline at Maplewood Secondary School (S1) has only 1 note.");
     }
 
     @Test
@@ -244,7 +244,7 @@ public class DeleteNoteCommandTest {
         Person person = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
         Person editedPerson = new PersonBuilder(person).withNotes(remainingNotes).build();
         String expectedMessage = String.format(DeleteNoteCommand.MESSAGE_SUCCESS, nid.getOneBased(),
-                person.getName(), deletedNote);
+                person.getName(), person.getSchool(), person.getLevel(), deletedNote);
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.setPerson(person, editedPerson);

@@ -3,6 +3,8 @@ package seedu.address.model.person;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
 
+import java.util.Locale;
+
 /**
  * Represents a Person's name in the address book.
  * Guarantees: immutable; is valid as declared in {@link #isValidName(String)}
@@ -19,6 +21,7 @@ public class Name {
     public static final String VALIDATION_REGEX = "[\\p{Alnum}][\\p{Alnum} ]*";
 
     public final String fullName;
+    private final String comparisonValue;
 
     /**
      * Constructs a {@code Name}.
@@ -29,6 +32,7 @@ public class Name {
         requireNonNull(name);
         checkArgument(isValidName(name), MESSAGE_CONSTRAINTS);
         fullName = name;
+        comparisonValue = name.trim().replaceAll(" +", " ").toLowerCase(Locale.ROOT);
     }
 
     /**
@@ -36,6 +40,13 @@ public class Name {
      */
     public static boolean isValidName(String test) {
         return test.matches(VALIDATION_REGEX);
+    }
+
+    /**
+     * Returns true if the names match after trimming and collapsing spaces and ignoring case.
+     */
+    public boolean hasSameNormalizedName(Name otherName) {
+        return otherName != null && comparisonValue.equals(otherName.comparisonValue);
     }
 
 

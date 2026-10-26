@@ -100,14 +100,30 @@ public class PersonTest {
         editedAlice = new PersonBuilder(ALICE).withName(VALID_NAME_BOB).build();
         assertFalse(ALICE.isSamePerson(editedAlice));
 
-        // name differs in case, all other attributes same -> returns false
+        // name differs in case, all other attributes same -> returns true
         Person editedBob = new PersonBuilder(BOB).withName(VALID_NAME_BOB.toLowerCase()).build();
-        assertFalse(BOB.isSamePerson(editedBob));
+        assertTrue(BOB.isSamePerson(editedBob));
 
-        // name has trailing spaces, all other attributes same -> returns false
+        // name has trailing spaces, all other attributes same -> returns true
         String nameWithTrailingSpaces = VALID_NAME_BOB + " ";
         editedBob = new PersonBuilder(BOB).withName(nameWithTrailingSpaces).build();
-        assertFalse(BOB.isSamePerson(editedBob));
+        assertTrue(BOB.isSamePerson(editedBob));
+    }
+
+    @Test
+    public void hasSameStudentKey_nameSchoolAndLevelMatchAfterNormalization_returnsTrue() {
+        String repeatedSpaceName = ALICE.getName().toString().replace(" ", "   ").toLowerCase();
+        Person normalizedCopy = new PersonBuilder(ALICE).withName(repeatedSpaceName)
+                .withSchool(ALICE.getSchool().toString().toLowerCase()).build();
+        assertTrue(ALICE.hasSameStudentKey(normalizedCopy));
+    }
+
+    @Test
+    public void hasSameStudentKey_schoolOrLevelDiffers_returnsFalse() {
+        Person otherSchool = new PersonBuilder(ALICE).withSchool("Victoria School").build();
+        Person otherLevel = new PersonBuilder(ALICE).withLevel("S4").build();
+        assertFalse(ALICE.hasSameStudentKey(otherSchool));
+        assertFalse(ALICE.hasSameStudentKey(otherLevel));
     }
 
     @Test

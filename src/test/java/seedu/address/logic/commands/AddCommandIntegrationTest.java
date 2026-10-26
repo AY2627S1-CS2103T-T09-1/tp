@@ -1,5 +1,6 @@
 package seedu.address.logic.commands;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
@@ -44,7 +45,22 @@ public class AddCommandIntegrationTest {
     public void execute_duplicatePerson_throwsCommandException() {
         Person personInList = model.getAddressBook().getPersonList().get(0);
         assertCommandFailure(new AddCommand(personInList), model,
-                AddCommand.MESSAGE_DUPLICATE_PERSON);
+                String.format(AddCommand.MESSAGE_DUPLICATE_PERSON, personInList.getName(),
+                        personInList.getSchool(), personInList.getLevel()));
+    }
+
+    @Test
+    public void execute_sameNameDifferentSchool_addsPerson() throws Exception {
+        Person personInList = model.getAddressBook().getPersonList().get(0);
+        Person sameNameOtherSchool = new PersonBuilder(personInList).withSchool("Victoria School").build();
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        expectedModel.addPerson(sameNameOtherSchool);
+
+        CommandResult result = new AddCommand(sameNameOtherSchool).execute(model);
+
+        assertEquals(String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(sameNameOtherSchool)),
+                result.getFeedbackToUser());
+        assertEquals(expectedModel, model);
     }
 
 }

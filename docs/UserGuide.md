@@ -104,7 +104,7 @@ Each student and guardian has one phone number, which is the number you use to r
 * A subject name cannot appear twice, even with different bands. Duplicate checks ignore case and repeated internal spaces, so `Additional Mathematics` and `additional  mathematics` are the same subject.
 * `LEVEL` must be one of `S1`, `S2`, `S3`, `S4` or `S5`. It is not case-sensitive, so `s3` also works.
 
-If the command is wrong, `add` shows one of these messages and does not add the student. If there is more than one problem, `add` reports only the first, checking in this order: text before the first parameter, missing parameters, repeated parameters, and then each value in the order `NAME`, `PHONE`, `SCHOOL`, `LEVEL`, subjects, and guardian.
+If the command is wrong, `add` shows one of these messages and does not add the student. If there is more than one input problem, `add` reports only the first. It checks for text before the first parameter, missing parameters, repeated parameters, and then invalid values in the order `NAME`, `PHONE`, `SCHOOL`, `LEVEL`, subjects, and guardian. After all input is valid, TuteeBook3 checks whether the student is a duplicate.
 
 Problem | Message
 --------|--------
@@ -112,12 +112,14 @@ There are no parameters at all, or there is text between `add` and the first par
 `n/`, `sch/`, `lvl/`, or `sub/` is missing, or has no space before it | Every missing one is named, such as `Missing required parameters: sch/, lvl/.`
 `n/`, `p/`, `sch/`, `lvl/`, `gn/`, or `gp/` appears more than once | `Multiple values specified for the following single-valued field(s): p/`
 `NAME` is invalid | `Names should only contain alphanumeric characters and spaces, and should not be blank`
+`PHONE` or `GUARDIAN_PHONE` is invalid | The message says why, as described above
 `SCHOOL` is invalid | `School names must be 1-100 characters and contain at least one letter.`
 `LEVEL` is not S1 to S5 | `Level must be one of S1, S2, S3, S4, S5.`
-Only one of `gn/` and `gp/` is given | `Guardian name (gn/) and guardian phone (gp/) must be given together.`
-A student with the same name already exists. Capitalization must match, but repeated spaces count as one, so `John  Doe` matches `John Doe` and `john doe` doesn't | `This student already exists in TuteeBook3.`
-`PHONE` or `GUARDIAN_PHONE` is invalid | The message says why, as described above
 A subject or band is wrong | See [Subject and band errors](#subject-and-band-errors)
+Only one of `gn/` and `gp/` is given | `Guardian name (gn/) and guardian phone (gp/) must be given together.`
+A student with the same normalized name, school, and level already exists | `A student named NAME at SCHOOL, level LEVEL already exists. If this is a different student, enter a distinguishing name, for example Chloe Tan 2.`
+
+TuteeBook3 checks for likely duplicates using the student's name. It ignores capitalization and repeated spaces when comparing names and school names; it compares levels directly. If another student has the same name but a different school or level, `add` shows an amber prompt such as `Student not added yet: NAME is also recorded at SCHOOL (LEVEL).` The next line says `Type CONFIRM (uppercase) to add anyway.` A final line says that any other input cancels the request and runs as a command. If the normalized name, school, and level all match, `add` rejects the new record. TuteeBook3 displays the red error `A student named NAME at SCHOOL, level LEVEL already exists. If this is a different student, enter a distinguishing name, for example Chloe Tan 2.` Two people with the same name, school, and level would otherwise look identical in the app, making it hard to tell whose record you are viewing or changing. If they are different people, give one a distinguishing saved name, such as `Chloe Tan 2`. The comparison does not use phone numbers, subjects, or bands, and it cannot detect every real-world duplicate.
 
 Examples:
 
@@ -172,6 +174,8 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT ban
 * If the student already has a guardian, `gn/` or `gp/` on its own changes just that part of the guardian.
 * If the student has no guardian yet, give both `gn/` and `gp/` to add one. Giving only one of them shows `This student has no guardian yet. Give both gn/ and gp/ to add one.`
 * You can remove the guardian by typing `gn/ gp/` with no values after either. Leaving only one of them empty, such as `gn/` alone or `gn/ gp/91234567`, is rejected so that the guardian is not removed by mistake. If the student has no guardian, `gn/ gp/` shows `This student has no guardian to remove.`
+* If a change to the student's name, school, or level results in a name match with another student, `edit` shows an amber prompt such as `Edit not saved yet: NAME is also recorded at SCHOOL (LEVEL).` The next line says `Type CONFIRM (uppercase) to save this edit anyway.` A final line says that any other input cancels the request and runs as a command. The student being edited is excluded from this check, and changes to other fields do not trigger a name prompt.
+* If another student has the same normalized name, school, and level as the proposed record, `edit` rejects the change and leaves the student unchanged. It shows the red error `Another student named NAME at SCHOOL, level LEVEL already exists. If these are different students, edit the name to include an identifier, for example Chloe Tan 2.` Two records with the same name, school, and level would be hard to tell apart in the app. Name and school comparisons ignore capitalization and repeated spaces; levels are compared directly. Subjects, bands, and phone numbers are not part of this duplicate check.
 
 Examples:
 *  `edit 1 p/91234567 sch/Victoria School` Edits the phone number and school of the 1st person to be `91234567` and `Victoria School` respectively.
@@ -268,8 +272,8 @@ There is other text between `INDEX` and the first prefix, such as `editnote 1 ab
 `TEXT` is empty or only spaces | `Note text cannot be blank.`
 `TEXT` is longer than 500 characters | `Note text must be at most 500 characters.`
 `INDEX` is larger than the number of students shown | `The student index provided is invalid.`
-The student has no notes | `{NAME} has no notes to edit.`
-`NID` is larger than the number of notes the student has | `NID {NID} does not exist. {NAME} has only {COUNT} notes.` (or `1 note` if the student has one note)
+The student has no notes | `{NAME} at {SCHOOL} ({LEVEL}) has no notes to edit.`
+`NID` is larger than the number of notes the student has | `NID {NID} does not exist. {NAME} at {SCHOOL} ({LEVEL}) has only {COUNT} notes.` (or `1 note` if the student has one note)
 
 ### Deleting a note from a student: `deletenote`
 
@@ -279,7 +283,7 @@ Format: `deletenote [-f] INDEX nid/NID`
 
 * `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
 * `NID` is the number shown before the note in the student detail view. It must be a positive integer, such as 1, 2, or 3. To see a student's notes and their NIDs, use `view INDEX`.
-* The command shows an amber prompt, such as `This will delete note 1 from Alex Tan. Continue? Type CONFIRM (uppercase) to proceed; any other input cancels this request and runs as a command.` Enter `CONFIRM` to confirm. You can use `deletenote -f INDEX nid/NID` to delete immediately.
+* The command shows an amber prompt, such as `This will delete note 1 from Alex Tan at Example Secondary School (S3). Continue? Type CONFIRM (uppercase) to proceed; any other input cancels this request and runs as a command.` Enter `CONFIRM` to confirm. The prompt includes the school and level to distinguish students with the same name. You can use `deletenote -f INDEX nid/NID` to delete immediately.
 * The displayed list and student record remain unchanged while confirmation is pending.
 * After you delete a note, the notes after it move up one number. For example, if a student has 3 notes and you delete note 2, the old note 3 becomes note 2. Check the student detail view for the new numbers before you delete another note.
 * Deleting a note does not change which students are shown.
@@ -303,8 +307,8 @@ Problem | Message
 There is other text between `INDEX` and `nid/`, such as `deletenote 1 abc nid/2` | `Invalid command format!` followed by how to use `deletenote`
 `INDEX` is larger than the number of students shown | `The student index provided is invalid.`
 `NID` is empty or is not a positive integer, such as `0`, `-1`, or `abc` | `NID must be a positive integer.`
-The student has no notes | `{NAME} has no notes to delete.`
-`NID` is larger than the number of notes the student has | `NID {NID} does not exist. {NAME} has only {COUNT} notes.` (or `1 note` if the student has one note)
+The student has no notes | `{NAME} at {SCHOOL} ({LEVEL}) has no notes to delete.`
+`NID` is larger than the number of notes the student has | `NID {NID} does not exist. {NAME} at {SCHOOL} ({LEVEL}) has only {COUNT} notes.` (or `1 note` if the student has one note)
 `nid/` appears more than once | `Multiple values specified for the following single-valued field(s): nid/`
 `INDEX` or `nid/NID` is missing, or there is no space before `nid/` | `Invalid command format!` followed by how to use `deletenote`
 
@@ -312,7 +316,7 @@ The student has no notes | `{NAME} has no notes to delete.`
 
 Shows the students who match every filter you give.
 
-Format: `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/PHONE] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`
+Format: `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/PHONE] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE] [note/TEXT]`
 
 * Give at least one filter, and each filter at most once.
 * A student must match every filter you give. For example, `filter n/tan sch/bedok` shows students whose name contains `tan` and whose school contains `bedok`.
@@ -327,12 +331,15 @@ Filter | Matches students whose… | Match
 `p/PHONE` | own phone number is `PHONE` | exact matching
 `gn/GUARDIAN_NAME` | guardian's name contains `GUARDIAN_NAME` | partial matching
 `gp/GUARDIAN_PHONE` | guardian's phone number is `GUARDIAN_PHONE` | exact matching
+`note/TEXT` | notes include one that contains `TEXT` | partial matching
 
 * A filter with partial matching can match any part of the value, even part of a word. For example, `sch/vic` matches `Victoria School`.
 * A filter with exact matching must match the whole value. For example, `lvl/S3` matches only students in S3, `sub/math` does not match `Mathematics`, and `p/9123` does not match `91234567`.
 * `band/` must come right after `sub/`, and the band must belong to that subject. For example, a student taking Mathematics at G1 and Science at G2 does not match `sub/Mathematics band/G2`.
 * Phone numbers are compared the way they are saved: spaces, hyphens, and a leading `+65` are removed. For example, `p/9123 4567` and `p/+65 9123-4567` both match `91234567`. An overseas number must include its `+` and country code.
 * A student without a phone never matches `p/`, and a student without a guardian never matches `gn/` or `gp/`.
+* `note/` searches all of a student's notes. `TEXT` can be up to 500 characters, the same as a note.
+* Everything after `note/` is the note text, so put `note/` last. For example, `filter note/revise t/f` finds notes containing `revise t/f`. In `filter note/algebra lvl/S3`, `lvl/S3` is read as part of the note text, so write `filter lvl/S3 note/algebra` instead.
 * Filters are not case-sensitive, and extra spaces are ignored.
 * Each value is matched as one piece of text, including its spaces: `n/david lim` matches `David Lim`, but `n/lim david` does not.
 * If no student matches, the student list is empty and a message tells you how to see all students again.
@@ -351,6 +358,8 @@ Examples:
 * `filter p/9123 4567` returns `SAMPLE Chloe Tan`.
 * `filter gp/98765432` returns `SAMPLE Marcus Lim`, whose guardian is Grace Lim.
 * `filter gn/goh` returns `SAMPLE Natalie Goh`, whose guardian is Michelle Goh.
+* `filter note/algebra` returns `SAMPLE Chloe Tan`.
+* `filter lvl/S1 note/next lesson` returns `SAMPLE Daniel Lee`.
 
 Problem | Message
 --------|--------
@@ -364,7 +373,9 @@ A filter appears more than once | `Multiple values specified for the following s
 `band/` is not right after `sub/`, or there is no `sub/` | `band/ must come right after sub/, such as: filter sub/Mathematics band/G2`
 `PHONE` or `GUARDIAN_PHONE` is empty or not a valid phone number | The same message as `add`, such as `Phone cannot be empty.`
 `GUARDIAN_NAME` is empty | `The guardian name to search for cannot be blank.`
-`t/` or `nid/` is given | `filter cannot search notes. Filter by the student's details instead, such as: filter n/tan sch/bedok lvl/S3`
+`TEXT` after `note/` is empty | `The note text to search for cannot be blank.`
+`TEXT` after `note/` is longer than 500 characters | `The note text to search for must be at most 500 characters.`
+`t/` or `nid/` is given | `To filter by notes, use note/, such as: filter note/algebra`
 
 ### Deleting a student: `delete`
 
@@ -373,7 +384,7 @@ Deletes a student, together with their guardian details and all of their notes.
 Format: `delete [-f] INDEX`
 
 * `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
-* `delete` shows an amber prompt, such as `This will delete Alex Tan and all their notes. Continue? Type CONFIRM (uppercase) to proceed; any other input cancels this request and runs as a command.` Enter `CONFIRM` to confirm. Use `delete -f INDEX` to delete immediately.
+* `delete` shows an amber prompt, such as `This will delete Alex Tan at Example Secondary School (S3) and all their notes. Continue? Type CONFIRM (uppercase) to proceed; any other input cancels this request and runs as a command.` Enter `CONFIRM` to confirm. The prompt includes the school and level to distinguish students with the same name. Use `delete -f INDEX` to delete immediately.
 * The displayed list and student record remain unchanged while confirmation is pending.
 * After `view`, use the index shown at the top of the student detail view when running `delete`.
 * After a student is deleted, the current filter remains active while it still has matches. The index numbers of the remaining matching students may change, so check the list before you run another command that uses an index.
@@ -481,6 +492,6 @@ Action | Format, Examples
 **Delete note** | `deletenote [-f] INDEX nid/NID`<br> e.g., `deletenote 1 nid/2`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `edit 2 sub/Mathematics band/G2 sub/English band/G3`, `edit 1 gn/ gp/`
 **Edit note** | `editnote INDEX nid/NID t/TEXT`<br> e.g., `editnote 1 nid/2 t/Improving in algebra`
-**Filter** | `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/PHONE] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `filter lvl/S5 sub/mathematics band/G2`
+**Filter** | `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/PHONE] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE] [note/TEXT]`<br> e.g., `filter lvl/S5 sub/mathematics band/G2`
 **List** | `list`
 **Help** | `help`

@@ -30,7 +30,7 @@ public class EditNoteCommand extends Command {
             + "Example: " + COMMAND_WORD + " 1 " + PREFIX_NID + "2 " + PREFIX_NOTE + "Improving in algebra";
 
     public static final String MESSAGE_SUCCESS = "Edited note %1$d of %2$s.\nOld: %3$s\nNew: %4$s";
-    public static final String MESSAGE_NO_NOTES = "%1$s has no notes to edit.";
+    public static final String MESSAGE_NO_NOTES = "%1$s at %2$s (%3$s) has no notes to edit.";
     public static final String MESSAGE_NOTE_UNCHANGED =
             "No changes made: note %1$d of %2$s already says: %3$s";
 

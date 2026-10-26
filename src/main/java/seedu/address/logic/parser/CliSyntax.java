@@ -16,6 +16,7 @@ public class CliSyntax {
     public static final Prefix PREFIX_NID = new Prefix("nid/");
     public static final Prefix PREFIX_GUARDIAN_NAME = new Prefix("gn/");
     public static final Prefix PREFIX_GUARDIAN_PHONE = new Prefix("gp/");
+    public static final Prefix PREFIX_NOTE_FILTER = new Prefix("note/");
 
     private CliSyntax() {}
 
