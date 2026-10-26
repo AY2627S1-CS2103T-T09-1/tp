@@ -116,4 +116,16 @@ public class ArgumentMultimap {
             throw new ParseException(message);
         }
     }
+
+    /**
+     * Throws a {@code ParseException} with {@code message} if only one of {@code first} and {@code second}
+     * appeared among the arguments.
+     */
+    public void verifyGivenTogether(Prefix first, Prefix second, String message) throws ParseException {
+        boolean hasFirst = argMultimap.containsKey(first);
+        boolean hasSecond = argMultimap.containsKey(second);
+        if (hasFirst != hasSecond) {
+            throw new ParseException(message);
+        }
+    }
 }
