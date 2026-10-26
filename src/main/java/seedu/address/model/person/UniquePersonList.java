@@ -12,15 +12,12 @@ import seedu.address.model.person.exceptions.DuplicatePersonException;
 import seedu.address.model.person.exceptions.PersonNotFoundException;
 
 /**
- * A list of persons that enforces uniqueness between its elements and does not allow nulls.
- * A person is considered unique by comparing using {@code Person#isSamePerson(Person)}. As such, adding and updating of
- * persons uses Person#isSamePerson(Person) for equality so as to ensure that the person being added or updated is
- * unique in terms of identity in the UniquePersonList. However, the removal of a person uses Person#equals(Object) so
- * as to ensure that the person with exactly the same fields will be removed.
+ * A list of persons that enforces uniqueness by normalized name, school, and level and does not allow nulls.
+ * Removal uses {@code Person#equals(Object)} so that the person with exactly the same fields will be removed.
  *
  * Supports a minimal set of list operations.
  *
- * @see Person#isSamePerson(Person)
+ * @see Person#hasSameStudentKey(Person)
  */
 public class UniquePersonList implements Iterable<Person> {
 
@@ -29,11 +26,11 @@ public class UniquePersonList implements Iterable<Person> {
             FXCollections.unmodifiableObservableList(internalList);
 
     /**
-     * Returns true if the list contains an equivalent person as the given argument.
+     * Returns true if the list contains a person with the same normalized name, school, and level.
      */
     public boolean contains(Person toCheck) {
         requireNonNull(toCheck);
-        return internalList.stream().anyMatch(toCheck::isSamePerson);
+        return internalList.stream().anyMatch(toCheck::hasSameStudentKey);
     }
 
     /**
@@ -51,7 +48,7 @@ public class UniquePersonList implements Iterable<Person> {
     /**
      * Replaces the person {@code target} in the list with {@code editedPerson}.
      * {@code target} must exist in the list.
-     * The person identity of {@code editedPerson} must not be the same as another existing person in the list.
+     * No other person in the list may have the same normalized name, school, and level as {@code editedPerson}.
      */
     public void setPerson(Person target, Person editedPerson) {
         requireAllNonNull(target, editedPerson);
@@ -61,8 +58,10 @@ public class UniquePersonList implements Iterable<Person> {
             throw new PersonNotFoundException();
         }
 
-        if (!target.isSamePerson(editedPerson) && contains(editedPerson)) {
-            throw new DuplicatePersonException();
+        for (int i = 0; i < internalList.size(); i++) {
+            if (i != index && internalList.get(i).hasSameStudentKey(editedPerson)) {
+                throw new DuplicatePersonException();
+            }
         }
 
         internalList.set(index, editedPerson);
@@ -139,7 +138,7 @@ public class UniquePersonList implements Iterable<Person> {
     private boolean personsAreUnique(List<Person> persons) {
         for (int i = 0; i < persons.size() - 1; i++) {
             for (int j = i + 1; j < persons.size(); j++) {
-                if (persons.get(i).isSamePerson(persons.get(j))) {
+                if (persons.get(i).hasSameStudentKey(persons.get(j))) {
                     return false;
                 }
             }
