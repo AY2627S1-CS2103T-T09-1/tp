@@ -81,11 +81,12 @@ Adds a person to the address book.
 
 After the student is added, the full list is shown on the left and the new student's record is shown on the right.
 
-Format: `add n/NAME [p/PHONE] sch/SCHOOL [a/ADDRESS] lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]`
+Format: `add n/NAME [p/PHONE] sch/SCHOOL [a/ADDRESS] [e/EMAIL] lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]`
 
 * `NAME` can contain only letters, digits, and spaces. Symbols such as `/`, `-`, and `'` aren't supported yet, so type `Rajesh s/o Kumar` as `Rajesh so Kumar`.
 * The phone number is optional, since younger students may not have their own phone.
 * `ADDRESS` is optional. If provided, it can contain any nonblank value up to 200 characters. Repeated ordinary spaces are collapsed to one. The list card hides a missing address, while the detail panel shows `Not provided`.
+* `EMAIL` is optional. If provided, it must be at most 100 characters and look like `local-part@domain`, such as `chloe.tan@example.com`. The local part can contain letters, digits, and the symbols `+`, `_`, `.`, and `-`, but cannot start or end with a symbol. The domain is made up of labels separated by periods. Each label starts and ends with a letter or digit and can contain hyphens, and the last label has at least 2 characters. The list card hides a missing email, while the detail panel shows `Not provided`.
 * When you add a student, TuteeBook3 trims leading and trailing spaces and collapses repeated ordinary spaces to one in the name, school, address, subject names, and guardian name. It keeps the capitalization you enter. For example, `add n/John  Doe sch/Victoria  School a/Blk 123 Bedok North  Avenue 2, #04-111 lvl/S3 sub/Additional  Mathematics band/G1` stores `John Doe`, `Victoria School`, `Blk 123 Bedok North Avenue 2, #04-111`, and `Additional Mathematics`.
 * `PHONE` is the number you use to reach the student. It can only contain digits, with an optional `+` at the start, and must have 3 to 15 digits, counting the country code. You can type spaces or hyphens (`-`), such as `9123 4567` or `9123-4567`, and they are removed when it is saved. Other dashes, such as `–`, are not allowed.
 * A Singapore number (8 digits starting with 6, 8, or 9) is saved as those 8 digits. A leading `+65` is removed, so `+65 9123 4567` is saved as `91234567`. If what follows `+65` isn't a Singapore number, the `+65` is kept.
@@ -96,7 +97,7 @@ Format: `add n/NAME [p/PHONE] sch/SCHOOL [a/ADDRESS] lvl/LEVEL sub/SUBJECT band/
 * `GUARDIAN_NAME` follows the same rules as `NAME`, and `GUARDIAN_PHONE` follows the same rules as `PHONE`. Error messages for these start with `Guardian name` or `Guardian phone`.
 
 <div markdown="span" class="alert alert-info">:information_source: **Note:**
-Each student and guardian has one phone number, which is the number you use to reach them. TuteeBook3 does not support a second phone number or an email address. To keep one, add it as a note on that student with `addnote`, for example `addnote 1 note/Mum's office: 6123 4567`.
+Each student and guardian has one phone number, which is the number you use to reach them. TuteeBook3 does not support a second phone number or a guardian email address. To keep one, add it as a note on that student with `addnote`, for example `addnote 1 note/Mum's office: 6123 4567`.
 </div>
 
 * Each student must have at least 1 subject and a maximum of 8 distinct subjects. Each `sub/SUBJECT` must be immediately followed by its `band/BAND`.
@@ -116,6 +117,7 @@ There are no parameters at all, or there is text between `add` and the first par
 `PHONE` or `GUARDIAN_PHONE` is invalid | The message says why, as described above
 `SCHOOL` is invalid | `School names must be 1-100 characters and contain at least one letter.`
 `ADDRESS` is blank or longer than 200 characters | `Addresses must not be blank and must be at most 200 characters.`
+`EMAIL` is invalid or longer than 100 characters | A message starting with `Emails must be at most 100 characters, be of the format local-part@domain`, followed by the rules above
 `LEVEL` is not S1 to S5 | `Level must be one of S1, S2, S3, S4, S5.`
 A subject or band is wrong | See [Subject and band errors](#subject-and-band-errors)
 Only one of `gn/` and `gp/` is given | `Guardian name (gn/) and guardian phone (gp/) must be given together.`
@@ -130,12 +132,13 @@ Examples:
 * `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1` adds a student without a phone number.
 * `add n/Chloe Tan sch/Bedok Green Secondary School lvl/S2 sub/Mathematics band/G1 sub/English band/G3` adds a student taking two subjects at different bands.
 * `add n/Mei Lin sch/Bedok Green Secondary School a/Blk 123 Bedok North Avenue 2, #04-111 lvl/S2 sub/Mathematics band/G1` adds a student with an address.
+* `add n/Mei Lin sch/Bedok Green Secondary School e/meilin@example.com lvl/S2 sub/Mathematics band/G1` adds a student with an email.
 * `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Tan gp/91234567` adds a student with guardian Mary Tan. Use `view INDEX` to see the guardian details.
 * `add n/Aisha Rahman sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Farah Rahman gp/+60 12-345 6789` adds a student whose guardian has a Malaysian number. It is saved as `+60123456789`, with a warning that it doesn't look like a Singapore number.
 
 ### Listing all persons: `list`
 
-Shows a list of all persons in the address book. Each entry shows the student's index, name, phone number (if provided), school, address (if provided), and level. The right panel returns to `View a student to see details.` Use `view INDEX` to see the remaining details.
+Shows a list of all persons in the address book. Each entry shows the student's index, name, phone number (if provided), school, address (if provided), email (if provided), and level. The right panel returns to `View a student to see details.` Use `view INDEX` to see the remaining details.
 
 Format: `list`
 
@@ -147,7 +150,7 @@ TuteeBook3 always shows a fixed, equal-width student list on the left and studen
 
 `view` shows the full record of the student at the specified index on the right.
 
-The detail panel contains the student's name, school, level, subject-band pairs, address, student phone number, guardian name, and guardian phone number, followed by the student's notes. Optional fields without a recorded value, such as the address, student phone number, or guardian details, are shown as `Not provided`.
+The detail panel contains the student's name, school, level, subject-band pairs, address, email, student phone number, guardian name, and guardian phone number, followed by the student's notes. Optional fields without a recorded value, such as the address, email, student phone number, or guardian details, are shown as `Not provided`.
 
 Format: `view INDEX`
 
@@ -165,12 +168,13 @@ Example: `view 2` shows the full record of the second student in the currently d
 
 Edits an existing person in the address book.
 
-Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [a/ADDRESS] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`
+Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [a/ADDRESS] [e/EMAIL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`
 
 * Edits the person at the specified `INDEX`. The index refers to the index number shown in the displayed person list. The index **must be a positive integer** 1, 2, 3, …​
 * At least one of the optional fields must be provided.
 * Existing values will be updated to the input values.
 * `a/ADDRESS` replaces the student's address. It follows the same rules as in `add`; use `a/` with no value to remove it. Omitting `a/` keeps the current address.
+* `e/EMAIL` replaces the student's email. It follows the same rules as in `add`; use `e/` with no value to remove it. Omitting `e/` keeps the current email.
 * Supplying subject-band pairs replaces the entire subject list; omitting them preserves existing subjects. The replacement list must contain at least 1 subject and a maximum of 8 distinct subjects, following the same pairing and validation rules as `add`. Notes are preserved when editing a student.
 * `PHONE` and `GUARDIAN_PHONE` follow the same rules as in `add`, so `p/9123 4567` is saved as `91234567`. The warning about a number not looking like a Singapore number only appears when you type `p/` or `gp/` in that command.
 * You can remove a person's phone number by typing `p/` without specifying any number after it.
@@ -538,12 +542,12 @@ _Details coming soon ..._
 
 Action | Format, Examples
 --------|------------------
-**Add** | `add n/NAME [p/PHONE] sch/SCHOOL [a/ADDRESS] lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School a/Blk 123 Bedok North Avenue 2, #04-111 lvl/S2 sub/Mathematics band/G1 gn/Mary Ho gp/91234567`
+**Add** | `add n/NAME [p/PHONE] sch/SCHOOL [a/ADDRESS] [e/EMAIL] lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE]` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School a/Blk 123 Bedok North Avenue 2, #04-111 lvl/S2 sub/Mathematics band/G1 gn/Mary Ho gp/91234567`
 **Add note** | `addnote INDEX note/TEXT`<br> e.g., `addnote 1 note/Weak in algebra`
 **Clear** | `clear`, followed by `CONFIRM` to confirm (Alternatively, `clear -f` to clear immediately)
 **Delete** | `delete [-f] INDEX`<br> e.g., `delete 3`
 **Delete note** | `deletenote [-f] INDEX nid/NID`<br> e.g., `deletenote 1 nid/2`
-**Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [a/ADDRESS] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `edit 2 a/Blk 311 Tampines Street 33, #05-212`, `edit 2 sub/Mathematics band/G2 sub/English band/G3`, `edit 1 gn/ gp/`
+**Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [a/ADDRESS] [e/EMAIL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE]`<br> e.g., `edit 2 a/Blk 311 Tampines Street 33, #05-212`, `edit 1 e/`, `edit 2 sub/Mathematics band/G2 sub/English band/G3`, `edit 1 gn/ gp/`
 **Edit note** | `editnote INDEX nid/NID note/TEXT`<br> e.g., `editnote 1 nid/2 note/Improving in algebra`
 **Filter** | `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/PHONE] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE] [note/TEXT]`<br> e.g., `filter lvl/S5 sub/mathematics band/G2`
 **List** | `list`

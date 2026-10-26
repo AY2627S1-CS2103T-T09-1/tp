@@ -10,6 +10,7 @@ Class Name
 Class Phone
 Class School
 Class Address
+Class Email
 Class "<<enumeration>>\nLevel" as Level
 Class Subject
 Class "<<enumeration>>\nBand" as Band
@@ -21,6 +22,7 @@ Person *---> "1" Name
 Person *---> "0..1" Phone
 Person *--> "1" School
 Person *--> "0..1" Address
+Person *--> "0..1" Email
 Person --> "1" Level
 Person *--> "1..8" Subject
 Person *--> "~* {ordered}" Note
