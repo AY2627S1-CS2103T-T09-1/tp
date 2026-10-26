@@ -70,6 +70,20 @@ public class ResultDisplayTest {
         });
     }
 
+    @Test
+    public void selectAllShortcut_notBlocked_selectsWholeText(FxRobot robot) {
+        robot.interact(() -> {
+            resultDisplay.setFeedbackToUser(FEEDBACK);
+            TextArea textArea = getTextArea();
+            textArea.deselect();
+            boolean isMac = System.getProperty("os.name").toLowerCase().contains("mac");
+            // Cmd+A on macOS, Ctrl+A elsewhere
+            textArea.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.A,
+                    false, !isMac, false, isMac));
+            assertEquals(FEEDBACK, textArea.getSelectedText());
+        });
+    }
+
     private TextArea getTextArea() {
         return (TextArea) resultDisplay.getRoot().lookup("#resultDisplay");
     }
