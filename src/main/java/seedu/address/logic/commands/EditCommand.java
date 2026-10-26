@@ -13,6 +13,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.CollectionUtil;
@@ -31,7 +32,7 @@ import seedu.address.model.person.Subject;
 /**
  * Edits the details of an existing person in the address book.
  */
-public class EditCommand extends Command {
+public class EditCommand extends Command implements ConfirmationCommand {
 
     public static final String COMMAND_WORD = "edit";
 
@@ -57,7 +58,13 @@ public class EditCommand extends Command {
     public static final String MESSAGE_NO_LONGER_MATCHES = "%1$s no longer matches your last search, "
             + "but stays in the list until you enter list or filter.";
     public static final String MESSAGE_NOT_EDITED = "At least one field to edit must be provided.";
-    public static final String MESSAGE_DUPLICATE_PERSON = "This student already exists in TuteeBook3.";
+    public static final String MESSAGE_DUPLICATE_PERSON =
+            "Another student named %1$s at %2$s, level %3$s already exists. If these are different students, "
+                    + "edit the name to include an identifier, for example Chloe Tan 2.";
+    public static final String MESSAGE_CONFIRMATION =
+            "Edit not saved yet: %1$s is also recorded at %2$s.";
+    public static final String MESSAGE_CONFIRMATION_INSTRUCTION =
+            "Type CONFIRM (uppercase) to save this edit anyway.";
     public static final String MESSAGE_GUARDIAN_REMOVAL = "Guardian name (" + PREFIX_GUARDIAN_NAME
             + ") and guardian phone (" + PREFIX_GUARDIAN_PHONE + ") cannot be empty. To remove the guardian, use "
             + PREFIX_GUARDIAN_NAME + " " + PREFIX_GUARDIAN_PHONE + " with no values.";
@@ -81,20 +88,46 @@ public class EditCommand extends Command {
     }
 
     @Override
+    public boolean isForced() {
+        return false;
+    }
+
+    @Override
+    public String getCommandWord() {
+        return COMMAND_WORD;
+    }
+
+    @Override
+    public String getConfirmationInstruction() {
+        return MESSAGE_CONFIRMATION_INSTRUCTION;
+    }
+
+    @Override
+    public String getConfirmationMessage(Model model) throws CommandException {
+        requireNonNull(model);
+        Person personToEdit = getTargetPerson(model);
+        Person editedPerson = createEditedPerson(personToEdit, editPersonDescriptor);
+        List<Person> otherPersons = getOtherPersons(model, personToEdit);
+        ensureNoExactDuplicate(editedPerson, otherPersons);
+        if (personToEdit.hasSameStudentKey(editedPerson)) {
+            return null;
+        }
+        List<Person> sameNamePersons = otherPersons.stream()
+                .filter(editedPerson::hasSameName)
+                .toList();
+        if (sameNamePersons.isEmpty()) {
+            return null;
+        }
+        String existingStudents = formatMatchingStudents(sameNamePersons);
+        return String.format(MESSAGE_CONFIRMATION, editedPerson.getName(), existingStudents);
+    }
+
+    @Override
     public CommandResult execute(Model model) throws CommandException {
         requireNonNull(model);
-        List<Person> lastShownList = model.getFilteredPersonList();
-
-        if (index.getZeroBased() >= lastShownList.size()) {
-            throw new CommandException(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
-        }
-
-        Person personToEdit = lastShownList.get(index.getZeroBased());
+        Person personToEdit = getTargetPerson(model);
         Person editedPerson = createEditedPerson(personToEdit, editPersonDescriptor);
-
-        if (!personToEdit.isSamePerson(editedPerson) && model.hasPerson(editedPerson)) {
-            throw new CommandException(MESSAGE_DUPLICATE_PERSON);
-        }
+        ensureNoExactDuplicate(editedPerson, getOtherPersons(model, personToEdit));
 
         // keep the edited person at the same index, so the list and view panel don't shift
         boolean isOutsideFilter = model.keepPersonInFilteredList(editedPerson);
@@ -103,12 +136,42 @@ public class EditCommand extends Command {
         if (isOutsideFilter) {
             feedback += "\n" + String.format(MESSAGE_NO_LONGER_MATCHES, editedPerson.getName());
         }
-        CommandResult result = new CommandResult(feedback);
+        CommandResult result = CommandResult.showStudent(feedback, editedPerson, index);
         // only warn about phones typed in this command, not ones the person already had
         return Messages.getNonSingaporePhoneWarning(editPersonDescriptor.getPhone(),
                         editPersonDescriptor.getGuardianPhone())
                 .map(result::withWarning)
                 .orElse(result);
+    }
+
+    private Person getTargetPerson(Model model) throws CommandException {
+        List<Person> lastShownList = model.getFilteredPersonList();
+        if (index.getZeroBased() >= lastShownList.size()) {
+            throw new CommandException(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        }
+        return lastShownList.get(index.getZeroBased());
+    }
+
+    private static List<Person> getOtherPersons(Model model, Person personToEdit) {
+        return model.getAddressBook().getPersonList().stream()
+                .filter(person -> person != personToEdit)
+                .toList();
+    }
+
+    private static void ensureNoExactDuplicate(Person editedPerson, List<Person> otherPersons)
+            throws CommandException {
+        boolean hasDuplicate = otherPersons.stream().anyMatch(editedPerson::hasSameStudentKey);
+        if (hasDuplicate) {
+            throw new CommandException(String.format(MESSAGE_DUPLICATE_PERSON, editedPerson.getName(),
+                    editedPerson.getSchool(), editedPerson.getLevel()));
+        }
+    }
+
+    private static String formatMatchingStudents(List<Person> persons) {
+        return persons.stream()
+                .map(person -> person.getSchool() + " (" + person.getLevel() + ")")
+                .distinct()
+                .collect(Collectors.joining(", "));
     }
 
     /**

@@ -11,7 +11,7 @@ import seedu.address.model.person.UniquePersonList;
 
 /**
  * Wraps all data at the address-book level.
- * Duplicates are not allowed (by .isSamePerson comparison).
+ * Duplicate students with the same normalized name, school, and level are not allowed.
  */
 public class AddressBook implements ReadOnlyAddressBook {
 
@@ -49,7 +49,7 @@ public class AddressBook implements ReadOnlyAddressBook {
     //// person-level operations
 
     /**
-     * Returns true if a person with the same identity as {@code person} exists in the address book.
+     * Returns true if a person with the same normalized name, school, and level exists.
      */
     public boolean hasPerson(Person person) {
         requireNonNull(person);
@@ -67,7 +67,7 @@ public class AddressBook implements ReadOnlyAddressBook {
     /**
      * Replaces the given person {@code target} in the list with {@code editedPerson}.
      * {@code target} must exist in the address book.
-     * The person identity of {@code editedPerson} must not be the same as another existing person in the address book.
+     * No other person may have the same normalized name, school, and level as {@code editedPerson}.
      */
     public void setPerson(Person target, Person editedPerson) {
         requireNonNull(editedPerson);

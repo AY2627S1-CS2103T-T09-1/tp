@@ -25,6 +25,8 @@ import seedu.address.model.person.GuardianPhoneMatchesPredicate;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.LevelMatchesPredicate;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
+import seedu.address.model.person.Note;
+import seedu.address.model.person.NoteContainsTextPredicate;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.PhoneMatchesPredicate;
@@ -114,13 +116,65 @@ public class FilterCommandParserTest {
     }
 
     @Test
-    public void parse_notePrefix_throwsParseException() {
-        assertParseFailure(parser, " t/algebra", FilterCommandParser.MESSAGE_NOTES_NOT_FILTERABLE);
-        assertParseFailure(parser, " t/", FilterCommandParser.MESSAGE_NOTES_NOT_FILTERABLE);
-        assertParseFailure(parser, " nid/2", FilterCommandParser.MESSAGE_NOTES_NOT_FILTERABLE);
+    public void parse_noteIndexPrefix_throwsParseException() {
+        assertParseFailure(parser, " nid/2", FilterCommandParser.MESSAGE_USE_NOTE_FILTER);
+        assertParseFailure(parser, " nid/", FilterCommandParser.MESSAGE_USE_NOTE_FILTER);
 
-        // without t/ being recognized, this would search names for "tan t/algebra"
-        assertParseFailure(parser, " n/tan t/algebra", FilterCommandParser.MESSAGE_NOTES_NOT_FILTERABLE);
+        // without nid/ being recognized, this would search names for "tan nid/2"
+        assertParseFailure(parser, " n/tan nid/2", FilterCommandParser.MESSAGE_USE_NOTE_FILTER);
+    }
+
+    @Test
+    public void parse_validNote_returnsFilterCommand() {
+        assertParseSuccess(parser, " note/algebra", filterCommandOf(note("algebra")));
+        assertParseSuccess(parser, " note/  next \t  lesson ", filterCommandOf(note("next lesson")));
+        assertParseSuccess(parser, " note/WA2 Math: 36/50", filterCommandOf(note("WA2 Math: 36/50")));
+    }
+
+    @Test
+    public void parse_blankNote_throwsParseException() {
+        assertParseFailure(parser, " note/", FilterCommandParser.MESSAGE_BLANK_NOTE);
+        assertParseFailure(parser, " note/   ", FilterCommandParser.MESSAGE_BLANK_NOTE);
+    }
+
+    @Test
+    public void parse_noteAtMaxLength_returnsFilterCommand() {
+        String text = "a".repeat(Note.MAX_LENGTH);
+        assertParseSuccess(parser, " note/" + text, filterCommandOf(note(text)));
+    }
+
+    @Test
+    public void parse_noteOverMaxLength_throwsParseException() {
+        String text = "a".repeat(Note.MAX_LENGTH + 1);
+        assertParseFailure(parser, " note/" + text, FilterCommandParser.MESSAGE_NOTE_TOO_LONG);
+    }
+
+    @Test
+    public void parse_secondNotePrefix_readAsNoteText() {
+        assertParseSuccess(parser, " note/algebra note/geometry",
+                filterCommandOf(note("algebra note/geometry")));
+    }
+
+    @Test
+    public void parse_noteWithPrefixLikeText_keepsWholeText() {
+        assertParseSuccess(parser, " note/revise t/f", filterCommandOf(note("revise t/f")));
+        assertParseSuccess(parser, " note/score n/a", filterCommandOf(note("score n/a")));
+        assertParseSuccess(parser, " lvl/S1 note/check p/s",
+                filterCommandOf(level(Level.S1), note("check p/s")));
+    }
+
+    @Test
+    public void parse_filterAfterNote_readAsNoteText() {
+        assertParseSuccess(parser, " note/next lesson lvl/S1",
+                filterCommandOf(note("next lesson lvl/S1")));
+    }
+
+    @Test
+    public void parse_noteWithOtherFilters_returnsSameCommand() {
+        FilterCommand expectedFilterCommand =
+                filterCommandOf(name("tan"), level(Level.S1), note("next lesson"));
+        assertParseSuccess(parser, " n/tan lvl/S1 note/next lesson", expectedFilterCommand);
+        assertParseSuccess(parser, " lvl/S1 n/tan note/next lesson", expectedFilterCommand);
     }
 
     @Test
@@ -304,6 +358,10 @@ public class FilterCommandParserTest {
 
     private static Predicate<Person> guardianPhone(String phone) {
         return new GuardianPhoneMatchesPredicate(new Phone(phone));
+    }
+
+    private static Predicate<Person> note(String text) {
+        return new NoteContainsTextPredicate(text);
     }
 
     @SafeVarargs

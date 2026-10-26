@@ -11,6 +11,8 @@ import seedu.address.logic.commands.ConfirmationCommand;
 public class ConfirmationManager {
     public static final String MESSAGE_CONFIRMATION_SUFFIX = " Type CONFIRM (uppercase) to proceed; any other input "
             + "cancels this request and runs as a command.";
+    public static final String MESSAGE_CONFIRMATION_CANCELLATION =
+            "Any other input cancels this request and runs as a command.";
     public static final String MESSAGE_CANCELLED_FORMAT = "The '%s' command has been cancelled.";
 
     private ConfirmationCommand pendingCommand;
@@ -27,7 +29,11 @@ public class ConfirmationManager {
      */
     public CommandResult requestConfirmation(ConfirmationCommand command, String message) {
         pendingCommand = command;
-        return CommandResult.warning(message + MESSAGE_CONFIRMATION_SUFFIX);
+        String instruction = command.getConfirmationInstruction();
+        String suffix = instruction == null ? MESSAGE_CONFIRMATION_SUFFIX
+                : System.lineSeparator() + instruction + System.lineSeparator()
+                        + MESSAGE_CONFIRMATION_CANCELLATION;
+        return CommandResult.warning(message + suffix);
     }
 
     /**

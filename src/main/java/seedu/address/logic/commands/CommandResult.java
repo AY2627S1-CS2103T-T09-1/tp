@@ -47,8 +47,9 @@ public class CommandResult {
         this(feedbackToUser, showHelp, exit, false, DisplayMode.KEEP_CURRENT, null, null, null);
     }
 
-    private CommandResult(String feedbackToUser, boolean showHelp, boolean exit, boolean isWarning,
-            DisplayMode displayMode, Person personToDisplay, Index displayedIndex, String cancellationNotice) {
+    private CommandResult(String feedbackToUser, boolean showHelp, boolean exit,
+            boolean isWarning, DisplayMode displayMode, Person personToDisplay,
+            Index displayedIndex, String cancellationNotice) {
         this.feedbackToUser = requireNonNull(feedbackToUser);
         this.showHelp = showHelp;
         this.exit = exit;
@@ -105,10 +106,11 @@ public class CommandResult {
     }
 
     /**
-     * Creates a result that shows the student list.
+     * Creates a result that shows the student list without a selected student record.
      */
     public static CommandResult showList(String feedbackToUser) {
-        return new CommandResult(feedbackToUser, false, false, false, DisplayMode.SHOW_LIST, null, null, null);
+        return new CommandResult(feedbackToUser, false, false, false,
+                DisplayMode.SHOW_LIST, null, null, null);
     }
 
     /**
@@ -116,6 +118,15 @@ public class CommandResult {
      */
     public static CommandResult showStudent(String feedbackToUser, Person person, Index displayedIndex) {
         return new CommandResult(feedbackToUser, false, false, false,
+                DisplayMode.SHOW_STUDENT, person, displayedIndex, null);
+    }
+
+    /**
+     * Creates a warning result that shows {@code person} in the student details panel.
+     */
+    public static CommandResult showStudentWarning(
+            String feedbackToUser, Person person, Index displayedIndex) {
+        return new CommandResult(feedbackToUser, false, false, true,
                 DisplayMode.SHOW_STUDENT, person, displayedIndex, null);
     }
 
