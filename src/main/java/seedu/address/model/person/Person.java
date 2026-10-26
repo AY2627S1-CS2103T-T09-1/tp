@@ -176,7 +176,7 @@ public class Person {
         return name.equals(otherPerson.name)
                 && Objects.equals(phone, otherPerson.phone)
                 && school.equals(otherPerson.school)
-                && address.equals(otherPerson.address)
+                && Objects.equals(address, otherPerson.address)
                 && level.equals(otherPerson.level)
                 && subjects.equals(otherPerson.subjects)
                 && notes.equals(otherPerson.notes)

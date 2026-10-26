@@ -83,7 +83,7 @@ Format: `add n/NAME [p/PHONE] sch/SCHOOL [a/ADDRESS] lvl/LEVEL sub/SUBJECT band/
 
 * `NAME` can contain only letters, digits, and spaces. Symbols such as `/`, `-`, and `'` aren't supported yet, so type `Rajesh s/o Kumar` as `Rajesh so Kumar`.
 * The phone number is optional, since younger students may not have their own phone.
-* `ADDRESS` can contain any value except a blank or whitespace-only value. It is required when adding a student.
+* `ADDRESS` is optional. If provided, it can contain any value except a blank or whitespace-only value.
 * You can omit `a/ADDRESS`. Older data files without an `address` field also load without an address. The student list and detail view show `Not provided` when there is no address.
 * When you add a student, TuteeBook3 trims leading and trailing spaces and collapses repeated ordinary spaces to one in the name, school, subject names, and guardian name. It keeps the capitalization you enter. For example, `add n/John  Doe sch/Victoria  School lvl/S3 sub/Additional  Mathematics band/G1` stores `John Doe`, `Victoria School`, and `Additional Mathematics`.
 * `PHONE` is the number you use to reach the student. It can only contain digits, with an optional `+` at the start, and must have 3 to 15 digits, counting the country code. You can type spaces or hyphens (`-`), such as `9123 4567` or `9123-4567`, and they are removed when it is saved. Other dashes, such as `–`, are not allowed.
@@ -143,7 +143,7 @@ The command does not accept additional arguments.
 
 Shows the full record of the student at the specified index in the main content area.
 
-The detail panel contains the student's name, school, level, subject-band pairs, student phone number, guardian name, guardian phone number, and notes. Optional fields without a recorded value, such as the student phone number or guardian details, are shown as `Not provided`.
+The detail panel contains the student's name, school, level, subject-band pairs, address, student phone number, guardian name, guardian phone number, and notes. Address appears after the subjects and before guardian details. Optional fields without a recorded value, such as the address, student phone number, or guardian details, are shown as `Not provided`.
 
 Format: `view INDEX`
 
@@ -166,7 +166,7 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [a/ADDRESS] [lvl/LEVEL] [sub
 * Edits the person at the specified `INDEX`. The index refers to the index number shown in the displayed person list. The index **must be a positive integer** 1, 2, 3, …​
 * At least one of the optional fields must be provided.
 * Existing values will be updated to the input values.
-* `a/ADDRESS` replaces the student's address. The address can contain any value except a blank or whitespace-only value; omitting `a/` keeps the current address.
+* `a/ADDRESS` replaces the student's address. The address can contain any value except a blank or whitespace-only value. Use `a/` with no value to remove the address; omitting `a/` keeps the current address.
 * Supplying subject-band pairs replaces the entire subject list; omitting them preserves existing subjects. The replacement list must contain at least 1 subject and a maximum of 8 distinct subjects, following the same pairing and validation rules as `add`. Notes are preserved when editing a student.
 * `PHONE` and `GUARDIAN_PHONE` follow the same rules as in `add`, so `p/9123 4567` is saved as `91234567`. The warning about a number not looking like a Singapore number only appears when you type `p/` or `gp/` in that command.
 * You can remove a person's phone number by typing `p/` without specifying any number after it.

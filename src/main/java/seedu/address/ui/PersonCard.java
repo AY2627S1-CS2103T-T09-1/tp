@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import seedu.address.logic.Messages;
 import seedu.address.model.person.Person;
 
 /**
@@ -51,7 +52,7 @@ public class PersonCard extends UiPart<Region> {
             phone.setManaged(false);
         });
         school.setText(person.getSchool().value);
-        address.setText(person.getAddress().map(a -> a.value).orElse("Not provided"));
+        address.setText(person.getAddress().map(a -> a.value).orElse(Messages.MESSAGE_ADDRESS_NOT_PROVIDED));
         level.setText(person.getLevel().name());
     }
 }

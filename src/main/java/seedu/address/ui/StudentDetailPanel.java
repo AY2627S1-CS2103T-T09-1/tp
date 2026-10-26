@@ -13,6 +13,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import seedu.address.commons.core.index.Index;
+import seedu.address.logic.Messages;
 import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Subject;
@@ -23,7 +24,6 @@ import seedu.address.model.person.Subject;
 public class StudentDetailPanel extends UiPart<Region> {
 
     private static final String FXML = "StudentDetailPanel.fxml";
-    private static final String NOT_PROVIDED_MESSAGE = "Not provided";
     private static final String NO_NOTES_MESSAGE = "No notes recorded.";
 
     private final ObservableList<Person> sourceList;
@@ -84,16 +84,16 @@ public class StudentDetailPanel extends UiPart<Region> {
         studentIndex.setText(String.format("Index: %d", displayedIndex.getOneBased()));
         name.setText(person.getName().fullName);
         school.setText(person.getSchool().value);
-        address.setText(person.getAddress().map(Object::toString).orElse(NOT_PROVIDED_MESSAGE));
+        address.setText(person.getAddress().map(Object::toString).orElse(Messages.MESSAGE_ADDRESS_NOT_PROVIDED));
         level.setText(person.getLevel().toString());
         subjects.setText(formatSubjects(person));
-        phone.setText(person.getPhone().map(Object::toString).orElse(NOT_PROVIDED_MESSAGE));
+        phone.setText(person.getPhone().map(Object::toString).orElse(Messages.MESSAGE_PHONE_NOT_PROVIDED));
         guardianName.setText(person.getGuardian()
                 .map(guardian -> guardian.getName().fullName)
-                .orElse(NOT_PROVIDED_MESSAGE));
+                .orElse(Messages.MESSAGE_PHONE_NOT_PROVIDED));
         guardianPhone.setText(person.getGuardian()
                 .map(guardian -> guardian.getPhone().value)
-                .orElse(NOT_PROVIDED_MESSAGE));
+                .orElse(Messages.MESSAGE_PHONE_NOT_PROVIDED));
 
         showNotes(person);
     }

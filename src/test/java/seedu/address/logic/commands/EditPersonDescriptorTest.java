@@ -59,6 +59,10 @@ public class EditPersonDescriptorTest {
         // phone removed -> returns false
         editedAmy = new EditPersonDescriptorBuilder(DESC_AMY).withPhoneRemoved().build();
         assertFalse(DESC_AMY.equals(editedAmy));
+
+        // address removed -> returns false
+        editedAmy = new EditPersonDescriptorBuilder(DESC_AMY).withAddressRemoved().build();
+        assertFalse(DESC_AMY.equals(editedAmy));
     }
 
     @Test
@@ -68,7 +72,9 @@ public class EditPersonDescriptorTest {
                 + editPersonDescriptor.getName().orElse(null) + ", phone="
                 + editPersonDescriptor.getPhone().orElse(null) + ", isPhoneRemoved="
                 + editPersonDescriptor.isPhoneRemoved() + ", school="
-                + editPersonDescriptor.getSchool().orElse(null) + ", level="
+                + editPersonDescriptor.getSchool().orElse(null) + ", address="
+                + editPersonDescriptor.getAddress().orElse(null) + ", isAddressRemoved="
+                + editPersonDescriptor.isAddressRemoved() + ", level="
                 + editPersonDescriptor.getLevel().orElse(null) + ", subjects="
                 + editPersonDescriptor.getSubjects().orElse(null) + ", guardianName="
                 + editPersonDescriptor.getGuardianName().orElse(null) + ", guardianPhone="

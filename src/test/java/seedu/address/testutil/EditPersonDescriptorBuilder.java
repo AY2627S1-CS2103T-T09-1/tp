@@ -84,6 +84,14 @@ public class EditPersonDescriptorBuilder {
     }
 
     /**
+     * Marks the address to be removed from the descriptor that we are building.
+     */
+    public EditPersonDescriptorBuilder withAddressRemoved() {
+        descriptor.setAddressRemoved();
+        return this;
+    }
+
+    /**
      * Sets the {@code Level} of the {@code EditPersonDescriptor} that we are building.
      */
     public EditPersonDescriptorBuilder withLevel(String level) {

@@ -57,6 +57,20 @@ public class JsonAdaptedPersonTest {
     }
 
     @Test
+    public void toModelType_optionalAddress_roundTripsThroughJson() throws Exception {
+        Person bensonWithAddress = new PersonBuilder(BENSON).withAddress(VALID_ADDRESS).build();
+        String jsonWithAddress = JsonUtil.toJsonString(new JsonAdaptedPerson(bensonWithAddress));
+        assertEquals(bensonWithAddress,
+                JsonUtil.fromJsonString(jsonWithAddress, JsonAdaptedPerson.class).toModelType());
+
+        Person bensonWithoutAddress = new PersonBuilder(BENSON).withoutAddress().build();
+        String jsonWithoutAddress = JsonUtil.toJsonString(new JsonAdaptedPerson(bensonWithoutAddress));
+        assertFalse(jsonWithoutAddress.contains("address"));
+        assertEquals(bensonWithoutAddress,
+                JsonUtil.fromJsonString(jsonWithoutAddress, JsonAdaptedPerson.class).toModelType());
+    }
+
+    @Test
     public void toModelType_personWithNotes_roundTripsThroughJson() throws Exception {
         Person bensonWithNotes = new PersonBuilder(BENSON)
                 .withNotes("Weak in algebra", "WA2 Math: 36/50").build();

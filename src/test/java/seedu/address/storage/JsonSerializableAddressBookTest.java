@@ -56,12 +56,19 @@ public class JsonSerializableAddressBookTest {
     }
 
     @Test
-    public void toModelType_oldFormatFileWithRemovedFields_ignoresRemovedFields() throws Exception {
+    public void toModelType_oldFormatFile_preservesAddresses() throws Exception {
         JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(OLD_FORMAT_TYPICAL_PERSONS_FILE,
                 JsonSerializableAddressBook.class).get();
         AddressBook addressBookFromFile = dataFromFile.toModelType();
-        AddressBook typicalPersonsAddressBook = TypicalPersons.getTypicalAddressBook();
-        assertEquals(typicalPersonsAddressBook, addressBookFromFile);
+        List<Person> personsWithoutAddress = addressBookFromFile.getPersonList().stream()
+                .map(person -> new PersonBuilder(person).withoutAddress().build())
+                .toList();
+        List<String> addresses = addressBookFromFile.getPersonList().stream()
+                .map(person -> person.getAddress().map(Object::toString).orElse(null))
+                .toList();
+        assertEquals(TypicalPersons.getTypicalAddressBook().getPersonList(), personsWithoutAddress);
+        assertEquals(List.of("123, Jurong West Ave 6, #08-111", "311, Clementi Ave 2, #02-25", "wall street",
+                "10th street", "michegan ave", "little tokyo", "4th street"), addresses);
     }
 
     @Test

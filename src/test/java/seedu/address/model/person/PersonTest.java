@@ -193,18 +193,37 @@ public class PersonTest {
     }
 
     @Test
+    public void equals_optionalAddress_handlesMissingAndDifferentAddresses() {
+        Person aliceWithoutAddress = new PersonBuilder(ALICE).withoutAddress().build();
+        Person aliceWithoutAddressCopy = new PersonBuilder(ALICE).withoutAddress().build();
+        assertTrue(aliceWithoutAddress.equals(aliceWithoutAddressCopy));
+        assertEquals(aliceWithoutAddress.hashCode(), aliceWithoutAddressCopy.hashCode());
+
+        Person aliceWithAddress = new PersonBuilder(ALICE).withAddress("21 Clementi Road").build();
+        assertFalse(aliceWithoutAddress.equals(aliceWithAddress));
+    }
+
+    @Test
     public void format_noPhone_showsNotProvided() {
         Person aliceWithoutPhone = new PersonBuilder(ALICE).withoutPhone().build();
         assertEquals("Alice Pauline; Student phone: " + Messages.MESSAGE_PHONE_NOT_PROVIDED
-                + "; School: Maplewood Secondary School; Address: Not provided; Level: S1; Subjects: Mathematics (G1)",
+                + "; School: Maplewood Secondary School; Level: S1; Subjects: Mathematics (G1); Address: "
+                + Messages.MESSAGE_ADDRESS_NOT_PROVIDED,
                 Messages.format(aliceWithoutPhone));
     }
 
     @Test
     public void format_withLevel_includesLevel() {
-        assertEquals("Alice Pauline; Student phone: 94351253; School: Maplewood Secondary School; Address: "
-                + "Not provided; Level: S1; "
-                + "Subjects: Mathematics (G1)", Messages.format(ALICE));
+        assertEquals("Alice Pauline; Student phone: 94351253; School: Maplewood Secondary School; Level: S1; "
+                + "Subjects: Mathematics (G1); Address: " + Messages.MESSAGE_ADDRESS_NOT_PROVIDED,
+                Messages.format(ALICE));
+    }
+
+    @Test
+    public void format_noAddress_showsNotProvided() {
+        Person aliceWithoutAddress = new PersonBuilder(ALICE).withoutAddress().build();
+        assertTrue(Messages.format(aliceWithoutAddress).endsWith("; Address: "
+                + Messages.MESSAGE_ADDRESS_NOT_PROVIDED));
     }
 
     @Test
@@ -218,9 +237,9 @@ public class PersonTest {
     public void format_multipleSubjects_commaSeparated() {
         Person aliceWithTwoSubjects = new PersonBuilder(ALICE)
                 .withSubjects(new Subject("Mathematics", Band.G1), new Subject("Science", Band.G2)).build();
-        assertEquals("Alice Pauline; Student phone: 94351253; School: Maplewood Secondary School; Address: "
-                + "Not provided; Level: S1; "
-                + "Subjects: Mathematics (G1), Science (G2)", Messages.format(aliceWithTwoSubjects));
+        assertEquals("Alice Pauline; Student phone: 94351253; School: Maplewood Secondary School; Level: S1; "
+                + "Subjects: Mathematics (G1), Science (G2); Address: " + Messages.MESSAGE_ADDRESS_NOT_PROVIDED,
+                Messages.format(aliceWithTwoSubjects));
     }
 
     @Test

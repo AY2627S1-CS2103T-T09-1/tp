@@ -69,6 +69,12 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_emptyAddress_marksAddressForRemoval() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withAddressRemoved().build();
+        assertParseSuccess(parser, "1 a/", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
     public void parse_invalidSchool_failure() {
         assertParseFailure(parser, "1 sch/  ", School.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, "1 sch/School sch/Other School",

@@ -21,6 +21,7 @@ public class Messages {
     public static final String MESSAGE_INVALID_PERSON_DISPLAYED_INDEX = "The student index provided is invalid.";
     public static final String MESSAGE_PERSONS_LISTED_OVERVIEW = "%1$d student(s) listed!";
     public static final String MESSAGE_PHONE_NOT_PROVIDED = "Not provided";
+    public static final String MESSAGE_ADDRESS_NOT_PROVIDED = MESSAGE_PHONE_NOT_PROVIDED;
     public static final String MESSAGE_DUPLICATE_FIELDS =
                 "Multiple values specified for the following single-valued field(s): ";
     public static final String MESSAGE_MISSING_PREFIX = "Missing required parameter: %1$s.";
@@ -92,12 +93,12 @@ public class Messages {
                 .append(person.getPhone().map(Phone::toString).orElse(MESSAGE_PHONE_NOT_PROVIDED))
                 .append("; School: ")
                 .append(person.getSchool())
-                .append("; Address: ")
-                .append(person.getAddress().map(Object::toString).orElse("Not provided"))
                 .append("; Level: ")
                 .append(person.getLevel())
                 .append("; Subjects: ")
-                .append(person.getSubjects().stream().map(Subject::toString).collect(Collectors.joining(", ")));
+                .append(person.getSubjects().stream().map(Subject::toString).collect(Collectors.joining(", ")))
+                .append("; Address: ")
+                .append(person.getAddress().map(Object::toString).orElse(MESSAGE_ADDRESS_NOT_PROVIDED));
         // labels match the student detail panel
         person.getGuardian().ifPresent(guardian -> builder.append("; Guardian name: ").append(guardian.getName())
                 .append("; Guardian phone: ").append(guardian.getPhone()));
