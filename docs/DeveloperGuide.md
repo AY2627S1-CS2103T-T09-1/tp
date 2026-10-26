@@ -196,6 +196,19 @@ Every student record must include a name, school, and level. Many tutors teach s
 
 `Email` is an optional value object that follows the same pattern as `Address`. It keeps AB3's `local-part@domain` rules and adds a 100-character limit. The add parser accepts optional `e/EMAIL`; the edit parser replaces an email, and a blank `e/` removes it. `JsonAdaptedPerson` leaves `email` out of the file when a student has none, and Jackson sets the field directly, so files without an email still load. Emails do not contribute to duplicate detection.
 
+### Student tags
+
+A student has a set of `Tag`s, which may be empty but is never null. `Person#getTags()` returns an unmodifiable view that keeps the order the tags were typed in.
+
+* A tag is one word of letters and digits. `Tag` compares tags ignoring case, so `Exams` equals `exams`, and the display keeps the user's capitalization.
+* `ParserUtil#parseTag` trims the value, then rejects a value containing a space with its own message, `Messages.MESSAGE_TAG_HAS_SPACE`, which tells the user to put `t/` before each tag. Other invalid values get `Tag.MESSAGE_CONSTRAINTS`. The space message lives in `Messages` because it names the `t/` prefix, which the model should not know about.
+* `ParserUtil#parseTags` rejects a tag given twice with `Tag X is given more than once.`, instead of letting the set drop it silently. It takes plain strings, so the prefix handling stays in the parsers.
+* In `add`, `t/` may repeat. In `edit`, the given tags replace all existing tags, and a single blank `t/` clears them. `EditCommandParser#parseTagsForEdit` handles both cases.
+* `JsonAdaptedPerson` stores tags as a list of `JsonAdaptedTag` strings. Jackson sets the list directly, so files saved before tags existed load with no tags. A file with an invalid or repeated tag is rejected.
+* Tags do not contribute to duplicate detection.
+
+Tags are one word of letters and digits, so that they are quick to type and to filter by. Allowing spaces or hyphens was considered, but it would allow several spellings of the same tag, such as `exam prep`, `exam-prep`, and `examprep`, which a filter would treat as different tags. One word also catches a common mistake: `t/paid urgent`, where the user forgot the second `t/`, is rejected with a message that explains how to give two tags, instead of being saved as one tag.
+
 ### Command confirmations
 
 `ClearCommand`, `DeleteCommand`, and `DeleteNoteCommand` implement `ConfirmationCommand`. Before running one of these commands, `LogicManager` asks it whether a prompt is needed. `ConfirmationManager` stores the command and returns a warning `CommandResult`, which the UI displays in amber. The prompt states that the action is pending, puts the action-specific confirmation instruction on a new line, and displays shared cancellation guidance on another line. The next input confirms the stored command only when trimming leading and trailing spaces produces the exact uppercase word `CONFIRM`. Every other input first clears the pending command, then follows normal command parsing and execution. A red cancellation notice is displayed above the new command's unchanged output; if parsing or execution fails, the cancellation notice and error are both red. If the new command needs confirmation, it replaces the old request. These destructive commands accept `-f` to execute without prompting.
@@ -1107,6 +1120,7 @@ Use case ends.
 * **Note**: A short piece of text that the tutor attaches to a student, such as "Weak in Geometry" or "WA2 Math: 36/50".
 * **Student**: A secondary school student whom the tutor teaches.
 * **Subject**: A school subject that the tutor teaches the student, such as "Mathematics" or "Chemistry".
+* **Tag**: A short label that the tutor attaches to a student to group or flag them at a glance, such as "paid" or "exams". A tag is one word. A student can have any number of tags.
 
 #### Commands
 
@@ -1214,6 +1228,32 @@ testers are expected to do more *exploratory* testing.
 
    1. Test case: `edit 1 gn/ gp/` on Ken Lim<br>
       Expected: Ken Lim is unchanged. The status message shows `This student has no guardian to remove.`
+
+### Adding and editing tags
+
+1. Adding a student with tags
+
+   1. Test case: `add n/Mei Lin sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/exams t/Paid`<br>
+      Expected: Mei Lin is added. Her list card shows the tags `exams` and `Paid`, in that order.
+
+   1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/Paid t/paid`<br>
+      Expected: No student is added. The status message shows `Tag paid is given more than once.`
+
+   1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/exam-prep`<br>
+      Expected: No student is added. The status message shows `Tags must be one word of 1-30 letters or digits, with no spaces or symbols.`
+
+   1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/exam prep`<br>
+      Expected: No student is added. The status message shows `Tag "exam prep" contains a space. Each tag is one word; to give more than one tag, put t/ before each, such as t/paid t/exams.`
+
+1. Editing tags
+
+   1. Prerequisites: Mei Lin was added as above. Use `filter n/Mei` so that she is first in the list.
+
+   1. Test case: `edit 1 t/online`<br>
+      Expected: Mei Lin's only tag is now `online`.
+
+   1. Test case: `edit 1 t/`<br>
+      Expected: Mei Lin has no tags. Her list card shows no tags, and viewing her details shows `Not provided` for tags.
 
 ### Entering phone numbers
 
