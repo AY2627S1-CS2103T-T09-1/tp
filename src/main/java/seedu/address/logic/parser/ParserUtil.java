@@ -2,8 +2,6 @@ package seedu.address.logic.parser;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,10 +25,6 @@ import seedu.address.model.person.Subject;
  * Contains utility methods used for parsing strings in the various *Parser classes.
  */
 public class ParserUtil {
-
-    public static final String MESSAGE_GUARDIAN_PAIR =
-            "Guardian name (" + PREFIX_GUARDIAN_NAME + ") and guardian phone (" + PREFIX_GUARDIAN_PHONE
-            + ") must be given together.";
 
     public static final String MESSAGE_INVALID_INDEX = "Index must be a positive integer.";
 
@@ -143,23 +137,13 @@ public class ParserUtil {
     }
 
     /**
-     * Parses the guardian name and phone in {@code arguments} into a {@code Guardian}.
-     * Returns an empty {@code Optional} if neither is given.
+     * Parses a guardian's {@code name} and {@code phone} into a {@code Guardian}.
+     * Leading and trailing whitespaces will be trimmed.
      *
-     * @throws ParseException if only one of them is given, or either is invalid.
+     * @throws ParseException if the given {@code name} or {@code phone} is invalid.
      */
-    public static Optional<Guardian> parseGuardian(ArgumentMultimap arguments) throws ParseException {
-        requireNonNull(arguments);
-        Optional<String> guardianName = arguments.getValue(PREFIX_GUARDIAN_NAME);
-        Optional<String> guardianPhone = arguments.getValue(PREFIX_GUARDIAN_PHONE);
-        if (guardianName.isEmpty() && guardianPhone.isEmpty()) {
-            return Optional.empty();
-        }
-        if (guardianName.isEmpty() || guardianPhone.isEmpty()) {
-            throw new ParseException(MESSAGE_GUARDIAN_PAIR);
-        }
-        return Optional.of(new Guardian(parseGuardianName(guardianName.get()),
-                parseGuardianPhone(guardianPhone.get())));
+    public static Guardian parseGuardian(String name, String phone) throws ParseException {
+        return new Guardian(parseGuardianName(name), parseGuardianPhone(phone));
     }
 
     /**

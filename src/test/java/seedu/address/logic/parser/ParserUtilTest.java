@@ -3,6 +3,7 @@ package seedu.address.logic.parser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.Messages.MESSAGE_SUBJECT_BAND_PAIR;
+import static seedu.address.logic.commands.CommandTestUtil.INVALID_GUARDIAN_PHONE_MESSAGE;
 import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_INDEX;
 import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_NID;
 import static seedu.address.testutil.Assert.assertThrows;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Band;
+import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
@@ -25,6 +27,7 @@ import seedu.address.model.person.Subject;
 public class ParserUtilTest {
     private static final String INVALID_NAME = "R@chel";
     private static final String INVALID_PHONE = "12";
+    private static final String INVALID_GUARDIAN_PHONE = "911a";
 
     private static final String VALID_NAME = "Rachel Walker";
     private static final String VALID_PHONE = "91234567";
@@ -177,6 +180,43 @@ public class ParserUtilTest {
         assertThrows(ParseException.class, "Guardian phone 9123a contains \"a\", which isn't allowed. "
                 + "Use only digits, spaces, hyphens (-), and a + at the start.", () ->
                 ParserUtil.parseGuardianPhone("9123a"));
+    }
+
+    @Test
+    public void parseGuardian_validValues_returnsGuardian() throws Exception {
+        Guardian expectedGuardian = new Guardian(new Name(VALID_NAME), new Phone(VALID_PHONE));
+        assertEquals(expectedGuardian, ParserUtil.parseGuardian(VALID_NAME, VALID_PHONE));
+    }
+
+    @Test
+    public void parseGuardian_validValuesWithWhitespace_returnsTrimmedGuardian() throws Exception {
+        Guardian expectedGuardian = new Guardian(new Name(VALID_NAME), new Phone(VALID_PHONE));
+        String nameWithWhitespace = WHITESPACE + VALID_NAME + WHITESPACE;
+        assertEquals(expectedGuardian, ParserUtil.parseGuardian(nameWithWhitespace, "+65 9123-4567"));
+    }
+
+    @Test
+    public void parseGuardian_invalidName_throwsParseException() {
+        assertThrows(ParseException.class, Guardian.MESSAGE_NAME_CONSTRAINTS, () ->
+                ParserUtil.parseGuardian(INVALID_NAME, VALID_PHONE));
+    }
+
+    @Test
+    public void parseGuardian_invalidPhone_throwsParseException() {
+        assertThrows(ParseException.class, INVALID_GUARDIAN_PHONE_MESSAGE, () ->
+                ParserUtil.parseGuardian(VALID_NAME, INVALID_GUARDIAN_PHONE));
+    }
+
+    @Test
+    public void parseGuardian_bothInvalid_throwsNameError() {
+        assertThrows(ParseException.class, Guardian.MESSAGE_NAME_CONSTRAINTS, () ->
+                ParserUtil.parseGuardian(INVALID_NAME, INVALID_GUARDIAN_PHONE));
+    }
+
+    @Test
+    public void parseGuardian_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> ParserUtil.parseGuardian(null, VALID_PHONE));
+        assertThrows(NullPointerException.class, () -> ParserUtil.parseGuardian(VALID_NAME, null));
     }
 
     @Test

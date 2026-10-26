@@ -1,5 +1,6 @@
 package seedu.address.logic.parser;
 
+import static seedu.address.logic.Messages.MESSAGE_GUARDIAN_PAIR;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.Messages.MESSAGE_SUBJECT_BAND_PAIR;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
@@ -62,7 +63,11 @@ public class AddCommandParser implements Parser<AddCommand> {
         List<Subject> subjects = ParserUtil.parseSubjects(
                 argMultimap.getAllValues(PREFIX_SUBJECT), argMultimap.getAllValues(PREFIX_BAND));
         // Guardian is optional; gn/ and gp/ must be given together
-        Guardian guardian = ParserUtil.parseGuardian(argMultimap).orElse(null);
+        argMultimap.verifyGivenTogether(PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE, MESSAGE_GUARDIAN_PAIR);
+        Guardian guardian = argMultimap.getValue(PREFIX_GUARDIAN_NAME).isPresent()
+                ? ParserUtil.parseGuardian(argMultimap.getValue(PREFIX_GUARDIAN_NAME).get(),
+                        argMultimap.getValue(PREFIX_GUARDIAN_PHONE).get())
+                : null;
         Person person = new Person(name, phone, school, level, subjects, List.of(), guardian);
 
         return new AddCommand(person);

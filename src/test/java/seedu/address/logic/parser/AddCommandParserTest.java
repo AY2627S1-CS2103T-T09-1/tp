@@ -153,10 +153,10 @@ public class AddCommandParserTest {
         String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + SUBJECT_DESC;
 
         // name only
-        assertParseFailure(parser, details + GUARDIAN_NAME_DESC_BOB, ParserUtil.MESSAGE_GUARDIAN_PAIR);
+        assertParseFailure(parser, details + GUARDIAN_NAME_DESC_BOB, Messages.MESSAGE_GUARDIAN_PAIR);
 
         // phone only
-        assertParseFailure(parser, details + GUARDIAN_PHONE_DESC_BOB, ParserUtil.MESSAGE_GUARDIAN_PAIR);
+        assertParseFailure(parser, details + GUARDIAN_PHONE_DESC_BOB, Messages.MESSAGE_GUARDIAN_PAIR);
     }
 
     @Test
