@@ -110,7 +110,7 @@ public class AddCommandParserTest {
 
     @Test
     public void parse_addressProvided_success() {
-        Person expectedPerson = new PersonBuilder(BOB).withAddress(VALID_ADDRESS_BOB).build();
+        Person expectedPerson = new PersonBuilder(BOB).withoutPhone().withAddress(VALID_ADDRESS_BOB).build();
         assertParseSuccess(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + ADDRESS_DESC_BOB + LEVEL_DESC_BOB
                 + SUBJECT_DESC, new AddCommand(expectedPerson));
     }
@@ -325,7 +325,7 @@ public class AddCommandParserTest {
         assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB
                 + " e/bob@example.com" + SUBJECT_DESC,
                 School.MESSAGE_CONSTRAINTS);
-        assertParseFailure(parser, NAME_DESC_BOB + " a/Clementi Road" + PHONE_DESC_BOB + LEVEL_DESC_BOB
+        assertParseFailure(parser, NAME_DESC_BOB + " x/Clementi Road" + PHONE_DESC_BOB + LEVEL_DESC_BOB
                 + SCHOOL_DESC_BOB + SUBJECT_DESC,
                 Name.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + " t/friend"

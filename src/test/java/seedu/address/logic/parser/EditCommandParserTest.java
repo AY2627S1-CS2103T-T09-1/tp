@@ -116,7 +116,7 @@ public class EditCommandParserTest {
 
         // removed prefixes being parsed as preamble
         assertParseFailure(parser, "1 e/bob@example.com", MESSAGE_INVALID_FORMAT);
-        assertParseFailure(parser, "1 a/Clementi Road", MESSAGE_INVALID_FORMAT);
+        assertParseFailure(parser, "1 x/Clementi Road", MESSAGE_INVALID_FORMAT);
         assertParseFailure(parser, "1 t/friend", MESSAGE_INVALID_FORMAT);
     }
 
