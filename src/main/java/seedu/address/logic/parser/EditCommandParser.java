@@ -13,13 +13,18 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.tag.Tag;
 
 /**
  * Parses input arguments and creates a new EditCommand object
@@ -35,7 +40,8 @@ public class EditCommandParser implements Parser<EditCommand> {
         requireNonNull(args);
         ArgumentMultimap argMultimap =
                 ArgumentTokenizer.tokenize(args, PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_ADDRESS, PREFIX_EMAIL,
-                        PREFIX_LEVEL, PREFIX_SUBJECT, PREFIX_BAND, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE);
+                        PREFIX_LEVEL, PREFIX_SUBJECT, PREFIX_BAND, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE,
+                        PREFIX_TAG);
 
         Index index;
 
@@ -93,6 +99,7 @@ public class EditCommandParser implements Parser<EditCommand> {
             editPersonDescriptor.setSubjects(ParserUtil.parseSubjects(
                     argMultimap.getAllValues(PREFIX_SUBJECT), argMultimap.getAllValues(PREFIX_BAND)));
         }
+        parseTagsForEdit(argMultimap.getAllValues(PREFIX_TAG)).ifPresent(editPersonDescriptor::setTags);
         parseGuardianForEdit(argMultimap, editPersonDescriptor);
 
         if (!editPersonDescriptor.isAnyFieldEdited()) {
@@ -100,6 +107,22 @@ public class EditCommandParser implements Parser<EditCommand> {
         }
 
         return new EditCommand(index, editPersonDescriptor);
+    }
+
+    /**
+     * Parses {@code tags} into a {@code Set<Tag>} if {@code tags} is non-empty.
+     * A single {@code t/} with no value parses into an empty set, which clears the tags.
+     *
+     * @throws ParseException if any tag is invalid or repeated.
+     */
+    private static Optional<Set<Tag>> parseTagsForEdit(Collection<String> tags) throws ParseException {
+        assert tags != null;
+
+        if (tags.isEmpty()) {
+            return Optional.empty();
+        }
+        Collection<String> tagNames = tags.size() == 1 && tags.contains("") ? List.of() : tags;
+        return Optional.of(ParserUtil.parseTags(tagNames));
     }
 
     /**

@@ -48,6 +48,9 @@ public class StudentDetailPanel extends UiPart<Region> {
     private Label email;
 
     @FXML
+    private Label tags;
+
+    @FXML
     private Label level;
 
     @FXML
@@ -89,6 +92,9 @@ public class StudentDetailPanel extends UiPart<Region> {
         school.setText(person.getSchool().value);
         address.setText(person.getAddress().map(Object::toString).orElse(Messages.MESSAGE_NOT_PROVIDED));
         email.setText(person.getEmail().map(Object::toString).orElse(Messages.MESSAGE_NOT_PROVIDED));
+        tags.setText(person.getTags().isEmpty()
+                ? Messages.MESSAGE_NOT_PROVIDED
+                : Messages.formatTags(person.getTags()));
         level.setText(person.getLevel().toString());
         subjects.setText(formatSubjects(person));
         phone.setText(person.getPhone().map(Object::toString).orElse(Messages.MESSAGE_NOT_PROVIDED));

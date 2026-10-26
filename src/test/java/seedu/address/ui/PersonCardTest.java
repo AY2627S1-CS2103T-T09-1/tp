@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
@@ -15,6 +17,7 @@ import org.testfx.framework.junit5.Start;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -80,6 +83,29 @@ public class PersonCardTest {
             Label email = (Label) card.getRoot().lookup("#email");
             assertFalse(email.isVisible());
             assertFalse(email.isManaged());
+        });
+    }
+
+    @Test
+    public void constructor_personWithTags_showsTagsInOrder(FxRobot robot) {
+        Person person = new PersonBuilder(ALICE).withTags("paid", "exams").build();
+
+        robot.interact(() -> {
+            PersonCard card = new PersonCard(person, 1);
+            FlowPane tags = (FlowPane) card.getRoot().lookup("#tags");
+            assertTrue(tags.isVisible());
+            assertEquals(List.of("paid", "exams"), tags.getChildren().stream()
+                    .map(tag -> ((Label) tag).getText()).toList());
+        });
+    }
+
+    @Test
+    public void constructor_personWithoutTags_hidesTags(FxRobot robot) {
+        robot.interact(() -> {
+            PersonCard card = new PersonCard(ALICE, 1);
+            FlowPane tags = (FlowPane) card.getRoot().lookup("#tags");
+            assertFalse(tags.isVisible());
+            assertFalse(tags.isManaged());
         });
     }
 

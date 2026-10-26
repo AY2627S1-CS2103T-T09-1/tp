@@ -74,7 +74,8 @@ public class EditPersonDescriptorTest {
                 + editPersonDescriptor.getEmail().orElse(null) + ", isEmailRemoved="
                 + editPersonDescriptor.isEmailRemoved() + ", level="
                 + editPersonDescriptor.getLevel().orElse(null) + ", subjects="
-                + editPersonDescriptor.getSubjects().orElse(null) + ", guardianName="
+                + editPersonDescriptor.getSubjects().orElse(null) + ", tags="
+                + editPersonDescriptor.getTags().orElse(null) + ", guardianName="
                 + editPersonDescriptor.getGuardianName().orElse(null) + ", guardianPhone="
                 + editPersonDescriptor.getGuardianPhone().orElse(null) + ", isGuardianRemoved="
                 + editPersonDescriptor.isGuardianRemoved() + "}";

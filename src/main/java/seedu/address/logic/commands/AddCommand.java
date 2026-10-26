@@ -11,6 +11,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +41,8 @@ public class AddCommand extends Command implements ConfirmationCommand {
             + PREFIX_LEVEL + "LEVEL "
             + PREFIX_SUBJECT + "SUBJECT " + PREFIX_BAND + "BAND "
             + "[" + PREFIX_SUBJECT + "SUBJECT " + PREFIX_BAND + "BAND]... "
-            + "[" + PREFIX_GUARDIAN_NAME + "GUARDIAN_NAME " + PREFIX_GUARDIAN_PHONE + "GUARDIAN_PHONE]\n"
+            + "[" + PREFIX_GUARDIAN_NAME + "GUARDIAN_NAME " + PREFIX_GUARDIAN_PHONE + "GUARDIAN_PHONE] "
+            + "[" + PREFIX_TAG + "TAG]...\n"
             + "Example: " + COMMAND_WORD + " "
             + PREFIX_NAME + "John Doe "
             + PREFIX_PHONE + "98765432 "
@@ -50,7 +52,8 @@ public class AddCommand extends Command implements ConfirmationCommand {
             + PREFIX_LEVEL + "S3 "
             + PREFIX_SUBJECT + "Mathematics " + PREFIX_BAND + "G3 "
             + PREFIX_GUARDIAN_NAME + "Mary Doe "
-            + PREFIX_GUARDIAN_PHONE + "91234567";
+            + PREFIX_GUARDIAN_PHONE + "91234567 "
+            + PREFIX_TAG + "exams";
 
     public static final String MESSAGE_SUCCESS = "New student added: %1$s";
     public static final String MESSAGE_DUPLICATE_PERSON =

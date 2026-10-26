@@ -13,8 +13,10 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
 import java.util.List;
+import java.util.Set;
 
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
@@ -27,6 +29,7 @@ import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
 import seedu.address.model.person.Subject;
+import seedu.address.model.tag.Tag;
 
 /**
  * Parses input arguments and creates a new AddCommand object
@@ -45,7 +48,7 @@ public class AddCommandParser implements Parser<AddCommand> {
         ArgumentMultimap argMultimap =
                 ArgumentTokenizer.tokenize(normalizeRepeatedSpaces(args), PREFIX_NAME, PREFIX_PHONE,
                         PREFIX_SCHOOL, PREFIX_ADDRESS, PREFIX_EMAIL, PREFIX_LEVEL,
-                        PREFIX_SUBJECT, PREFIX_BAND, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE);
+                        PREFIX_SUBJECT, PREFIX_BAND, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE, PREFIX_TAG);
 
         // no parameters, or text before the first prefix, means the user needs the format, so show the usage
         if (args.isBlank() || !argMultimap.getPreamble().isEmpty()) {
@@ -76,7 +79,10 @@ public class AddCommandParser implements Parser<AddCommand> {
                 ? ParserUtil.parseGuardian(argMultimap.getValue(PREFIX_GUARDIAN_NAME).get(),
                         argMultimap.getValue(PREFIX_GUARDIAN_PHONE).get())
                 : null;
-        Person person = new Person(name, phone, school, address, email, level, subjects, List.of(), guardian);
+        // t/ may repeat, one tag each
+        Set<Tag> tags = ParserUtil.parseTags(argMultimap.getAllValues(PREFIX_TAG));
+        Person person = new Person(name, phone, school, address, email, level, subjects, tags, List.of(),
+                guardian);
 
         return new AddCommand(person);
     }

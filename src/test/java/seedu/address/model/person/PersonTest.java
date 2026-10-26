@@ -29,7 +29,8 @@ public class PersonTest {
                 .withSubjects().build());
         List<Subject> subjects = new ArrayList<>(person.getSubjects());
         Person copy = new Person(person.getName(), person.getPhone().orElse(null), person.getSchool(),
-                person.getAddress().orElse(null), person.getEmail().orElse(null), person.getLevel(), subjects);
+                person.getAddress().orElse(null), person.getEmail().orElse(null), person.getLevel(), subjects,
+                person.getTags());
         subjects.clear();
         assertEquals(person.getSubjects(), copy.getSubjects());
         assertThrows(IllegalArgumentException.class, "Subject is repeated: mathematics.", () -> new PersonBuilder()
@@ -49,6 +50,21 @@ public class PersonTest {
         Person differentEmail = new PersonBuilder(person).withEmail("bob@example.com").build();
         assertFalse(person.equals(differentEmail));
         assertFalse(person.equals(new PersonBuilder(person).withoutEmail().build()));
+    }
+
+    @Test
+    public void equals_differentTags_returnsFalse() {
+        Person person = new PersonBuilder().withTags("paid").build();
+        assertFalse(person.equals(new PersonBuilder(person).withTags("exams").build()));
+        assertFalse(person.equals(new PersonBuilder(person).withTags().build()));
+        // tags compare ignoring case
+        assertEquals(person, new PersonBuilder(person).withTags("Paid").build());
+    }
+
+    @Test
+    public void getTags_modifySet_throwsUnsupportedOperationException() {
+        Person person = new PersonBuilder().withTags("paid").build();
+        assertThrows(UnsupportedOperationException.class, () -> person.getTags().clear());
     }
 
     @Test
@@ -91,6 +107,12 @@ public class PersonTest {
     public void copyWithNotes_email_keepsEmail() {
         Person person = new PersonBuilder(ALICE).withEmail("alice@example.com").build();
         assertEquals(person.getEmail(), person.copyWithNotes(List.of(new Note("lesson"))).getEmail());
+    }
+
+    @Test
+    public void copyWithNotes_tags_keepsTags() {
+        Person person = new PersonBuilder(ALICE).withTags("paid", "exams").build();
+        assertEquals(person.getTags(), person.copyWithNotes(List.of(new Note("lesson"))).getTags());
     }
 
     @Test
@@ -243,6 +265,12 @@ public class PersonTest {
     }
 
     @Test
+    public void format_withTags_includesTagsInOrder() {
+        Person aliceWithTags = new PersonBuilder(ALICE).withTags("paid", "exams").build();
+        assertEquals(Messages.format(ALICE) + "; Tags: paid, exams", Messages.format(aliceWithTags));
+    }
+
+    @Test
     public void format_multipleSubjects_commaSeparated() {
         Person aliceWithTwoSubjects = new PersonBuilder(ALICE)
                 .withSubjects(new Subject("Mathematics", Band.G1), new Subject("Science", Band.G2)).build();
@@ -257,7 +285,7 @@ public class PersonTest {
         String expected = Person.class.getCanonicalName() + "{name=" + ALICE.getName() + ", phone="
                 + ALICE.getPhone().get() + ", school=" + ALICE.getSchool() + ", address=null, email=null, level="
                 + ALICE.getLevel()
-                + ", subjects=" + ALICE.getSubjects() + ", guardian=null"
+                + ", subjects=" + ALICE.getSubjects() + ", tags=" + ALICE.getTags() + ", guardian=null"
                 + "}";
         assertEquals(expected, ALICE.toString());
     }

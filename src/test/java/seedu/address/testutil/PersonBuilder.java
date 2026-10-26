@@ -2,7 +2,9 @@ package seedu.address.testutil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import seedu.address.model.person.Address;
@@ -16,6 +18,8 @@ import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
 import seedu.address.model.person.Subject;
+import seedu.address.model.tag.Tag;
+import seedu.address.model.util.SampleDataUtil;
 
 /**
  * A utility class to help with building Person objects.
@@ -34,6 +38,7 @@ public class PersonBuilder {
     private Email email;
     private Level level;
     private List<Subject> subjects;
+    private Set<Tag> tags;
     private List<Note> notes;
     private Guardian guardian;
 
@@ -46,6 +51,7 @@ public class PersonBuilder {
         school = new School(DEFAULT_SCHOOL);
         level = Level.fromString(DEFAULT_LEVEL);
         subjects = List.of(new Subject("Mathematics", Band.G1));
+        tags = new LinkedHashSet<>();
         notes = new ArrayList<>();
     }
 
@@ -60,6 +66,7 @@ public class PersonBuilder {
         email = personToCopy.getEmail().orElse(null);
         level = personToCopy.getLevel();
         subjects = personToCopy.getSubjects();
+        tags = new LinkedHashSet<>(personToCopy.getTags());
         notes = new ArrayList<>(personToCopy.getNotes());
         guardian = personToCopy.getGuardian().orElse(null);
     }
@@ -129,6 +136,14 @@ public class PersonBuilder {
     }
 
     /**
+     * Parses the {@code tags} into a {@code Set<Tag>} and sets it to the {@code Person} that we are building.
+     */
+    public PersonBuilder withTags(String ... tags) {
+        this.tags = SampleDataUtil.getTagSet(tags);
+        return this;
+    }
+
+    /**
      * Parses the {@code notes} into a {@code List<Note>} and sets it to the {@code Person} being built.
      */
     public PersonBuilder withNotes(String ... notes) {
@@ -171,7 +186,7 @@ public class PersonBuilder {
     }
 
     public Person build() {
-        return new Person(name, phone, school, address, email, level, subjects, notes, guardian);
+        return new Person(name, phone, school, address, email, level, subjects, tags, notes, guardian);
     }
 
 }
