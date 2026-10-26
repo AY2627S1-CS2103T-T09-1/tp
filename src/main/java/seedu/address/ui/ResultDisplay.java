@@ -5,6 +5,8 @@ import static java.util.Objects.requireNonNull;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Region;
 
 /**
@@ -22,8 +24,14 @@ public class ResultDisplay extends UiPart<Region> {
     @FXML
     private Label cancellationDisplay;
 
+    /**
+     * Creates a {@code ResultDisplay} whose feedback can be selected and copied, but not deleted.
+     */
     public ResultDisplay() {
         super(FXML);
+        // JavaFX skips the editable check for some delete shortcuts, such as Cmd+Delete and Option+Delete
+        // on macOS and Ctrl+H on Windows and Linux
+        resultDisplay.addEventFilter(KeyEvent.KEY_PRESSED, ResultDisplay::blockDeleteKeys);
     }
 
     public void setFeedbackToUser(String feedbackToUser) {
@@ -60,4 +68,16 @@ public class ResultDisplay extends UiPart<Region> {
         }
     }
 
+    /**
+     * Consumes Backspace and Delete key presses, with any modifier, and Ctrl+H,
+     * so they cannot change the feedback.
+     */
+    private static void blockDeleteKeys(KeyEvent event) {
+        KeyCode code = event.getCode();
+        boolean isDeleteKey = code == KeyCode.BACK_SPACE || code == KeyCode.DELETE;
+        boolean isCtrlH = code == KeyCode.H && event.isControlDown();
+        if (isDeleteKey || isCtrlH) {
+            event.consume();
+        }
+    }
 }
