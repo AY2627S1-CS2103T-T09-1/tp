@@ -23,7 +23,6 @@ import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Band;
 import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
-import seedu.address.model.person.Phone;
 import seedu.address.model.person.Subject;
 import seedu.address.model.person.predicate.GuardianNameContainsTextPredicate;
 import seedu.address.model.person.predicate.GuardianPhoneMatchesPredicate;
@@ -68,6 +67,15 @@ public class FilterCommandParser implements Parser<FilterCommand> {
         // everything after note/ is note text, as in addnote, so other prefixes there are not split off
         ArgumentMultimap argMultimap =
                 ArgumentTokenizer.tokenizeWithTrailingText(args, PREFIX_NOTE, allPrefixes());
+        verifyFilterFormat(argMultimap);
+        return new FilterCommand(new StudentMatchesAllPredicate(parseFilters(argMultimap)));
+    }
+
+    /**
+     * Throws a {@code ParseException} if {@code argMultimap} has {@code nid/}, text before the first prefix,
+     * no filters, a repeated prefix, or {@code band/} anywhere except right after {@code sub/}.
+     */
+    private static void verifyFilterFormat(ArgumentMultimap argMultimap) throws ParseException {
         // nid/ is deletenote's and editnote's note index, recognized only to point the user to note/
         if (hasAny(argMultimap, PREFIX_NID)) {
             throw new ParseException(MESSAGE_USE_NOTE_FILTER);
@@ -80,44 +88,42 @@ public class FilterCommandParser implements Parser<FilterCommand> {
         }
         argMultimap.verifyNoDuplicatePrefixesFor(FILTER_PREFIXES);
         verifyBandFollowsSubject(argMultimap.getPrefixes());
+    }
 
+    /**
+     * Returns one filter for each filter prefix given in {@code argMultimap}.
+     *
+     * @throws ParseException if any filter value is invalid.
+     */
+    private static List<Predicate<Person>> parseFilters(ArgumentMultimap argMultimap) throws ParseException {
         List<Predicate<Person>> filters = new ArrayList<>();
-        Optional<String> name = argMultimap.getValue(PREFIX_NAME);
-        if (name.isPresent()) {
-            String nameText = parseSearchText(name.get(), MESSAGE_BLANK_NAME);
-            filters.add(new NameContainsKeywordsPredicate(List.of(nameText)));
+        addFilter(filters, argMultimap, PREFIX_NAME, value ->
+                new NameContainsKeywordsPredicate(List.of(parseSearchText(value, MESSAGE_BLANK_NAME))));
+        addFilter(filters, argMultimap, PREFIX_SCHOOL, value ->
+                new SchoolContainsTextPredicate(parseSearchText(value, MESSAGE_BLANK_SCHOOL)));
+        addFilter(filters, argMultimap, PREFIX_LEVEL, value ->
+                new LevelMatchesPredicate(ParserUtil.parseLevel(value)));
+        addFilter(filters, argMultimap, PREFIX_SUBJECT, value ->
+                parseSubjectFilter(value, argMultimap.getValue(PREFIX_BAND)));
+        addFilter(filters, argMultimap, PREFIX_PHONE, value ->
+                new PhoneMatchesPredicate(ParserUtil.parsePhone(value)));
+        addFilter(filters, argMultimap, PREFIX_GUARDIAN_NAME, value -> new GuardianNameContainsTextPredicate(
+                parseSearchText(value, MESSAGE_BLANK_GUARDIAN_NAME)));
+        addFilter(filters, argMultimap, PREFIX_GUARDIAN_PHONE, value ->
+                new GuardianPhoneMatchesPredicate(ParserUtil.parseGuardianPhone(value)));
+        addFilter(filters, argMultimap, PREFIX_NOTE, FilterCommandParser::parseNoteFilter);
+        return filters;
+    }
+
+    /**
+     * Adds the filter that {@code filterParser} builds from the value of {@code prefix}, if it was given.
+     */
+    private static void addFilter(List<Predicate<Person>> filters, ArgumentMultimap argMultimap,
+            Prefix prefix, FilterParser filterParser) throws ParseException {
+        Optional<String> value = argMultimap.getValue(prefix);
+        if (value.isPresent()) {
+            filters.add(filterParser.parse(value.get()));
         }
-        Optional<String> school = argMultimap.getValue(PREFIX_SCHOOL);
-        if (school.isPresent()) {
-            filters.add(new SchoolContainsTextPredicate(parseSearchText(school.get(), MESSAGE_BLANK_SCHOOL)));
-        }
-        Optional<String> level = argMultimap.getValue(PREFIX_LEVEL);
-        if (level.isPresent()) {
-            filters.add(new LevelMatchesPredicate(ParserUtil.parseLevel(level.get())));
-        }
-        Optional<String> subject = argMultimap.getValue(PREFIX_SUBJECT);
-        if (subject.isPresent()) {
-            filters.add(parseSubjectFilter(subject.get(), argMultimap.getValue(PREFIX_BAND)));
-        }
-        Optional<String> phone = argMultimap.getValue(PREFIX_PHONE);
-        if (phone.isPresent()) {
-            filters.add(new PhoneMatchesPredicate(ParserUtil.parsePhone(phone.get())));
-        }
-        Optional<String> guardianName = argMultimap.getValue(PREFIX_GUARDIAN_NAME);
-        if (guardianName.isPresent()) {
-            String guardianNameText = parseSearchText(guardianName.get(), MESSAGE_BLANK_GUARDIAN_NAME);
-            filters.add(new GuardianNameContainsTextPredicate(guardianNameText));
-        }
-        Optional<String> guardianPhone = argMultimap.getValue(PREFIX_GUARDIAN_PHONE);
-        if (guardianPhone.isPresent()) {
-            Phone guardianPhoneValue = ParserUtil.parseGuardianPhone(guardianPhone.get());
-            filters.add(new GuardianPhoneMatchesPredicate(guardianPhoneValue));
-        }
-        Optional<String> note = argMultimap.getValue(PREFIX_NOTE);
-        if (note.isPresent()) {
-            filters.add(parseNoteFilter(note.get()));
-        }
-        return new FilterCommand(new StudentMatchesAllPredicate(filters));
     }
 
     private static Prefix[] allPrefixes() {
@@ -187,6 +193,14 @@ public class FilterCommandParser implements Parser<FilterCommand> {
             throw new ParseException(blankMessage);
         }
         return text;
+    }
+
+    /**
+     * Builds a filter from the text given after a prefix.
+     */
+    @FunctionalInterface
+    private interface FilterParser {
+        Predicate<Person> parse(String value) throws ParseException;
     }
 
 }
