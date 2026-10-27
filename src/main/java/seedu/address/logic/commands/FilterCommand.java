@@ -17,7 +17,7 @@ import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.model.Model;
-import seedu.address.model.person.StudentMatchesAllPredicate;
+import seedu.address.model.person.predicate.StudentMatchesAllPredicate;
 
 /**
  * Filters the student list to students who match every filter given, ignoring case.

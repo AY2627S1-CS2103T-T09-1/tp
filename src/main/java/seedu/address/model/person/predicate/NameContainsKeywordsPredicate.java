@@ -1,10 +1,11 @@
-package seedu.address.model.person;
+package seedu.address.model.person.predicate;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.function.Predicate;
 
 import seedu.address.commons.util.ToStringBuilder;
+import seedu.address.model.person.Person;
 
 /**
  * Tests that a {@code Person}'s {@code Name} contains any of the keywords given, ignoring case.

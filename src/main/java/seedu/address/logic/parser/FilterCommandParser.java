@@ -21,19 +21,19 @@ import java.util.stream.Stream;
 import seedu.address.logic.commands.FilterCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Band;
-import seedu.address.model.person.GuardianNameContainsTextPredicate;
-import seedu.address.model.person.GuardianPhoneMatchesPredicate;
-import seedu.address.model.person.LevelMatchesPredicate;
-import seedu.address.model.person.NameContainsKeywordsPredicate;
 import seedu.address.model.person.Note;
-import seedu.address.model.person.NoteContainsTextPredicate;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
-import seedu.address.model.person.PhoneMatchesPredicate;
-import seedu.address.model.person.SchoolContainsTextPredicate;
-import seedu.address.model.person.StudentMatchesAllPredicate;
 import seedu.address.model.person.Subject;
-import seedu.address.model.person.SubjectMatchesPredicate;
+import seedu.address.model.person.predicate.GuardianNameContainsTextPredicate;
+import seedu.address.model.person.predicate.GuardianPhoneMatchesPredicate;
+import seedu.address.model.person.predicate.LevelMatchesPredicate;
+import seedu.address.model.person.predicate.NameContainsKeywordsPredicate;
+import seedu.address.model.person.predicate.NoteContainsTextPredicate;
+import seedu.address.model.person.predicate.PhoneMatchesPredicate;
+import seedu.address.model.person.predicate.SchoolContainsTextPredicate;
+import seedu.address.model.person.predicate.StudentMatchesAllPredicate;
+import seedu.address.model.person.predicate.SubjectMatchesPredicate;
 
 /**
  * Parses input arguments and creates a new FilterCommand object
