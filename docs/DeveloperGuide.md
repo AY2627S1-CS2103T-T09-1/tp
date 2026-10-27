@@ -406,7 +406,7 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 1. It wraps the predicates in a `StudentMatchesAllPredicate`, which returns `true` only if every predicate does, and returns a `FilterCommand` holding it.
 1. `FilterCommand#execute` passes the predicate to `Model#updateFilteredPersonList` and returns `CommandResult.showList(...)` with the number of students found, or a no-match message.
 
-The partial-match predicates (`n/`, `sch/`, `gn/`, `note/`) use `StringUtil#containsIgnoreCaseAndSpaces`, which lowercases both strings and squeezes runs of whitespace before comparing. The exact-match filters are parsed first with the same `ParserUtil` methods as `add`, into a `Level`, `Band`, or `Phone`. So `lvl/s3` becomes `S3` and `p/+65 9123 4567` becomes `91234567`, the form in which they are stored, and the predicates can compare values directly. `SubjectMatchesPredicate` compares names with `Subject#hasName`, the same rule `add` uses to detect a repeated subject, and requires the band to belong to that same subject.
+The partial-match predicates (`n/`, `sch/`, `a/`, `gn/`, `note/`) use `StringUtil#containsIgnoreCaseAndSpaces`, which lowercases both strings and squeezes runs of whitespace before comparing. The exact-match filters are parsed first with the same `ParserUtil` methods as `add`, into a `Level`, `Band`, or `Phone`. So `lvl/s3` becomes `S3` and `p/+65 9123 4567` becomes `91234567`, the form in which they are stored, and the predicates can compare values directly. `SubjectMatchesPredicate` compares names with `Subject#hasName`, the same rule `add` uses to detect a repeated subject, and requires the band to belong to that same subject.
 
 #### Design considerations
 
