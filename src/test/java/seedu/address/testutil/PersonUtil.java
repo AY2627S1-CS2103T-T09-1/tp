@@ -2,6 +2,7 @@ package seedu.address.testutil;
 
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
@@ -35,6 +36,7 @@ public class PersonUtil {
         person.getPhone().ifPresent(phone -> sb.append(PREFIX_PHONE + phone.value + " "));
         sb.append(PREFIX_SCHOOL + person.getSchool().value + " ");
         person.getAddress().ifPresent(address -> sb.append(PREFIX_ADDRESS).append(address.value).append(" "));
+        person.getEmail().ifPresent(email -> sb.append(PREFIX_EMAIL).append(email.value).append(" "));
         sb.append(PREFIX_LEVEL + person.getLevel().name() + " ");
         person.getSubjects().forEach(subject -> sb.append(PREFIX_SUBJECT).append(subject.getName()).append(" ")
                 .append(PREFIX_BAND).append(subject.getBand()).append(" "));
@@ -58,6 +60,10 @@ public class PersonUtil {
         descriptor.getAddress().ifPresent(address -> sb.append(PREFIX_ADDRESS).append(address.value).append(" "));
         if (descriptor.isAddressRemoved()) {
             sb.append(PREFIX_ADDRESS).append(" ");
+        }
+        descriptor.getEmail().ifPresent(email -> sb.append(PREFIX_EMAIL).append(email.value).append(" "));
+        if (descriptor.isEmailRemoved()) {
+            sb.append(PREFIX_EMAIL).append(" ");
         }
         descriptor.getLevel().ifPresent(level -> sb.append(PREFIX_LEVEL).append(level.name()).append(" "));
         descriptor.getSubjects().ifPresent(subjects -> subjects.forEach(subject ->

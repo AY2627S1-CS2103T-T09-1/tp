@@ -26,6 +26,7 @@ import static seedu.address.logic.commands.CommandTestUtil.VALID_NAME_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_PHONE_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_PHONE_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_SCHOOL_AMY;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
@@ -44,6 +45,7 @@ import seedu.address.logic.Messages;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
 import seedu.address.model.person.Band;
+import seedu.address.model.person.Email;
 import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
@@ -82,6 +84,23 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_emailSetOrRemoved_success() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withEmail("amy@example.com").build();
+        assertParseSuccess(parser, "1 e/amy@example.com", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+
+        descriptor = new EditPersonDescriptorBuilder().withEmailRemoved().build();
+        assertParseSuccess(parser, "1 e/", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+        assertParseSuccess(parser, "1 e/   ", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
+    public void parse_invalidEmail_failure() {
+        assertParseFailure(parser, "1 e/amy", Email.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1 e/amy@example.com e/bob@example.com",
+                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_EMAIL));
+    }
+
+    @Test
     public void parse_invalidSchool_failure() {
         assertParseFailure(parser, "1 sch/  ", School.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, "1 sch/School sch/Other School",
@@ -115,7 +134,6 @@ public class EditCommandParserTest {
         assertParseFailure(parser, "1 i/ string", MESSAGE_INVALID_FORMAT);
 
         // removed prefixes being parsed as preamble
-        assertParseFailure(parser, "1 e/bob@example.com", MESSAGE_INVALID_FORMAT);
         assertParseFailure(parser, "1 x/Clementi Road", MESSAGE_INVALID_FORMAT);
         assertParseFailure(parser, "1 t/friend", MESSAGE_INVALID_FORMAT);
     }

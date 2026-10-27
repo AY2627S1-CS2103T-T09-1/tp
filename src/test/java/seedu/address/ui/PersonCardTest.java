@@ -36,6 +36,7 @@ public class PersonCardTest {
     public void constructor_personWithAllDetails_displaysOnlySummaryFields(FxRobot robot) {
         Person person = new PersonBuilder(ALICE)
                 .withAddress("12 Example Road")
+                .withEmail("alice@example.com")
                 .withGuardian("Mary Tan", "91234567")
                 .withNotes("Weak in algebra")
                 .build();
@@ -47,11 +48,13 @@ public class PersonCardTest {
             assertLabelText(card, "#phone", person.getPhone().orElseThrow().value);
             assertLabelText(card, "#school", person.getSchool().value);
             assertLabelText(card, "#address", "12 Example Road");
+            assertLabelText(card, "#email", "alice@example.com");
             assertLabelText(card, "#level", person.getLevel().name());
             assertLabelWraps(card, "#name");
             assertLabelWraps(card, "#phone");
             assertLabelWraps(card, "#school");
             assertLabelWraps(card, "#address");
+            assertLabelWraps(card, "#email");
             assertLabelWraps(card, "#level");
             assertEquals(Pos.TOP_LEFT, ((HBox) card.getRoot().lookup("#name").getParent()).getAlignment());
             VBox cardContents = (VBox) card.getRoot().lookup("#phone").getParent();
@@ -74,6 +77,9 @@ public class PersonCardTest {
             Label address = (Label) card.getRoot().lookup("#address");
             assertFalse(address.isVisible());
             assertFalse(address.isManaged());
+            Label email = (Label) card.getRoot().lookup("#email");
+            assertFalse(email.isVisible());
+            assertFalse(email.isManaged());
         });
     }
 

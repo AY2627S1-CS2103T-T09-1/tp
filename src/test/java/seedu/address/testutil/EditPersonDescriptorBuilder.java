@@ -4,6 +4,7 @@ import java.util.List;
 
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
 import seedu.address.model.person.Address;
+import seedu.address.model.person.Email;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
@@ -35,6 +36,7 @@ public class EditPersonDescriptorBuilder {
         person.getPhone().ifPresentOrElse(descriptor::setPhone, descriptor::setPhoneRemoved);
         descriptor.setSchool(person.getSchool());
         person.getAddress().ifPresent(descriptor::setAddress);
+        person.getEmail().ifPresent(descriptor::setEmail);
         descriptor.setLevel(person.getLevel());
         descriptor.setSubjects(person.getSubjects());
         person.getGuardian().ifPresent(guardian -> {
@@ -88,6 +90,22 @@ public class EditPersonDescriptorBuilder {
      */
     public EditPersonDescriptorBuilder withAddressRemoved() {
         descriptor.setAddressRemoved();
+        return this;
+    }
+
+    /**
+     * Sets the {@code Email} of the {@code EditPersonDescriptor} that we are building.
+     */
+    public EditPersonDescriptorBuilder withEmail(String email) {
+        descriptor.setEmail(new Email(email));
+        return this;
+    }
+
+    /**
+     * Marks the {@code Email} to be removed in the {@code EditPersonDescriptor} that we are building.
+     */
+    public EditPersonDescriptorBuilder withEmailRemoved() {
+        descriptor.setEmailRemoved();
         return this;
     }
 

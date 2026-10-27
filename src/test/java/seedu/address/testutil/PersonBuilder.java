@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Band;
+import seedu.address.model.person.Email;
 import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
@@ -30,6 +31,7 @@ public class PersonBuilder {
     private Phone phone;
     private School school;
     private Address address;
+    private Email email;
     private Level level;
     private List<Subject> subjects;
     private List<Note> notes;
@@ -55,6 +57,7 @@ public class PersonBuilder {
         phone = personToCopy.getPhone().orElse(null);
         school = personToCopy.getSchool();
         address = personToCopy.getAddress().orElse(null);
+        email = personToCopy.getEmail().orElse(null);
         level = personToCopy.getLevel();
         subjects = personToCopy.getSubjects();
         notes = new ArrayList<>(personToCopy.getNotes());
@@ -110,6 +113,22 @@ public class PersonBuilder {
     }
 
     /**
+     * Sets the {@code Email} of the {@code Person} that we are building.
+     */
+    public PersonBuilder withEmail(String email) {
+        this.email = new Email(email);
+        return this;
+    }
+
+    /**
+     * Removes the {@code Email} of the {@code Person} that we are building.
+     */
+    public PersonBuilder withoutEmail() {
+        this.email = null;
+        return this;
+    }
+
+    /**
      * Parses the {@code notes} into a {@code List<Note>} and sets it to the {@code Person} being built.
      */
     public PersonBuilder withNotes(String ... notes) {
@@ -152,7 +171,7 @@ public class PersonBuilder {
     }
 
     public Person build() {
-        return new Person(name, phone, school, address, level, subjects, notes, guardian);
+        return new Person(name, phone, school, address, email, level, subjects, notes, guardian);
     }
 
 }

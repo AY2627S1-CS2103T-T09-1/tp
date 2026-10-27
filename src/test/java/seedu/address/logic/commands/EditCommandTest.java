@@ -84,6 +84,28 @@ public class EditCommandTest {
     }
 
     @Test
+    public void execute_emailSetAndRemoved_updatesStudent() {
+        Person original = model.getFilteredPersonList().get(0);
+        Person withEmail = new PersonBuilder(original).withEmail("alice@example.com").build();
+        EditCommand setEmail = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withEmail("alice@example.com").build());
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(original, withEmail);
+        assertCommandSuccess(setEmail, model, CommandResult.showStudent(String.format(
+                EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(withEmail)), withEmail,
+                INDEX_FIRST_PERSON), expectedModel);
+
+        // removing the email keeps every other field
+        EditCommand removeEmail = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withEmailRemoved().build());
+        expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(withEmail, original);
+        assertCommandSuccess(removeEmail, model, CommandResult.showStudent(String.format(
+                EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(original)), original, INDEX_FIRST_PERSON),
+                expectedModel);
+    }
+
+    @Test
     public void execute_personWithNotes_keepsNotes() {
         Person original = model.getFilteredPersonList().get(0);
         Person personWithNotes = new PersonBuilder(original)

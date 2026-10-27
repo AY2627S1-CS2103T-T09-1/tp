@@ -2,10 +2,13 @@ package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.commands.CommandTestUtil.ADDRESS_DESC_BOB;
+import static seedu.address.logic.commands.CommandTestUtil.EMAIL_DESC_AMY;
+import static seedu.address.logic.commands.CommandTestUtil.EMAIL_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.GUARDIAN_NAME_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.GUARDIAN_NAME_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.GUARDIAN_PHONE_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.GUARDIAN_PHONE_DESC_BOB;
+import static seedu.address.logic.commands.CommandTestUtil.INVALID_EMAIL_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_GUARDIAN_NAME_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_GUARDIAN_PHONE_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_GUARDIAN_PHONE_MESSAGE;
@@ -24,10 +27,12 @@ import static seedu.address.logic.commands.CommandTestUtil.PREAMBLE_WHITESPACE;
 import static seedu.address.logic.commands.CommandTestUtil.SCHOOL_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.SCHOOL_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_ADDRESS_BOB;
+import static seedu.address.logic.commands.CommandTestUtil.VALID_EMAIL_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_GUARDIAN_NAME_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_GUARDIAN_PHONE_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_NAME_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_PHONE_BOB;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
@@ -46,6 +51,7 @@ import seedu.address.logic.Messages;
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Band;
+import seedu.address.model.person.Email;
 import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
@@ -119,6 +125,28 @@ public class AddCommandParserTest {
     public void parse_blankAddress_failure() {
         assertParseFailure(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + " a/ " + LEVEL_DESC_BOB + SUBJECT_DESC,
                 Address.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_emailProvided_success() {
+        Person expectedPerson = new PersonBuilder(BOB).withoutPhone().withEmail(VALID_EMAIL_BOB).build();
+        assertParseSuccess(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + EMAIL_DESC_BOB + LEVEL_DESC_BOB
+                + SUBJECT_DESC, new AddCommand(expectedPerson));
+    }
+
+    @Test
+    public void parse_invalidEmail_failure() {
+        assertParseFailure(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + INVALID_EMAIL_DESC + LEVEL_DESC_BOB
+                + SUBJECT_DESC, Email.MESSAGE_CONSTRAINTS);
+        // e/ with no value is invalid when adding
+        assertParseFailure(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + " e/ " + LEVEL_DESC_BOB + SUBJECT_DESC,
+                Email.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_repeatedEmail_failure() {
+        assertParseFailure(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + EMAIL_DESC_AMY + EMAIL_DESC_BOB
+                + LEVEL_DESC_BOB + SUBJECT_DESC, Messages.getErrorMessageForDuplicatePrefixes(PREFIX_EMAIL));
     }
 
     @Test
@@ -322,9 +350,6 @@ public class AddCommandParserTest {
                 Name.MESSAGE_CONSTRAINTS);
 
         // removed prefixes are no longer recognized, so their text joins the preceding value
-        assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB
-                + " e/bob@example.com" + SUBJECT_DESC,
-                School.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, NAME_DESC_BOB + " x/Clementi Road" + PHONE_DESC_BOB + LEVEL_DESC_BOB
                 + SCHOOL_DESC_BOB + SUBJECT_DESC,
                 Name.MESSAGE_CONSTRAINTS);

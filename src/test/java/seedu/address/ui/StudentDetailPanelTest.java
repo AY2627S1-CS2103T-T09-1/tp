@@ -52,6 +52,7 @@ public class StudentDetailPanelTest {
     public void constructor_studentWithDetails_displaysCompleteRecord(FxRobot robot) {
         Person personWithNotes = new PersonBuilder(ALICE)
                 .withAddress("12 Example Road")
+                .withEmail("alice@example.com")
                 .withNotes("Strong in algebra", "Revise geometry")
                 .build();
 
@@ -64,6 +65,7 @@ public class StudentDetailPanelTest {
             assertLabelText("#name", ALICE.getName().fullName);
             assertLabelText("#school", ALICE.getSchool().value);
             assertLabelText("#address", "12 Example Road");
+            assertLabelText("#email", "alice@example.com");
             assertLabelText("#level", ALICE.getLevel().toString());
             assertLabelText("#subjects", "Mathematics (G1)");
             assertLabelText("#phone", ALICE.getPhone().orElseThrow().value);
@@ -75,8 +77,9 @@ public class StudentDetailPanelTest {
             assertGridRow("#level", 3);
             assertGridRow("#subjects", 4);
             assertGridRow("#address", 5);
-            assertGridRow("#guardianName", 6);
-            assertGridRow("#guardianPhone", 7);
+            assertGridRow("#email", 6);
+            assertGridRow("#guardianName", 7);
+            assertGridRow("#guardianPhone", 8);
             assertNull(container.lookup("#heading"));
             assertNoteCardTexts("1. Strong in algebra", "2. Revise geometry");
         });
