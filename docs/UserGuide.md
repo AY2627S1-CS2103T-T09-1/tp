@@ -336,8 +336,12 @@ Shows the students who match every filter you give.
 
 Format: `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/PHONE] [a/ADDRESS] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE] [note/TEXT]`
 
-* Give at least one filter, and each filter at most once.
+* Give at least one filter.
 * A student must match every filter you give. For example, `filter n/tan sch/bedok` shows students whose name contains `tan` and whose school contains `bedok`.
+
+<div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
+Each filter can be given only once. For example, `filter n/tan n/lim` and `filter sch/bedok sch/tampines` are rejected. To find students who match either value, run `filter` once for each value.
+</div>
 
 Filter | Matches students whose… | Match
 -------|-------------------------|------

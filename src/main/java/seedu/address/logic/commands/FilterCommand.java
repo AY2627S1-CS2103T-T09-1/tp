@@ -34,7 +34,7 @@ public class FilterCommand extends Command {
             + "[" + PREFIX_PHONE + "PHONE] [" + PREFIX_ADDRESS + "ADDRESS] "
             + "[" + PREFIX_GUARDIAN_NAME + "GUARDIAN_NAME] [" + PREFIX_GUARDIAN_PHONE + "GUARDIAN_PHONE] "
             + "[" + PREFIX_NOTE + "TEXT] "
-            + "(at least one)\n"
+            + "(at least one, each at most once)\n"
             + "Example: " + COMMAND_WORD + " " + PREFIX_LEVEL + "S5 " + PREFIX_SUBJECT + "Mathematics "
             + PREFIX_BAND + "G2";
 
