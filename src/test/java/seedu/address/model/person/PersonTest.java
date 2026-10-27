@@ -246,15 +246,16 @@ public class PersonTest {
         Person aliceWithoutPhone = new PersonBuilder(ALICE).withoutPhone().build();
         assertEquals("Alice Pauline; Student phone: " + Messages.MESSAGE_NOT_PROVIDED
                 + "; School: Maplewood Secondary School; Level: S1; Subjects: Mathematics (G1); Address: "
-                + Messages.MESSAGE_NOT_PROVIDED + "; Email: " + Messages.MESSAGE_NOT_PROVIDED,
-                Messages.format(aliceWithoutPhone));
+                + Messages.MESSAGE_NOT_PROVIDED + "; Email: " + Messages.MESSAGE_NOT_PROVIDED + "; Tags: "
+                + Messages.MESSAGE_NOT_PROVIDED, Messages.format(aliceWithoutPhone));
     }
 
     @Test
     public void format_withLevel_includesLevel() {
         assertEquals("Alice Pauline; Student phone: 94351253; School: Maplewood Secondary School; Level: S1; "
                 + "Subjects: Mathematics (G1); Address: " + Messages.MESSAGE_NOT_PROVIDED + "; Email: "
-                + Messages.MESSAGE_NOT_PROVIDED, Messages.format(ALICE));
+                + Messages.MESSAGE_NOT_PROVIDED + "; Tags: " + Messages.MESSAGE_NOT_PROVIDED,
+                Messages.format(ALICE));
     }
 
     @Test
@@ -267,7 +268,9 @@ public class PersonTest {
     @Test
     public void format_withTags_includesTagsInOrder() {
         Person aliceWithTags = new PersonBuilder(ALICE).withTags("paid", "exams").build();
-        assertEquals(Messages.format(ALICE) + "; Tags: paid, exams", Messages.format(aliceWithTags));
+        assertEquals("Alice Pauline; Student phone: 94351253; School: Maplewood Secondary School; Level: S1; "
+                + "Subjects: Mathematics (G1); Address: " + Messages.MESSAGE_NOT_PROVIDED + "; Email: "
+                + Messages.MESSAGE_NOT_PROVIDED + "; Tags: paid, exams", Messages.format(aliceWithTags));
     }
 
     @Test
@@ -276,7 +279,7 @@ public class PersonTest {
                 .withSubjects(new Subject("Mathematics", Band.G1), new Subject("Science", Band.G2)).build();
         assertEquals("Alice Pauline; Student phone: 94351253; School: Maplewood Secondary School; Level: S1; "
                 + "Subjects: Mathematics (G1), Science (G2); Address: " + Messages.MESSAGE_NOT_PROVIDED
-                + "; Email: " + Messages.MESSAGE_NOT_PROVIDED,
+                + "; Email: " + Messages.MESSAGE_NOT_PROVIDED + "; Tags: " + Messages.MESSAGE_NOT_PROVIDED,
                 Messages.format(aliceWithTwoSubjects));
     }
 
