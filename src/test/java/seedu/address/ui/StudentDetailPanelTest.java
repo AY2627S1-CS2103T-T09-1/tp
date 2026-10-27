@@ -53,6 +53,7 @@ public class StudentDetailPanelTest {
         Person personWithNotes = new PersonBuilder(ALICE)
                 .withAddress("12 Example Road")
                 .withEmail("alice@example.com")
+                .withTags("paid", "exams")
                 .withNotes("Strong in algebra", "Revise geometry")
                 .build();
 
@@ -66,6 +67,7 @@ public class StudentDetailPanelTest {
             assertLabelText("#school", ALICE.getSchool().value);
             assertLabelText("#address", "12 Example Road");
             assertLabelText("#email", "alice@example.com");
+            assertLabelText("#tags", "paid, exams");
             assertLabelText("#level", ALICE.getLevel().toString());
             assertLabelText("#subjects", "Mathematics (G1)");
             assertLabelText("#phone", ALICE.getPhone().orElseThrow().value);
@@ -78,8 +80,9 @@ public class StudentDetailPanelTest {
             assertGridRow("#subjects", 4);
             assertGridRow("#address", 5);
             assertGridRow("#email", 6);
-            assertGridRow("#guardianName", 7);
-            assertGridRow("#guardianPhone", 8);
+            assertGridRow("#tags", 7);
+            assertGridRow("#guardianName", 8);
+            assertGridRow("#guardianPhone", 9);
             assertNull(container.lookup("#heading"));
             assertNoteCardTexts("1. Strong in algebra", "2. Revise geometry");
         });
@@ -119,6 +122,7 @@ public class StudentDetailPanelTest {
             container.applyCss();
 
             assertLabelText("#emptyNotes", "No notes recorded.");
+            assertLabelText("#tags", "Not provided");
         });
     }
 

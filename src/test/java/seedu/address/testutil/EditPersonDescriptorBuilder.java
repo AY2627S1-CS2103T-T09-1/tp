@@ -1,6 +1,10 @@
 package seedu.address.testutil;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
 import seedu.address.model.person.Address;
@@ -11,6 +15,7 @@ import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
 import seedu.address.model.person.Subject;
+import seedu.address.model.tag.Tag;
 
 /**
  * A utility class to help with building EditPersonDescriptor objects.
@@ -39,6 +44,7 @@ public class EditPersonDescriptorBuilder {
         person.getEmail().ifPresent(descriptor::setEmail);
         descriptor.setLevel(person.getLevel());
         descriptor.setSubjects(person.getSubjects());
+        descriptor.setTags(person.getTags());
         person.getGuardian().ifPresent(guardian -> {
             descriptor.setGuardianName(guardian.getName());
             descriptor.setGuardianPhone(guardian.getPhone());
@@ -122,6 +128,16 @@ public class EditPersonDescriptorBuilder {
      */
     public EditPersonDescriptorBuilder withSubjects(Subject... subjects) {
         descriptor.setSubjects(List.of(subjects));
+        return this;
+    }
+
+    /**
+     * Parses the {@code tags} into a {@code Set<Tag>} and set it to the {@code EditPersonDescriptor}
+     * that we are building. No tags clears them.
+     */
+    public EditPersonDescriptorBuilder withTags(String... tags) {
+        Set<Tag> tagSet = Stream.of(tags).map(Tag::new).collect(Collectors.toCollection(LinkedHashSet::new));
+        descriptor.setTags(tagSet);
         return this;
     }
 

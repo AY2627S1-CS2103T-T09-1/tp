@@ -1,7 +1,9 @@
 package seedu.address.storage;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -19,6 +21,7 @@ import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
 import seedu.address.model.person.Subject;
+import seedu.address.model.tag.Tag;
 
 /**
  * Jackson-friendly version of {@link Person}.
@@ -28,6 +31,7 @@ class JsonAdaptedPerson {
     public static final String MISSING_FIELD_MESSAGE_FORMAT = "Person's %s field is missing!";
     public static final String NULL_NOTES_MESSAGE = "Person's notes field cannot be null!";
     public static final String NULL_NOTE_MESSAGE = "Person's notes field cannot contain a null note!";
+    public static final String NULL_TAGS_MESSAGE = "Person's tags field cannot be null!";
 
     private final String name;
     // Left out of the file when the person has no phone
@@ -40,6 +44,8 @@ class JsonAdaptedPerson {
     private final List<JsonAdaptedSubject> subjects = new ArrayList<>();
     // Set by Jackson directly, so files without notes still load
     private final List<JsonAdaptedNote> notes = new ArrayList<>();
+    // Set by Jackson directly, so files without tags still load
+    private final List<JsonAdaptedTag> tags = new ArrayList<>();
     // Set by Jackson directly, so files without an email still load.
     // Left out of the file when the person has no email.
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -78,6 +84,7 @@ class JsonAdaptedPerson {
         email = source.getEmail().map(e -> e.value).orElse(null);
         level = source.getLevel().name();
         subjects.addAll(source.getSubjects().stream().map(JsonAdaptedSubject::new).toList());
+        tags.addAll(source.getTags().stream().map(JsonAdaptedTag::new).toList());
         notes.addAll(source.getNotes().stream()
             .map(JsonAdaptedNote::new).collect(Collectors.toList()));
         guardian = source.getGuardian().map(JsonAdaptedGuardian::new).orElse(null);
@@ -138,15 +145,40 @@ class JsonAdaptedPerson {
             modelSubjects.add(subject.toModelType());
         }
 
+        final Set<Tag> modelTags = toModelTags();
         final List<Note> modelNotes = toModelNotes();
         // Guardian is optional, so a missing guardian means the person has no guardian
         final Guardian modelGuardian = guardian == null ? null : guardian.toModelType();
         try {
             return new Person(modelName, modelPhone, modelSchool, modelAddress, modelEmail, modelLevel, modelSubjects,
-                    modelNotes, modelGuardian);
+                    modelTags, modelNotes, modelGuardian);
         } catch (IllegalArgumentException e) {
             throw new IllegalValueException(e.getMessage(), e);
         }
+    }
+
+    /**
+     * Converts the adapted tags into the model's {@code Tag} objects, keeping their order.
+     *
+     * @throws IllegalValueException if the tags field is null, or contains an invalid or repeated tag.
+     */
+    private Set<Tag> toModelTags() throws IllegalValueException {
+        // Jackson replaces the default empty list with null when the file has "tags": null
+        if (tags == null) {
+            throw new IllegalValueException(NULL_TAGS_MESSAGE);
+        }
+
+        final Set<Tag> modelTags = new LinkedHashSet<>();
+        for (JsonAdaptedTag tag : tags) {
+            if (tag == null) {
+                throw new IllegalValueException(Tag.MESSAGE_CONSTRAINTS);
+            }
+            Tag modelTag = tag.toModelType();
+            if (!modelTags.add(modelTag)) {
+                throw new IllegalValueException(String.format(Tag.MESSAGE_DUPLICATE_TAG, modelTag.tagName));
+            }
+        }
+        return modelTags;
     }
 
     /**

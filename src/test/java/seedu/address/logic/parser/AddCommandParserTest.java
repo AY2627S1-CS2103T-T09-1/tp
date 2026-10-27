@@ -16,6 +16,7 @@ import static seedu.address.logic.commands.CommandTestUtil.INVALID_LEVEL_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_NAME_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_PHONE_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_PHONE_MESSAGE;
+import static seedu.address.logic.commands.CommandTestUtil.INVALID_TAG_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.LEVEL_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.LEVEL_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.NAME_DESC_AMY;
@@ -26,12 +27,16 @@ import static seedu.address.logic.commands.CommandTestUtil.PREAMBLE_NON_EMPTY;
 import static seedu.address.logic.commands.CommandTestUtil.PREAMBLE_WHITESPACE;
 import static seedu.address.logic.commands.CommandTestUtil.SCHOOL_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.SCHOOL_DESC_BOB;
+import static seedu.address.logic.commands.CommandTestUtil.TAG_DESC_EXAMS;
+import static seedu.address.logic.commands.CommandTestUtil.TAG_DESC_PAID;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_ADDRESS_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_EMAIL_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_GUARDIAN_NAME_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_GUARDIAN_PHONE_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_NAME_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_PHONE_BOB;
+import static seedu.address.logic.commands.CommandTestUtil.VALID_TAG_EXAMS;
+import static seedu.address.logic.commands.CommandTestUtil.VALID_TAG_PAID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
@@ -58,6 +63,7 @@ import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.School;
 import seedu.address.model.person.Subject;
+import seedu.address.model.tag.Tag;
 import seedu.address.testutil.PersonBuilder;
 
 public class AddCommandParserTest {
@@ -147,6 +153,33 @@ public class AddCommandParserTest {
     public void parse_repeatedEmail_failure() {
         assertParseFailure(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + EMAIL_DESC_AMY + EMAIL_DESC_BOB
                 + LEVEL_DESC_BOB + SUBJECT_DESC, Messages.getErrorMessageForDuplicatePrefixes(PREFIX_EMAIL));
+    }
+
+    @Test
+    public void parse_tagsProvided_success() {
+        Person expectedPerson = new PersonBuilder(BOB).withoutPhone()
+                .withTags(VALID_TAG_PAID, VALID_TAG_EXAMS).build();
+        // tags keep the order they were typed in
+        assertParseSuccess(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB + SUBJECT_DESC
+                + TAG_DESC_PAID + TAG_DESC_EXAMS, new AddCommand(expectedPerson));
+    }
+
+    @Test
+    public void parse_invalidTag_failure() {
+        assertParseFailure(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB + SUBJECT_DESC
+                + INVALID_TAG_DESC, Tag.MESSAGE_CONSTRAINTS);
+        // t/ with no value is invalid when adding
+        assertParseFailure(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB + SUBJECT_DESC + " t/ ",
+                Tag.MESSAGE_CONSTRAINTS);
+        // a tag is one word; add collapses the repeated spaces before the tag is checked
+        assertParseFailure(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB + SUBJECT_DESC
+                + " t/exam   prep", String.format(Messages.MESSAGE_TAG_HAS_SPACE, "exam prep"));
+    }
+
+    @Test
+    public void parse_repeatedTag_failure() {
+        assertParseFailure(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB + SUBJECT_DESC
+                + " t/Paid" + TAG_DESC_PAID, String.format(Tag.MESSAGE_DUPLICATE_TAG, VALID_TAG_PAID));
     }
 
     @Test
@@ -353,9 +386,6 @@ public class AddCommandParserTest {
         assertParseFailure(parser, NAME_DESC_BOB + " x/Clementi Road" + PHONE_DESC_BOB + LEVEL_DESC_BOB
                 + SCHOOL_DESC_BOB + SUBJECT_DESC,
                 Name.MESSAGE_CONSTRAINTS);
-        assertParseFailure(parser, NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + " t/friend"
-                + SUBJECT_DESC,
-                School.MESSAGE_CONSTRAINTS);
 
         // non-empty preamble
         assertParseFailure(parser, PREAMBLE_NON_EMPTY + NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB

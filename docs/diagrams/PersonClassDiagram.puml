@@ -16,6 +16,7 @@ Class Subject
 Class "<<enumeration>>\nBand" as Band
 Class Note
 Class Guardian
+Class Tag
 }
 
 Person *---> "1" Name
@@ -27,6 +28,7 @@ Person --> "1" Level
 Person *--> "1..8" Subject
 Person *--> "~* {ordered}" Note
 Person *--> "0..1" Guardian
+Person *--> "~*" Tag
 
 Subject --> "1" Band
 

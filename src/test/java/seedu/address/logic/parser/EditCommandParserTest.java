@@ -13,12 +13,15 @@ import static seedu.address.logic.commands.CommandTestUtil.INVALID_NAME_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_PHONE_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_PHONE_MESSAGE;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_SCHOOL_DESC;
+import static seedu.address.logic.commands.CommandTestUtil.INVALID_TAG_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.LEVEL_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.NAME_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.PHONE_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.PHONE_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.SCHOOL_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.SCHOOL_DESC_BOB;
+import static seedu.address.logic.commands.CommandTestUtil.TAG_DESC_EXAMS;
+import static seedu.address.logic.commands.CommandTestUtil.TAG_DESC_PAID;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_GUARDIAN_NAME_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_GUARDIAN_PHONE_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_LEVEL_AMY;
@@ -26,6 +29,8 @@ import static seedu.address.logic.commands.CommandTestUtil.VALID_NAME_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_PHONE_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_PHONE_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_SCHOOL_AMY;
+import static seedu.address.logic.commands.CommandTestUtil.VALID_TAG_EXAMS;
+import static seedu.address.logic.commands.CommandTestUtil.VALID_TAG_PAID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
@@ -51,6 +56,7 @@ import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.School;
 import seedu.address.model.person.Subject;
+import seedu.address.model.tag.Tag;
 import seedu.address.testutil.EditPersonDescriptorBuilder;
 
 public class EditCommandParserTest {
@@ -101,6 +107,28 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_tagsReplacedOrCleared_success() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withTags(VALID_TAG_PAID, VALID_TAG_EXAMS).build();
+        assertParseSuccess(parser, "1" + TAG_DESC_PAID + TAG_DESC_EXAMS,
+                new EditCommand(INDEX_FIRST_PERSON, descriptor));
+
+        descriptor = new EditPersonDescriptorBuilder().withTags().build();
+        assertParseSuccess(parser, "1 t/", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+        assertParseSuccess(parser, "1 t/   ", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
+    public void parse_invalidTag_failure() {
+        assertParseFailure(parser, "1" + INVALID_TAG_DESC, Tag.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1 t/exam prep", String.format(Messages.MESSAGE_TAG_HAS_SPACE, "exam prep"));
+        // an empty t/ only clears the tags when it is the only t/
+        assertParseFailure(parser, "1 t/" + TAG_DESC_PAID, Tag.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1 t/Paid" + TAG_DESC_PAID,
+                String.format(Tag.MESSAGE_DUPLICATE_TAG, VALID_TAG_PAID));
+    }
+
+    @Test
     public void parse_invalidSchool_failure() {
         assertParseFailure(parser, "1 sch/  ", School.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, "1 sch/School sch/Other School",
@@ -135,7 +163,6 @@ public class EditCommandParserTest {
 
         // removed prefixes being parsed as preamble
         assertParseFailure(parser, "1 x/Clementi Road", MESSAGE_INVALID_FORMAT);
-        assertParseFailure(parser, "1 t/friend", MESSAGE_INVALID_FORMAT);
     }
 
     @Test
