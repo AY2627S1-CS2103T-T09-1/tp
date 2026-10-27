@@ -2,6 +2,7 @@ package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
@@ -25,6 +26,7 @@ import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.Subject;
+import seedu.address.model.person.predicate.EmailContainsTextPredicate;
 import seedu.address.model.person.predicate.GuardianNameContainsTextPredicate;
 import seedu.address.model.person.predicate.GuardianPhoneMatchesPredicate;
 import seedu.address.model.person.predicate.LevelMatchesPredicate;
@@ -328,6 +330,36 @@ public class FilterCommandParserTest {
         assertParseSuccess(parser, " gp/92345678 gn/amy p/91234567 n/tan", expectedFilterCommand);
     }
 
+    @Test
+    public void parse_validEmail_returnsFilterCommand() {
+        assertParseSuccess(parser, " e/gmail.com", filterCommandOf(email("gmail.com")));
+    }
+
+    @Test
+    public void parse_emailWithExtraSpaces_collapsesSpaces() {
+        assertParseSuccess(parser, " e/  chloe.tan  ", filterCommandOf(email("chloe.tan")));
+    }
+
+    @Test
+    public void parse_blankEmail_throwsParseException() {
+        assertParseFailure(parser, " e/", FilterCommandParser.MESSAGE_BLANK_EMAIL);
+        assertParseFailure(parser, " n/avi e/   ", FilterCommandParser.MESSAGE_BLANK_EMAIL);
+    }
+
+    @Test
+    public void parse_repeatedEmail_throwsParseException() {
+        assertParseFailure(parser, " e/gmail e/yahoo",
+                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_EMAIL));
+    }
+
+    @Test
+    public void parse_emailWithOtherFilters_returnsSameCommand() {
+        FilterCommand expectedFilterCommand =
+                filterCommandOf(name("tan"), phone("91234567"), email("gmail"));
+        assertParseSuccess(parser, " n/tan p/91234567 e/gmail", expectedFilterCommand);
+        assertParseSuccess(parser, " e/gmail p/91234567 n/tan", expectedFilterCommand);
+    }
+
     private static Predicate<Person> name(String text) {
         return new NameContainsKeywordsPredicate(List.of(text));
     }
@@ -350,6 +382,10 @@ public class FilterCommandParserTest {
 
     private static Predicate<Person> phone(String phone) {
         return new PhoneMatchesPredicate(new Phone(phone));
+    }
+
+    private static Predicate<Person> email(String text) {
+        return new EmailContainsTextPredicate(text);
     }
 
     private static Predicate<Person> guardianName(String text) {
