@@ -19,6 +19,7 @@ Class SubjectMatchesPredicate MODEL_COLOR
 Class PhoneMatchesPredicate MODEL_COLOR
 Class GuardianNameContainsTextPredicate MODEL_COLOR
 Class GuardianPhoneMatchesPredicate MODEL_COLOR
+Class TagMatchesPredicate MODEL_COLOR
 Class NoteContainsTextPredicate MODEL_COLOR
 }
 
@@ -36,5 +37,6 @@ SubjectMatchesPredicate .up.|> Predicate
 PhoneMatchesPredicate .up.|> Predicate
 GuardianNameContainsTextPredicate .up.|> Predicate
 GuardianPhoneMatchesPredicate .up.|> Predicate
+TagMatchesPredicate .up.|> Predicate
 NoteContainsTextPredicate .up.|> Predicate
 @enduml

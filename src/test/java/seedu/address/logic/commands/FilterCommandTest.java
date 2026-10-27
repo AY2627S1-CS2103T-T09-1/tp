@@ -36,6 +36,8 @@ import seedu.address.model.person.predicate.PhoneMatchesPredicate;
 import seedu.address.model.person.predicate.SchoolContainsTextPredicate;
 import seedu.address.model.person.predicate.StudentMatchesAllPredicate;
 import seedu.address.model.person.predicate.SubjectMatchesPredicate;
+import seedu.address.model.person.predicate.TagMatchesPredicate;
+import seedu.address.model.tag.Tag;
 import seedu.address.testutil.AddressBookBuilder;
 import seedu.address.testutil.PersonBuilder;
 
@@ -196,6 +198,23 @@ public class FilterCommandTest {
     @Test
     public void execute_guardianPhone_onlyExactGuardianPhoneFound() {
         assertContactFilterFinds(new GuardianPhoneMatchesPredicate(new Phone("92345678")), List.of(CHLOE));
+    }
+
+    @Test
+    public void execute_tag_onlyWholeTagFound() {
+        Person paid = new PersonBuilder().withName("Chloe Tan").withTags("paid", "exams").build();
+        Person unpaid = new PersonBuilder().withName("Marcus Lim").withTags("unpaid").build();
+        Person untagged = new PersonBuilder().withName("Daniel Lee").build();
+        AddressBook addressBook = new AddressBookBuilder().withPerson(paid).withPerson(unpaid)
+                .withPerson(untagged).build();
+        Model tagModel = new ModelManager(addressBook, new UserPrefs());
+        Model expectedTagModel = new ModelManager(addressBook, new UserPrefs());
+        String expectedMessage = String.format(MESSAGE_PERSONS_LISTED_OVERVIEW, 1);
+        StudentMatchesAllPredicate predicate = filterOf(new TagMatchesPredicate(new Tag("PAID")));
+        expectedTagModel.updateFilteredPersonList(predicate);
+        assertCommandSuccess(new FilterCommand(predicate), tagModel,
+                CommandResult.showList(expectedMessage), expectedTagModel);
+        assertEquals(List.of(paid), tagModel.getFilteredPersonList());
     }
 
     @Test
