@@ -51,7 +51,7 @@ public class EmailTest {
         assertFalse(Email.isValidEmail("peterjack@-example.com")); // domain name starts with a hyphen
         assertFalse(Email.isValidEmail("peterjack@example.com-")); // domain name ends with a hyphen
         assertFalse(Email.isValidEmail("peterjack@example.c")); // top level domain has less than two chars
-        assertFalse(Email.isValidEmail("a".repeat(Email.MAX_LENGTH - 6) + "@ex.com")); // 101 characters
+        assertFalse(Email.isValidEmail("a".repeat(Email.MAX_LENGTH - 6) + "@ex.com")); // 255 characters
 
         // valid email
         assertTrue(Email.isValidEmail("PeterJack_1190@example.com")); // underscore in local part
@@ -66,7 +66,7 @@ public class EmailTest {
         assertTrue(Email.isValidEmail("if.you.dream.it_you.can.do.it@example.com")); // long local part
         assertTrue(Email.isValidEmail("e1234567@u.nus.edu")); // more than one period in domain
         assertTrue(Email.isValidEmail("Chloe.Tan+math@example.com.sg")); // mixed case, '+' tag, SG domain
-        assertTrue(Email.isValidEmail("a".repeat(Email.MAX_LENGTH - 7) + "@ex.com")); // exactly 100 characters
+        assertTrue(Email.isValidEmail("a".repeat(Email.MAX_LENGTH - 7) + "@ex.com")); // exactly 254 characters
     }
 
     @Test

@@ -9,7 +9,7 @@ import static seedu.address.commons.util.AppUtil.checkArgument;
  */
 public class Email {
 
-    public static final int MAX_LENGTH = 100;
+    public static final int MAX_LENGTH = 254;
     private static final String SPECIAL_CHARACTERS = "+_.-";
     public static final String MESSAGE_CONSTRAINTS = "Emails must be at most " + MAX_LENGTH + " characters, "
             + "be of the format local-part@domain "

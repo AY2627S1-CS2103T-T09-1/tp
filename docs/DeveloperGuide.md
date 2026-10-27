@@ -194,7 +194,15 @@ Every student record must include a name, school, and level. Many tutors teach s
 
 ### Student emails
 
-`Email` is an optional value object that follows the same pattern as `Address`. It keeps AB3's `local-part@domain` rules and adds a 100-character limit. The add parser accepts optional `e/EMAIL`; the edit parser replaces an email, and a blank `e/` removes it. `JsonAdaptedPerson` leaves `email` out of the file when a student has none, and Jackson sets the field directly, so files without an email still load. Emails do not contribute to duplicate detection.
+`Email` is an optional value object that follows the same pattern as `Address`. `Email#isValidEmail` accepts a value of the form `local-part@domain` that is at most 254 characters, the longest address that SMTP allows (RFC 5321):
+
+* The local part is groups of ASCII letters and digits joined by single `+`, `_`, `.`, or `-` characters, so it cannot start or end with a symbol or contain two symbols in a row.
+* The domain is labels joined by single periods. Each label is groups of letters and digits joined by single hyphens, and the last label has at least 2 characters.
+* `ParserUtil#parseEmail` trims the value before validating it, so only a space inside the email is rejected.
+
+`Email.MESSAGE_CONSTRAINTS` lists every rule in one message. Separate messages for each failure, such as a missing `@`, are left for a later version.
+
+The add parser accepts optional `e/EMAIL`; the edit parser replaces an email, and a blank `e/` removes it. `JsonAdaptedPerson` leaves `email` out of the file when a student has none, and Jackson sets the field directly, so files without an email still load. Emails do not contribute to duplicate detection.
 
 ### Student tags
 
