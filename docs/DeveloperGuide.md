@@ -208,14 +208,14 @@ The add parser accepts optional `e/EMAIL`; the edit parser replaces an email, an
 
 A student has a set of `Tag`s, which may be empty but is never null. `Person#getTags()` returns an unmodifiable view that keeps the order the tags were typed in.
 
-* A tag is one word of letters and digits. `Tag` compares tags ignoring case, so `Exams` equals `exams`, and the display keeps the user's capitalization.
+* A tag is one word of ASCII letters and digits, where single hyphens may join parts of the word, such as `O-level`. `Tag` compares tags ignoring case, so `Exams` equals `exams`, and the display keeps the user's capitalization.
 * `ParserUtil#parseTag` trims the value, then rejects a value containing a space with its own message, `Messages.MESSAGE_TAG_HAS_SPACE`, which tells the user to put `t/` before each tag. Other invalid values get `Tag.MESSAGE_CONSTRAINTS`. The space message lives in `Messages` because it names the `t/` prefix, which the model should not know about.
-* `ParserUtil#parseTags` rejects a tag given twice with `Tag X is given more than once.`, instead of letting the set drop it silently. It takes plain strings, so the prefix handling stays in the parsers.
+* `ParserUtil#parseTags` rejects a tag given twice with `Tag "X" is given more than once.`, instead of letting the set drop it silently. It takes plain strings, so the prefix handling stays in the parsers.
 * In `add`, `t/` may repeat. In `edit`, the given tags replace all existing tags, and a single blank `t/` clears them. `EditCommandParser#parseTagsForEdit` handles both cases.
 * `JsonAdaptedPerson` stores tags as a list of `JsonAdaptedTag` strings. Jackson sets the list directly, so files saved before tags existed load with no tags. A file with an invalid or repeated tag is rejected.
 * Tags do not contribute to duplicate detection.
 
-Tags are one word of letters and digits, so that they are quick to type and to filter by. Allowing spaces or hyphens was considered, but it would allow several spellings of the same tag, such as `exam prep`, `exam-prep`, and `examprep`, which a filter would treat as different tags. One word also catches a common mistake: `t/paid urgent`, where the user forgot the second `t/`, is rejected with a message that explains how to give two tags, instead of being saved as one tag.
+Tags are one word, so that they are quick to type and to filter by. Hyphens are allowed because realistic tags such as `O-level` and `N-level` contain them. This means `exam-prep` and `examprep` are different tags, which the User Guide states. Spaces are not allowed, because they would add a third spelling, `exam prep`, and because rejecting a space catches a common mistake: `t/paid urgent`, where the user forgot the second `t/`, is rejected with a message that explains how to give two tags, instead of being saved as one tag.
 
 ### Command confirmations
 
@@ -1128,7 +1128,7 @@ Use case ends.
 * **Note**: A short piece of text that the tutor attaches to a student, such as "Weak in Geometry" or "WA2 Math: 36/50".
 * **Student**: A secondary school student whom the tutor teaches.
 * **Subject**: A school subject that the tutor teaches the student, such as "Mathematics" or "Chemistry".
-* **Tag**: A short label that the tutor attaches to a student to group or flag them at a glance, such as "paid" or "exams". A tag is one word. A student can have any number of tags.
+* **Tag**: A short label that the tutor attaches to a student to group or flag them at a glance, such as "paid" or "O-level". A tag is one word, which may contain hyphens. A student can have any number of tags.
 
 #### Commands
 
@@ -1245,10 +1245,13 @@ testers are expected to do more *exploratory* testing.
       Expected: Mei Lin is added. Her list card shows the tags `exams` and `Paid`, in that order.
 
    1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/Paid t/paid`<br>
-      Expected: No student is added. The status message shows `Tag paid is given more than once.`
+      Expected: No student is added. The status message shows `Tag "paid" is given more than once.`
 
-   1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/exam-prep`<br>
-      Expected: No student is added. The status message shows `Tags must be one word of 1-30 letters or digits, with no spaces or symbols.`
+   1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/exam_prep`<br>
+      Expected: No student is added. The status message shows `Tags must be one word of 1-30 English letters or digits. Single hyphens may join parts of the word, such as O-level, but spaces and other symbols are not allowed. For longer details, use a note instead.`
+
+   1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/O-level`<br>
+      Expected: Ken Ong is added with the tag `O-level`.
 
    1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/exam prep`<br>
       Expected: No student is added. The status message shows `Tag "exam prep" contains a space. Each tag is one word; to give more than one tag, put t/ before each, such as t/paid t/exams.`
