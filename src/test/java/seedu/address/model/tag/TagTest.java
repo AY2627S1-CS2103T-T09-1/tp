@@ -34,7 +34,10 @@ public class TagTest {
         assertFalse(Tag.isValidTagName("")); // empty string
         assertFalse(Tag.isValidTagName(" ")); // spaces only
         assertFalse(Tag.isValidTagName(" paid")); // leading space
-        assertFalse(Tag.isValidTagName("exam-prep")); // hyphen
+        assertFalse(Tag.isValidTagName("-paid")); // starts with a hyphen
+        assertFalse(Tag.isValidTagName("paid-")); // ends with a hyphen
+        assertFalse(Tag.isValidTagName("exam--prep")); // two hyphens in a row
+        assertFalse(Tag.isValidTagName("exam_prep")); // underscore
         assertFalse(Tag.isValidTagName("#paid")); // other symbol
         assertFalse(Tag.isValidTagName("exam prep")); // more than one word
         assertFalse(Tag.isValidTagName("paid ")); // trailing space
@@ -44,6 +47,8 @@ public class TagTest {
         assertTrue(Tag.isValidTagName("paid")); // letters only
         assertTrue(Tag.isValidTagName("2026")); // digits only
         assertTrue(Tag.isValidTagName("Sec4Exams")); // letters and digits
+        assertTrue(Tag.isValidTagName("O-level")); // hyphen between letters
+        assertTrue(Tag.isValidTagName("sec-4-exams")); // several single hyphens
         assertTrue(Tag.isValidTagName("a".repeat(Tag.MAX_LENGTH))); // exactly the maximum length
     }
 

@@ -69,7 +69,7 @@ public class CommandTestUtil {
     public static final String INVALID_PHONE_DESC = " " + PREFIX_PHONE + "911a"; // 'a' not allowed in phones
     public static final String INVALID_SCHOOL_DESC = " " + PREFIX_SCHOOL; // empty string not allowed for schools
     public static final String INVALID_EMAIL_DESC = " " + PREFIX_EMAIL + "bob!yahoo"; // missing '@' symbol
-    public static final String INVALID_TAG_DESC = " " + PREFIX_TAG + "exam-prep"; // '-' not allowed in tags
+    public static final String INVALID_TAG_DESC = " " + PREFIX_TAG + "exam_prep"; // '_' not allowed in tags
     public static final String INVALID_LEVEL_DESC = " " + PREFIX_LEVEL + "S6"; // only S1 to S5 allowed
     public static final String INVALID_GUARDIAN_NAME_DESC = " " + PREFIX_GUARDIAN_NAME + "Mary&"; // '&' not allowed
     public static final String INVALID_GUARDIAN_PHONE_DESC = " " + PREFIX_GUARDIAN_PHONE + "911a"; // digits only

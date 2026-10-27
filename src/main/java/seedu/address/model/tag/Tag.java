@@ -6,16 +6,19 @@ import static seedu.address.commons.util.AppUtil.checkArgument;
 import java.util.Locale;
 
 /**
- * Represents a Tag in the tutor book. A tag is one word, and tags are compared ignoring case.
+ * Represents a Tag in the tutor book. A tag is one word, which may contain hyphens, and tags are compared
+ * ignoring case.
  * Guarantees: immutable; name is valid as declared in {@link #isValidTagName(String)}
  */
 public class Tag {
 
     public static final int MAX_LENGTH = 30;
     public static final String MESSAGE_CONSTRAINTS = "Tags must be one word of 1-" + MAX_LENGTH
-            + " letters or digits, with no spaces or symbols.";
-    public static final String MESSAGE_DUPLICATE_TAG = "Tag %s is given more than once.";
-    public static final String VALIDATION_REGEX = "\\p{Alnum}+";
+            + " English letters or digits. Single hyphens may join parts of the word, such as O-level, but "
+            + "spaces and other symbols are not allowed. For longer details, use a note instead.";
+    public static final String MESSAGE_DUPLICATE_TAG = "Tag \"%s\" is given more than once.";
+    // letters and digits, with single hyphens between them
+    public static final String VALIDATION_REGEX = "\\p{Alnum}+(-\\p{Alnum}+)*";
 
     public final String tagName;
     private final String comparisonValue;

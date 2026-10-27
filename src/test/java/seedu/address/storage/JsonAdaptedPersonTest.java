@@ -117,7 +117,7 @@ public class JsonAdaptedPersonTest {
         String json = JsonUtil.toJsonString(new JsonAdaptedPerson(personWithTags));
 
         JsonAdaptedPerson invalidTag = JsonUtil.fromJsonString(
-                json.replace("\"exams\"", "\"exam-prep\""), JsonAdaptedPerson.class);
+                json.replace("\"exams\"", "\"exam_prep\""), JsonAdaptedPerson.class);
         assertThrows(IllegalValueException.class, Tag.MESSAGE_CONSTRAINTS, invalidTag::toModelType);
 
         JsonAdaptedPerson repeatedTag = JsonUtil.fromJsonString(

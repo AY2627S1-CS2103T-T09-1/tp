@@ -17,7 +17,7 @@ public class JsonAdaptedTagTest {
 
     @Test
     public void toModelType_invalidTagName_throwsIllegalValueException() {
-        JsonAdaptedTag tag = new JsonAdaptedTag("exam-prep");
+        JsonAdaptedTag tag = new JsonAdaptedTag("exam_prep");
         assertThrows(IllegalValueException.class, Tag.MESSAGE_CONSTRAINTS, tag::toModelType);
         JsonAdaptedTag twoWords = new JsonAdaptedTag("exam prep");
         assertThrows(IllegalValueException.class, Tag.MESSAGE_CONSTRAINTS, twoWords::toModelType);
