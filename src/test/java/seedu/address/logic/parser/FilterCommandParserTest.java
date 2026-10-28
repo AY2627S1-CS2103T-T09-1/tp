@@ -339,7 +339,11 @@ public class FilterCommandParserTest {
 
     @Test
     public void parse_tagWithSpace_throwsParseException() {
-        assertParseFailure(parser, " t/paid exams", FilterCommandParser.MESSAGE_ONE_TAG);
+        assertParseFailure(parser, " t/paid exams",
+                String.format(FilterCommandParser.MESSAGE_FILTER_TAG_HAS_SPACE, "paid exams"));
+        // lv/ is not a prefix, so it stays part of the tag
+        assertParseFailure(parser, " t/paid lv/S3",
+                String.format(FilterCommandParser.MESSAGE_FILTER_TAG_HAS_SPACE, "paid lv/S3"));
     }
 
     @Test
@@ -358,6 +362,17 @@ public class FilterCommandParserTest {
     public void parse_blankTag_throwsParseException() {
         assertParseFailure(parser, " t/", Tag.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, " n/avi t/   ", Tag.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_tagAtMaxLength_returnsFilterCommand() {
+        String longestTag = "a".repeat(Tag.MAX_LENGTH);
+        assertParseSuccess(parser, " t/" + longestTag, filterCommandOf(tag(longestTag)));
+    }
+
+    @Test
+    public void parse_tagOverMaxLength_throwsParseException() {
+        assertParseFailure(parser, " t/" + "a".repeat(Tag.MAX_LENGTH + 1), Tag.MESSAGE_CONSTRAINTS);
     }
 
     @Test

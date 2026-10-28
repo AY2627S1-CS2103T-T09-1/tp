@@ -51,8 +51,10 @@ public class FilterCommandParser implements Parser<FilterCommand> {
             + PREFIX_SUBJECT + ", such as: filter " + PREFIX_SUBJECT + "Mathematics " + PREFIX_BAND + "G2";
     public static final String MESSAGE_USE_NOTE_FILTER = "To filter by notes, use " + PREFIX_NOTE
             + ", such as: filter " + PREFIX_NOTE + "algebra";
-    public static final String MESSAGE_ONE_TAG = PREFIX_TAG + " takes one tag of one word, such as: filter "
-            + PREFIX_TAG + "paid";
+    public static final String MESSAGE_ONE_TAG = "filter takes one tag, so give " + PREFIX_TAG
+            + " only once, such as: filter " + PREFIX_TAG + "paid";
+    public static final String MESSAGE_FILTER_TAG_HAS_SPACE = "Tag \"%1$s\" contains a space. filter takes one "
+            + "tag of one word, such as: filter " + PREFIX_TAG + "paid";
     public static final String MESSAGE_BLANK_NOTE = "The note text to search for cannot be blank.";
     public static final String MESSAGE_NOTE_TOO_LONG = "The note text to search for must be at most "
             + Note.MAX_LENGTH + " characters.";
@@ -196,7 +198,7 @@ public class FilterCommandParser implements Parser<FilterCommand> {
         String trimmedTag = value.strip();
         // add's message for a space suggests a second t/, but filter takes only one tag
         if (trimmedTag.chars().anyMatch(Character::isWhitespace)) {
-            throw new ParseException(MESSAGE_ONE_TAG);
+            throw new ParseException(String.format(MESSAGE_FILTER_TAG_HAS_SPACE, trimmedTag));
         }
         return new TagMatchesPredicate(ParserUtil.parseTag(trimmedTag));
     }

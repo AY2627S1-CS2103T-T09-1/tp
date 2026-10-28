@@ -393,7 +393,8 @@ A filter appears more than once | `Multiple values specified for the following s
 `BAND` is not one of `G1` to `G3`, or is empty | `Band must be one of G1, G2, G3.`
 `band/` is not right after `sub/`, or there is no `sub/` | `band/ must come right after sub/, such as: filter sub/Mathematics band/G2`
 `PHONE` or `GUARDIAN_PHONE` is empty or not a valid phone number | The same message as `add`, such as `Phone cannot be empty.`
-`TAG` contains a space, or `t/` appears more than once | `t/ takes one tag of one word, such as: filter t/paid`
+`TAG` contains a space | `Tag "paid exams" contains a space. filter takes one tag of one word, such as: filter t/paid`, with the tag you typed in place of `paid exams`
+`t/` appears more than once | `filter takes one tag, so give t/ only once, such as: filter t/paid`
 `TAG` is blank, too long, or contains a symbol other than a single hyphen between letters or digits | The same message as `add`, starting `Tags must be one word of 1-30 English letters or digits.`
 `GUARDIAN_NAME` is empty | `The guardian name to search for cannot be blank.`
 `TEXT` after `note/` is empty | `The note text to search for cannot be blank.`
