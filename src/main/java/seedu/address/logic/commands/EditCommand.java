@@ -75,6 +75,7 @@ public class EditCommand extends Command implements ConfirmationCommand {
     public static final String MESSAGE_NO_LONGER_MATCHES = "%1$s no longer matches your last search, "
             + "but stays in the list until you enter list or filter.";
     public static final String MESSAGE_NOT_EDITED = "At least one field to edit must be provided.";
+    public static final String MESSAGE_NO_CHANGES = "No changes made: %1$s already has these details.";
     public static final String MESSAGE_DUPLICATE_PERSON =
             "Another student named %1$s at %2$s, level %3$s already exists. If these are different students, "
                     + "edit the name to include an identifier, for example Chloe Tan 2.";
@@ -144,6 +145,10 @@ public class EditCommand extends Command implements ConfirmationCommand {
         requireNonNull(model);
         Person personToEdit = getTargetPerson(model);
         Person editedPerson = createEditedPerson(personToEdit, editPersonDescriptor);
+        if (editedPerson.equals(personToEdit)) {
+            return CommandResult.showStudentWarning(String.format(MESSAGE_NO_CHANGES, personToEdit.getName()),
+                    personToEdit, index);
+        }
         ensureNoExactDuplicate(editedPerson, getOtherPersons(model, personToEdit));
 
         // keep the edited person at the same index, so the list and view panel don't shift

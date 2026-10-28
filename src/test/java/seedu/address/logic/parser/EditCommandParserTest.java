@@ -307,6 +307,20 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_repeatedSpacesInTextFields_collapsesSpaces() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withName("John Doe")
+                .withSchool("Victoria School")
+                .withSubjects(new Subject("Additional Mathematics", Band.G2))
+                .withGuardianName("Mary Jane")
+                .build();
+        String userInput = "1 n/  John   Doe  sch/  Victoria   School  sub/  Additional   Mathematics  band/G2 "
+                + "gn/  Mary   Jane  ";
+
+        assertParseSuccess(parser, userInput, new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
     public void parse_emptyGuardian_removesGuardian() {
         Index targetIndex = INDEX_FIRST_PERSON;
         EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withGuardianRemoved().build();
