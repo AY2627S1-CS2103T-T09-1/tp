@@ -166,6 +166,17 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_prefixWithoutSpace_failure() {
+        String hint = Messages.MESSAGE_PREFIX_WITHOUT_SPACE_HINT;
+        assertParseFailure(parser, "1 n/John Doep/98765432",
+                Name.MESSAGE_CONSTRAINTS + "\n" + String.format(hint, "p/", "Doep/98765432"));
+        assertParseFailure(parser, "1 gn/Mary Tangp/91234567",
+                Guardian.MESSAGE_NAME_CONSTRAINTS + "\n" + String.format(hint, "gp/", "Tangp/91234567"));
+        assertParseFailure(parser, "1 sub/Englishband/G1",
+                Subject.MESSAGE_CONSTRAINTS + "\n" + String.format(hint, "band/", "Englishband/G1"));
+    }
+
+    @Test
     public void parse_invalidValue_failure() {
         assertParseFailure(parser, "1 sub/English", Messages.MESSAGE_SUBJECT_BAND_PAIR);
         assertParseFailure(parser, "1 sub/English band/G4", Band.MESSAGE_CONSTRAINTS);

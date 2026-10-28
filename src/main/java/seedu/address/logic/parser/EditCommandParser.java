@@ -95,6 +95,7 @@ public class EditCommandParser implements Parser<EditCommand> {
         if (argMultimap.getValue(PREFIX_SUBJECT).isPresent() || argMultimap.getValue(PREFIX_BAND).isPresent()) {
             // checked first so that band/ alone reports the missing sub/
             argMultimap.verifyAllPrefixesPresent(PREFIX_SUBJECT);
+            ParserUtil.verifySubjectNamesHaveNoPrefixWithoutSpace(argMultimap.getAllValues(PREFIX_SUBJECT));
             argMultimap.verifyEachFollowedBy(PREFIX_SUBJECT, PREFIX_BAND, MESSAGE_SUBJECT_BAND_PAIR);
             editPersonDescriptor.setSubjects(ParserUtil.parseSubjects(
                     argMultimap.getAllValues(PREFIX_SUBJECT), argMultimap.getAllValues(PREFIX_BAND)));

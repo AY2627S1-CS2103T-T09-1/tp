@@ -199,6 +199,24 @@ public class AddCommandParserTest {
     }
 
     @Test
+    public void parse_prefixWithoutSpace_failure() {
+        String hint = Messages.MESSAGE_PREFIX_WITHOUT_SPACE_HINT;
+        String details = SCHOOL_DESC_BOB + LEVEL_DESC_BOB;
+
+        // no space before p/, so it is read as part of the name
+        assertParseFailure(parser, " n/John Doep/98765432" + details + SUBJECT_DESC,
+                Name.MESSAGE_CONSTRAINTS + "\n" + String.format(hint, "p/", "Doep/98765432"));
+
+        // no space before gp/, so the guardian phone seems missing
+        assertParseFailure(parser, NAME_DESC_BOB + details + SUBJECT_DESC + " gn/Mary Tangp/91234567",
+                Guardian.MESSAGE_NAME_CONSTRAINTS + "\n" + String.format(hint, "gp/", "Tangp/91234567"));
+
+        // no space before band/, so the band seems missing
+        assertParseFailure(parser, NAME_DESC_BOB + details + " sub/Englishband/G1",
+                Subject.MESSAGE_CONSTRAINTS + "\n" + String.format(hint, "band/", "Englishband/G1"));
+    }
+
+    @Test
     public void parse_formattedPhone_savesCleanedPhone() {
         Person expectedPerson = new PersonBuilder(BOB).withPhone("91234567").build();
         assertParseSuccess(parser, NAME_DESC_BOB + " " + PREFIX_PHONE + "+65 9123 4567" + LEVEL_DESC_BOB
@@ -394,7 +412,7 @@ public class AddCommandParserTest {
         String details = NAME_DESC_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB;
         for (String pairs : List.of(" sub/English", " band/G1 sub/English band/G2",
                 " sub/English sub/Science band/G1", " sub/English band/G1 band/G2",
-                " sub/English p/91234567 band/G1", " sub/Englishband/G1")) {
+                " sub/English p/91234567 band/G1")) {
             assertParseFailure(parser, details + pairs, Messages.MESSAGE_SUBJECT_BAND_PAIR);
         }
         for (String name : List.of("", "---", "Maths2", "A".repeat(41))) {

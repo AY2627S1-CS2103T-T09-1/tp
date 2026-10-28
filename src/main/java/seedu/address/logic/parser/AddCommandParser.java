@@ -16,6 +16,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import seedu.address.logic.commands.AddCommand;
@@ -70,10 +71,16 @@ public class AddCommandParser implements Parser<AddCommand> {
                 ? ParserUtil.parseEmail(argMultimap.getValue(PREFIX_EMAIL).get()) : null;
         Level level = ParserUtil.parseLevel(argMultimap.getValue(PREFIX_LEVEL).get());
 
+        ParserUtil.verifySubjectNamesHaveNoPrefixWithoutSpace(argMultimap.getAllValues(PREFIX_SUBJECT));
         argMultimap.verifyEachFollowedBy(PREFIX_SUBJECT, PREFIX_BAND, MESSAGE_SUBJECT_BAND_PAIR);
         List<Subject> subjects = ParserUtil.parseSubjects(
                 argMultimap.getAllValues(PREFIX_SUBJECT), argMultimap.getAllValues(PREFIX_BAND));
         // Guardian is optional; gn/ and gp/ must be given together
+        Optional<String> guardianName = argMultimap.getValue(PREFIX_GUARDIAN_NAME);
+        if (guardianName.isPresent()) {
+            // a gp/ with no space before it is read as part of the name, so report that instead of the pairing
+            ParserUtil.verifyNoPrefixWithoutSpace(guardianName.get(), Guardian.MESSAGE_NAME_CONSTRAINTS, true);
+        }
         argMultimap.verifyGivenTogether(PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE, MESSAGE_GUARDIAN_PAIR);
         Guardian guardian = argMultimap.getValue(PREFIX_GUARDIAN_NAME).isPresent()
                 ? ParserUtil.parseGuardian(argMultimap.getValue(PREFIX_GUARDIAN_NAME).get(),
