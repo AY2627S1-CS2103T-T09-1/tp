@@ -47,8 +47,8 @@ deactivate ViewCommand
 
 ViewCommandParser --> AddressBookParser : v
 deactivate ViewCommandParser
-'Hidden arrow positions the destroy marker below the final activation bar.
-ViewCommandParser -[hidden]-> AddressBookParser
+'Position the destruction occurrence below the activation and terminate the parser lifeline there.
+AddressBookParser -[hidden]-> ViewCommandParser
 destroy ViewCommandParser
 
 AddressBookParser --> LogicManager : v
