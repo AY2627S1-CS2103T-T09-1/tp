@@ -59,7 +59,7 @@ TuteeBook3 is a **desktop app for private tutors who teach secondary school stud
 * Parameters can be in any order, except that each `sub/SUBJECT` must be immediately followed by its `band/BAND`.<br>
   For example, `sub/Mathematics band/G1 lvl/S3` is valid, but `sub/Mathematics lvl/S3 band/G1` is not.
 
-* Put a space before every parameter prefix, such as `n/John Doe p/98765432`. If a prefix has no space before it, TuteeBook3 reads it as part of the value before it. The error then quotes the word with the `/` and suggests putting a space before its prefix. If the joined prefix is a required one (`n/`, `sch/`, `lvl/`, or `sub/`), the error says that parameter is missing instead.<br>
+* Put a space before every parameter prefix, such as `n/John Doe p/98765432`. If a prefix has no space before it, TuteeBook3 reads it as part of the value before it. The error then quotes the word with the `/` and asks you to check that its prefix is one the command accepts and has a space before it. If the joined prefix is a required one (`n/`, `sch/`, `lvl/`, or `sub/`), the error says that parameter is missing instead.<br>
   For example, `n/John Doep/98765432` is read as the name `John Doep/98765432`. Addresses can contain `/`, so a missing space in an address is not detected. See [Known issues](#known-issues).
 
 * `[sub/SUBJECT band/BAND]...` means that additional subject-band pairs may be supplied.
@@ -418,7 +418,7 @@ A filter appears more than once | `Multiple values specified for the following s
 `band/` is not right after `sub/`, or there is no `sub/` | `band/ must come right after sub/, such as: filter sub/Mathematics band/G2`
 `PHONE` or `GUARDIAN_PHONE` is empty or not a valid phone number | The same message as `add`, such as `Phone cannot be empty.`
 `GUARDIAN_NAME` is empty | `The guardian name to search for cannot be blank.`
-`NAME`, `SCHOOL`, `EMAIL`, or `GUARDIAN_NAME` contains `/`, such as `n/Chloesch/Victoria` | `No student's name can contain "/", so "Chloesch/Victoria" matches no one.` followed by `"Chloesch/Victoria" contains "/". If it was meant to start a new parameter, put a space before its prefix.`
+`NAME`, `SCHOOL`, `EMAIL`, or `GUARDIAN_NAME` contains `/`, such as `n/Chloesch/Victoria` | `No student's name can contain "/", so "Chloesch/Victoria" matches no one.` followed by `"Chloesch/Victoria" contains "/". If it was meant to start a new parameter, check that the prefix is one this command accepts and has a space before it.`
 `TEXT` after `note/` is empty | `The note text to search for cannot be blank.`
 `TEXT` after `note/` is longer than 500 characters | `The note text to search for must be at most 500 characters.`
 `nid/` is given | `To filter by notes, use note/, such as: filter note/algebra`
