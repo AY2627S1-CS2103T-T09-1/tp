@@ -63,6 +63,42 @@ public class FilterCommandParserTest {
     }
 
     @Test
+    public void parse_prefixWithoutSpace_throwsParseException() {
+        String hint = Messages.MESSAGE_PREFIX_WITHOUT_SPACE_HINT;
+        String cannotMatch = FilterCommandParser.MESSAGE_SEARCH_CANNOT_MATCH;
+        assertParseFailure(parser, " n/Chloesch/Victoria",
+                String.format(cannotMatch, "name", "Chloesch/Victoria") + "\n"
+                + hint);
+        assertParseFailure(parser, " gn/Mary Tangp/91234567",
+                String.format(cannotMatch, "guardian name", "Mary Tangp/91234567") + "\n"
+                + hint);
+        assertParseFailure(parser, " n/Chloenote/algebra",
+                String.format(cannotMatch, "name", "Chloenote/algebra") + "\n"
+                + hint);
+        assertParseFailure(parser, " e/gmailn/Chloe",
+                String.format(cannotMatch, "email", "gmailn/Chloe") + "\n"
+                + hint);
+        assertParseFailure(parser, " sub/Mathsband/G1",
+                Subject.MESSAGE_CONSTRAINTS + "\n" + hint);
+        assertParseFailure(parser, " sub/Maths band/G1p/91234567",
+                Band.MESSAGE_CONSTRAINTS + "\n" + hint);
+
+        // note/ is not a prefix of add, so it must not be named as one in filter
+        assertParseFailure(parser, " lvl/S3note/algebra",
+                Level.MESSAGE_CONSTRAINTS + "\n" + hint);
+    }
+
+    @Test
+    public void parse_slashWithoutPrefix_throwsParseException() {
+        String hint = Messages.MESSAGE_PREFIX_WITHOUT_SPACE_HINT;
+        String cannotMatch = FilterCommandParser.MESSAGE_SEARCH_CANNOT_MATCH;
+        assertParseFailure(parser, " n/Rajesh s/o Kumar",
+                String.format(cannotMatch, "name", "Rajesh s/o Kumar") + "\n" + hint);
+        assertParseFailure(parser, " n/AC/DC",
+                String.format(cannotMatch, "name", "AC/DC") + "\n" + hint);
+    }
+
+    @Test
     public void parse_validSchool_returnsFilterCommand() {
         assertParseSuccess(parser, " sch/victoria", filterCommandOf(school("victoria")));
     }

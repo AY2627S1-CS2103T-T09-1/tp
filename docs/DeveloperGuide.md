@@ -516,6 +516,41 @@ The partial-match predicates (`n/`, `sch/`, `e/`, `a/`, `gn/`, `note/`) use `Str
   * Pros: One search command. A note search combines with other filters, such as `filter lvl/S3 note/algebra`.
   * Cons: The result shows students, not which of their notes matched. `note/` must be the last filter.
 
+### Hint for a missing space before a prefix
+
+`ArgumentTokenizer` treats a prefix as a prefix only when a space comes before it. In `add n/John Doep/98765432 ...`, `p/98765432` becomes part of the name, so without a hint the user would see a name error that doesn't mention the missing space.
+
+#### Implementation
+
+1. `ParserUtil#getSlashHint` returns a hint if a value contains `/`: `If "/" was meant to start a new parameter, check that each prefix is one this command accepts and has a space before it.` The hint does not name a prefix or quote the value.
+1. When a value in `add` or `edit` fails its usual check, `ParserUtil#withSlashHint` adds the hint on a new line after the usual error. This applies to the name, phone numbers, school, email, level, subject, band, guardian name, and tags. None of these values can contain `/`, so a `/` in them is either a missing space or a character the field doesn't allow, and the hint helps in both cases.
+1. Some joined prefixes cause a misleading error before the value is checked. In `gn/Mary Tangp/91234567`, the guardian phone seems missing; in `gp/91234567gn/Mary Tan`, the guardian name seems missing; and in `sub/Englishband/G1`, the band seems missing. So `AddCommandParser` checks the guardian name and phone for `/` before checking that `gn/` and `gp/` are given together, and `AddCommandParser` and `EditCommandParser` call `ParserUtil#verifySubjectNamesHaveNoSlash` before checking that each `sub/` has a `band/`.
+1. `FilterCommandParser` rejects `/` in `n/`, `sch/`, `e/`, and `gn/`, with the hint. These values cannot contain `/`, so a search such as `Tangp/91234567` or `Rajesh s/o Kumar` could never match a student. The `sub/` filter adds the hint to the subject error.
+
+Addresses can contain `/`, such as `Blk 1/2`, so they never get a hint. The User Guide lists this as a known issue. Notes can also contain `/`, but `note/` takes the rest of the command, so no prefix can follow it.
+
+#### Design considerations
+
+**Aspect: How to handle a prefix with no space before it**
+
+* **Alternative 1 (current choice):** Keep the value as typed, and add a hint to its error.
+  * Pros: The app never changes what the user typed without telling them. A hint appears only when the value is already invalid.
+  * Cons: The user has to retype the command.
+
+* **Alternative 2:** Split the value at the prefix automatically.
+  * Pros: The user does not need to retype.
+  * Cons: The parser has to guess where the value ends. A wrong guess saves the wrong data without an error.
+
+**Aspect: Whether the hint names the prefix**
+
+* **Alternative 1:** Find a known prefix in the word, and name the one that starts first.
+  * Pros: More specific when it is right. For `Doep/98765432`, it says to put a space before `p/`.
+  * Cons: The same word can come from different mistakes. In `n/Alex Ngp/91234567`, the user meant the name `Alex Ng` and `p/`, but `gp/` starts first. In `p/91234567gp/92345678`, the user meant `gp/`. No rule gets both right, and following a wrong hint leads to a second, unrelated error. It also misses a `/` that is not a prefix, such as `s/o`, and each command needs its own list of prefixes.
+
+* **Alternative 2 (current choice):** Show a fixed hint whenever the value contains `/`, without naming a prefix.
+  * Pros: Never wrong, since it only asks the user to check their prefixes. It also covers an unknown prefix and a `/` that is not a prefix, and needs no list of prefixes.
+  * Cons: Less specific. The user has to find the mistake in the command themselves.
+
 --------------------------------------------------------------------------------------------------------------------
 
 ## **Documentation, logging, testing, dev-ops**
