@@ -23,7 +23,7 @@ TuteeBook3 is a **desktop app for private tutors who teach secondary school stud
    A GUI similar to the one below should appear in a few seconds. Note how the app contains some sample data.<br>
    ![Ui](images/Ui.png)
 
-1. Familiarize yourself with TuteeBook3 by trying its commands using the sample data. Type a command in the command box and press Enter to execute it. For example, type **`help`** and press Enter to show the available commands in the feedback box.<br>
+1. Familiarize yourself with TuteeBook3 by trying its commands using the sample data. Type a command in the command box and press Enter to execute it. For example, type **`help`** and press Enter to show the available commands in the result display.<br>
    Some other commands you can try:
 
    * `list` : Lists all students.
@@ -58,7 +58,7 @@ edit 2 p/91234567 sub/Mathematics band/G2
 └ command word
 ```
 
-* **Command word**: what to do, such as `add`, `edit` or `filter`.
+* **Command word**: what to do, such as `add`, `edit`, or `filter`. Type it in lowercase. `ADD` or `Add` shows `Unknown command.`
 * **INDEX**: which student, using the number shown beside them in the student list. It changes when the list changes, such as after `filter`.
 * **Prefix**: a short label ending in `/`, such as `p/` for phone. It tells TuteeBook3 what the value after it is.
 * **Value**: what you type after a prefix, such as `91234567`.
@@ -70,7 +70,20 @@ You type | TuteeBook3 reads
 `add n/John Doe p/98765432 ...` | name `John Doe`, phone `98765432`
 `add n/John Doep/98765432 ...` | name `John Doep/98765432`, which is not a valid name, so `add` shows an error
 
-**Skipping confirmation with `-f`.** `delete`, `deletenote` and `clear` ask you to type `CONFIRM` first. To skip that step, put `-f` straight after the command word: `delete -f 2` deletes the 2nd student immediately.
+### Confirming a command
+
+Some commands ask you to confirm before they go ahead:
+
+* `delete`, `deletenote`, and `clear`, before they delete anything.
+* `add` and `edit`, when another student already has the same name. See [Duplicate students](#duplicate-students).
+
+The command shows an amber prompt that says what will happen. The next line tells you how to go ahead, such as `Type CONFIRM (uppercase) to delete this student and all their notes.`
+
+* To go ahead, type `CONFIRM` in uppercase and press Enter. Spaces before or after it are ignored.
+* Anything else, including `confirm`, cancels the request. TuteeBook3 then runs what you typed as a normal command, with the red notice `The 'delete' command has been cancelled.` (or the name of the command you cancelled) above its result.
+* Until you confirm, nothing changes. The student list and the student record on the right stay as they are.
+
+**Skipping confirmation with `-f`.** To skip the prompt for `delete`, `deletenote`, or `clear`, put `-f` straight after the command word. For example, `delete -f 2` deletes the 2nd student immediately. `add` and `edit` have no `-f`.
 
 ### Reading a command format
 
@@ -85,7 +98,7 @@ No brackets | Required | `sch/SCHOOL` must be given
 `[ ]` | Optional | `[p/PHONE]` can be left out
 `...` | Can be given more than once, or not at all if it's in `[ ]` | `[t/TAG]...` → `t/paid t/exams`
 
-* If you are using a PDF version of this document, be careful when copying and pasting commands that span multiple lines as space characters surrounding line-breaks may be omitted when copied over to the application.
+If you are using a PDF version of this guide, be careful when you copy a command that spans more than one line. The spaces around the line breaks may be lost when you paste it into TuteeBook3.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -157,7 +170,7 @@ If the subjects or bands are wrong, `add` and `edit` show one of these messages:
 | Empty band or a value other than G1, G2, or G3 | `Band must be one of G1, G2, G3.` |
 | Invalid subject name | `Subjects must be 1-40 characters using only letters, spaces and hyphens, with at least one letter.` |
 | More than eight subject-band pairs | `A student may have at most 8 subjects.` |
-| Repeated subject name | `Subject is repeated: {SUBJECT}.` |
+| Repeated subject name | `Subject is repeated: SUBJECT.` |
 
 For example, `edit 1 sub/Mathematics band/G1 sub/mathematics band/G2` fails with `Subject is repeated: mathematics.`
 
@@ -180,6 +193,7 @@ Parameter | Prefix | Used in | Rules | Example
 `TEXT` | `note/` | `addnote`, `editnote`, `filter` | 1 to 500 characters, counting spaces between words. Any characters are allowed, including digits, punctuation, and slashes. Spaces before and after the text are removed. | `WA2 Math: 36/50`
 
 * `INDEX` and `NID` can change. An index changes when the list changes, such as after `filter` or `delete`. After a note is deleted, the notes after it move up one number. Check the list or the student detail view before you use them.
+* After `view`, the student's `INDEX` is also shown at the top of the student detail view, so you can use it in `edit`, `delete`, `addnote`, `editnote`, and `deletenote` without looking for the student in the list.
 * Everything after `note/` is the note text, so `TEXT` can contain other prefixes, such as `t/f` or another `note/`. For example, `addnote 1 note/Revise t/f questions` adds the note `Revise t/f questions`.
 
 ### Managing students
@@ -243,7 +257,7 @@ After all the input is valid, `add` checks whether the new student might already
 
 Another student has… | What happens
 ---------------------|-------------
-The same name, but a different school or level | An amber prompt, such as `Student not added yet: NAME is also recorded at SCHOOL (LEVEL).` Type `CONFIRM` (uppercase) to add the student anyway. Any other input cancels the request and runs as a command.
+The same name, but a different school or level | An amber prompt, such as `Student not added yet: NAME is also recorded at SCHOOL (LEVEL).` Type `CONFIRM` to add the student anyway. See [Confirming a command](#confirming-a-command).
 The same name, school, and level | A red error: `A student named NAME at SCHOOL, level LEVEL already exists. If this is a different student, enter a distinguishing name, for example Chloe Tan 2.` The student is not added.
 
 * Names and schools are compared ignoring capitalization and extra spaces. Levels are compared directly.
@@ -252,25 +266,52 @@ The same name, school, and level | A red error: `A student named NAME at SCHOOL,
 
 #### Editing a student: `edit`
 
-Edits an existing student in TuteeBook3.
+Changes the details of an existing student.
 
 Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [a/ADDRESS] [e/EMAIL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE] [t/TAG]...`
 
-* Edits the student at the specified `INDEX`. The index refers to the index number shown in the displayed student list. The index **must be a positive integer** 1, 2, 3, …​
-* At least one of the optional fields must be provided.
-* Existing values will be updated to the input values.
-* `a/ADDRESS` replaces the student's address. It follows the rules in [Parameter details](#parameter-details); use `a/` with no value to remove it. Omitting `a/` keeps the current address.
-* `e/EMAIL` replaces the student's email. It follows the rules in [Parameter details](#parameter-details); use `e/` with no value to remove it. Omitting `e/` keeps the current email.
-* Tags given with `t/` replace all of the student's existing tags, following the rules in [Parameter details](#parameter-details). Include every tag you want to keep. Use a single `t/` with no value to remove all tags. Omitting `t/` keeps the current tags.
-* Supplying subject-band pairs replaces the entire subject list; omitting them preserves existing subjects. The replacement list must contain at least 1 subject and a maximum of 8 distinct subjects, following the same pairing and validation rules as `add`. Notes are preserved when editing a student.
-* `PHONE` and `GUARDIAN_PHONE` follow the rules in [Parameter details](#parameter-details), so `p/9123 4567` is saved as `91234567`. The warning about a number not looking like a Singapore number only appears when you type `p/` or `gp/` in that command.
-* You can remove a student's phone number by typing `p/` without specifying any number after it.
-* The displayed list stays in place, and the edited student's record opens on the right. Fields shown on the list card are updated immediately. If the edited student no longer matches your last `filter`, they stay in the list until you enter `list` or `filter` again. The result box tells you when an edit makes a student stop matching.
+* `INDEX` follows the rules in [Indexes and notes](#indexes-and-notes). Every other parameter follows the rules in [Parameter details](#parameter-details).
+* Give at least one parameter. Each one you give replaces the student's current value. Anything you leave out stays as it is, and the student's notes are kept.
+* Tags and subjects are replaced as a whole. `t/paid` replaces all of the student's tags with `paid`, and `sub/English band/G2` replaces all of their subjects with English at G2. Include every tag and subject you want to keep. See [Subjects and bands](#subjects-and-bands).
+* The warning that a phone number doesn't look like a Singapore number only appears when you type `p/` or `gp/` in that command.
+* The displayed list stays in place, and the edited student's record opens on the right. Fields shown on the list card are updated immediately. If the edited student no longer matches your last `filter`, they stay in the list until you enter `list` or `filter` again. The result display tells you when an edit makes a student stop matching.
+
+To remove a detail, type its prefix with no value, or for a subject, give the subjects to keep:
+
+To remove… | Type
+-----------|-----
+The phone number | `p/`
+The address | `a/`
+The email | `e/`
+All tags | `t/`
+One subject, such as Science from a student taking Mathematics, English, and Science | `sub/` for each subject to keep, with its band, such as `sub/Mathematics band/G2 sub/English band/G3`. Use `view INDEX` to check the bands first.
+The guardian | `gn/ gp/`, with both empty. Leaving only one empty, such as `gn/` alone or `gn/ gp/91234567`, is rejected so that the guardian isn't removed by mistake.
+
+The name, school, and level can't be removed, and a student must keep at least one subject.
+
+To change the guardian:
+
 * If the student already has a guardian, `gn/` or `gp/` on its own changes just that part of the guardian.
-* If the student has no guardian yet, give both `gn/` and `gp/` to add one. Giving only one of them shows `This student has no guardian yet. Give both gn/ and gp/ to add one.`
-* You can remove the guardian by typing `gn/ gp/` with no values after either. Leaving only one of them empty, such as `gn/` alone or `gn/ gp/91234567`, is rejected so that the guardian is not removed by mistake. If the student has no guardian, `gn/ gp/` shows `This student has no guardian to remove.`
-* If a change to the student's name, school, or level results in a name match with another student, `edit` shows an amber prompt such as `Edit not saved yet: NAME is also recorded at SCHOOL (LEVEL).` The next line says `Type CONFIRM (uppercase) to save this edit anyway.` A final line says that any other input cancels the request and runs as a command. The student being edited is excluded from this check, and changes to other fields do not trigger a name prompt.
-* If another student has the same normalized name, school, and level as the proposed record, `edit` rejects the change and leaves the student unchanged. It shows the red error `Another student named NAME at SCHOOL, level LEVEL already exists. If these are different students, edit the name to include an identifier, for example Chloe Tan 2.` Two records with the same name, school, and level would be hard to tell apart in the app. Name and school comparisons ignore capitalization and repeated spaces; levels are compared directly. Subjects, bands, and phone numbers are not part of this duplicate check.
+* If the student has no guardian yet, give both `gn/` and `gp/` to add one.
+
+Examples:
+
+To… | Type
+----|-----
+Change the phone number and school of the 1st student | `edit 1 p/91234567 sch/Victoria School`
+Change the phone number, typed with `+65`, spaces, and a hyphen (saved as `81234567`) | `edit 1 p/+65 8123-4567`
+Change the name of the 2nd student | `edit 2 n/Betsy Crower`
+Change the level | `edit 1 lvl/S4`
+Replace the subjects with Mathematics at G2 and English at G3 | `edit 1 sub/Mathematics band/G2 sub/English band/G3`
+Replace the tags with `paid` and `exams` | `edit 1 t/paid t/exams`
+Add a guardian, or replace both of the guardian's details | `edit 1 gn/Mary Tan gp/91234567`
+Change only the guardian's phone number | `edit 1 gp/98765432`
+Change the guardian's phone number to an overseas number (saved as `+60123456789`, with a warning that it doesn't look like a Singapore number) | `edit 1 gp/+60 12-345 6789`
+Remove the phone number of the 3rd student | `edit 3 p/`
+Remove all tags | `edit 1 t/`
+Remove the guardian | `edit 1 gn/ gp/`
+
+##### Errors in `edit`
 
 If the command is wrong, `edit` shows one of these messages and does not change the student.
 
@@ -279,29 +320,22 @@ Problem | Message
 `INDEX` is missing or is not a positive integer, or there is text between `INDEX` and the first parameter, such as `edit 0 p/91234567` | `Invalid command format!` followed by how to use `edit`
 No field to edit is given, such as `edit 1` | `At least one field to edit must be provided.`
 `n/`, `p/`, `sch/`, `a/`, `e/`, `lvl/`, `gn/`, or `gp/` appears more than once, such as `edit 1 n/Amy n/Ben` | `Multiple values specified for the following single-valued field(s): n/`
-A value is invalid | The same message as in [`add`](#adding-a-student-add)
-A subject or band is wrong | See [Subject and band errors](#subjects-and-bands)
+A value is invalid | The same message as in [Errors in `add`](#errors-in-add)
+A subject or band is wrong | See [Subjects and bands](#subjects-and-bands)
 Only one of `gn/` and `gp/` is empty, such as `edit 1 gn/` | `Guardian name (gn/) and guardian phone (gp/) cannot be empty. To remove the guardian, use gn/ gp/ with no values.`
 The student has no guardian, and only one of `gn/` and `gp/` is given | `This student has no guardian yet. Give both gn/ and gp/ to add one.`
 `gn/ gp/` is given for a student with no guardian | `This student has no guardian to remove.`
 `INDEX` is larger than the number of students shown | `The student index provided is invalid.`
-Another student has the same normalized name, school, and level | `Another student named NAME at SCHOOL, level LEVEL already exists. If these are different students, edit the name to include an identifier, for example Chloe Tan 2.`
 Every value given is the same as the student's current value, such as `edit 1 n/Chloe Tan` for a student already named Chloe Tan, or `edit 1 p/` for a student with no phone | `No changes made: NAME already has these details.` in amber. The student stays as they are, and their record opens on the right. Changing only uppercase and lowercase letters, such as `chloe tan` to `Chloe Tan`, counts as a change.
 
-Examples:
-*  `edit 1 p/91234567 sch/Victoria School` Edits the phone number and school of the 1st student to be `91234567` and `Victoria School` respectively.
-*  `edit 1 p/+65 8123-4567` Edits the phone number of the 1st student to be `81234567`. The `+65`, spaces, and hyphens are removed.
-*  `edit 1 gp/+60 12-345 6789` Edits the phone number of the 1st student's guardian to be `+60123456789`, with a warning that it doesn't look like a Singapore number.
-*  `edit 2 n/Betsy Crower` Edits the name of the 2nd student to be `Betsy Crower`.
-*  `edit 3 p/` Removes the phone number of the 3rd student.
-*  `edit 1 sub/English band/G2` Replaces the first student's subjects with English at G2.
-*  `edit 1 sub/Mathematics band/G2 sub/English band/G3` Replaces the first student's subject list with Mathematics at G2 and English at G3. Include every subject you want to keep, even when changing only one band.
-*  `edit 1 lvl/S4` Edits the level of the 1st student to be `S4`.
-*  `edit 1 gn/Mary Tan gp/91234567` Sets the guardian of the 1st student to Mary Tan, with phone number `91234567`.
-*  `edit 1 gp/98765432` Changes the phone number of the 1st student's existing guardian to `98765432`.
-*  `edit 1 gn/ gp/` Removes the guardian of the 1st student.
-*  `edit 1 t/paid t/exams` Replaces the tags of the 1st student with `paid` and `exams`.
-*  `edit 1 t/` Removes all tags of the 1st student.
+##### Duplicate students in `edit`
+
+`edit` checks the student's new details against the other students, the same way as [`add`](#duplicate-students). The student being edited is not compared with themselves, and the amber prompt only appears when you change the name, school, or level.
+
+Another student has… | What happens
+---------------------|-------------
+The same name, but a different school or level | An amber prompt, such as `Edit not saved yet: NAME is also recorded at SCHOOL (LEVEL).` Type `CONFIRM` to save the edit anyway. See [Confirming a command](#confirming-a-command).
+The same name, school, and level | A red error: `Another student named NAME at SCHOOL, level LEVEL already exists. If these are different students, edit the name to include an identifier, for example Chloe Tan 2.` The student is not changed.
 
 #### Deleting a student: `delete`
 
@@ -310,21 +344,24 @@ Deletes a student, together with their guardian details and all of their notes.
 Format: `delete [-f] INDEX`
 
 * `INDEX` follows the rules in [Indexes and notes](#indexes-and-notes).
-* `delete` shows an amber prompt. Its first line identifies the student and says what will happen: `This will delete NAME at SCHOOL (LEVEL) and all their notes.` The next line says `Type CONFIRM (uppercase) to delete this student and all their notes.` A final line says that any other input cancels the request and runs as a command. Use `delete -f INDEX` to delete immediately.
-* The displayed list and student record remain unchanged while confirmation is pending.
-* After `view`, use the index shown at the top of the student detail view when running `delete`.
+* `delete` asks you to confirm first, with the prompt `This will delete NAME at SCHOOL (LEVEL) and all their notes.` See [Confirming a command](#confirming-a-command). Use `delete -f INDEX` to delete immediately.
 * After a student is deleted, the current filter remains active while it still has matches. The index numbers of the remaining matching students may change, so check the list before you run another command that uses an index.
 * If you delete the filter's last matching student while other students remain, TuteeBook3 shows the full list and adds `The filtered list is now empty, so all remaining students are shown.` to the result.
 * After deletion, the right panel returns to `View a student to see details.`
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
-After you confirm with `CONFIRM`, `delete` removes the student and all their notes immediately. `delete -f` skips confirmation. You cannot undo the deletion. Check `INDEX` in the student list before you confirm.
+You cannot undo `delete`. Check `INDEX` in the student list before you confirm.
 </div>
 
 Examples:
 
-* `list` followed by `delete 2` deletes the 2nd student in the full student list.
-* `filter n/Tan` followed by `delete 1` deletes the 1st student in the search results.
+To… | Type
+----|-----
+Delete the 2nd student in the full student list | `list`, then `delete 2`
+Delete the 1st student in the search results | `filter n/Tan`, then `delete 1`
+Delete the 3rd student without confirming | `delete -f 3`
+
+##### Errors in `delete`
 
 If the command is wrong, `delete` shows one of these messages and does not delete any student.
 
@@ -350,13 +387,16 @@ Format: `addnote INDEX note/TEXT`
 * Notes are numbered in the order you added them, such as `1. Weak in algebra`.
 * Adding a note does not change which students are shown.
 * After the note is added, the student's updated record opens on the right.
-* After `view`, use the index shown at the top of the student detail view when running `addnote`.
 * If you edit the data file, each note must follow the same `TEXT` rules. Otherwise, the app starts with an empty student list.
 
 Examples:
 
-* `addnote 1 note/Weak in algebra` adds the note `Weak in algebra` to the 1st student in the displayed list.
-* `view 2` followed by `addnote 2 note/WA2 Math: 36/50` adds the note to the student shown by `view 2`.
+To… | Type
+----|-----
+Add the note `Weak in algebra` to the 1st student in the displayed list | `addnote 1 note/Weak in algebra`
+Add a note to the student shown by `view 2` | `view 2`, then `addnote 2 note/WA2 Math: 36/50`
+
+##### Errors in `addnote`
 
 If the command is wrong, `addnote` shows one of these messages and does not change any student. If `INDEX` is not a positive integer, `addnote` reports that first, even if `TEXT` is also wrong.
 
@@ -377,15 +417,18 @@ Format: `editnote INDEX nid/NID note/TEXT`
 * `INDEX`, `NID`, and `TEXT` follow the rules in [Indexes and notes](#indexes-and-notes). `TEXT` is the new text of the note.
 * `nid/NID` must come before `note/TEXT`. Everything after `note/` is the note text, so `TEXT` can contain anything, including `t/f`, `nid/`, or another `note/`. For example, `editnote 1 nid/2 note/Revise t/f questions` saves the note `Revise t/f questions`.
 * The edited note keeps its NID, and the student's other notes do not change.
-* If the new text is the same as the current text, the note stays as it is and `editnote` shows the message `No changes made: note {NID} of {NAME} already says: {TEXT}` in amber. Changing only uppercase and lowercase letters, such as `algebra` to `Algebra`, counts as a change.
+* If the new text is the same as the current text, the note stays as it is and `editnote` shows the message `No changes made: note NID of NAME already says: TEXT` in amber. Changing only uppercase and lowercase letters, such as `algebra` to `Algebra`, counts as a change.
 * Editing a note does not change which students are shown.
 * After the note is edited, the student's updated record opens on the right. If the text is unchanged, the same record opens with the warning.
-* After `view`, use the index shown at the top of the student detail view when running `editnote`.
 
 Examples:
 
-* `editnote 1 nid/2 note/Improving in algebra` replaces note 2 of the 1st student in the displayed list with `Improving in algebra`.
-* `view 3` followed by `editnote 3 nid/1 note/WA2 Math: 42/50` replaces the first note of the student shown by `view 3`.
+To… | Type
+----|-----
+Replace note 2 of the 1st student in the displayed list with `Improving in algebra` | `editnote 1 nid/2 note/Improving in algebra`
+Replace the first note of the student shown by `view 3` | `view 3`, then `editnote 3 nid/1 note/WA2 Math: 42/50`
+
+##### Errors in `editnote`
 
 If the command is wrong, `editnote` shows one of these messages and does not change any student. When several parts are wrong, `editnote` reports the first one in this table.
 
@@ -400,8 +443,8 @@ There is other text between `INDEX` and the first prefix, such as `editnote 1 ab
 `TEXT` is empty or only spaces | `Note text cannot be blank.`
 `TEXT` is longer than 500 characters | `Note text must be at most 500 characters.`
 `INDEX` is larger than the number of students shown | `The student index provided is invalid.`
-The student has no notes | `{NAME} at {SCHOOL} ({LEVEL}) has no notes to edit.`
-`NID` is larger than the number of notes the student has | `NID {NID} does not exist. {NAME} at {SCHOOL} ({LEVEL}) has only {COUNT} notes.` (or `1 note` if the student has one note)
+The student has no notes | `NAME at SCHOOL (LEVEL) has no notes to edit.`
+`NID` is larger than the number of notes the student has | `NID 5 does not exist. NAME at SCHOOL (LEVEL) has only 3 notes.`, with the NID you typed and the number of notes the student has (`1 note` if they have one)
 
 #### Deleting a note from a student: `deletenote`
 
@@ -410,21 +453,24 @@ Deletes one note from a student's notes.
 Format: `deletenote [-f] INDEX nid/NID`
 
 * `INDEX` and `NID` follow the rules in [Indexes and notes](#indexes-and-notes).
-* The command shows an amber prompt. Its first line identifies the note and student: `This will delete note NID from NAME at SCHOOL (LEVEL).` The next line says `Type CONFIRM (uppercase) to delete this note.` A final line says that any other input cancels the request and runs as a command. You can use `deletenote -f INDEX nid/NID` to delete immediately.
-* The displayed list and student record remain unchanged while confirmation is pending.
+* `deletenote` asks you to confirm first, with the prompt `This will delete note NID from NAME at SCHOOL (LEVEL).` See [Confirming a command](#confirming-a-command). Use `deletenote -f INDEX nid/NID` to delete immediately.
 * After you delete a note, the notes after it move up one number. For example, if a student has 3 notes and you delete note 2, the old note 3 becomes note 2. Check the student detail view for the new numbers before you delete another note.
 * Deleting a note does not change which students are shown.
 * After the deletion is confirmed, or when you use `-f`, the student's updated record opens on the right.
-* After `view`, use the index shown at the top of the student detail view when running `deletenote`.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
-After you confirm with `CONFIRM`, `deletenote` deletes the note immediately. `deletenote -f` skips confirmation. You cannot undo the deletion. Check `INDEX` and `NID` in the student detail view before you confirm.
+You cannot undo `deletenote`. Check `INDEX` and `NID` in the student detail view before you confirm.
 </div>
 
 Examples:
 
-* `deletenote 1 nid/2` deletes note 2 of the 1st student in the displayed list.
-* `view 3` followed by `deletenote 3 nid/1` deletes the first note of the student shown by `view 3`.
+To… | Type
+----|-----
+Delete note 2 of the 1st student in the displayed list | `deletenote 1 nid/2`
+Delete the first note of the student shown by `view 3` | `view 3`, then `deletenote 3 nid/1`
+Delete note 1 of the 2nd student without confirming | `deletenote -f 2 nid/1`
+
+##### Errors in `deletenote`
 
 If the command is wrong, `deletenote` shows one of these messages and does not change any student. If `INDEX` is not a positive integer, `deletenote` reports that first, even if `NID` is also wrong.
 
@@ -434,8 +480,8 @@ Problem | Message
 There is other text between `INDEX` and `nid/`, such as `deletenote 1 abc nid/2` | `Invalid command format!` followed by how to use `deletenote`
 `INDEX` is larger than the number of students shown | `The student index provided is invalid.`
 `NID` is empty or is not a positive integer, such as `0`, `-1`, or `abc` | `NID must be a positive integer.`
-The student has no notes | `{NAME} at {SCHOOL} ({LEVEL}) has no notes to delete.`
-`NID` is larger than the number of notes the student has | `NID {NID} does not exist. {NAME} at {SCHOOL} ({LEVEL}) has only {COUNT} notes.` (or `1 note` if the student has one note)
+The student has no notes | `NAME at SCHOOL (LEVEL) has no notes to delete.`
+`NID` is larger than the number of notes the student has | `NID 5 does not exist. NAME at SCHOOL (LEVEL) has only 3 notes.`, with the NID you typed and the number of notes the student has (`1 note` if they have one)
 `nid/` appears more than once | `Multiple values specified for the following single-valued field(s): nid/`
 `INDEX` or `nid/NID` is missing, or there is no space before `nid/` | `Invalid command format!` followed by how to use `deletenote`
 
@@ -512,23 +558,33 @@ Filter | Matches students whose… | Match
 * Running `filter` clears the selected student record and shows `View a student to see details.` on the right.
 * Enter `list` to return to the full student list.
 
-Examples:
-* `filter n/c` returns `SAMPLE Chloe Tan` and `SAMPLE Marcus Lim` from the sample student list.<br>
-  ![Results for filter c](images/findChloeMarcusResult.png)
-* `filter sch/victoria` returns `SAMPLE Daniel Lee`.
-* `filter n/lim sch/secondary` returns `SAMPLE Marcus Lim`.
-* `filter lvl/s2` returns `SAMPLE Chloe Tan` and `SAMPLE Ethan Kumar`.
-* `filter sch/bedok lvl/S2` returns `SAMPLE Chloe Tan`.
-* `filter sub/mathematics band/G2` returns `SAMPLE Marcus Lim` and `SAMPLE Daniel Lee`.
-* `filter sub/chemistry` returns `SAMPLE Aisha Rahman` and `SAMPLE Natalie Goh`.
-* `filter p/9123 4567` returns `SAMPLE Chloe Tan`.
-* `filter e/example.com` returns `SAMPLE Chloe Tan`, `SAMPLE Marcus Lim`, and `SAMPLE Natalie Goh`.
-* `filter a/tampines` returns `SAMPLE Marcus Lim` and `SAMPLE Ethan Kumar`.
-* `filter gp/98765432` returns `SAMPLE Marcus Lim`, whose guardian is Grace Lim.
-* `filter gn/goh` returns `SAMPLE Natalie Goh`, whose guardian is Michelle Goh.
-* `filter t/unpaid` returns `SAMPLE Marcus Lim`.
-* `filter note/algebra` returns `SAMPLE Chloe Tan`.
-* `filter lvl/S1 note/next lesson` returns `SAMPLE Daniel Lee`.
+Examples, using the sample students:
+
+You type | TuteeBook3 shows
+---------|-----------------
+`filter n/c` | `SAMPLE Chloe Tan` and `SAMPLE Marcus Lim`
+`filter sch/victoria` | `SAMPLE Daniel Lee`
+`filter n/lim sch/secondary` | `SAMPLE Marcus Lim`
+`filter lvl/s2` | `SAMPLE Chloe Tan` and `SAMPLE Ethan Kumar`
+`filter sch/bedok lvl/S2` | `SAMPLE Chloe Tan`
+`filter sub/mathematics band/G2` | `SAMPLE Marcus Lim` and `SAMPLE Daniel Lee`
+`filter sub/chemistry` | `SAMPLE Aisha Rahman` and `SAMPLE Natalie Goh`
+`filter p/9123 4567` | `SAMPLE Chloe Tan`
+`filter e/example.com` | `SAMPLE Chloe Tan`, `SAMPLE Marcus Lim`, and `SAMPLE Natalie Goh`
+`filter a/tampines` | `SAMPLE Marcus Lim` and `SAMPLE Ethan Kumar`
+`filter gp/98765432` | `SAMPLE Marcus Lim`, whose guardian is Grace Lim
+`filter gn/goh` | `SAMPLE Natalie Goh`, whose guardian is Michelle Goh
+`filter t/unpaid` | `SAMPLE Marcus Lim`
+`filter note/algebra` | `SAMPLE Chloe Tan`
+`filter lvl/S1 note/next lesson` | `SAMPLE Daniel Lee`
+
+The result of `filter n/c`:
+
+![Results for filter c](images/findChloeMarcusResult.png)
+
+##### Errors in `filter`
+
+If the command is wrong, `filter` shows one of these messages and does not change the student list.
 
 Problem | Message
 --------|--------
@@ -553,7 +609,7 @@ A filter appears more than once | `Multiple values specified for the following s
 
 #### Viewing help: `help`
 
-Shows a one-line summary of each available command and the URL of the TuteeBook3 User Guide directly in the feedback box. You can also show the same help using the **Help** menu or the F1 keyboard shortcut. Repeated requests reuse the feedback box instead of opening additional panels or windows.
+Shows a one-line summary of each available command and the URL of the TuteeBook3 User Guide directly in the result display. You can also show the same help using the **Help** menu or the F1 keyboard shortcut. Repeated requests reuse the result display instead of opening additional panels or windows.
 
 Format: `help`
 
@@ -567,14 +623,13 @@ Format: `clear [-f]`
 
 The command accepts only the optional `-f` argument.
 
-* `clear` shows the amber prompt `This will delete all students and notes.` The next line says `Type CONFIRM (uppercase) to clear all students and notes.` A final line says that any other input cancels the request and runs as a command. Your data remains unchanged until you confirm.
+* `clear` asks you to confirm first, with the prompt `This will delete all students and notes.` See [Confirming a command](#confirming-a-command).
 * `clear -f` clears all students and notes immediately without asking for confirmation.
-* The displayed list and student record remain unchanged while confirmation is pending. After clearing, the empty list remains on the left and `View a student to see details.` appears on the right.
-* While a confirmation is pending, only the exact uppercase word `CONFIRM` (with optional leading or trailing spaces) confirms it. Any other input cancels the pending command and is processed normally. A cancellation notice appears in red above the command result; command output keeps its usual color, and command errors appear in red.
+* After clearing, the empty list remains on the left and `View a student to see details.` appears on the right.
 * If TuteeBook3 is already empty, `clear` shows `TuteeBook3 is already empty.` without asking you to confirm.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
-After you confirm, or use `clear -f`, `clear` deletes every student and note immediately. You cannot undo it.
+You cannot undo `clear`. It deletes every student and note.
 </div>
 
 #### Exiting the program: `exit`
@@ -615,10 +670,6 @@ If your changes make the data file invalid, TuteeBook3 starts with an empty book
 Furthermore, certain edits can cause TuteeBook3 to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
 </div>
 
-### Archiving data files `[coming in v2.0]`
-
-_Details coming soon ..._
-
 --------------------------------------------------------------------------------------------------------------------
 
 ## Glossary
@@ -637,7 +688,7 @@ _Details coming soon ..._
 
 * **Case-sensitive**: Treating uppercase and lowercase letters as different. For example, `CONFIRM` is case-sensitive, so `confirm` does not confirm a command. Filters are not case-sensitive, so `n/tan` matches `Tan`.
 * **Command**: An instruction that you type in the command box and press Enter to run, such as `list` or `view 1`. It starts with a word that says what to do, such as `add` or `filter`, followed by any parameters.
-* **Confirmation prompt**: An amber message that asks you to confirm a command before it runs. `delete`, `deletenote`, and `clear` show one before they delete anything, and `add` and `edit` show one when another student already has the same name. Type `CONFIRM` in uppercase to go ahead. Any other input, including `confirm`, cancels the command and runs as a normal command.
+* **Confirmation prompt**: An amber message that asks you to type `CONFIRM` before a command goes ahead. See [Confirming a command](#confirming-a-command).
 * **Exact matching**: The way the `lvl/`, `sub/`, `band/`, `p/`, `gp/`, and `t/` filters of `filter` compare values. The whole value must match, ignoring case and extra spaces. For example, `lvl/S3` matches only students in S3, and `sub/math` does not match `Mathematics`.
 * **Filter**: A prefix and value given to the `filter` command, such as `n/Tan`, that narrows down the student list.
 * **Index**: The number shown next to a student in the list currently on screen. Commands such as `view`, `edit`, and `delete` use it to pick a student. It is not permanent: it can change when the list changes, such as after `add`, `delete`, `filter`, or `list`.
@@ -653,9 +704,7 @@ _Details coming soon ..._
 * **Command box**: The text field at the top of the window where you type commands.
 * **Detail view**: The panel on the right of the window that shows everything about one student, including all their notes. It is also called the "detail panel" or "student detail view". `view` shows a student there, and `list` and `filter` clear it.
 * **Empty-state message**: The message `View a student to see details.`, shown in the detail view when no student is selected.
-* **Feedback box**: See **Result display**.
-* **Result box**: See **Result display**.
-* **Result display**: The area below the command box that tells you whether your last command worked, and why not if it failed. It is also called the "feedback box" or "result box".
+* **Result display**: The area below the command box that tells you whether your last command worked, and why not if it failed.
 * **Student list**: The panel on the left of the window that lists students with their main details. It shows all students, or the results of your last `filter`.
 
 #### General
