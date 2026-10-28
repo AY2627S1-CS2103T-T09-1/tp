@@ -78,6 +78,8 @@ public class FilterCommandParserTest {
                 + String.format(hint, "gmailn/Chloe"));
         assertParseFailure(parser, " sub/Mathsband/G1",
                 Subject.MESSAGE_CONSTRAINTS + "\n" + String.format(hint, "Mathsband/G1"));
+        assertParseFailure(parser, " sub/Maths band/G1p/91234567",
+                Band.MESSAGE_CONSTRAINTS + "\n" + String.format(hint, "G1p/91234567"));
 
         // note/ is not a prefix of add, so it must not be named as one in filter
         assertParseFailure(parser, " lvl/S3note/algebra",

@@ -178,7 +178,7 @@ public class FilterCommandParser implements Parser<FilterCommand> {
         try {
             return new SubjectMatchesPredicate(trimmedName, Band.fromString(band.get()));
         } catch (IllegalArgumentException e) {
-            throw new ParseException(Band.MESSAGE_CONSTRAINTS, e);
+            throw new ParseException(ParserUtil.withSlashHint(Band.MESSAGE_CONSTRAINTS, band.get()), e);
         }
     }
 

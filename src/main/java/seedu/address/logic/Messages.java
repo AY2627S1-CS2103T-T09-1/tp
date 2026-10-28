@@ -40,7 +40,7 @@ public class Messages {
             + PREFIX_TAG + "exams.";
     public static final String MESSAGE_PREFIX_WITHOUT_SPACE_HINT =
             "\"%1$s\" contains \"/\". If it was meant to start a new parameter, "
-            + "put a space before its prefix.";
+            + "check that the prefix is one this command accepts and has a space before it.";
     public static final String MESSAGE_NOT_SINGAPORE_PHONE = "Warning: %1$s doesn't look like a Singapore number "
             + "(8 digits starting with 6, 8, or 9, with or without +65). Use edit to fix it if it's wrong.";
     public static final String MESSAGE_NOT_SINGAPORE_PHONES = "Warning: %1$s don't look like Singapore numbers "
