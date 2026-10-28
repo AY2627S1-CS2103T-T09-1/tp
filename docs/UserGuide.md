@@ -334,10 +334,14 @@ The student has no notes | `{NAME} at {SCHOOL} ({LEVEL}) has no notes to delete.
 
 Shows the students who match every filter you give.
 
-Format: `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/PHONE] [e/EMAIL] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE] [note/TEXT]`
+Format: `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/PHONE] [e/EMAIL] [a/ADDRESS] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE] [note/TEXT]`
 
-* Give at least one filter, and each filter at most once.
+* Give at least one filter.
 * A student must match every filter you give. For example, `filter n/tan sch/bedok` shows students whose name contains `tan` and whose school contains `bedok`.
+
+<div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
+Each filter can be given only once. For example, `filter n/tan n/lim` and `filter sch/bedok sch/tampines` are rejected. To find students who match either value, run `filter` once for each value.
+</div>
 
 Filter | Matches students whose… | Match
 -------|-------------------------|------
@@ -348,6 +352,7 @@ Filter | Matches students whose… | Match
 `sub/SUBJECT band/BAND` | subjects include `SUBJECT` at `BAND` (`G1` to `G3`) | exact matching
 `p/PHONE` | own phone number is `PHONE` | exact matching
 `e/EMAIL` | email contains `EMAIL` | partial matching
+`a/ADDRESS` | address contains `ADDRESS` | partial matching
 `gn/GUARDIAN_NAME` | guardian's name contains `GUARDIAN_NAME` | partial matching
 `gp/GUARDIAN_PHONE` | guardian's phone number is `GUARDIAN_PHONE` | exact matching
 `note/TEXT` | notes include one that contains `TEXT` | partial matching
@@ -356,7 +361,7 @@ Filter | Matches students whose… | Match
 * A filter with exact matching must match the whole value. For example, `lvl/S3` matches only students in S3, `sub/math` does not match `Mathematics`, and `p/9123` does not match `91234567`.
 * `band/` must come right after `sub/`, and the band must belong to that subject. For example, a student taking Mathematics at G1 and Science at G2 does not match `sub/Mathematics band/G2`.
 * Phone numbers are compared the way they are saved: spaces, hyphens, and a leading `+65` are removed. For example, `p/9123 4567` and `p/+65 9123-4567` both match `91234567`. An overseas number must include its `+` and country code.
-* A student without a phone never matches `p/`, a student without an email never matches `e/`, and a student without a guardian never matches `gn/` or `gp/`.
+* A student without a phone never matches `p/`, a student without an email never matches `e/`, a student without an address never matches `a/`, and a student without a guardian never matches `gn/` or `gp/`.
 * `note/` searches all of a student's notes. `TEXT` can be up to 500 characters, the same as a note.
 * Everything after `note/` is the note text, so put `note/` last. For example, `filter note/revise t/f` finds notes containing `revise t/f`. In `filter note/algebra lvl/S3`, `lvl/S3` is read as part of the note text, so write `filter lvl/S3 note/algebra` instead.
 * Filters are not case-sensitive, and extra spaces are ignored.
@@ -376,6 +381,7 @@ Examples:
 * `filter sub/chemistry` returns `SAMPLE Aisha Rahman` and `SAMPLE Natalie Goh`.
 * `filter p/9123 4567` returns `SAMPLE Chloe Tan`.
 * `filter e/example.com` returns `SAMPLE Chloe Tan`, `SAMPLE Marcus Lim`, and `SAMPLE Natalie Goh`.
+* `filter a/tampines` returns `SAMPLE Marcus Lim` and `SAMPLE Ethan Kumar`.
 * `filter gp/98765432` returns `SAMPLE Marcus Lim`, whose guardian is Grace Lim.
 * `filter gn/goh` returns `SAMPLE Natalie Goh`, whose guardian is Michelle Goh.
 * `filter note/algebra` returns `SAMPLE Chloe Tan`.
@@ -385,7 +391,7 @@ Problem | Message
 --------|--------
 No filter is given | `Give at least one filter.` followed by how to use `filter`
 There is text before the first filter | `Invalid command format!` followed by how to use `filter`
-A filter is empty, such as `sch/` | `The school to search for cannot be blank.` (or `name` or `email`)
+A filter is empty, such as `sch/` | `The school to search for cannot be blank.` (or `name`, `email`, or `address`)
 A filter appears more than once | `Multiple values specified for the following single-valued field(s): sch/`
 `LEVEL` is not one of `S1` to `S5`, or is empty | `Level must be one of S1, S2, S3, S4, S5.`
 `SUBJECT` is empty or invalid | `Subjects must be 1-40 characters using only letters, spaces and hyphens, with at least one letter.`
@@ -513,7 +519,7 @@ _Details coming soon ..._
 * **NID**: The number shown before a note in the student detail view. Notes are numbered 1, 2, 3 in the order they were added. After a note is deleted, the notes after it move up one number, so an NID is not permanent.
 * **Normalized**: Compared after removing spaces at the start and end, treating repeated spaces as one, and ignoring capitalization. For example, `John  Doe` and `john doe` have the same normalized name.
 * **Parameter**: A value that you supply in a command, shown in `UPPER_CASE` in this guide, such as `NAME` in `n/NAME`.
-* **Partial matching**: The way the `n/`, `sch/`, `e/`, `gn/`, and `note/` filters of `filter` compare values. The value only needs to contain what you typed, even part of a word, ignoring case. For example, `sch/vic` matches `Victoria School`.
+* **Partial matching**: The way the `n/`, `sch/`, `e/`, `a/`, `gn/`, and `note/` filters of `filter` compare values. The value only needs to contain what you typed, even part of a word, ignoring case. For example, `sch/vic` matches `Victoria School`.
 * **Prefix**: A short marker ending in `/`, such as `n/` or `sch/`, that labels the value after it in a command.
 * **Warning**: An amber message that flags something that might be a mistake, without stopping the command. For example, TuteeBook3 saves a phone number that doesn't look like a Singapore number, but shows a warning so that you can check it.
 
@@ -564,6 +570,6 @@ Action | Format, Examples
 **Delete note** | `deletenote [-f] INDEX nid/NID`<br> e.g., `deletenote 1 nid/2`
 **Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [a/ADDRESS] [e/EMAIL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE] [t/TAG]...`<br> e.g., `edit 2 a/Blk 311 Tampines Street 33, #05-212`, `edit 1 e/`, `edit 2 sub/Mathematics band/G2 sub/English band/G3`, `edit 1 gn/ gp/`, `edit 1 t/exams`, `edit 1 t/`
 **Edit note** | `editnote INDEX nid/NID note/TEXT`<br> e.g., `editnote 1 nid/2 note/Improving in algebra`
-**Filter** | `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/PHONE] [e/EMAIL] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE] [note/TEXT]`<br> e.g., `filter lvl/S5 sub/mathematics band/G2`
+**Filter** | `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/PHONE] [e/EMAIL] [a/ADDRESS] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE] [note/TEXT]`<br> e.g., `filter lvl/S5 sub/mathematics band/G2`
 **List** | `list`
 **Help** | `help`

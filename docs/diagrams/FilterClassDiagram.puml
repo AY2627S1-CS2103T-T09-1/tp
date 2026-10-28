@@ -18,6 +18,7 @@ Class LevelMatchesPredicate MODEL_COLOR
 Class SubjectMatchesPredicate MODEL_COLOR
 Class PhoneMatchesPredicate MODEL_COLOR
 Class EmailContainsTextPredicate MODEL_COLOR
+Class AddressContainsTextPredicate MODEL_COLOR
 Class GuardianNameContainsTextPredicate MODEL_COLOR
 Class GuardianPhoneMatchesPredicate MODEL_COLOR
 Class NoteContainsTextPredicate MODEL_COLOR
@@ -36,6 +37,7 @@ LevelMatchesPredicate .up.|> Predicate
 SubjectMatchesPredicate .up.|> Predicate
 PhoneMatchesPredicate .up.|> Predicate
 EmailContainsTextPredicate .up.|> Predicate
+AddressContainsTextPredicate .up.|> Predicate
 GuardianNameContainsTextPredicate .up.|> Predicate
 GuardianPhoneMatchesPredicate .up.|> Predicate
 NoteContainsTextPredicate .up.|> Predicate
