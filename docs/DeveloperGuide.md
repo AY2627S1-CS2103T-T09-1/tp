@@ -214,7 +214,7 @@ Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `
 
 * **Alternative 2 (current choice): Store a subject and a required band together.**
   * Pros: Every recorded subject has complete information. The model prevents a subject from existing without a valid band, and `filter` can match a subject at a specific band.
-  * Cons: The tutor must know and enter a band for every subject, including when the band is not yet known.
+  * Cons: The tutor cannot record a subject until they know its band.
 
 * **Alternative 3: Store a subject with an optional band.**
   * Pros: Allows the tutor to record a subject before its band is known.
