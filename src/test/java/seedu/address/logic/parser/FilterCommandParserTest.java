@@ -38,6 +38,8 @@ import seedu.address.model.person.predicate.PhoneMatchesPredicate;
 import seedu.address.model.person.predicate.SchoolContainsTextPredicate;
 import seedu.address.model.person.predicate.StudentMatchesAllPredicate;
 import seedu.address.model.person.predicate.SubjectMatchesPredicate;
+import seedu.address.model.person.predicate.TagMatchesPredicate;
+import seedu.address.model.tag.Tag;
 
 public class FilterCommandParserTest {
 
@@ -333,6 +335,56 @@ public class FilterCommandParserTest {
     }
 
     @Test
+    public void parse_validTag_returnsFilterCommand() {
+        assertParseSuccess(parser, " t/paid", filterCommandOf(tag("paid")));
+        assertParseSuccess(parser, " t/  O-level  ", filterCommandOf(tag("O-level")));
+        assertParseSuccess(parser, " t/paid n/tan", filterCommandOf(name("tan"), tag("paid")));
+    }
+
+    @Test
+    public void parse_tagWithSpace_throwsParseException() {
+        assertParseFailure(parser, " t/paid exams",
+                String.format(FilterCommandParser.MESSAGE_FILTER_TAG_HAS_SPACE, "paid exams"));
+        // lv/ is not a prefix, so it stays part of the tag
+        assertParseFailure(parser, " t/paid lv/S3",
+                String.format(FilterCommandParser.MESSAGE_FILTER_TAG_HAS_SPACE, "paid lv/S3"));
+    }
+
+    @Test
+    public void parse_repeatedTag_throwsParseException() {
+        assertParseFailure(parser, " t/paid t/exams", FilterCommandParser.MESSAGE_ONE_TAG);
+        assertParseFailure(parser, " t/paid n/tan t/paid", FilterCommandParser.MESSAGE_ONE_TAG);
+    }
+
+    @Test
+    public void parse_invalidTag_throwsParseException() {
+        assertParseFailure(parser, " t/a_b", Tag.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, " t/paid!", Tag.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_blankTag_throwsParseException() {
+        assertParseFailure(parser, " t/", Tag.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, " n/avi t/   ", Tag.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_tagAtMaxLength_returnsFilterCommand() {
+        String longestTag = "a".repeat(Tag.MAX_LENGTH);
+        assertParseSuccess(parser, " t/" + longestTag, filterCommandOf(tag(longestTag)));
+    }
+
+    @Test
+    public void parse_tagOverMaxLength_throwsParseException() {
+        assertParseFailure(parser, " t/" + "a".repeat(Tag.MAX_LENGTH + 1), Tag.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_tagAfterNote_readAsNoteText() {
+        assertParseSuccess(parser, " note/unpaid fees t/paid", filterCommandOf(note("unpaid fees t/paid")));
+    }
+
+    @Test
     public void parse_validEmail_returnsFilterCommand() {
         assertParseSuccess(parser, " e/gmail.com", filterCommandOf(email("gmail.com")));
     }
@@ -435,6 +487,10 @@ public class FilterCommandParserTest {
 
     private static Predicate<Person> guardianPhone(String phone) {
         return new GuardianPhoneMatchesPredicate(new Phone(phone));
+    }
+
+    private static Predicate<Person> tag(String tagName) {
+        return new TagMatchesPredicate(new Tag(tagName));
     }
 
     private static Predicate<Person> note(String text) {

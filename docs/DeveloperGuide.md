@@ -258,7 +258,7 @@ The add parser accepts optional `e/EMAIL`; the edit parser replaces an email, an
 A student has a set of `Tag`s, which may be empty but is never null. `Person#getTags()` returns an unmodifiable view that keeps the order the tags were typed in.
 
 * A tag is one word of ASCII letters and digits, where single hyphens may join parts of the word, such as `O-level`. `Tag` compares tags ignoring case, so `Exams` equals `exams`, and the display keeps the user's capitalization.
-* `ParserUtil#parseTag` trims the value, then rejects a value containing a space with its own message, `Messages.MESSAGE_TAG_HAS_SPACE`, which tells the user to put `t/` before each tag. Other invalid values get `Tag.MESSAGE_CONSTRAINTS`. The space message lives in `Messages` because it names the `t/` prefix, which the model should not know about.
+* `ParserUtil#parseTag` trims the value, then rejects a value containing a space with its own message, `Messages.MESSAGE_TAG_HAS_SPACE`, which tells the user to put `t/` before each tag (`filter` uses its own message, since it takes one tag). Other invalid values get `Tag.MESSAGE_CONSTRAINTS`. The space message lives in `Messages` because it names the `t/` prefix, which the model should not know about.
 * `ParserUtil#parseTags` rejects a tag given twice with `Tag "X" is given more than once.`, instead of letting the set drop it silently. It takes plain strings, so the prefix handling stays in the parsers.
 * In `add`, `t/` may repeat. In `edit`, the given tags replace all existing tags, and a single blank `t/` clears them. `EditCommandParser#parseTagsForEdit` handles both cases.
 * `JsonAdaptedPerson` stores tags as a list of `JsonAdaptedTag` strings. Jackson sets the list directly, so files saved before tags existed load with no tags. A file with an invalid or repeated tag is rejected.
@@ -437,8 +437,8 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 
 <img src="images/FilterClassDiagram.png" width="650" />
 
-1. `FilterCommandParser` splits the arguments at the filter prefixes `n/`, `sch/`, `lvl/`, `sub/`, `band/`, `p/`, `e/`, `a/`, `gn/`, `gp/`, and `note/`. It also recognizes `nid/`, the note index prefix of `deletenote` and `editnote`, only to reject it with a message pointing to `note/`, so that it is not read as part of another value. `note/` is read with `ArgumentTokenizer#tokenizeWithTrailingText`, so everything after it is the note text, as in `addnote`.
-1. It then checks, in order, that there is no text before the first prefix, that at least one filter is given, that no prefix is repeated, and that `band/` comes with `sub/`.
+1. `FilterCommandParser` splits the arguments at the filter prefixes `n/`, `sch/`, `lvl/`, `sub/`, `band/`, `p/`, `e/`, `a/`, `gn/`, `gp/`, `t/`, and `note/`. It also recognizes `nid/`, the note index prefix of `deletenote` and `editnote`, only to reject it with a message pointing to `note/`, so that it is not read as part of another value. `note/` is read with `ArgumentTokenizer#tokenizeWithTrailingText`, so everything after it is the note text, as in `addnote`.
+1. It then checks, in order, that there is no text before the first prefix, that at least one filter is given, that `t/` is not repeated, that no other prefix is repeated, and that `band/` comes with `sub/`. A repeated `t/` gets its own message, `MESSAGE_ONE_TAG`, because `add` and `edit` accept several `t/`.
 1. It creates one `Predicate<Person>` for each filter given:
 
    Prefix | Predicate | Matches when the student's…
@@ -452,12 +452,13 @@ Each edit wraps the current filter, so after several edits in a row, every edite
    `a/` | `AddressContainsTextPredicate` | address contains the text
    `gn/` | `GuardianNameContainsTextPredicate` | guardian's name contains the text
    `gp/` | `GuardianPhoneMatchesPredicate` | guardian's phone is that number
+   `t/` | `TagMatchesPredicate` | tags include that tag
    `note/` | `NoteContainsTextPredicate` | notes include one that contains the text
 
 1. It wraps the predicates in a `StudentMatchesAllPredicate`, which returns `true` only if every predicate does, and returns a `FilterCommand` holding it.
 1. `FilterCommand#execute` passes the predicate to `Model#updateFilteredPersonList` and returns `CommandResult.showList(...)` with the number of students found, or a no-match message.
 
-The partial-match predicates (`n/`, `sch/`, `e/`, `a/`, `gn/`, `note/`) use `StringUtil#containsIgnoreCaseAndSpaces`, which lowercases both strings and squeezes runs of whitespace before comparing. The exact-match filters are parsed first with the same `ParserUtil` methods as `add`, into a `Level`, `Band`, or `Phone`. So `lvl/s3` becomes `S3` and `p/+65 9123 4567` becomes `91234567`, the form in which they are stored, and the predicates can compare values directly. `SubjectMatchesPredicate` compares names with `Subject#hasName`, the same rule `add` uses to detect a repeated subject, and requires the band to belong to that same subject.
+The partial-match predicates (`n/`, `sch/`, `e/`, `a/`, `gn/`, `note/`) use `StringUtil#containsIgnoreCaseAndSpaces`, which lowercases both strings and squeezes runs of whitespace before comparing. The exact-match filters are parsed first with the same `ParserUtil` methods as `add`, into a `Level`, `Band`, `Phone`, or `Tag`. So `lvl/s3` becomes `S3` and `p/+65 9123 4567` becomes `91234567`, the form in which they are stored, and the predicates can compare values directly. `TagMatchesPredicate` relies on `Tag#equals`, which ignores case. `parseTagFilter` checks for a space before calling `ParserUtil#parseTag`, so a tag with a space gets `MESSAGE_FILTER_TAG_HAS_SPACE`, which quotes the value and says `filter` takes one tag, in place of `parseTag`'s advice to put `t/` before each tag. `SubjectMatchesPredicate` compares names with `Subject#hasName`, the same rule `add` uses to detect a repeated subject, and requires the band to belong to that same subject.
 
 #### Design considerations
 
@@ -477,7 +478,7 @@ The partial-match predicates (`n/`, `sch/`, `e/`, `a/`, `gn/`, `note/`) use `Str
   * Pros: One rule for the tutor to learn.
   * Cons: Short, fixed values become ambiguous: `sub/math` would match both Mathematics and Additional Mathematics, and `p/9123` would match every number containing those digits.
 
-* **Alternative 2 (current choice):** Partial matching for free text (name, school, email, address, guardian name), exact matching for fixed values (level, subject, band, phone).
+* **Alternative 2 (current choice):** Partial matching for free text (name, school, email, address, guardian name), exact matching for fixed values (level, subject, band, phone, tag).
   * Pros: Tutors can type part of a name or school they half remember, while fixed values match only what they mean.
   * Cons: Two rules to learn. The User Guide's filter table says which fields match partially.
 
@@ -490,6 +491,20 @@ The partial-match predicates (`n/`, `sch/`, `e/`, `a/`, `gn/`, `note/`) use `Str
 * **Alternative 2 (current choice):** A student must match every filter (AND).
   * Pros: Each filter narrows the list, which fits planning a lesson for one group.
   * Cons: To see two schools, the tutor runs `filter` twice.
+
+**Aspect: Whether `filter` takes one tag or several**
+
+* **Alternative 1:** Several `t/`, and a student must have every tag (AND).
+  * Pros: Matches `add` and `edit`, which accept several `t/`.
+  * Cons: `t/` would be the only filter that can repeat. Tags such as `paid` and `unpaid` rarely appear together, so most combinations find no one.
+
+* **Alternative 2:** Several `t/`, and a student needs any one of them (OR).
+  * Pros: Finds students with either tag in one command.
+  * Cons: `t/` would be the only filter combined with OR, which contradicts "a student must match every filter".
+
+* **Alternative 3 (current choice):** One `t/` per `filter`.
+  * Pros: Follows the same rule as every other filter, so there is no question of AND or OR. A repeated `t/` gets a message saying `filter` takes one tag.
+  * Cons: To see two tags, the tutor runs `filter` twice.
 
 **Aspect: Whether to search notes with a separate command or with `filter`**
 
@@ -1095,7 +1110,7 @@ Use case ends.
 #### Commands
 
 * **Confirmation prompt**: An amber message that asks you to confirm a command before it runs. `delete`, `deletenote`, and `clear` show one before they delete anything, and `add` and `edit` show one when another student already has the same name. Type `CONFIRM` in uppercase to go ahead. Any other input, including `confirm`, cancels the command and runs as a normal command.
-* **Exact matching**: The way the `lvl/`, `sub/`, `band/`, `p/`, and `gp/` filters of `filter` compare values. The whole value must match, ignoring case and extra spaces. For example, `lvl/S3` matches only students in S3, and `sub/math` does not match `Mathematics`.
+* **Exact matching**: The way the `lvl/`, `sub/`, `band/`, `p/`, `gp/`, and `t/` filters of `filter` compare values. The whole value must match, ignoring case and extra spaces. For example, `lvl/S3` matches only students in S3, and `sub/math` does not match `Mathematics`.
 * **Filter**: A prefix and value given to the `filter` command, such as `n/Tan`, that narrows down the student list.
 * **Force flag**: The `-f` option of `delete`, `deletenote`, and `clear`, such as `delete -f 1`. It skips the confirmation prompt, so the command runs immediately. `add` and `edit` have no force flag.
 * **Index**: The number shown next to a student in the list currently on screen. Commands such as `view`, `edit`, and `delete` use it to pick a student. It is not permanent: it can change when the list changes, such as after `add`, `delete`, `filter`, or `list`.

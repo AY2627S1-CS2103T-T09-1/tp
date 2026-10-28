@@ -13,6 +13,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_NOTE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,7 @@ import seedu.address.model.person.predicate.PhoneMatchesPredicate;
 import seedu.address.model.person.predicate.SchoolContainsTextPredicate;
 import seedu.address.model.person.predicate.StudentMatchesAllPredicate;
 import seedu.address.model.person.predicate.SubjectMatchesPredicate;
+import seedu.address.model.person.predicate.TagMatchesPredicate;
 
 /**
  * Parses input arguments and creates a new FilterCommand object
@@ -55,13 +57,18 @@ public class FilterCommandParser implements Parser<FilterCommand> {
             + PREFIX_SUBJECT + ", such as: filter " + PREFIX_SUBJECT + "Mathematics " + PREFIX_BAND + "G2";
     public static final String MESSAGE_USE_NOTE_FILTER = "To filter by notes, use " + PREFIX_NOTE
             + ", such as: filter " + PREFIX_NOTE + "algebra";
+    public static final String MESSAGE_ONE_TAG = "filter takes one tag, so give " + PREFIX_TAG
+            + " only once, such as: filter " + PREFIX_TAG + "paid";
+    public static final String MESSAGE_FILTER_TAG_HAS_SPACE = "Tag \"%1$s\" contains a space. filter takes one "
+            + "tag of one word, such as: filter " + PREFIX_TAG + "paid";
     public static final String MESSAGE_BLANK_NOTE = "The note text to search for cannot be blank.";
     public static final String MESSAGE_NOTE_TOO_LONG = "The note text to search for must be at most "
             + Note.MAX_LENGTH + " characters.";
 
     private static final Prefix[] FILTER_PREFIXES = {
         PREFIX_NAME, PREFIX_SCHOOL, PREFIX_LEVEL, PREFIX_SUBJECT, PREFIX_BAND,
-        PREFIX_PHONE, PREFIX_EMAIL, PREFIX_ADDRESS, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE, PREFIX_NOTE
+        PREFIX_PHONE, PREFIX_EMAIL, PREFIX_ADDRESS, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE,
+        PREFIX_TAG, PREFIX_NOTE
     };
 
     /**
@@ -92,6 +99,10 @@ public class FilterCommandParser implements Parser<FilterCommand> {
         if (!hasAny(argMultimap, FILTER_PREFIXES)) {
             throw new ParseException(MESSAGE_NO_FILTER);
         }
+        // add and edit take several t/, so a repeated t/ gets its own message
+        if (argMultimap.getAllValues(PREFIX_TAG).size() > 1) {
+            throw new ParseException(MESSAGE_ONE_TAG);
+        }
         argMultimap.verifyNoDuplicatePrefixesFor(FILTER_PREFIXES);
         verifyBandFollowsSubject(argMultimap.getPrefixes());
     }
@@ -121,6 +132,7 @@ public class FilterCommandParser implements Parser<FilterCommand> {
                 parseSearchText(value, MESSAGE_BLANK_GUARDIAN_NAME)));
         addFilter(filters, argMultimap, PREFIX_GUARDIAN_PHONE, value ->
                 new GuardianPhoneMatchesPredicate(ParserUtil.parseGuardianPhone(value)));
+        addFilter(filters, argMultimap, PREFIX_TAG, FilterCommandParser::parseTagFilter);
         addFilter(filters, argMultimap, PREFIX_NOTE, FilterCommandParser::parseNoteFilter);
         return filters;
     }
@@ -186,6 +198,20 @@ public class FilterCommandParser implements Parser<FilterCommand> {
             throw new ParseException(MESSAGE_NOTE_TOO_LONG);
         }
         return new NoteContainsTextPredicate(text);
+    }
+
+    /**
+     * Returns a filter for students with the tag {@code value}, ignoring case.
+     *
+     * @throws ParseException if the value is not exactly one valid tag.
+     */
+    private static TagMatchesPredicate parseTagFilter(String value) throws ParseException {
+        String trimmedTag = value.strip();
+        // add's message for a space suggests a second t/, but filter takes only one tag
+        if (trimmedTag.chars().anyMatch(Character::isWhitespace)) {
+            throw new ParseException(String.format(MESSAGE_FILTER_TAG_HAS_SPACE, trimmedTag));
+        }
+        return new TagMatchesPredicate(ParserUtil.parseTag(trimmedTag));
     }
 
     private static boolean hasAny(ArgumentMultimap argMultimap, Prefix... prefixes) {

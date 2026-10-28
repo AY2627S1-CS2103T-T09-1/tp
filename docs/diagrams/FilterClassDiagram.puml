@@ -21,6 +21,7 @@ Class EmailContainsTextPredicate MODEL_COLOR
 Class AddressContainsTextPredicate MODEL_COLOR
 Class GuardianNameContainsTextPredicate MODEL_COLOR
 Class GuardianPhoneMatchesPredicate MODEL_COLOR
+Class TagMatchesPredicate MODEL_COLOR
 Class NoteContainsTextPredicate MODEL_COLOR
 }
 
@@ -40,5 +41,6 @@ EmailContainsTextPredicate .up.|> Predicate
 AddressContainsTextPredicate .up.|> Predicate
 GuardianNameContainsTextPredicate .up.|> Predicate
 GuardianPhoneMatchesPredicate .up.|> Predicate
+TagMatchesPredicate .up.|> Predicate
 NoteContainsTextPredicate .up.|> Predicate
 @enduml
