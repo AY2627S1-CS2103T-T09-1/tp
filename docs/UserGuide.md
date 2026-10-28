@@ -738,7 +738,7 @@ Furthermore, certain edits can cause TuteeBook3 to behave in unexpected ways (e.
 Action | Format, Examples
 --------|------------------
 **Add** | `add n/NAME [p/PHONE] sch/SCHOOL [a/ADDRESS] [e/EMAIL] lvl/LEVEL sub/SUBJECT band/BAND [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME gp/GUARDIAN_PHONE] [t/TAG]...` <br> e.g., `add n/James Ho p/62224444 sch/Victoria School a/Blk 123 Bedok North Avenue 2, #04-111 lvl/S2 sub/Mathematics band/G1 gn/Mary Ho gp/91234567 t/paid`
-**Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [a/ADDRESS] [e/EMAIL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE] [t/TAG]...`<br> e.g., `edit 2 a/Blk 311 Tampines Street 33, #05-212`, `edit 1 e/`, `edit 2 sub/Mathematics band/G2 sub/English band/G3`, `edit 1 gn/ gp/`, `edit 1 t/exams`, `edit 1 t/`
+**Edit** | `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [a/ADDRESS] [e/EMAIL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE] [t/TAG]...`<br> e.g., `edit 1 n/Chloe Tan p/91234567 sch/Bedok Green Secondary School a/Blk 311 Tampines Street 33, #05-212 e/chloe.tan@example.com lvl/S3 sub/Mathematics band/G2 sub/English band/G3 gn/Mary Tan gp/98765432 t/exams`
 **Delete** | `delete [-f] INDEX`<br> e.g., `delete 3`
 **Add note** | `addnote INDEX note/TEXT`<br> e.g., `addnote 1 note/Weak in algebra`
 **Edit note** | `editnote INDEX nid/NID note/TEXT`<br> e.g., `editnote 1 nid/2 note/Improving in algebra`
