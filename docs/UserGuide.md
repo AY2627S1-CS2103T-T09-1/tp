@@ -143,6 +143,21 @@ Examples:
 * `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Tan gp/91234567` adds a student with guardian Mary Tan. Use `view INDEX` to see the guardian details.
 * `add n/Aisha Rahman sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Farah Rahman gp/+60 12-345 6789` adds a student whose guardian has a Malaysian number. It is saved as `+60123456789`, with a warning that it doesn't look like a Singapore number.
 
+#### Subject and band errors
+
+The following errors apply to subject-band input in `add` and `edit`. For `edit`, omitting both `sub/` and `band/` leaves subjects unchanged. An empty `sub/` does not remove subjects; every student must have at least one.
+
+| Problem | Message |
+| --- | --- |
+| No `sub/` in `add`, or `band/` supplied alone in `edit` | `Missing required parameter: sub/.` In `add`, any other missing parameters are listed too, such as `Missing required parameters: lvl/, sub/.` |
+| Missing, misplaced, or repeated `band/` within a pair | `Each sub/ must be immediately followed by one band/.` |
+| Empty band or a value other than G1, G2, or G3 | `Band must be one of G1, G2, G3.` |
+| Invalid subject name | `Subjects must be 1-40 characters using only letters, spaces and hyphens, with at least one letter.` |
+| More than eight subject-band pairs | `A student may have at most 8 subjects.` |
+| Repeated subject name | `Subject is repeated: {SUBJECT}.` |
+
+For example, `edit 1 sub/Mathematics band/G1 sub/mathematics band/G2` fails with `Subject is repeated: mathematics.`
+
 ### Listing all persons: `list`
 
 Shows a list of all persons in the address book. Each entry shows the student's index, name, phone number (if provided), school, address (if provided), email (if provided), level, and tags (if any). The right panel returns to `View a student to see details.` Use `view INDEX` to see the remaining details.
@@ -207,21 +222,6 @@ Examples:
 *  `edit 1 gn/ gp/` Removes the guardian of the 1st person.
 *  `edit 1 t/paid t/exams` Replaces the tags of the 1st person with `paid` and `exams`.
 *  `edit 1 t/` Removes all tags of the 1st person.
-
-#### Subject and band errors
-
-The following errors apply to subject-band input in `add` and `edit`. For `edit`, omitting both `sub/` and `band/` leaves subjects unchanged. An empty `sub/` does not remove subjects; every student must have at least one.
-
-| Problem | Message |
-| --- | --- |
-| No `sub/` in `add`, or `band/` supplied alone in `edit` | `Missing required parameter: sub/.` In `add`, any other missing parameters are listed too, such as `Missing required parameters: lvl/, sub/.` |
-| Missing, misplaced, or repeated `band/` within a pair | `Each sub/ must be immediately followed by one band/.` |
-| Empty band or a value other than G1, G2, or G3 | `Band must be one of G1, G2, G3.` |
-| Invalid subject name | `Subjects must be 1-40 characters using only letters, spaces and hyphens, with at least one letter.` |
-| More than eight subject-band pairs | `A student may have at most 8 subjects.` |
-| Repeated subject name | `Subject is repeated: {SUBJECT}.` |
-
-For example, `edit 1 sub/Mathematics band/G1 sub/mathematics band/G2` fails with `Subject is repeated: mathematics.`
 
 ### Adding a note to a student: `addnote`
 
