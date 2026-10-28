@@ -115,7 +115,7 @@ Problem | Message
 --------|--------
 There are no parameters at all, or there is text between `add` and the first parameter, such as `add John Doe sch/Victoria School ...` | `Invalid command format!` followed by how to use `add`
 `n/`, `sch/`, `lvl/`, or `sub/` is missing, or has no space before it | Every missing one is named, such as `Missing required parameters: sch/, lvl/.`
-`n/`, `p/`, `sch/`, `a/`, `e/`, `lvl/`, `gn/`, or `gp/` appears more than once | `Multiple values specified for the following single-valued field(s): p/`
+`n/`, `p/`, `sch/`, `a/`, `e/`, `lvl/`, `gn/`, or `gp/` appears more than once, such as `p/91234567 p/98765432` | `Multiple values specified for the following single-valued field(s): p/`
 `NAME` is invalid | `Names should only contain alphanumeric characters and spaces, and should not be blank`
 `PHONE` or `GUARDIAN_PHONE` is invalid | The message says why, as described above
 `SCHOOL` is invalid | `School names must be 1-100 characters and contain at least one letter.`
@@ -214,7 +214,7 @@ Problem | Message
 --------|--------
 `INDEX` is missing or is not a positive integer, or there is text between `INDEX` and the first parameter, such as `edit 0 p/91234567` | `Invalid command format!` followed by how to use `edit`
 No field to edit is given, such as `edit 1` | `At least one field to edit must be provided.`
-`n/`, `p/`, `sch/`, `a/`, `e/`, `lvl/`, `gn/`, or `gp/` appears more than once | `Multiple values specified for the following single-valued field(s): p/`
+`n/`, `p/`, `sch/`, `a/`, `e/`, `lvl/`, `gn/`, or `gp/` appears more than once, such as `edit 1 n/Amy n/Ben` | `Multiple values specified for the following single-valued field(s): n/`
 A value is invalid | The same message as in [`add`](#adding-a-person-add)
 A subject or band is wrong | See [Subject and band errors](#subject-and-band-errors)
 Only one of `gn/` and `gp/` is empty, such as `edit 1 gn/` | `Guardian name (gn/) and guardian phone (gp/) cannot be empty. To remove the guardian, use gn/ gp/ with no values.`
