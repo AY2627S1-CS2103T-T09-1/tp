@@ -122,6 +122,24 @@ public class ParserUtilTest {
     }
 
     @Test
+    public void parseName_repeatedSpaces_returnsCollapsedName() throws Exception {
+        assertEquals(new Name("Rachel Walker"), ParserUtil.parseName("  Rachel   Walker  "));
+    }
+
+    @Test
+    public void parseSchool_repeatedSpaces_returnsCollapsedSchool() throws Exception {
+        // School.equals ignores extra spaces, so compare the saved value
+        assertEquals("Victoria School", ParserUtil.parseSchool("  Victoria   School  ").value);
+    }
+
+    @Test
+    public void parseSubject_repeatedSpaces_returnsCollapsedSubject() throws Exception {
+        // Subject.equals ignores extra spaces, so compare the saved name
+        assertEquals("Additional Mathematics",
+                ParserUtil.parseSubject("  Additional   Mathematics  ", "G1").getName());
+    }
+
+    @Test
     public void parseAddress_repeatedOrdinarySpaces_collapsesSpaces() throws Exception {
         assertEquals(new Address("123 Example Road"), ParserUtil.parseAddress("  123  Example   Road  "));
     }
@@ -248,7 +266,8 @@ public class ParserUtilTest {
 
     @Test
     public void parseEmail_invalidValue_throwsParseException() {
-        assertThrows(ParseException.class, Email.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseEmail(INVALID_EMAIL));
+        assertThrows(ParseException.class, String.format(Email.MESSAGE_MISSING_AT, INVALID_EMAIL), () ->
+                ParserUtil.parseEmail(INVALID_EMAIL));
     }
 
     @Test

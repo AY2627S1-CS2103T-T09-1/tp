@@ -1,7 +1,9 @@
 package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
@@ -25,6 +27,8 @@ import seedu.address.model.person.Band;
 import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Subject;
+import seedu.address.model.person.predicate.AddressContainsTextPredicate;
+import seedu.address.model.person.predicate.EmailContainsTextPredicate;
 import seedu.address.model.person.predicate.GuardianNameContainsTextPredicate;
 import seedu.address.model.person.predicate.GuardianPhoneMatchesPredicate;
 import seedu.address.model.person.predicate.LevelMatchesPredicate;
@@ -43,6 +47,8 @@ public class FilterCommandParser implements Parser<FilterCommand> {
 
     public static final String MESSAGE_BLANK_NAME = "The name to search for cannot be blank.";
     public static final String MESSAGE_BLANK_SCHOOL = "The school to search for cannot be blank.";
+    public static final String MESSAGE_BLANK_EMAIL = "The email to search for cannot be blank.";
+    public static final String MESSAGE_BLANK_ADDRESS = "The address to search for cannot be blank.";
     public static final String MESSAGE_BLANK_GUARDIAN_NAME =
             "The guardian name to search for cannot be blank.";
     public static final String MESSAGE_NO_FILTER =
@@ -61,7 +67,8 @@ public class FilterCommandParser implements Parser<FilterCommand> {
 
     private static final Prefix[] FILTER_PREFIXES = {
         PREFIX_NAME, PREFIX_SCHOOL, PREFIX_LEVEL, PREFIX_SUBJECT, PREFIX_BAND,
-        PREFIX_PHONE, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE, PREFIX_TAG, PREFIX_NOTE
+        PREFIX_PHONE, PREFIX_EMAIL, PREFIX_ADDRESS, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE,
+        PREFIX_TAG, PREFIX_NOTE
     };
 
     /**
@@ -117,6 +124,10 @@ public class FilterCommandParser implements Parser<FilterCommand> {
                 parseSubjectFilter(value, argMultimap.getValue(PREFIX_BAND)));
         addFilter(filters, argMultimap, PREFIX_PHONE, value ->
                 new PhoneMatchesPredicate(ParserUtil.parsePhone(value)));
+        addFilter(filters, argMultimap, PREFIX_EMAIL, value ->
+                new EmailContainsTextPredicate(parseSearchText(value, MESSAGE_BLANK_EMAIL)));
+        addFilter(filters, argMultimap, PREFIX_ADDRESS, value ->
+                new AddressContainsTextPredicate(parseSearchText(value, MESSAGE_BLANK_ADDRESS)));
         addFilter(filters, argMultimap, PREFIX_GUARDIAN_NAME, value -> new GuardianNameContainsTextPredicate(
                 parseSearchText(value, MESSAGE_BLANK_GUARDIAN_NAME)));
         addFilter(filters, argMultimap, PREFIX_GUARDIAN_PHONE, value ->

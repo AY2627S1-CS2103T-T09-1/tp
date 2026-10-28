@@ -101,7 +101,7 @@ public class EditCommandParserTest {
 
     @Test
     public void parse_invalidEmail_failure() {
-        assertParseFailure(parser, "1 e/amy", Email.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1 e/amy", String.format(Email.MESSAGE_MISSING_AT, "amy"));
         assertParseFailure(parser, "1 e/amy@example.com e/bob@example.com",
                 Messages.getErrorMessageForDuplicatePrefixes(PREFIX_EMAIL));
     }
@@ -293,6 +293,20 @@ public class EditCommandParserTest {
         assertParseSuccess(parser, targetIndex.getOneBased() + " " + PREFIX_GUARDIAN_NAME + "  "
                 + VALID_GUARDIAN_NAME_AMY + "  " + PREFIX_GUARDIAN_PHONE + VALID_GUARDIAN_PHONE_AMY + "  ",
                 new EditCommand(targetIndex, descriptor));
+    }
+
+    @Test
+    public void parse_repeatedSpacesInTextFields_collapsesSpaces() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withName("John Doe")
+                .withSchool("Victoria School")
+                .withSubjects(new Subject("Additional Mathematics", Band.G2))
+                .withGuardianName("Mary Jane")
+                .build();
+        String userInput = "1 n/  John   Doe  sch/  Victoria   School  sub/  Additional   Mathematics  band/G2 "
+                + "gn/  Mary   Jane  ";
+
+        assertParseSuccess(parser, userInput, new EditCommand(INDEX_FIRST_PERSON, descriptor));
     }
 
     @Test

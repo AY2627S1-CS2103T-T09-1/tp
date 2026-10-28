@@ -27,6 +27,8 @@ import seedu.address.model.person.Level;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.Subject;
+import seedu.address.model.person.predicate.AddressContainsTextPredicate;
+import seedu.address.model.person.predicate.EmailContainsTextPredicate;
 import seedu.address.model.person.predicate.GuardianNameContainsTextPredicate;
 import seedu.address.model.person.predicate.GuardianPhoneMatchesPredicate;
 import seedu.address.model.person.predicate.LevelMatchesPredicate;
@@ -46,9 +48,11 @@ import seedu.address.testutil.PersonBuilder;
  */
 public class FilterCommandTest {
     private static final Person CHLOE = new PersonBuilder().withName("Chloe Tan").withPhone("91234567")
+            .withEmail("chloe.tan@gmail.com").withAddress("Blk 123 Bedok North Avenue 2, #04-111")
             .withGuardian("Amy Tan", "92345678")
             .withSubjects(new Subject("Mathematics", Band.G1), new Subject("Science", Band.G2)).build();
     private static final Person MARCUS = new PersonBuilder().withName("Marcus Lim").withPhone("82345678")
+            .withEmail("marcus.lim@example.com").withAddress("Blk 311 Tampines Street 33, #05-212")
             .withGuardian("Grace Lim", "98765432")
             .withSubjects(new Subject("English", Band.G2), new Subject("Mathematics", Band.G2)).build();
     private static final Person AISHA = new PersonBuilder().withName("Aisha Rahman").withSubjects(
@@ -218,6 +222,28 @@ public class FilterCommandTest {
     }
 
     @Test
+    public void execute_email_studentsWithMatchingEmailFound() {
+        assertContactFilterFinds(new EmailContainsTextPredicate("gmail.com"), List.of(CHLOE));
+    }
+
+    @Test
+    public void execute_email_studentsWithoutEmailNotFound() {
+        // Daniel Lee has no email, so he is never matched by an email filter
+        assertContactFilterFinds(new EmailContainsTextPredicate("@"), List.of(CHLOE, MARCUS));
+    }
+
+    @Test
+    public void execute_address_studentsWithMatchingAddressFound() {
+        assertContactFilterFinds(new AddressContainsTextPredicate("bedok north"), List.of(CHLOE));
+    }
+
+    @Test
+    public void execute_address_studentsWithoutAddressNotFound() {
+        // Daniel Lee has no address, so he is never matched by an address filter
+        assertContactFilterFinds(new AddressContainsTextPredicate("blk"), List.of(CHLOE, MARCUS));
+    }
+
+    @Test
     public void execute_note_studentsWithMatchingNoteFound() {
         Person weakInAlgebra = new PersonBuilder().withName("Chloe Tan").withNotes("Weak in algebra").build();
         Person strongInGeometry = new PersonBuilder().withName("Marcus Lim")
@@ -255,7 +281,7 @@ public class FilterCommandTest {
     }
 
     /**
-     * Runs {@code filter} on a model of students with and without phones and guardians,
+     * Runs {@code filter} on a model of students with and without phones, emails, addresses and guardians,
      * and checks that exactly {@code expectedStudents} are shown.
      */
     private static void assertContactFilterFinds(Predicate<Person> filter, List<Person> expectedStudents) {
