@@ -1,6 +1,7 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
@@ -30,10 +31,10 @@ public class FilterCommand extends Command {
             + "given, ignoring case.\n"
             + "Parameters: [" + PREFIX_NAME + "NAME] [" + PREFIX_SCHOOL + "SCHOOL] "
             + "[" + PREFIX_LEVEL + "LEVEL] [" + PREFIX_SUBJECT + "SUBJECT [" + PREFIX_BAND + "BAND]] "
-            + "[" + PREFIX_PHONE + "PHONE] "
+            + "[" + PREFIX_PHONE + "PHONE] [" + PREFIX_ADDRESS + "ADDRESS] "
             + "[" + PREFIX_GUARDIAN_NAME + "GUARDIAN_NAME] [" + PREFIX_GUARDIAN_PHONE + "GUARDIAN_PHONE] "
             + "[" + PREFIX_NOTE + "TEXT] "
-            + "(at least one)\n"
+            + "(at least one, each at most once)\n"
             + "Example: " + COMMAND_WORD + " " + PREFIX_LEVEL + "S5 " + PREFIX_SUBJECT + "Mathematics "
             + PREFIX_BAND + "G2";
 
