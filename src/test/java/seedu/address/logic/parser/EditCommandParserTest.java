@@ -101,7 +101,7 @@ public class EditCommandParserTest {
 
     @Test
     public void parse_invalidEmail_failure() {
-        assertParseFailure(parser, "1 e/amy", Email.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1 e/amy", String.format(Email.MESSAGE_MISSING_AT, "amy"));
         assertParseFailure(parser, "1 e/amy@example.com e/bob@example.com",
                 Messages.getErrorMessageForDuplicatePrefixes(PREFIX_EMAIL));
     }

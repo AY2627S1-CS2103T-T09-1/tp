@@ -248,7 +248,8 @@ public class ParserUtilTest {
 
     @Test
     public void parseEmail_invalidValue_throwsParseException() {
-        assertThrows(ParseException.class, Email.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseEmail(INVALID_EMAIL));
+        assertThrows(ParseException.class, String.format(Email.MESSAGE_MISSING_AT, INVALID_EMAIL), () ->
+                ParserUtil.parseEmail(INVALID_EMAIL));
     }
 
     @Test
