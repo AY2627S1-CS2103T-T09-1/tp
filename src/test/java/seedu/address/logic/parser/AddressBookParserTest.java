@@ -4,9 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.Messages.MESSAGE_UNKNOWN_COMMAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NID;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NOTE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 
@@ -16,6 +18,7 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.AddCommand;
+import seedu.address.logic.commands.AddNoteCommand;
 import seedu.address.logic.commands.ClearCommand;
 import seedu.address.logic.commands.DeleteCommand;
 import seedu.address.logic.commands.DeleteNoteCommand;
@@ -28,6 +31,7 @@ import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.ViewCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.person.Address;
 import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.predicate.NameContainsKeywordsPredicate;
@@ -37,6 +41,9 @@ import seedu.address.testutil.PersonBuilder;
 import seedu.address.testutil.PersonUtil;
 
 public class AddressBookParserTest {
+
+    private static final String NON_BREAKING_SPACE = " ";
+    private static final String ZERO_WIDTH_SPACE = "​";
 
     private final AddressBookParser parser = new AddressBookParser();
 
@@ -181,5 +188,33 @@ public class AddressBookParserTest {
     @Test
     public void parseCommand_unknownCommand_throwsParseException() {
         assertThrows(ParseException.class, MESSAGE_UNKNOWN_COMMAND, () -> parser.parseCommand("unknownCommand"));
+    }
+
+    @Test
+    public void parseCommand_nonBreakingSpaceBeforePrefix_readsPrefix() throws Exception {
+        Person person = new PersonBuilder().build();
+        String userInput = PersonUtil.getAddCommand(person)
+                .replace(" " + PREFIX_PHONE, NON_BREAKING_SPACE + PREFIX_PHONE);
+        assertEquals(new AddCommand(person), parser.parseCommand(userInput));
+    }
+
+    @Test
+    public void parseCommand_zeroWidthSpaceInAddress_removed() throws Exception {
+        Person person = new PersonBuilder().withAddress("Bedok North").build();
+        String userInput = PersonUtil.getAddCommand(person).replace("Bedok", "Be" + ZERO_WIDTH_SPACE + "dok");
+        assertEquals(new AddCommand(person), parser.parseCommand(userInput));
+    }
+
+    @Test
+    public void parseCommand_noteOfNonBreakingSpaces_throwsParseException() {
+        String userInput = AddNoteCommand.COMMAND_WORD + " 1 " + PREFIX_NOTE + NON_BREAKING_SPACE.repeat(3);
+        assertThrows(ParseException.class, Note.MESSAGE_BLANK, () -> parser.parseCommand(userInput));
+    }
+
+    @Test
+    public void parseCommand_addressOfNonBreakingSpace_throwsParseException() {
+        Person person = new PersonBuilder().withoutAddress().build();
+        String userInput = PersonUtil.getAddCommand(person) + " " + PREFIX_ADDRESS + NON_BREAKING_SPACE;
+        assertThrows(ParseException.class, Address.MESSAGE_CONSTRAINTS, () -> parser.parseCommand(userInput));
     }
 }
