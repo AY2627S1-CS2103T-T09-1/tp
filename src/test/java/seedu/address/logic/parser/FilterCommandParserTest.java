@@ -57,6 +57,26 @@ public class FilterCommandParserTest {
     }
 
     @Test
+    public void parse_prefixWithoutSpace_throwsParseException() {
+        String hint = Messages.MESSAGE_PREFIX_WITHOUT_SPACE_HINT;
+        String cannotMatch = FilterCommandParser.MESSAGE_SEARCH_CANNOT_MATCH;
+        assertParseFailure(parser, " n/Chloesch/Victoria",
+                String.format(cannotMatch, "name", "Chloesch/Victoria") + "\n"
+                + String.format(hint, "sch/", "Chloesch/Victoria"));
+        assertParseFailure(parser, " gn/Mary Tangp/91234567",
+                String.format(cannotMatch, "guardian name", "Mary Tangp/91234567") + "\n"
+                + String.format(hint, "gp/", "Tangp/91234567"));
+        assertParseFailure(parser, " n/Chloenote/algebra",
+                String.format(cannotMatch, "name", "Chloenote/algebra") + "\n"
+                + String.format(hint, "note/", "Chloenote/algebra"));
+    }
+
+    @Test
+    public void parse_slashWithoutPrefix_returnsFilterCommand() {
+        assertParseSuccess(parser, " n/AC/DC", filterCommandOf(name("AC/DC")));
+    }
+
+    @Test
     public void parse_validSchool_returnsFilterCommand() {
         assertParseSuccess(parser, " sch/victoria", filterCommandOf(school("victoria")));
     }

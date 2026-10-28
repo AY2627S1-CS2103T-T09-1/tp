@@ -52,11 +52,16 @@ public class FilterCommandParser implements Parser<FilterCommand> {
     public static final String MESSAGE_BLANK_NOTE = "The note text to search for cannot be blank.";
     public static final String MESSAGE_NOTE_TOO_LONG = "The note text to search for must be at most "
             + Note.MAX_LENGTH + " characters.";
+    public static final String MESSAGE_SEARCH_CANNOT_MATCH =
+            "No student's %1$s can contain \"/\", so \"%2$s\" matches no one.";
 
     private static final Prefix[] FILTER_PREFIXES = {
         PREFIX_NAME, PREFIX_SCHOOL, PREFIX_LEVEL, PREFIX_SUBJECT, PREFIX_BAND,
         PREFIX_PHONE, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE, PREFIX_NOTE
     };
+    private static final String FIELD_NAME = "name";
+    private static final String FIELD_SCHOOL = "school";
+    private static final String FIELD_GUARDIAN_NAME = "guardian name";
 
     /**
      * Parses the given {@code String} of arguments in the context of the FilterCommand
@@ -98,9 +103,10 @@ public class FilterCommandParser implements Parser<FilterCommand> {
     private static List<Predicate<Person>> parseFilters(ArgumentMultimap argMultimap) throws ParseException {
         List<Predicate<Person>> filters = new ArrayList<>();
         addFilter(filters, argMultimap, PREFIX_NAME, value ->
-                new NameContainsKeywordsPredicate(List.of(parseSearchText(value, MESSAGE_BLANK_NAME))));
-        addFilter(filters, argMultimap, PREFIX_SCHOOL, value ->
-                new SchoolContainsTextPredicate(parseSearchText(value, MESSAGE_BLANK_SCHOOL)));
+                new NameContainsKeywordsPredicate(List.of(
+                        parseSlashFreeSearchText(value, MESSAGE_BLANK_NAME, FIELD_NAME, false))));
+        addFilter(filters, argMultimap, PREFIX_SCHOOL, value -> new SchoolContainsTextPredicate(
+                parseSlashFreeSearchText(value, MESSAGE_BLANK_SCHOOL, FIELD_SCHOOL, false)));
         addFilter(filters, argMultimap, PREFIX_LEVEL, value ->
                 new LevelMatchesPredicate(ParserUtil.parseLevel(value)));
         addFilter(filters, argMultimap, PREFIX_SUBJECT, value ->
@@ -108,7 +114,7 @@ public class FilterCommandParser implements Parser<FilterCommand> {
         addFilter(filters, argMultimap, PREFIX_PHONE, value ->
                 new PhoneMatchesPredicate(ParserUtil.parsePhone(value)));
         addFilter(filters, argMultimap, PREFIX_GUARDIAN_NAME, value -> new GuardianNameContainsTextPredicate(
-                parseSearchText(value, MESSAGE_BLANK_GUARDIAN_NAME)));
+                parseSlashFreeSearchText(value, MESSAGE_BLANK_GUARDIAN_NAME, FIELD_GUARDIAN_NAME, true)));
         addFilter(filters, argMultimap, PREFIX_GUARDIAN_PHONE, value ->
                 new GuardianPhoneMatchesPredicate(ParserUtil.parseGuardianPhone(value)));
         addFilter(filters, argMultimap, PREFIX_NOTE, FilterCommandParser::parseNoteFilter);
@@ -191,6 +197,29 @@ public class FilterCommandParser implements Parser<FilterCommand> {
         String text = value.replaceAll("\\s+", " ").strip();
         if (text.isEmpty()) {
             throw new ParseException(blankMessage);
+        }
+        return text;
+    }
+
+    /**
+     * Returns the search text for a field whose values cannot contain {@code /}, such as a name.
+     * A prefix with no space before it in such text usually means a missing space, and the text cannot match
+     * any student, so it is rejected with a hint.
+     *
+     * @param value The text given after the prefix.
+     * @param blankMessage The error to show if {@code value} is blank.
+     * @param fieldName The field searched, such as {@code "school"}, used in the error.
+     * @param isGuardianField Whether the field is a guardian's.
+     * @throws ParseException if {@code value} is blank or contains a filter prefix with no space before it.
+     */
+    private static String parseSlashFreeSearchText(String value, String blankMessage, String fieldName,
+            boolean isGuardianField) throws ParseException {
+        String text = parseSearchText(value, blankMessage);
+        Optional<String> hint = ParserUtil.getPrefixWithoutSpaceHint(text, isGuardianField,
+                List.of(FILTER_PREFIXES));
+        if (hint.isPresent()) {
+            throw new ParseException(String.format(MESSAGE_SEARCH_CANNOT_MATCH, fieldName, text)
+                    + "\n" + hint.get());
         }
         return text;
     }
