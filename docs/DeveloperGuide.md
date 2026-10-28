@@ -813,8 +813,8 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
   Use case ends.
 
 ---
-  
-## Use case: UC5 - View a student's record
+
+**Use case: UC5 - View a student's record**
 
 **MSS**
 
@@ -825,19 +825,19 @@ Use case ends.
 
 **Extensions**
 
-- 1a. The given index is invalid.
-  - 1a1. TuteeBook3 shows an error message.
+* 1a. The given index is invalid.
+  * 1a1. TuteeBook3 shows an error message.
 
   Use case resumes at step 1.
 
-- 2a. The student has no notes.
-  - 2a1. TuteeBook3 shows the card with an empty notes section.
+* 2a. The student has no notes.
+  * 2a1. TuteeBook3 shows the card with an empty notes section.
 
   Use case ends.
 
 ---
 
-## Use case: UC6 - Find students by a keyword in their notes
+**Use case: UC6 - Find students by a keyword in their notes**
 
 **MSS**
 
@@ -867,7 +867,7 @@ Use case ends.
   Use case resumes at step 2.
 
 ---
-  
+
 **Use case: UC7 - Add a note to a student**
 
 **MSS**
