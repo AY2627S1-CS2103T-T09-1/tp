@@ -59,8 +59,8 @@ TuteeBook3 is a **desktop app for private tutors who teach secondary school stud
 * Parameters can be in any order, except that each `sub/SUBJECT` must be immediately followed by its `band/BAND`.<br>
   For example, `sub/Mathematics band/G1 lvl/S3` is valid, but `sub/Mathematics lvl/S3 band/G1` is not.
 
-* Put a space before every parameter prefix, such as `n/John Doe p/98765432`. If a prefix has no space before it, TuteeBook3 reads it as part of the value before it, and the error suggests adding the space.<br>
-  For example, `n/John Doep/98765432` is read as the name `John Doep/98765432`. Addresses and notes can contain `/`, so a missing space there is not detected. See [Known issues](#known-issues).
+* Put a space before every parameter prefix, such as `n/John Doe p/98765432`. If a prefix has no space before it, TuteeBook3 reads it as part of the value before it. The error then quotes the word with the `/` and suggests putting a space before its prefix. If the joined prefix is a required one (`n/`, `sch/`, `lvl/`, or `sub/`), the error says that parameter is missing instead.<br>
+  For example, `n/John Doep/98765432` is read as the name `John Doep/98765432`. Addresses can contain `/`, so a missing space in an address is not detected. See [Known issues](#known-issues).
 
 * `[sub/SUBJECT band/BAND]...` means that additional subject-band pairs may be supplied.
 
@@ -418,6 +418,7 @@ A filter appears more than once | `Multiple values specified for the following s
 `band/` is not right after `sub/`, or there is no `sub/` | `band/ must come right after sub/, such as: filter sub/Mathematics band/G2`
 `PHONE` or `GUARDIAN_PHONE` is empty or not a valid phone number | The same message as `add`, such as `Phone cannot be empty.`
 `GUARDIAN_NAME` is empty | `The guardian name to search for cannot be blank.`
+`NAME`, `SCHOOL`, `EMAIL`, or `GUARDIAN_NAME` contains `/`, such as `n/Chloesch/Victoria` | `No student's name can contain "/", so "Chloesch/Victoria" matches no one.` followed by `"Chloesch/Victoria" contains "/". If it was meant to start a new parameter, put a space before its prefix.`
 `TEXT` after `note/` is empty | `The note text to search for cannot be blank.`
 `TEXT` after `note/` is longer than 500 characters | `The note text to search for must be at most 500 characters.`
 `nid/` is given | `To filter by notes, use note/, such as: filter note/algebra`
@@ -576,12 +577,12 @@ _Details coming soon ..._
 
 1. **When using multiple screens**, if you move the application to a secondary screen, and later switch to using only the primary screen, the GUI will open off-screen. The remedy is to delete the `preferences.json` file created by the application before running the application again.
 
-1. **A missing space before a parameter is not detected in an address or a note search.** Addresses and notes can contain `/`, so TuteeBook3 keeps the text as typed:
+1. **A missing space before a parameter is not detected in an address.** Addresses can contain `/`, such as `Blk 1/2`, so TuteeBook3 keeps the text as typed:
 
 Where | Example | What happens | Remedy
 ------|---------|--------------|-------
 `a/ADDRESS` in `add` or `edit` | `add ... a/Blk 1e/chloe@example.com` | The student is added with the address `Blk 1e/chloe@example.com` and no email. | Check the student with `view`, then fix it with `edit INDEX a/Blk 1 e/chloe@example.com`.
-`note/` in `filter` | `filter note/algebralvl/S2` | TuteeBook3 searches notes for `algebralvl/S2` and shows `0 students listed!`. | Put a space before each parameter and filter again.
+`a/ADDRESS` in `filter` | `filter a/Bedoksch/Victoria` | TuteeBook3 searches addresses for `Bedoksch/Victoria` and shows `0 students listed!`. | Put a space before `sch/` and filter again.
 
 --------------------------------------------------------------------------------------------------------------------
 
