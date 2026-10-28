@@ -85,10 +85,6 @@ No brackets | Required | `sch/SCHOOL` must be given
 `[ ]` | Optional | `[p/PHONE]` can be left out
 `...` | Can be given more than once, or not at all if it's in `[ ]` | `[t/TAG]...` → `t/paid t/exams`
 
-
-* Parameters can be in any order, except that each `sub/SUBJECT` must be immediately followed by its `band/BAND`.<br>
-  For example, `sub/Mathematics band/G1 lvl/S3` is valid, but `sub/Mathematics lvl/S3 band/G1` is not.
-* Commands that take no parameters, such as `help`, `list` and `exit`, reject extra text. For example, `help 123` is rejected.
 * If you are using a PDF version of this document, be careful when copying and pasting commands that span multiple lines as space characters surrounding line-breaks may be omitted when copied over to the application.
 
 --------------------------------------------------------------------------------------------------------------------
@@ -98,6 +94,8 @@ No brackets | Required | `sch/SCHOOL` must be given
 ### Parameter details
 
 These are the values you type in commands. The table below covers the student details you can give in `add` and `edit`. Each one is entered after its prefix, such as `n/` for `NAME`. [Indexes and notes](#indexes-and-notes) covers the values that pick a student or a note.
+
+Parameters can be given in any order, except that each `sub/SUBJECT` must be immediately followed by its `band/BAND`. For example, `sub/Mathematics band/G1 lvl/S3` is valid, but `sub/Mathematics lvl/S3 band/G1` is not.
 
 Parameter | Prefix | Required in `add` | Rules | Example
 ----------|--------|-------------------|-------|--------
@@ -200,15 +198,18 @@ Format: `add n/NAME [p/PHONE] sch/SCHOOL [a/ADDRESS] [e/EMAIL] lvl/LEVEL sub/SUB
 
 Examples:
 
-* `add n/John Doe p/98765432 sch/Victoria School lvl/S3 sub/Mathematics band/G1`
-* `add n/Betsy Crowe lvl/S1 sch/Bedok Green Secondary School p/81234567 sub/Mathematics band/G1`
-* `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1` adds a student without a phone number.
-* `add n/Chloe Tan sch/Bedok Green Secondary School lvl/S2 sub/Mathematics band/G1 sub/English band/G3` adds a student taking two subjects at different bands.
-* `add n/Mei Lin sch/Bedok Green Secondary School a/Blk 123 Bedok North Avenue 2, #04-111 lvl/S2 sub/Mathematics band/G1` adds a student with an address.
-* `add n/Mei Lin sch/Bedok Green Secondary School e/meilin@example.com lvl/S2 sub/Mathematics band/G1` adds a student with an email.
-* `add n/Mei Lin sch/Bedok Green Secondary School lvl/S2 sub/Mathematics band/G1 t/exams t/paid` adds a student with the tags `exams` and `paid`.
-* `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Tan gp/91234567` adds a student with guardian Mary Tan. Use `view INDEX` to see the guardian details.
-* `add n/Aisha Rahman sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Farah Rahman gp/+60 12-345 6789` adds a student whose guardian has a Malaysian number. It is saved as `+60123456789`, with a warning that it doesn't look like a Singapore number.
+To add a student with… | Type
+-----------------------|-----
+Only the required details | `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1`
+A phone number | `add n/John Doe p/98765432 sch/Victoria School lvl/S3 sub/Mathematics band/G1`
+Parameters in a different order | `add n/Betsy Crowe lvl/S1 sch/Bedok Green Secondary School p/81234567 sub/Mathematics band/G1`
+Two subjects at different bands | `add n/Chloe Tan sch/Bedok Green Secondary School lvl/S2 sub/Mathematics band/G1 sub/English band/G3`
+An address | `add n/Mei Lin sch/Bedok Green Secondary School a/Blk 123 Bedok North Avenue 2, #04-111 lvl/S2 sub/Mathematics band/G1`
+An email | `add n/Priya Nair sch/Bedok Green Secondary School e/priya.nair@example.com lvl/S2 sub/Mathematics band/G1`
+Tags | `add n/Ryan Ong sch/Bedok Green Secondary School lvl/S2 sub/Mathematics band/G1 t/exams t/paid`
+A guardian (use `view INDEX` to see the guardian's details) | `add n/Jun Wei Lim sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Lim gp/91234567`
+A guardian with an overseas number (saved as `+60123456789`, with a warning that it doesn't look like a Singapore number) | `add n/Aisha Rahman sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Farah Rahman gp/+60 12-345 6789`
+Every detail | `add n/James Ho p/62224444 sch/Victoria School a/Blk 123 Bedok North Avenue 2, #04-111 e/james.ho@example.com lvl/S2 sub/Mathematics band/G1 sub/English band/G2 gn/Mary Ho gp/91234567 t/paid`
 
 ##### Errors in `add`
 
