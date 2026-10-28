@@ -59,7 +59,7 @@ TuteeBook3 is a **desktop app for private tutors who teach secondary school stud
 * Parameters can be in any order, except that each `sub/SUBJECT` must be immediately followed by its `band/BAND`.<br>
   For example, `sub/Mathematics band/G1 lvl/S3` is valid, but `sub/Mathematics lvl/S3 band/G1` is not.
 
-* Put a space before every parameter prefix, such as `n/John Doe p/98765432`. If a prefix has no space before it, TuteeBook3 reads it as part of the value before it. The error then asks you to check that each prefix is one the command accepts and has a space before it. If the joined prefix is a required one (`n/`, `sch/`, `lvl/`, or `sub/`), the error says that parameter is missing instead.<br>
+* Put a space before every parameter prefix, such as `n/John Doe p/98765432`. If a prefix has no space before it, TuteeBook3 reads it as part of the value before it. The error then asks you to check that each prefix is one the command accepts and has a space before it. In `add`, if the joined prefix is a required one (`n/`, `sch/`, `lvl/`, or `sub/`), the error says that parameter is missing instead. In `edit`, this happens only for `sub/` when `band/` is given.<br>
   For example, `n/John Doep/98765432` is read as the name `John Doep/98765432`. Addresses can contain `/`, so a missing space in an address is not detected. See [Known issues](#known-issues).
 
 * `[sub/SUBJECT band/BAND]...` means that additional subject-band pairs may be supplied.
