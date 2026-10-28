@@ -65,6 +65,13 @@ public class NameContainsKeywordsPredicateTest {
     }
 
     @Test
+    public void test_extraSpacesInName_returnsTrue() {
+        // A name saved with extra spaces, such as from a hand-edited data file
+        NameContainsKeywordsPredicate predicate = new NameContainsKeywordsPredicate(List.of("chloe tan"));
+        assertTrue(predicate.test(new PersonBuilder().withName("Chloe   Tan").build()));
+    }
+
+    @Test
     public void test_nameDoesNotContainKeywords_returnsFalse() {
         // Zero keywords
         NameContainsKeywordsPredicate predicate = new NameContainsKeywordsPredicate(List.of());
