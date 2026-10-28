@@ -42,6 +42,10 @@ public class ParserUtil {
 
     public static final String GUARDIAN_PHONE_LABEL = "Guardian phone";
 
+    private static final String REPEATED_SPACES_REGEX = " {2,}";
+
+    private static final String SINGLE_SPACE = " ";
+
     private static final Logger logger = LogsCenter.getLogger(ParserUtil.class);
 
     /**
@@ -86,13 +90,13 @@ public class ParserUtil {
 
     /**
      * Parses a {@code String name} into a {@code Name}.
-     * Leading and trailing whitespaces will be trimmed.
+     * Leading and trailing whitespaces will be trimmed, and repeated spaces are collapsed to one.
      *
      * @throws ParseException if the given {@code name} is invalid.
      */
     public static Name parseName(String name) throws ParseException {
         requireNonNull(name);
-        String trimmedName = name.trim();
+        String trimmedName = trimAndCollapseSpaces(name);
         if (!Name.isValidName(trimmedName)) {
             throw new ParseException(Name.MESSAGE_CONSTRAINTS);
         }
@@ -158,13 +162,13 @@ public class ParserUtil {
 
     /**
      * Parses a {@code String school} into a {@code School}.
-     * Leading and trailing whitespaces will be trimmed.
+     * Leading and trailing whitespaces will be trimmed, and repeated spaces are collapsed to one.
      *
      * @throws ParseException if the given {@code school} is invalid.
      */
     public static School parseSchool(String school) throws ParseException {
         requireNonNull(school);
-        String trimmedSchool = school.trim();
+        String trimmedSchool = trimAndCollapseSpaces(school);
         if (!School.isValidSchool(trimmedSchool)) {
             throw new ParseException(School.MESSAGE_CONSTRAINTS);
         }
@@ -217,13 +221,13 @@ public class ParserUtil {
     }
 
     /**
-     * Parses a subject name and its mandatory band, trimming surrounding spaces.
+     * Parses a subject name and its mandatory band, trimming surrounding spaces and collapsing repeated spaces.
      */
     public static Subject parseSubject(String name, String band) throws ParseException {
         requireNonNull(name);
         requireNonNull(band);
         try {
-            return new Subject(name.trim(), Band.fromString(band));
+            return new Subject(trimAndCollapseSpaces(name), Band.fromString(band));
         } catch (IllegalArgumentException e) {
             throw new ParseException(e.getMessage(), e);
         }
@@ -309,5 +313,12 @@ public class ParserUtil {
         }
         assert tagSet.size() == tags.size() : "every given tag should be kept";
         return tagSet;
+    }
+
+    /**
+     * Returns {@code value} trimmed, with repeated ordinary spaces collapsed to one.
+     */
+    private static String trimAndCollapseSpaces(String value) {
+        return value.trim().replaceAll(REPEATED_SPACES_REGEX, SINGLE_SPACE);
     }
 }
