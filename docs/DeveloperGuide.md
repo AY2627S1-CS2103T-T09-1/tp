@@ -194,7 +194,6 @@ Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `
 
 `Subject` is an immutable value object containing both the subject name and its required `Band`. The band is an enum, so a `Subject` cannot be constructed with an unsupported band or without one. For comparison, `Subject` trims surrounding spaces, collapses repeated ordinary spaces, and lowercases the name. The band is included in `Subject.equals`, but `Person#validateSubjects` checks names separately and rejects a repeated subject even if the bands differ.
 
-
 #### Implementation
 
 <img src="images/SubjectBandClassDiagram.png" width="700" />
