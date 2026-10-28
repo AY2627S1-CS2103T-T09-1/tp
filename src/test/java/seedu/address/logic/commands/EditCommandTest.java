@@ -63,6 +63,45 @@ public class EditCommandTest {
     }
 
     @Test
+    public void execute_sameName_warnsAndKeepsModelUnchanged() {
+        Person original = model.getFilteredPersonList().get(0);
+        EditCommand command = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withName(original.getName().toString()).build());
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        String expectedMessage = String.format(EditCommand.MESSAGE_NO_CHANGES, original.getName());
+        assertCommandSuccess(command, model,
+                CommandResult.showStudentWarning(expectedMessage, original, INDEX_FIRST_PERSON), expectedModel);
+    }
+
+    @Test
+    public void execute_removePhoneWhenNoPhone_warnsAndKeepsModelUnchanged() {
+        Person original = model.getFilteredPersonList().get(0);
+        Person withoutPhone = new PersonBuilder(original).withoutPhone().build();
+        model.setPerson(original, withoutPhone);
+        EditCommand command = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withPhoneRemoved().build());
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        String expectedMessage = String.format(EditCommand.MESSAGE_NO_CHANGES, withoutPhone.getName());
+        assertCommandSuccess(command, model,
+                CommandResult.showStudentWarning(expectedMessage, withoutPhone, INDEX_FIRST_PERSON), expectedModel);
+    }
+
+    @Test
+    public void execute_nameCaseChangedOnly_editsStudent() {
+        Person original = model.getFilteredPersonList().get(0);
+        String upperCaseName = original.getName().toString().toUpperCase();
+        Person edited = new PersonBuilder(original).withName(upperCaseName).build();
+        EditCommand command = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withName(upperCaseName).build());
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(original, edited);
+        String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS,
+                Messages.format(edited));
+        assertCommandSuccess(command, model,
+                CommandResult.showStudent(expectedMessage, edited, INDEX_FIRST_PERSON), expectedModel);
+    }
+
+    @Test
     public void execute_addressSetAndRemoved_updatesStudent() {
         Person original = model.getFilteredPersonList().get(0);
         Person withAddress = new PersonBuilder(original).withAddress("12 Example Road").build();
@@ -374,17 +413,16 @@ public class EditCommandTest {
     }
 
     @Test
-    public void execute_noFieldSpecifiedUnfilteredList_success() {
+    public void execute_noFieldSpecifiedUnfilteredList_warnsNoChanges() {
         EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON, new EditPersonDescriptor());
         Person editedPerson = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
 
-        String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS,
-                Messages.format(editedPerson));
+        String expectedMessage = String.format(EditCommand.MESSAGE_NO_CHANGES, editedPerson.getName());
 
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
 
         assertCommandSuccess(editCommand, model,
-                CommandResult.showStudent(expectedMessage, editedPerson, INDEX_FIRST_PERSON), expectedModel);
+                CommandResult.showStudentWarning(expectedMessage, editedPerson, INDEX_FIRST_PERSON), expectedModel);
     }
 
     @Test
