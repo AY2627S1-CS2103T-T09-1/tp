@@ -341,6 +341,11 @@ public class FilterCommandParserTest {
     }
 
     @Test
+    public void parse_addressWithSymbols_returnsFilterCommand() {
+        assertParseSuccess(parser, " a/Avenue 2, #04-111", filterCommandOf(address("Avenue 2, #04-111")));
+    }
+
+    @Test
     public void parse_blankAddress_throwsParseException() {
         assertParseFailure(parser, " a/", FilterCommandParser.MESSAGE_BLANK_ADDRESS);
         assertParseFailure(parser, " n/avi a/   ", FilterCommandParser.MESSAGE_BLANK_ADDRESS);
