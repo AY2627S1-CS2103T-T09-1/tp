@@ -15,8 +15,8 @@ Package Model as ModelPackage <<Rectangle>> {
     }
 }
 
-show Band members
+show Band fields
 
-Person --> "1..8" Subject : subjects
-Subject --> "1" Band : band
+Person -right-> "1..8" Subject : subjects
+Subject -right-> "1" Band : band
 @enduml
