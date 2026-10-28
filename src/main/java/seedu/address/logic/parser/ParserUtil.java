@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.core.index.Index;
@@ -322,21 +321,20 @@ public class ParserUtil {
     }
 
     /**
-     * Returns a hint for the first word in {@code value} that contains {@code /}, such as {@code Doep/98765432}.
-     * The hint quotes the word but names no prefix, because the same word can come from different mistakes:
-     * {@code Ngp/91234567} may be a name ending in {@code g} before {@code p/}, or a name before {@code gp/}.
-     * Returns an empty {@code Optional} if no word contains {@code /}.
+     * Returns a hint to check the prefixes if {@code value} contains {@code /}, such as {@code John Doep/98765432}.
+     * The hint names no prefix, because the same text can come from different mistakes: {@code Ngp/91234567}
+     * may be a name ending in {@code g} before {@code p/}, or a name before {@code gp/}.
+     * Returns an empty {@code Optional} if {@code value} has no {@code /}.
      *
      * @param value The value to check, already split from the command.
      */
     public static Optional<String> getSlashHint(String value) {
         requireNonNull(value);
-        Optional<String> wordWithSlash = Stream.of(value.trim().split("\\s+"))
-                .filter(word -> word.contains(SLASH))
-                .findFirst();
-        wordWithSlash.ifPresent(word -> logger.fine("Found a slash, maybe a prefix with no space before it, in: "
-                + word));
-        return wordWithSlash.map(word -> String.format(Messages.MESSAGE_PREFIX_WITHOUT_SPACE_HINT, word));
+        if (!value.contains(SLASH)) {
+            return Optional.empty();
+        }
+        logger.fine("Found a slash, maybe a prefix with no space before it, in: " + value);
+        return Optional.of(Messages.MESSAGE_PREFIX_WITHOUT_SPACE_HINT);
     }
 
     /**

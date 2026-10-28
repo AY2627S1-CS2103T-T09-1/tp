@@ -206,31 +206,31 @@ public class AddCommandParserTest {
 
         // no space before p/, so it is read as part of the name
         assertParseFailure(parser, " n/John Doep/98765432" + details + SUBJECT_DESC,
-                Name.MESSAGE_CONSTRAINTS + "\n" + String.format(hint, "Doep/98765432"));
+                Name.MESSAGE_CONSTRAINTS + "\n" + hint);
 
         // no space before gp/, so the guardian phone seems missing
         assertParseFailure(parser, NAME_DESC_BOB + details + SUBJECT_DESC + " gn/Mary Tangp/91234567",
-                Guardian.MESSAGE_NAME_CONSTRAINTS + "\n" + String.format(hint, "Tangp/91234567"));
+                Guardian.MESSAGE_NAME_CONSTRAINTS + "\n" + hint);
 
         // no space before gp/, so it is read as part of the phone
         String phoneMessage = String.format(Phone.MESSAGE_INVALID_CHARACTER, ParserUtil.PHONE_LABEL,
                 "91234567gp/92345678", "g");
         assertParseFailure(parser, NAME_DESC_BOB + " p/91234567gp/92345678" + details + SUBJECT_DESC,
-                phoneMessage + "\n" + String.format(hint, "91234567gp/92345678"));
+                phoneMessage + "\n" + hint);
 
         // no space before band/, so the band seems missing
         assertParseFailure(parser, NAME_DESC_BOB + details + " sub/Englishband/G1",
-                Subject.MESSAGE_CONSTRAINTS + "\n" + String.format(hint, "Englishband/G1"));
+                Subject.MESSAGE_CONSTRAINTS + "\n" + hint);
 
         // a surname ending in g before p/ looks like gp/, so the hint names no prefix
         assertParseFailure(parser, " n/Alex Ngp/91234567" + details + SUBJECT_DESC,
-                Name.MESSAGE_CONSTRAINTS + "\n" + String.format(hint, "Ngp/91234567"));
+                Name.MESSAGE_CONSTRAINTS + "\n" + hint);
 
         // no space before gn/ after gp/, so the guardian name seems missing
         String guardianPhoneMessage = String.format(Phone.MESSAGE_INVALID_CHARACTER,
                 ParserUtil.GUARDIAN_PHONE_LABEL, "91234567gn/Mary Tan", "g");
         assertParseFailure(parser, NAME_DESC_BOB + details + SUBJECT_DESC + " gp/91234567gn/Mary Tan",
-                guardianPhoneMessage + "\n" + String.format(hint, "91234567gn/Mary"));
+                guardianPhoneMessage + "\n" + hint);
     }
 
     @Test
@@ -421,7 +421,7 @@ public class AddCommandParserTest {
         assertParseFailure(parser, NAME_DESC_BOB + " x/Clementi Road" + PHONE_DESC_BOB + LEVEL_DESC_BOB
                 + SCHOOL_DESC_BOB + SUBJECT_DESC,
                 Name.MESSAGE_CONSTRAINTS + "\n"
-                + String.format(Messages.MESSAGE_PREFIX_WITHOUT_SPACE_HINT, "x/Clementi"));
+                + Messages.MESSAGE_PREFIX_WITHOUT_SPACE_HINT);
 
         // non-empty preamble
         assertParseFailure(parser, PREAMBLE_NON_EMPTY + NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB
