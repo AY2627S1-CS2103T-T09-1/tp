@@ -194,9 +194,9 @@ Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `
 
 `Subject` is an immutable value object containing both the subject name and its required `Band`. The band is an enum, so a `Subject` cannot be constructed with an unsupported band or without one. For comparison, `Subject` trims surrounding spaces, collapses repeated ordinary spaces, and lowercases the name. The band is included in `Subject.equals`, but `Person#validateSubjects` checks names separately and rejects a repeated subject even if the bands differ.
 
-<img src="images/SubjectBandClassDiagram.svg" width="700" />
-
 #### Implementation
+
+<img src="images/SubjectBandClassDiagram.svg" width="700" />
 
 1. `AddCommandParser` and `EditCommandParser` tokenize `sub/` and `band/`. `ArgumentMultimap#verifyEachFollowedBy` checks that each `sub/` is immediately followed by one `band/`. `add` requires at least one pair. For `edit`, giving neither prefix leaves the subjects unchanged; giving either prefix requires complete pairs and replaces the subject list.
 1. `ParserUtil#parseSubjects` checks that the subject-name and band lists have the same number of values and that there are no more than eight pairs. It creates each `Subject` from the name and band at the same position, then calls `Person#validateSubjects` to reject repeated names.
