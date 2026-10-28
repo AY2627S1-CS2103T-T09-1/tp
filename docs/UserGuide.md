@@ -474,13 +474,13 @@ Example: `view 2` shows the full record of the second student in the currently d
 
 Shows the students who match every filter you give.
 
-Format: `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/PHONE] [e/EMAIL] [a/ADDRESS] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE] [note/TEXT]`
+Format: `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/PHONE] [e/EMAIL] [a/ADDRESS] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE] [t/TAG] [note/TEXT]`
 
 * Give at least one filter.
 * A student must match every filter you give. For example, `filter n/tan sch/bedok` shows students whose name contains `tan` and whose school contains `bedok`.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
-Each filter can be given only once. For example, `filter n/tan n/lim` and `filter sch/bedok sch/tampines` are rejected. To find students who match either value, run `filter` once for each value.
+Each filter can be given only once. For example, `filter n/tan n/lim`, `filter sch/bedok sch/tampines`, and `filter t/paid t/exams` are rejected. To find students who match either value, run `filter` once for each value.
 </div>
 
 Filter | Matches students whose… | Match
@@ -495,6 +495,7 @@ Filter | Matches students whose… | Match
 `a/ADDRESS` | address contains `ADDRESS` | partial matching
 `gn/GUARDIAN_NAME` | guardian's name contains `GUARDIAN_NAME` | partial matching
 `gp/GUARDIAN_PHONE` | guardian's phone number is `GUARDIAN_PHONE` | exact matching
+`t/TAG` | tags include `TAG` | exact matching
 `note/TEXT` | notes include one that contains `TEXT` | partial matching
 
 * A filter with partial matching can match any part of the value, even part of a word. For example, `sch/vic` matches `Victoria School`.
@@ -502,6 +503,7 @@ Filter | Matches students whose… | Match
 * `band/` must come right after `sub/`, and the band must belong to that subject. For example, a student taking Mathematics at G1 and Science at G2 does not match `sub/Mathematics band/G2`.
 * Phone numbers are compared the way they are saved: spaces, hyphens, and a leading `+65` are removed. For example, `p/9123 4567` and `p/+65 9123-4567` both match `91234567`. An overseas number must include its `+` and country code.
 * A student without a phone never matches `p/`, a student without an email never matches `e/`, a student without an address never matches `a/`, and a student without a guardian never matches `gn/` or `gp/`.
+* Give one tag per `filter`. `t/paid` does not match `unpaid`.
 * `note/` searches all of a student's notes. `TEXT` can be up to 500 characters, the same as a note.
 * Everything after `note/` is the note text, so put `note/` last. For example, `filter note/revise t/f` finds notes containing `revise t/f`. In `filter note/algebra lvl/S3`, `lvl/S3` is read as part of the note text, so write `filter lvl/S3 note/algebra` instead.
 * Filters are not case-sensitive, and extra spaces are ignored.
@@ -524,6 +526,7 @@ Examples:
 * `filter a/tampines` returns `SAMPLE Marcus Lim` and `SAMPLE Ethan Kumar`.
 * `filter gp/98765432` returns `SAMPLE Marcus Lim`, whose guardian is Grace Lim.
 * `filter gn/goh` returns `SAMPLE Natalie Goh`, whose guardian is Michelle Goh.
+* `filter t/unpaid` returns `SAMPLE Marcus Lim`.
 * `filter note/algebra` returns `SAMPLE Chloe Tan`.
 * `filter lvl/S1 note/next lesson` returns `SAMPLE Daniel Lee`.
 
@@ -538,6 +541,9 @@ A filter appears more than once | `Multiple values specified for the following s
 `BAND` is not one of `G1` to `G3`, or is empty | `Band must be one of G1, G2, G3.`
 `band/` is not right after `sub/`, or there is no `sub/` | `band/ must come right after sub/, such as: filter sub/Mathematics band/G2`
 `PHONE` or `GUARDIAN_PHONE` is empty or not a valid phone number | The same message as `add`, such as `Phone cannot be empty.`
+`TAG` contains a space | `Tag "paid exams" contains a space. filter takes one tag of one word, such as: filter t/paid`, with the tag you typed in place of `paid exams`
+`t/` appears more than once | `filter takes one tag, so give t/ only once, such as: filter t/paid`
+`TAG` is blank, too long, or contains a symbol other than a single hyphen between letters or digits | The same message as `add`, starting `Tags must be one word of 1-30 English letters or digits.`
 `GUARDIAN_NAME` is empty | `The guardian name to search for cannot be blank.`
 `TEXT` after `note/` is empty | `The note text to search for cannot be blank.`
 `TEXT` after `note/` is longer than 500 characters | `The note text to search for must be at most 500 characters.`
@@ -632,7 +638,7 @@ _Details coming soon ..._
 * **Case-sensitive**: Treating uppercase and lowercase letters as different. For example, `CONFIRM` is case-sensitive, so `confirm` does not confirm a command. Filters are not case-sensitive, so `n/tan` matches `Tan`.
 * **Command**: An instruction that you type in the command box and press Enter to run, such as `list` or `view 1`. It starts with a word that says what to do, such as `add` or `filter`, followed by any parameters.
 * **Confirmation prompt**: An amber message that asks you to confirm a command before it runs. `delete`, `deletenote`, and `clear` show one before they delete anything, and `add` and `edit` show one when another student already has the same name. Type `CONFIRM` in uppercase to go ahead. Any other input, including `confirm`, cancels the command and runs as a normal command.
-* **Exact matching**: The way the `lvl/`, `sub/`, `band/`, `p/`, and `gp/` filters of `filter` compare values. The whole value must match, ignoring case and extra spaces. For example, `lvl/S3` matches only students in S3, and `sub/math` does not match `Mathematics`.
+* **Exact matching**: The way the `lvl/`, `sub/`, `band/`, `p/`, `gp/`, and `t/` filters of `filter` compare values. The whole value must match, ignoring case and extra spaces. For example, `lvl/S3` matches only students in S3, and `sub/math` does not match `Mathematics`.
 * **Filter**: A prefix and value given to the `filter` command, such as `n/Tan`, that narrows down the student list.
 * **Index**: The number shown next to a student in the list currently on screen. Commands such as `view`, `edit`, and `delete` use it to pick a student. It is not permanent: it can change when the list changes, such as after `add`, `delete`, `filter`, or `list`.
 * **NID**: The number shown before a note in the student detail view. Notes are numbered 1, 2, 3 in the order they were added. After a note is deleted, the notes after it move up one number, so an NID is not permanent.
@@ -690,7 +696,7 @@ Action | Format, Examples
 **Delete note** | `deletenote [-f] INDEX nid/NID`<br> e.g., `deletenote 1 nid/2`
 **List** | `list`
 **View** | `view INDEX`<br> e.g., `view 2`
-**Filter** | `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/PHONE] [e/EMAIL] [a/ADDRESS] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE] [note/TEXT]`<br> e.g., `filter lvl/S5 sub/mathematics band/G2`
+**Filter** | `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/PHONE] [e/EMAIL] [a/ADDRESS] [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE] [t/TAG] [note/TEXT]`<br> e.g., `filter lvl/S5 sub/mathematics band/G2`
 **Help** | `help`
 **Clear** | `clear`, followed by `CONFIRM` to confirm (Alternatively, `clear -f` to clear immediately)
 **Exit** | `exit`
