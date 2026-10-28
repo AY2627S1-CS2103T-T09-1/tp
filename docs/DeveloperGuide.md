@@ -507,36 +507,34 @@ The partial-match predicates (`n/`, `sch/`, `e/`, `a/`, `gn/`, `note/`) use `Str
 
 #### Implementation
 
-1. `ParserUtil#getPrefixWithoutSpaceHint` splits a value into words and looks for a prefix that the command accepts after the first character of a word. If it finds one, it returns a hint such as `If "p/" in "Doep/98765432" was meant to start a new parameter, put a space before it.` If a word contains more than one prefix, the hint names the one that starts first.
-1. When a value in `add` or `edit` fails its usual check, `ParserUtil` adds the hint on a new line after the usual error. This applies to the name, phone numbers, school, email, level, band, guardian name, and tags.
-1. Some joined prefixes cause a misleading error before the value is checked. In `gn/Mary Tangp/91234567`, the guardian phone seems missing, and in `sub/Englishband/G1`, the band seems missing. So `AddCommandParser` calls `ParserUtil#verifyNoPrefixWithoutSpace` on the guardian name before checking that `gn/` and `gp/` are given together. `AddCommandParser` and `EditCommandParser` call `ParserUtil#verifySubjectNamesHaveNoPrefixWithoutSpace` before checking that each `sub/` has a `band/`.
-1. `FilterCommandParser` uses the same method for `n/`, `sch/`, and `gn/`. These values cannot contain `/`, so a search such as `Tangp/91234567` could never match a student. The parser rejects it with the hint instead of showing `0 students listed!`.
+1. `ParserUtil#getSlashHint` splits a value into words and returns a hint for the first word that contains `/`, such as `"Doep/98765432" contains "/". If it was meant to start a new parameter, put a space before its prefix.` The hint quotes the word but does not name a prefix.
+1. When a value in `add` or `edit` fails its usual check, `ParserUtil#withSlashHint` adds the hint on a new line after the usual error. This applies to the name, phone numbers, school, email, level, subject, band, guardian name, and tags. None of these values can contain `/`, so a `/` in them is either a missing space or a character the field doesn't allow, and the hint helps in both cases.
+1. Some joined prefixes cause a misleading error before the value is checked. In `gn/Mary Tangp/91234567`, the guardian phone seems missing; in `gp/91234567gn/Mary Tan`, the guardian name seems missing; and in `sub/Englishband/G1`, the band seems missing. So `AddCommandParser` checks the guardian name and phone for `/` before checking that `gn/` and `gp/` are given together, and `AddCommandParser` and `EditCommandParser` call `ParserUtil#verifySubjectNamesHaveNoSlash` before checking that each `sub/` has a `band/`.
+1. `FilterCommandParser` rejects `/` in `n/`, `sch/`, `e/`, and `gn/`, with the hint. These values cannot contain `/`, so a search such as `Tangp/91234567` or `Rajesh s/o Kumar` could never match a student. The `sub/` filter adds the hint to the subject error.
 
-Addresses and notes can contain `/`, such as `Blk 1/2`, so they never get a hint. The User Guide lists this as a known issue.
+Addresses can contain `/`, such as `Blk 1/2`, so they never get a hint. The User Guide lists this as a known issue. Notes can also contain `/`, but `note/` takes the rest of the command, so no prefix can follow it.
 
 #### Design considerations
 
 **Aspect: How to handle a prefix with no space before it**
 
 * **Alternative 1 (current choice):** Keep the value as typed, and add a hint to its error.
-  * Pros: The app never changes what the user typed without telling them. A hint appears only when the value is already invalid, and it names only prefixes that the command accepts, so values such as `Ali/Bakar` and `AC/DC` are not affected.
+  * Pros: The app never changes what the user typed without telling them. A hint appears only when the value is already invalid.
   * Cons: The user has to retype the command.
 
 * **Alternative 2:** Split the value at the prefix automatically.
   * Pros: The user does not need to retype.
   * Cons: The parser has to guess where the value ends. A wrong guess saves the wrong data without an error.
 
-**Aspect: Which prefix to name when a word contains more than one**
+**Aspect: Whether the hint names the prefix**
 
-`gp/` ends in `p/` and `gn/` ends in `n/`, so a word such as `Tangp/91234567` contains two prefixes.
+* **Alternative 1:** Find a known prefix in the word, and name the one that starts first.
+  * Pros: More specific when it is right. For `Doep/98765432`, it says to put a space before `p/`.
+  * Cons: The same word can come from different mistakes. In `n/Alex Ngp/91234567`, the user meant the name `Alex Ng` and `p/`, but `gp/` starts first. In `p/91234567gp/92345678`, the user meant `gp/`. No rule gets both right, and following a wrong hint leads to a second, unrelated error. It also misses a `/` that is not a prefix, such as `s/o`, and each command needs its own list of prefixes.
 
-* **Alternative 1:** Prefer prefixes by field: `gp/` in a guardian name, and `p/` elsewhere.
-  * Pros: Matches the usual order of parameters after a name.
-  * Cons: Wrong outside names. For the phone `p/91234567gp/92345678`, it names `p/`, although the user already typed `p/` and is missing the space before `gp/`.
-
-* **Alternative 2 (current choice):** Name the prefix that starts first in the word.
-  * Pros: `gp/` starts before the `p/` inside it, so the longer prefix wins, whatever the field. The hint follows the text the user typed.
-  * Cons: For `n/Tim Tangp/91234567`, it names `gp/` even if the user meant the name `Tim Tang` and `p/`. The hint still points to the right place in the word.
+* **Alternative 2 (current choice):** Quote the word that contains `/`, without naming a prefix.
+  * Pros: Never wrong, since it points to what the user typed. It also covers a `/` that is not a prefix, and needs no list of prefixes.
+  * Cons: Less specific. The user has to find the prefix in the quoted word.
 
 --------------------------------------------------------------------------------------------------------------------
 
