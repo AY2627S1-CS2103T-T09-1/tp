@@ -143,10 +143,10 @@ public class AddCommandParserTest {
     @Test
     public void parse_invalidEmail_failure() {
         assertParseFailure(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + INVALID_EMAIL_DESC + LEVEL_DESC_BOB
-                + SUBJECT_DESC, Email.MESSAGE_CONSTRAINTS);
+                + SUBJECT_DESC, String.format(Email.MESSAGE_MISSING_AT, "bob!yahoo"));
         // e/ with no value is invalid when adding
         assertParseFailure(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + " e/ " + LEVEL_DESC_BOB + SUBJECT_DESC,
-                Email.MESSAGE_CONSTRAINTS);
+                Email.MESSAGE_EMPTY);
     }
 
     @Test

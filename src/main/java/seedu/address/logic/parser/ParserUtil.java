@@ -218,12 +218,9 @@ public class ParserUtil {
     public static Email parseEmail(String email) throws ParseException {
         requireNonNull(email);
         String trimmedEmail = email.trim();
-        if (!Email.isValidEmail(trimmedEmail)) {
-            // the email rules fill the result box, so the hint goes first where it stays visible
-            String message = getPrefixWithoutSpaceHint(trimmedEmail, false, STUDENT_PREFIXES)
-                    .map(hint -> hint + LINE_BREAK + Email.MESSAGE_CONSTRAINTS)
-                    .orElse(Email.MESSAGE_CONSTRAINTS);
-            throw new ParseException(message);
+        Optional<String> invalidReason = Email.getInvalidReason(trimmedEmail);
+        if (invalidReason.isPresent()) {
+            throw new ParseException(withPrefixHint(invalidReason.get(), trimmedEmail, false));
         }
         return new Email(trimmedEmail);
     }

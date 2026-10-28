@@ -266,7 +266,8 @@ public class ParserUtilTest {
 
     @Test
     public void parseEmail_invalidValue_throwsParseException() {
-        assertThrows(ParseException.class, Email.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseEmail(INVALID_EMAIL));
+        assertThrows(ParseException.class, String.format(Email.MESSAGE_MISSING_AT, INVALID_EMAIL), () ->
+                ParserUtil.parseEmail(INVALID_EMAIL));
     }
 
     @Test
@@ -468,8 +469,9 @@ public class ParserUtilTest {
     }
 
     @Test
-    public void parseEmail_prefixWithoutSpace_throwsParseExceptionWithHintFirst() {
-        assertThrows(ParseException.class, hint("p/", "a@b.comp/91234567") + "\n" + Email.MESSAGE_CONSTRAINTS, () ->
+    public void parseEmail_prefixWithoutSpace_throwsParseExceptionWithHint() {
+        String emailMessage = String.format(Email.MESSAGE_INVALID_DOMAIN_CHARACTER, "a@b.comp/91234567", "/");
+        assertThrows(ParseException.class, emailMessage + "\n" + hint("p/", "a@b.comp/91234567"), () ->
                 ParserUtil.parseEmail("a@b.comp/91234567"));
     }
 

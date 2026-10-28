@@ -1,8 +1,12 @@
 package seedu.address.model.person;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
+
+import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -67,6 +71,53 @@ public class EmailTest {
         assertTrue(Email.isValidEmail("e1234567@u.nus.edu")); // more than one period in domain
         assertTrue(Email.isValidEmail("Chloe.Tan+math@example.com.sg")); // mixed case, '+' tag, SG domain
         assertTrue(Email.isValidEmail("a".repeat(Email.MAX_LENGTH - 7) + "@ex.com")); // exactly 254 characters
+    }
+
+    @Test
+    public void getInvalidReason_validEmail_returnsEmpty() {
+        assertEquals(Optional.empty(), Email.getInvalidReason("a@bc"));
+        assertEquals(Optional.empty(), Email.getInvalidReason("Chloe.Tan+math@example.com.sg"));
+        assertEquals(Optional.empty(), Email.getInvalidReason("a".repeat(Email.MAX_LENGTH - 7) + "@ex.com"));
+    }
+
+    @Test
+    public void getInvalidReason_invalidEmail_returnsReason() {
+        assertReason(Email.MESSAGE_EMPTY, "");
+        assertReason(String.format(Email.MESSAGE_TOO_LONG, Email.MAX_LENGTH + 1),
+                "a".repeat(Email.MAX_LENGTH - 6) + "@ex.com");
+        assertReason(String.format(Email.MESSAGE_HAS_SPACE, "john doe@example.com"), "john doe@example.com");
+        assertReason(String.format(Email.MESSAGE_MISSING_AT, "johnexample.com"), "johnexample.com");
+        assertReason(String.format(Email.MESSAGE_MULTIPLE_AT, "a@b@c.com"), "a@b@c.com");
+        assertReason(String.format(Email.MESSAGE_MISSING_LOCAL_PART, "@example.com"), "@example.com");
+        assertReason(String.format(Email.MESSAGE_MISSING_DOMAIN, "john@"), "john@");
+        assertReason(String.format(Email.MESSAGE_INVALID_LOCAL_PART_CHARACTER, "jo!hn@example.com", "!"),
+                "jo!hn@example.com");
+        assertReason(String.format(Email.MESSAGE_INVALID_LOCAL_PART_CHARACTER, "j\u00f6hn@example.com", "\u00f6"),
+                "j\u00f6hn@example.com");
+        assertReason(String.format(Email.MESSAGE_MISPLACED_LOCAL_PART_SYMBOL, "peter..jack@example.com"),
+                "peter..jack@example.com");
+        assertReason(String.format(Email.MESSAGE_INVALID_DOMAIN_CHARACTER, "john@exam_ple.com", "_"),
+                "john@exam_ple.com");
+        assertReason(String.format(Email.MESSAGE_INVALID_DOMAIN_LABEL, "john@-example.com"), "john@-example.com");
+        assertReason(String.format(Email.MESSAGE_SHORT_LAST_DOMAIN_LABEL, "john@example.c"), "john@example.c");
+    }
+
+    @Test
+    public void getInvalidReason_everyRejectedEmail_returnsReason() {
+        List<String> rejectedEmails = List.of("", " ", "@example.com", "peterjackexample.com", "peterjack@",
+                "peterjack@-", "peterjack@exam_ple.com", "peter jack@example.com", "peterjack@exam ple.com",
+                " peterjack@example.com", "peterjack@example.com ", "peterjack@@example.com",
+                "peter@jack@example.com", "-peterjack@example.com", "peterjack-@example.com",
+                "peter..jack@example.com", "peterjack@example@com", "peterjack@.example.com",
+                "peterjack@example.com.", "peterjack@-example.com", "peterjack@example.com-",
+                "peterjack@example.c", "a".repeat(Email.MAX_LENGTH - 6) + "@ex.com");
+        for (String email : rejectedEmails) {
+            assertTrue(Email.getInvalidReason(email).isPresent(), email);
+        }
+    }
+
+    private static void assertReason(String expectedReason, String email) {
+        assertEquals(Optional.of(expectedReason), Email.getInvalidReason(email));
     }
 
     @Test
