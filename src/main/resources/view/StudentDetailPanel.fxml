@@ -45,12 +45,18 @@
         <Label styleClass="student-detail-field-name" text="Address" GridPane.rowIndex="5" />
         <Label fx:id="address" styleClass="student-detail-field-value" wrapText="true"
                GridPane.columnIndex="1" GridPane.rowIndex="5" />
-        <Label styleClass="student-detail-field-name" text="Guardian name" GridPane.rowIndex="6" />
-        <Label fx:id="guardianName" styleClass="student-detail-field-value" wrapText="true"
+        <Label styleClass="student-detail-field-name" text="Email" GridPane.rowIndex="6" />
+        <Label fx:id="email" styleClass="student-detail-field-value" wrapText="true"
                GridPane.columnIndex="1" GridPane.rowIndex="6" />
-        <Label styleClass="student-detail-field-name" text="Guardian phone" GridPane.rowIndex="7" />
-        <Label fx:id="guardianPhone" styleClass="student-detail-field-value" wrapText="true"
+        <Label styleClass="student-detail-field-name" text="Tags" GridPane.rowIndex="7" />
+        <Label fx:id="tags" styleClass="student-detail-field-value" wrapText="true"
                GridPane.columnIndex="1" GridPane.rowIndex="7" />
+        <Label styleClass="student-detail-field-name" text="Guardian name" GridPane.rowIndex="8" />
+        <Label fx:id="guardianName" styleClass="student-detail-field-value" wrapText="true"
+               GridPane.columnIndex="1" GridPane.rowIndex="8" />
+        <Label styleClass="student-detail-field-name" text="Guardian phone" GridPane.rowIndex="9" />
+        <Label fx:id="guardianPhone" styleClass="student-detail-field-value" wrapText="true"
+               GridPane.columnIndex="1" GridPane.rowIndex="9" />
       </GridPane>
       <Separator styleClass="student-detail-section-separator" />
       <Label styleClass="student-detail-notes-heading" text="Notes" />

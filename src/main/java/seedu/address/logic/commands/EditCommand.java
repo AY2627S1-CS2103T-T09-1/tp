@@ -3,6 +3,7 @@ package seedu.address.logic.commands;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
@@ -10,10 +11,14 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import seedu.address.commons.core.index.Index;
@@ -23,6 +28,7 @@ import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.person.Address;
+import seedu.address.model.person.Email;
 import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
@@ -30,6 +36,7 @@ import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
 import seedu.address.model.person.Subject;
+import seedu.address.model.tag.Tag;
 
 /**
  * Edits the details of an existing person in the address book.
@@ -42,17 +49,22 @@ public class EditCommand extends Command implements ConfirmationCommand {
             + "by the index number used in the displayed student list. "
             + "Existing values will be overwritten by the input values. "
             + "Use " + PREFIX_PHONE + " with no number to remove the phone, and "
-            + PREFIX_ADDRESS + " with no value to remove the address. Use "
-            + PREFIX_GUARDIAN_NAME + " " + PREFIX_GUARDIAN_PHONE + " with no values to remove the guardian.\n"
+            + PREFIX_ADDRESS + " with no value to remove the address, "
+            + PREFIX_EMAIL + " with no value to remove the email. Use "
+            + PREFIX_GUARDIAN_NAME + " " + PREFIX_GUARDIAN_PHONE + " with no values to remove the guardian. "
+            + "Tags given with " + PREFIX_TAG + " replace all existing tags; use " + PREFIX_TAG
+            + " with no value to remove them all.\n"
             + "Parameters: INDEX (must be a positive integer) "
             + "[" + PREFIX_NAME + "NAME] "
             + "[" + PREFIX_PHONE + "PHONE] "
             + "[" + PREFIX_SCHOOL + "SCHOOL] "
             + "[" + PREFIX_ADDRESS + "ADDRESS] "
+            + "[" + PREFIX_EMAIL + "EMAIL] "
             + "[" + PREFIX_LEVEL + "LEVEL] "
             + "[" + PREFIX_SUBJECT + "SUBJECT " + PREFIX_BAND + "BAND]... "
             + "[" + PREFIX_GUARDIAN_NAME + "GUARDIAN_NAME] "
-            + "[" + PREFIX_GUARDIAN_PHONE + "GUARDIAN_PHONE]\n"
+            + "[" + PREFIX_GUARDIAN_PHONE + "GUARDIAN_PHONE] "
+            + "[" + PREFIX_TAG + "TAG]...\n"
             + "Example: " + COMMAND_WORD + " 1 "
             + PREFIX_PHONE + "91234567 "
             + PREFIX_SCHOOL + "Victoria School "
@@ -63,6 +75,7 @@ public class EditCommand extends Command implements ConfirmationCommand {
     public static final String MESSAGE_NO_LONGER_MATCHES = "%1$s no longer matches your last search, "
             + "but stays in the list until you enter list or filter.";
     public static final String MESSAGE_NOT_EDITED = "At least one field to edit must be provided.";
+    public static final String MESSAGE_NO_CHANGES = "No changes made: %1$s already has these details.";
     public static final String MESSAGE_DUPLICATE_PERSON =
             "Another student named %1$s at %2$s, level %3$s already exists. If these are different students, "
                     + "edit the name to include an identifier, for example Chloe Tan 2.";
@@ -132,6 +145,10 @@ public class EditCommand extends Command implements ConfirmationCommand {
         requireNonNull(model);
         Person personToEdit = getTargetPerson(model);
         Person editedPerson = createEditedPerson(personToEdit, editPersonDescriptor);
+        if (editedPerson.equals(personToEdit)) {
+            return CommandResult.showStudentWarning(String.format(MESSAGE_NO_CHANGES, personToEdit.getName()),
+                    personToEdit, index);
+        }
         ensureNoExactDuplicate(editedPerson, getOtherPersons(model, personToEdit));
 
         // keep the edited person at the same index, so the list and view panel don't shift
@@ -195,12 +212,16 @@ public class EditCommand extends Command implements ConfirmationCommand {
         Address updatedAddress = editPersonDescriptor.isAddressRemoved()
                 ? null
                 : editPersonDescriptor.getAddress().orElse(personToEdit.getAddress().orElse(null));
+        Email updatedEmail = editPersonDescriptor.isEmailRemoved()
+                ? null
+                : editPersonDescriptor.getEmail().orElse(personToEdit.getEmail().orElse(null));
         Level updatedLevel = editPersonDescriptor.getLevel().orElse(personToEdit.getLevel());
 
         List<Subject> updatedSubjects = editPersonDescriptor.getSubjects().orElse(personToEdit.getSubjects());
+        Set<Tag> updatedTags = editPersonDescriptor.getTags().orElse(personToEdit.getTags());
         Guardian updatedGuardian = createEditedGuardian(personToEdit.getGuardian(), editPersonDescriptor);
-        return new Person(updatedName, updatedPhone, updatedSchool, updatedAddress, updatedLevel,
-                updatedSubjects, personToEdit.getNotes(), updatedGuardian);
+        return new Person(updatedName, updatedPhone, updatedSchool, updatedAddress, updatedEmail, updatedLevel,
+                updatedSubjects, updatedTags, personToEdit.getNotes(), updatedGuardian);
     }
 
     /**
@@ -267,8 +288,11 @@ public class EditCommand extends Command implements ConfirmationCommand {
         private School school;
         private Address address;
         private boolean isAddressRemoved;
+        private Email email;
+        private boolean isEmailRemoved;
         private Level level;
         private List<Subject> subjects;
+        private Set<Tag> tags;
         private Name guardianName;
         private Phone guardianPhone;
         private boolean isGuardianRemoved;
@@ -285,8 +309,11 @@ public class EditCommand extends Command implements ConfirmationCommand {
             setSchool(toCopy.school);
             setAddress(toCopy.address);
             isAddressRemoved = toCopy.isAddressRemoved;
+            setEmail(toCopy.email);
+            isEmailRemoved = toCopy.isEmailRemoved;
             setLevel(toCopy.level);
             setSubjects(toCopy.subjects);
+            setTags(toCopy.tags);
             setGuardianName(toCopy.guardianName);
             setGuardianPhone(toCopy.guardianPhone);
             isGuardianRemoved = toCopy.isGuardianRemoved;
@@ -296,9 +323,9 @@ public class EditCommand extends Command implements ConfirmationCommand {
          * Returns true if at least one field is edited.
          */
         public boolean isAnyFieldEdited() {
-            return CollectionUtil.isAnyNonNull(name, phone, school, address, level, subjects, guardianName,
-                    guardianPhone)
-                    || isPhoneRemoved || isAddressRemoved || isGuardianRemoved;
+            return CollectionUtil.isAnyNonNull(name, phone, school, address, email, level, subjects, tags,
+                    guardianName, guardianPhone)
+                    || isPhoneRemoved || isAddressRemoved || isEmailRemoved || isGuardianRemoved;
         }
 
         public void setName(Name name) {
@@ -358,6 +385,27 @@ public class EditCommand extends Command implements ConfirmationCommand {
             return Optional.ofNullable(address);
         }
 
+        public void setEmail(Email email) {
+            this.email = email;
+            this.isEmailRemoved = false;
+        }
+
+        /**
+         * Marks the email to be removed from the person.
+         */
+        public void setEmailRemoved() {
+            this.email = null;
+            this.isEmailRemoved = true;
+        }
+
+        public boolean isEmailRemoved() {
+            return isEmailRemoved;
+        }
+
+        public Optional<Email> getEmail() {
+            return Optional.ofNullable(email);
+        }
+
         public void setLevel(Level level) {
             this.level = level;
         }
@@ -378,6 +426,23 @@ public class EditCommand extends Command implements ConfirmationCommand {
 
         public Optional<List<Subject>> getSubjects() {
             return Optional.ofNullable(subjects);
+        }
+
+        /**
+         * Sets {@code tags} to this object's {@code tags}.
+         * A defensive copy of {@code tags} is used internally. An empty set removes all tags.
+         */
+        public void setTags(Set<Tag> tags) {
+            this.tags = tags == null ? null : new LinkedHashSet<>(tags);
+        }
+
+        /**
+         * Returns an unmodifiable tag set, which throws {@code UnsupportedOperationException}
+         * if modification is attempted.
+         * Returns {@code Optional#empty()} if {@code tags} is null.
+         */
+        public Optional<Set<Tag>> getTags() {
+            return tags == null ? Optional.empty() : Optional.of(Collections.unmodifiableSet(tags));
         }
 
         public void setGuardianName(Name guardianName) {
@@ -426,8 +491,11 @@ public class EditCommand extends Command implements ConfirmationCommand {
                     && Objects.equals(school, otherEditPersonDescriptor.school)
                     && Objects.equals(address, otherEditPersonDescriptor.address)
                     && isAddressRemoved == otherEditPersonDescriptor.isAddressRemoved
+                    && Objects.equals(email, otherEditPersonDescriptor.email)
+                    && isEmailRemoved == otherEditPersonDescriptor.isEmailRemoved
                     && Objects.equals(level, otherEditPersonDescriptor.level)
                     && Objects.equals(subjects, otherEditPersonDescriptor.subjects)
+                    && Objects.equals(tags, otherEditPersonDescriptor.tags)
                     && Objects.equals(guardianName, otherEditPersonDescriptor.guardianName)
                     && Objects.equals(guardianPhone, otherEditPersonDescriptor.guardianPhone)
                     && isGuardianRemoved == otherEditPersonDescriptor.isGuardianRemoved;
@@ -442,8 +510,11 @@ public class EditCommand extends Command implements ConfirmationCommand {
                     .add("school", school)
                     .add("address", address)
                     .add("isAddressRemoved", isAddressRemoved)
+                    .add("email", email)
+                    .add("isEmailRemoved", isEmailRemoved)
                     .add("level", level)
                     .add("subjects", subjects)
+                    .add("tags", tags)
                     .add("guardianName", guardianName)
                     .add("guardianPhone", guardianPhone)
                     .add("isGuardianRemoved", isGuardianRemoved)

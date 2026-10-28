@@ -1,7 +1,9 @@
 package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
@@ -20,20 +22,24 @@ import org.junit.jupiter.api.Test;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.FilterCommand;
 import seedu.address.model.person.Band;
-import seedu.address.model.person.GuardianNameContainsTextPredicate;
-import seedu.address.model.person.GuardianPhoneMatchesPredicate;
 import seedu.address.model.person.Level;
-import seedu.address.model.person.LevelMatchesPredicate;
-import seedu.address.model.person.NameContainsKeywordsPredicate;
 import seedu.address.model.person.Note;
-import seedu.address.model.person.NoteContainsTextPredicate;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
-import seedu.address.model.person.PhoneMatchesPredicate;
-import seedu.address.model.person.SchoolContainsTextPredicate;
-import seedu.address.model.person.StudentMatchesAllPredicate;
 import seedu.address.model.person.Subject;
-import seedu.address.model.person.SubjectMatchesPredicate;
+import seedu.address.model.person.predicate.AddressContainsTextPredicate;
+import seedu.address.model.person.predicate.EmailContainsTextPredicate;
+import seedu.address.model.person.predicate.GuardianNameContainsTextPredicate;
+import seedu.address.model.person.predicate.GuardianPhoneMatchesPredicate;
+import seedu.address.model.person.predicate.LevelMatchesPredicate;
+import seedu.address.model.person.predicate.NameContainsKeywordsPredicate;
+import seedu.address.model.person.predicate.NoteContainsTextPredicate;
+import seedu.address.model.person.predicate.PhoneMatchesPredicate;
+import seedu.address.model.person.predicate.SchoolContainsTextPredicate;
+import seedu.address.model.person.predicate.StudentMatchesAllPredicate;
+import seedu.address.model.person.predicate.SubjectMatchesPredicate;
+import seedu.address.model.person.predicate.TagMatchesPredicate;
+import seedu.address.model.tag.Tag;
 
 public class FilterCommandParserTest {
 
@@ -328,6 +334,121 @@ public class FilterCommandParserTest {
         assertParseSuccess(parser, " gp/92345678 gn/amy p/91234567 n/tan", expectedFilterCommand);
     }
 
+    @Test
+    public void parse_validTag_returnsFilterCommand() {
+        assertParseSuccess(parser, " t/paid", filterCommandOf(tag("paid")));
+        assertParseSuccess(parser, " t/  O-level  ", filterCommandOf(tag("O-level")));
+        assertParseSuccess(parser, " t/paid n/tan", filterCommandOf(name("tan"), tag("paid")));
+    }
+
+    @Test
+    public void parse_tagWithSpace_throwsParseException() {
+        assertParseFailure(parser, " t/paid exams",
+                String.format(FilterCommandParser.MESSAGE_FILTER_TAG_HAS_SPACE, "paid exams"));
+        // lv/ is not a prefix, so it stays part of the tag
+        assertParseFailure(parser, " t/paid lv/S3",
+                String.format(FilterCommandParser.MESSAGE_FILTER_TAG_HAS_SPACE, "paid lv/S3"));
+    }
+
+    @Test
+    public void parse_repeatedTag_throwsParseException() {
+        assertParseFailure(parser, " t/paid t/exams", FilterCommandParser.MESSAGE_ONE_TAG);
+        assertParseFailure(parser, " t/paid n/tan t/paid", FilterCommandParser.MESSAGE_ONE_TAG);
+    }
+
+    @Test
+    public void parse_invalidTag_throwsParseException() {
+        assertParseFailure(parser, " t/a_b", Tag.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, " t/paid!", Tag.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_blankTag_throwsParseException() {
+        assertParseFailure(parser, " t/", Tag.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, " n/avi t/   ", Tag.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_tagAtMaxLength_returnsFilterCommand() {
+        String longestTag = "a".repeat(Tag.MAX_LENGTH);
+        assertParseSuccess(parser, " t/" + longestTag, filterCommandOf(tag(longestTag)));
+    }
+
+    @Test
+    public void parse_tagOverMaxLength_throwsParseException() {
+        assertParseFailure(parser, " t/" + "a".repeat(Tag.MAX_LENGTH + 1), Tag.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_tagAfterNote_readAsNoteText() {
+        assertParseSuccess(parser, " note/unpaid fees t/paid", filterCommandOf(note("unpaid fees t/paid")));
+    }
+
+    @Test
+    public void parse_validEmail_returnsFilterCommand() {
+        assertParseSuccess(parser, " e/gmail.com", filterCommandOf(email("gmail.com")));
+    }
+
+    @Test
+    public void parse_emailWithExtraSpaces_collapsesSpaces() {
+        assertParseSuccess(parser, " e/  chloe.tan  ", filterCommandOf(email("chloe.tan")));
+    }
+
+    @Test
+    public void parse_blankEmail_throwsParseException() {
+        assertParseFailure(parser, " e/", FilterCommandParser.MESSAGE_BLANK_EMAIL);
+        assertParseFailure(parser, " n/avi e/   ", FilterCommandParser.MESSAGE_BLANK_EMAIL);
+    }
+
+    @Test
+    public void parse_repeatedEmail_throwsParseException() {
+        assertParseFailure(parser, " e/gmail e/yahoo",
+                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_EMAIL));
+    }
+
+    @Test
+    public void parse_emailWithOtherFilters_returnsSameCommand() {
+        FilterCommand expectedFilterCommand =
+                filterCommandOf(name("tan"), phone("91234567"), email("gmail"));
+        assertParseSuccess(parser, " n/tan p/91234567 e/gmail", expectedFilterCommand);
+        assertParseSuccess(parser, " e/gmail p/91234567 n/tan", expectedFilterCommand);
+    }
+
+    @Test
+    public void parse_validAddress_returnsFilterCommand() {
+        assertParseSuccess(parser, " a/bedok", filterCommandOf(address("bedok")));
+    }
+
+    @Test
+    public void parse_addressWithExtraSpaces_collapsesSpaces() {
+        assertParseSuccess(parser, " a/  Bedok \t North  ", filterCommandOf(address("Bedok North")));
+    }
+
+    @Test
+    public void parse_addressWithSymbols_returnsFilterCommand() {
+        assertParseSuccess(parser, " a/Avenue 2, #04-111", filterCommandOf(address("Avenue 2, #04-111")));
+    }
+
+    @Test
+    public void parse_blankAddress_throwsParseException() {
+        assertParseFailure(parser, " a/", FilterCommandParser.MESSAGE_BLANK_ADDRESS);
+        assertParseFailure(parser, " n/avi a/   ", FilterCommandParser.MESSAGE_BLANK_ADDRESS);
+    }
+
+    @Test
+    public void parse_repeatedAddress_throwsParseException() {
+        assertParseFailure(parser, " a/bedok a/tampines",
+                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_ADDRESS));
+    }
+
+    @Test
+    public void parse_addressWithOtherFilters_returnsSameCommand() {
+        FilterCommand expectedFilterCommand =
+                filterCommandOf(name("tan"), phone("91234567"), address("bedok"));
+        assertParseSuccess(parser, " n/tan p/91234567 a/bedok", expectedFilterCommand);
+        assertParseSuccess(parser, " a/bedok p/91234567 n/tan", expectedFilterCommand);
+    }
+
     private static Predicate<Person> name(String text) {
         return new NameContainsKeywordsPredicate(List.of(text));
     }
@@ -352,12 +473,24 @@ public class FilterCommandParserTest {
         return new PhoneMatchesPredicate(new Phone(phone));
     }
 
+    private static Predicate<Person> email(String text) {
+        return new EmailContainsTextPredicate(text);
+    }
+
+    private static Predicate<Person> address(String text) {
+        return new AddressContainsTextPredicate(text);
+    }
+
     private static Predicate<Person> guardianName(String text) {
         return new GuardianNameContainsTextPredicate(text);
     }
 
     private static Predicate<Person> guardianPhone(String phone) {
         return new GuardianPhoneMatchesPredicate(new Phone(phone));
+    }
+
+    private static Predicate<Person> tag(String tagName) {
+        return new TagMatchesPredicate(new Tag(tagName));
     }
 
     private static Predicate<Person> note(String text) {

@@ -5,16 +5,19 @@ import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import seedu.address.commons.util.ToStringBuilder;
+import seedu.address.model.tag.Tag;
 
 /**
  * Represents a Person in the address book.
- * Guarantees: details except phone, address, and guardian are present and not null, field values are
- * validated, immutable.
+ * Guarantees: details except phone, address, email, and guardian are present and not null, field values
+ * are validated, immutable.
  */
 public class Person {
 
@@ -30,43 +33,49 @@ public class Person {
     // Data fields
     private final School school;
     private final Address address;
+    private final Email email;
     private final Level level;
     private final List<Subject> subjects;
+    private final Set<Tag> tags = new LinkedHashSet<>();
     private final List<Note> notes = new ArrayList<>();
     private final Guardian guardian;
 
     /**
-     * Every field except {@code phone} and {@code address} must be present and not null.
-     * A null {@code phone} or {@code address} means the person has none.
+     * Every field except {@code phone}, {@code address}, and {@code email} must be present and not null.
+     * A null {@code phone}, {@code address}, or {@code email} means the person has none.
      */
-    public Person(Name name, Phone phone, School school, Address address, Level level, List<Subject> subjects) {
-        this(name, phone, school, address, level, subjects, List.of());
+    public Person(Name name, Phone phone, School school, Address address, Email email, Level level,
+            List<Subject> subjects, Set<Tag> tags) {
+        this(name, phone, school, address, email, level, subjects, tags, List.of());
     }
 
     /**
-     * Every field except {@code phone} and {@code address} must be present and not null.
-     * A null {@code phone} or {@code address} means the person has none.
+     * Every field except {@code phone}, {@code address}, and {@code email} must be present and not null.
+     * A null {@code phone}, {@code address}, or {@code email} means the person has none.
      */
-    public Person(Name name, Phone phone, School school, Address address, Level level, List<Subject> subjects,
-            List<Note> notes) {
-        this(name, phone, school, address, level, subjects, notes, null);
+    public Person(Name name, Phone phone, School school, Address address, Email email, Level level,
+            List<Subject> subjects, Set<Tag> tags, List<Note> notes) {
+        this(name, phone, school, address, email, level, subjects, tags, notes, null);
     }
 
     /**
-     * Every field except {@code phone}, {@code address}, and {@code guardian} must be present and not null.
-     * A null {@code phone}, {@code address}, or {@code guardian} means the person has none.
+     * Every field except {@code phone}, {@code address}, {@code email}, and {@code guardian} must be present
+     * and not null.
+     * A null {@code phone}, {@code address}, {@code email}, or {@code guardian} means the person has none.
      */
-    public Person(Name name, Phone phone, School school, Address address, Level level, List<Subject> subjects,
-            List<Note> notes, Guardian guardian) {
-        requireAllNonNull(name, school, level, subjects, notes);
+    public Person(Name name, Phone phone, School school, Address address, Email email, Level level,
+            List<Subject> subjects, Set<Tag> tags, List<Note> notes, Guardian guardian) {
+        requireAllNonNull(name, school, level, subjects, tags, notes);
         List<Subject> validatedSubjects = List.copyOf(subjects);
         validateSubjects(validatedSubjects);
         this.name = name;
         this.phone = phone;
         this.school = school;
         this.address = address;
+        this.email = email;
         this.level = level;
         this.subjects = validatedSubjects;
+        this.tags.addAll(tags);
         this.notes.addAll(notes);
         this.guardian = guardian;
     }
@@ -102,12 +111,24 @@ public class Person {
         return Optional.ofNullable(address);
     }
 
+    public Optional<Email> getEmail() {
+        return Optional.ofNullable(email);
+    }
+
     public Level getLevel() {
         return level;
     }
 
     public List<Subject> getSubjects() {
         return subjects;
+    }
+
+    /**
+     * Returns an immutable tag set in the order the tags were given, which throws
+     * {@code UnsupportedOperationException} if modification is attempted.
+     */
+    public Set<Tag> getTags() {
+        return Collections.unmodifiableSet(tags);
     }
 
     public Optional<Guardian> getGuardian() {
@@ -126,7 +147,7 @@ public class Person {
      * @return A new {@code Person} with {@code notes}.
      */
     public Person copyWithNotes(List<Note> notes) {
-        return new Person(name, phone, school, address, level, subjects, notes, guardian);
+        return new Person(name, phone, school, address, email, level, subjects, tags, notes, guardian);
     }
 
     /**
@@ -177,8 +198,10 @@ public class Person {
                 && Objects.equals(phone, otherPerson.phone)
                 && school.equals(otherPerson.school)
                 && Objects.equals(address, otherPerson.address)
+                && Objects.equals(email, otherPerson.email)
                 && level.equals(otherPerson.level)
                 && subjects.equals(otherPerson.subjects)
+                && tags.equals(otherPerson.tags)
                 && notes.equals(otherPerson.notes)
                 && Objects.equals(guardian, otherPerson.guardian);
     }
@@ -186,7 +209,7 @@ public class Person {
     @Override
     public int hashCode() {
         // use this method for custom fields hashing instead of implementing your own
-        return Objects.hash(name, phone, school, address, level, subjects, notes, guardian);
+        return Objects.hash(name, phone, school, address, email, level, subjects, tags, notes, guardian);
     }
 
     @Override
@@ -196,8 +219,10 @@ public class Person {
                 .add("phone", phone)
                 .add("school", school)
                 .add("address", address)
+                .add("email", email)
                 .add("level", level)
                 .add("subjects", subjects)
+                .add("tags", tags)
                 .add("guardian", guardian)
                 .toString();
     }

@@ -3,6 +3,7 @@
 skinparam arrowThickness 1.1
 skinparam arrowColor LOGIC_COLOR_T4
 skinparam classBackgroundColor LOGIC_COLOR
+skinparam genericDisplay old
 
 package Logic as LogicPackage {
 Class FilterCommandParser
@@ -13,28 +14,23 @@ package Model as ModelPackage {
 Class "<<interface>>\nPredicate<Person>" as Predicate MODEL_COLOR
 Class StudentMatchesAllPredicate MODEL_COLOR
 Class NameContainsKeywordsPredicate MODEL_COLOR
-Class SchoolContainsTextPredicate MODEL_COLOR
-Class LevelMatchesPredicate MODEL_COLOR
 Class SubjectMatchesPredicate MODEL_COLOR
-Class PhoneMatchesPredicate MODEL_COLOR
-Class GuardianNameContainsTextPredicate MODEL_COLOR
-Class GuardianPhoneMatchesPredicate MODEL_COLOR
-Class NoteContainsTextPredicate MODEL_COLOR
+Class TagMatchesPredicate MODEL_COLOR
 }
+
+note bottom of SubjectMatchesPredicate
+  Simplified: shows 3 of the 11 predicates.
+  The table below lists all of them.
+end note
 
 FilterCommandParser ..> FilterCommand : <<create>>
 FilterCommandParser ..> StudentMatchesAllPredicate : <<create>>
 FilterCommand --> "1" StudentMatchesAllPredicate
 
-StudentMatchesAllPredicate ..|> Predicate
 StudentMatchesAllPredicate --> "1..*" Predicate : filters
+StudentMatchesAllPredicate ..|> Predicate
 
 NameContainsKeywordsPredicate .up.|> Predicate
-SchoolContainsTextPredicate .up.|> Predicate
-LevelMatchesPredicate .up.|> Predicate
 SubjectMatchesPredicate .up.|> Predicate
-PhoneMatchesPredicate .up.|> Predicate
-GuardianNameContainsTextPredicate .up.|> Predicate
-GuardianPhoneMatchesPredicate .up.|> Predicate
-NoteContainsTextPredicate .up.|> Predicate
+TagMatchesPredicate .up.|> Predicate
 @enduml

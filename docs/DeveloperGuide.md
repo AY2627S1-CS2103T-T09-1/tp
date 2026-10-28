@@ -36,7 +36,7 @@ The following provides a quick overview of the main components and their interac
 
 **Main components of the architecture**
 
-**`Main`** (consisting of classes [`Main`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/Main.java) and [`MainApp`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/MainApp.java)) is in charge of the app launch and shut down.
+**`Main`** (consisting of classes [`Main`](https://github.com/AY2627S1-CS2103T-T09-1/tp/tree/master/src/main/java/seedu/address/Main.java) and [`MainApp`](https://github.com/AY2627S1-CS2103T-T09-1/tp/tree/master/src/main/java/seedu/address/MainApp.java)) is in charge of the app launch and shut down.
 * At app launch, it initializes the other components in the correct sequence, and connects them up with each other.
 * At shut down, it shuts down the other components and invokes cleanup methods where necessary.
 
@@ -68,13 +68,13 @@ The sections below give more details of each component.
 
 ### UI component
 
-The **API** of this component is specified in [`Ui.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/ui/Ui.java)
+The **API** of this component is specified in [`Ui.java`](https://github.com/AY2627S1-CS2103T-T09-1/tp/tree/master/src/main/java/seedu/address/ui/Ui.java)
 
 ![Structure of the UI Component](images/UiClassDiagram.png)
 
 The UI consists of a `MainWindow` and its parts, such as `CommandBox`, `ResultDisplay`, `PersonListPanel`, `StudentDetailPanel`, and `StatusBarFooter`. `MainWindow` replaces the list panel with a student detail panel when a `view` command succeeds, so only one main content panel is visible at a time. All of these classes inherit from the abstract `UiPart` class, which captures common behavior among classes that represent visible GUI parts.
 
-The `UI` component uses the JavaFX UI framework. The layouts of these UI parts are defined in matching `.fxml` files in `src/main/resources/view`. For example, [`MainWindow.fxml`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/resources/view/MainWindow.fxml) specifies the layout of [`MainWindow`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/ui/MainWindow.java).
+The `UI` component uses the JavaFX UI framework. The layouts of these UI parts are defined in matching `.fxml` files in `src/main/resources/view`. For example, [`MainWindow.fxml`](https://github.com/AY2627S1-CS2103T-T09-1/tp/tree/master/src/main/resources/view/MainWindow.fxml) specifies the layout of [`MainWindow`](https://github.com/AY2627S1-CS2103T-T09-1/tp/tree/master/src/main/java/seedu/address/ui/MainWindow.java).
 
 The `UI` component,
 
@@ -85,7 +85,7 @@ The `UI` component,
 
 ### Logic component
 
-**API** : [`Logic.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/logic/Logic.java)
+**API** : [`Logic.java`](https://github.com/AY2627S1-CS2103T-T09-1/tp/tree/master/src/main/java/seedu/address/logic/Logic.java)
 
 Here's a (partial) class diagram of the `Logic` component:
 
@@ -115,7 +115,7 @@ How the parsing works:
 * All `XYZCommandParser` classes, such as `AddCommandParser` and `DeleteCommandParser`, implement the `Parser` interface so they can be treated similarly where appropriate, for example during testing.
 
 ### Model component
-**API** : [`Model.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/model/Model.java)
+**API** : [`Model.java`](https://github.com/AY2627S1-CS2103T-T09-1/tp/tree/master/src/main/java/seedu/address/model/Model.java)
 
 <img src="images/ModelClassDiagram.png" width="450" />
 
@@ -141,7 +141,7 @@ The diagram does not show these rules, which the classes check when an object is
 
 ### Storage component
 
-**API** : [`Storage.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/storage/Storage.java)
+**API** : [`Storage.java`](https://github.com/AY2627S1-CS2103T-T09-1/tp/tree/master/src/main/java/seedu/address/storage/Storage.java)
 
 <img src="images/StorageClassDiagram.png" width="550" />
 
@@ -159,6 +159,21 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 ## **Implementation**
 
 This section describes some noteworthy details on how certain features are implemented.
+
+### Viewing student details
+
+The `view INDEX` command passes the selected student from `Logic` to the detail panel without storing UI state in the `Model`.
+
+<img src="images/ViewStudentDetailSequenceDiagram.png" width="1000" />
+
+The diagram omits the routine `Storage#saveAddressBook` call that `LogicManager` makes after command execution. The `view` command does not change the data being saved.
+
+1. `AddressBookParser` delegates the index argument to `ViewCommandParser`, which creates a `ViewCommand`.
+1. `ViewCommand#execute` reads the current filtered student list from the `Model`. It validates the displayed index and obtains the student at that position. An out-of-range index throws a `CommandException`, so `MainWindow` does not replace the current detail panel.
+1. For a valid index, `ViewCommand` returns a `CommandResult` containing `DisplayMode.SHOW_STUDENT`, the selected `Person`, and the displayed index. The command does not modify the `Model`.
+1. `MainWindow#updateMainContent` handles `SHOW_STUDENT` by creating a `StudentDetailPanel` with the selected student, index, and current filtered list. It replaces the content of the detail placeholder with the new panel and asks `PersonListPanel` to highlight and scroll to the same student.
+
+The `StudentDetailPanel` listens to the filtered list and refreshes the record at the displayed index when that list changes. This allows edits to update an open detail panel while keeping the command's displayed index consistent with the list.
 
 ### Student duplicate handling
 
@@ -188,9 +203,68 @@ The required subject and band are deliberately excluded from the key. A student 
 
 Every student record must include a name, school, and level. Many tutors teach students with common names. School helps distinguish students who attend different schools. Level helps distinguish students at the same school who are in different levels. These fields block many accidental repeat entries while still allowing students with the same name when their school or level differs.
 
+### Student subjects and bands
+
+Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `G2`, or `G3`. Subject names can contain 1 to 40 letters, spaces, or hyphens and must contain at least one letter. A student cannot have the same subject name more than once, even at different bands.
+
+`Subject` is an immutable value object containing both the subject name and its required `Band`. The band is an enum, so a `Subject` cannot be constructed with an unsupported band or without one. For comparison, `Subject` trims surrounding spaces, collapses repeated ordinary spaces, and lowercases the name. The band is included in `Subject.equals`, but `Person#validateSubjects` checks names separately and rejects a repeated subject even if the bands differ.
+
+#### Implementation
+
+<img src="images/SubjectBandClassDiagram.svg" width="700" />
+
+1. `AddCommandParser` and `EditCommandParser` tokenize `sub/` and `band/`. `ArgumentMultimap#verifyEachFollowedBy` checks that each `sub/` is immediately followed by one `band/`. `add` requires at least one pair. For `edit`, giving neither prefix leaves the subjects unchanged; giving either prefix requires complete pairs and replaces the subject list.
+1. `ParserUtil#parseSubjects` checks that the subject-name and band lists have the same number of values and that there are no more than eight pairs. It creates each `Subject` from the name and band at the same position, then calls `Person#validateSubjects` to reject repeated names.
+1. `Band#fromString` converts the supplied value to the matching enum, ignoring case and surrounding spaces. `Subject` validates its name and requires a non-null band. These checks also apply when a subject is constructed outside the command parsers.
+1. `JsonAdaptedSubject` stores a subject as a JSON object with `name` and `band` fields. During loading, it validates both fields and converts the band back to the enum. `Person` then validates the full subject list, so missing, invalid, or repeated subject data is rejected.
+1. The detail panel and command result display each subject with its band, such as `Mathematics (G1)`. `filter sub/Mathematics band/G1` matches a student only when that student has Mathematics at G1; omitting `band/` matches the subject at any band.
+
+#### Design considerations
+
+**Aspect: Whether to store a band for each subject**
+
+* **Alternative 1: Store subjects without bands.**
+  * Pros: Keeps each subject entry simple and does not require the tutor to know or enter a band.
+  * Cons: The tutor cannot record or filter by the level at which a student takes each subject, even though students may take different subjects at different bands.
+
+* **Alternative 2 (current choice): Store a subject and a required band together.**
+  * Pros: Every recorded subject has complete information. The model prevents a subject from existing without a valid band, and `filter` can match a subject at a specific band.
+  * Cons: The tutor must know and enter a band for every subject, including when the band is not yet known.
+
+* **Alternative 3: Store a subject with an optional band.**
+  * Pros: Allows the tutor to record a subject before its band is known.
+  * Cons: Adds a second state for every subject and requires commands, storage, and display to handle missing bands. Filtering by band must also distinguish between “any band” and “no band recorded.”
+
+The app uses the second option because the tutor needs each subject’s band to plan lessons at the right level. Requiring it when the subject is entered keeps the model and stored data consistent. The pair format also makes the relationship explicit in commands: each `sub/` must be followed by its own `band/`.
+
 ### Student addresses
 
 `Address` is an optional value object. It accepts any nonblank value up to 200 characters and collapses repeated ordinary spaces. The add parser accepts optional `a/ADDRESS`; the edit parser replaces an address, and a blank `a/` removes it. `JsonAdaptedPerson` saves supplied addresses and accepts older JSON records without an address. The student list card shows an address when one is present; the detail panel and command result show `Not provided` when it is absent. Addresses do not contribute to duplicate detection.
+
+### Student emails
+
+`Email` is an optional value object that follows the same pattern as `Address`. `Email#isValidEmail` accepts a value of the form `local-part@domain` that is at most 254 characters, the longest address that SMTP allows (RFC 5321):
+
+* The local part is groups of ASCII letters and digits joined by single `+`, `_`, `.`, or `-` characters, so it cannot start or end with a symbol or contain two symbols in a row.
+* The domain is labels joined by single periods. Each label is groups of letters and digits joined by single hyphens, and the last label has at least 2 characters.
+* `ParserUtil#parseEmail` trims the value before validating it, so only a space inside the email is rejected.
+
+`Email.MESSAGE_CONSTRAINTS` lists every rule in one message. Separate messages for each failure, such as a missing `@`, are left for a later version.
+
+The add parser accepts optional `e/EMAIL`; the edit parser replaces an email, and a blank `e/` removes it. `JsonAdaptedPerson` leaves `email` out of the file when a student has none, and Jackson sets the field directly, so files without an email still load. Emails do not contribute to duplicate detection.
+
+### Student tags
+
+A student has a set of `Tag`s, which may be empty but is never null. `Person#getTags()` returns an unmodifiable view that keeps the order the tags were typed in.
+
+* A tag is one word of ASCII letters and digits, where single hyphens may join parts of the word, such as `O-level`. `Tag` compares tags ignoring case, so `Exams` equals `exams`, and the display keeps the user's capitalization.
+* `ParserUtil#parseTag` trims the value, then rejects a value containing a space with its own message, `Messages.MESSAGE_TAG_HAS_SPACE`, which tells the user to put `t/` before each tag (`filter` uses its own message, since it takes one tag). Other invalid values get `Tag.MESSAGE_CONSTRAINTS`. The space message lives in `Messages` because it names the `t/` prefix, which the model should not know about.
+* `ParserUtil#parseTags` rejects a tag given twice with `Tag "X" is given more than once.`, instead of letting the set drop it silently. It takes plain strings, so the prefix handling stays in the parsers.
+* In `add`, `t/` may repeat. In `edit`, the given tags replace all existing tags, and a single blank `t/` clears them. `EditCommandParser#parseTagsForEdit` handles both cases.
+* `JsonAdaptedPerson` stores tags as a list of `JsonAdaptedTag` strings. Jackson sets the list directly, so files saved before tags existed load with no tags. A file with an invalid or repeated tag is rejected.
+* Tags do not contribute to duplicate detection.
+
+Tags are one word, so that they are quick to type and to filter by. Hyphens are allowed because realistic tags such as `O-level` and `N-level` contain them. This means `exam-prep` and `examprep` are different tags, which the User Guide states. Spaces are not allowed, because they would add a third spelling, `exam prep`, and because rejecting a space catches a common mistake: `t/paid urgent`, where the user forgot the second `t/`, is rejected with a message that explains how to give two tags, instead of being saved as one tag.
 
 ### Command confirmations
 
@@ -363,8 +437,8 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 
 <img src="images/FilterClassDiagram.png" width="650" />
 
-1. `FilterCommandParser` splits the arguments at the filter prefixes `n/`, `sch/`, `lvl/`, `sub/`, `band/`, `p/`, `gn/`, `gp/`, and `note/`. It also recognizes `nid/`, the note index prefix of `deletenote` and `editnote`, only to reject it with a message pointing to `note/`, so that it is not read as part of another value. `note/` is read with `ArgumentTokenizer#tokenizeWithTrailingText`, so everything after it is the note text, as in `addnote`.
-1. It then checks, in order, that there is no text before the first prefix, that at least one filter is given, that no prefix is repeated, and that `band/` comes with `sub/`.
+1. `FilterCommandParser` splits the arguments at the filter prefixes `n/`, `sch/`, `lvl/`, `sub/`, `band/`, `p/`, `e/`, `a/`, `gn/`, `gp/`, `t/`, and `note/`. It also recognizes `nid/`, the note index prefix of `deletenote` and `editnote`, only to reject it with a message pointing to `note/`, so that it is not read as part of another value. `note/` is read with `ArgumentTokenizer#tokenizeWithTrailingText`, so everything after it is the note text, as in `addnote`.
+1. It then checks, in order, that there is no text before the first prefix, that at least one filter is given, that `t/` is not repeated, that no other prefix is repeated, and that `band/` comes with `sub/`. A repeated `t/` gets its own message, `MESSAGE_ONE_TAG`, because `add` and `edit` accept several `t/`.
 1. It creates one `Predicate<Person>` for each filter given:
 
    Prefix | Predicate | Matches when the student's…
@@ -374,14 +448,17 @@ Each edit wraps the current filter, so after several edits in a row, every edite
    `lvl/` | `LevelMatchesPredicate` | level is that level
    `sub/` [`band/`] | `SubjectMatchesPredicate` | subjects include that subject, at that band if given
    `p/` | `PhoneMatchesPredicate` | own phone is that number
+   `e/` | `EmailContainsTextPredicate` | email contains the text
+   `a/` | `AddressContainsTextPredicate` | address contains the text
    `gn/` | `GuardianNameContainsTextPredicate` | guardian's name contains the text
    `gp/` | `GuardianPhoneMatchesPredicate` | guardian's phone is that number
+   `t/` | `TagMatchesPredicate` | tags include that tag
    `note/` | `NoteContainsTextPredicate` | notes include one that contains the text
 
 1. It wraps the predicates in a `StudentMatchesAllPredicate`, which returns `true` only if every predicate does, and returns a `FilterCommand` holding it.
 1. `FilterCommand#execute` passes the predicate to `Model#updateFilteredPersonList` and returns `CommandResult.showList(...)` with the number of students found, or a no-match message.
 
-The partial-match predicates (`n/`, `sch/`, `gn/`, `note/`) use `StringUtil#containsIgnoreCaseAndSpaces`, which lowercases both strings and squeezes runs of whitespace before comparing. The exact-match filters are parsed first with the same `ParserUtil` methods as `add`, into a `Level`, `Band`, or `Phone`. So `lvl/s3` becomes `S3` and `p/+65 9123 4567` becomes `91234567`, the form in which they are stored, and the predicates can compare values directly. `SubjectMatchesPredicate` compares names with `Subject#hasName`, the same rule `add` uses to detect a repeated subject, and requires the band to belong to that same subject.
+The partial-match predicates (`n/`, `sch/`, `e/`, `a/`, `gn/`, `note/`) use `StringUtil#containsIgnoreCaseAndSpaces`, which lowercases both strings and squeezes runs of whitespace before comparing. The exact-match filters are parsed first with the same `ParserUtil` methods as `add`, into a `Level`, `Band`, `Phone`, or `Tag`. So `lvl/s3` becomes `S3` and `p/+65 9123 4567` becomes `91234567`, the form in which they are stored, and the predicates can compare values directly. `TagMatchesPredicate` relies on `Tag#equals`, which ignores case. `parseTagFilter` checks for a space before calling `ParserUtil#parseTag`, so a tag with a space gets `MESSAGE_FILTER_TAG_HAS_SPACE`, which quotes the value and says `filter` takes one tag, in place of `parseTag`'s advice to put `t/` before each tag. `SubjectMatchesPredicate` compares names with `Subject#hasName`, the same rule `add` uses to detect a repeated subject, and requires the band to belong to that same subject.
 
 #### Design considerations
 
@@ -401,7 +478,7 @@ The partial-match predicates (`n/`, `sch/`, `gn/`, `note/`) use `StringUtil#cont
   * Pros: One rule for the tutor to learn.
   * Cons: Short, fixed values become ambiguous: `sub/math` would match both Mathematics and Additional Mathematics, and `p/9123` would match every number containing those digits.
 
-* **Alternative 2 (current choice):** Partial matching for free text (name, school, guardian name), exact matching for fixed values (level, subject, band, phone).
+* **Alternative 2 (current choice):** Partial matching for free text (name, school, email, address, guardian name), exact matching for fixed values (level, subject, band, phone, tag).
   * Pros: Tutors can type part of a name or school they half remember, while fixed values match only what they mean.
   * Cons: Two rules to learn. The User Guide's filter table says which fields match partially.
 
@@ -415,6 +492,20 @@ The partial-match predicates (`n/`, `sch/`, `gn/`, `note/`) use `StringUtil#cont
   * Pros: Each filter narrows the list, which fits planning a lesson for one group.
   * Cons: To see two schools, the tutor runs `filter` twice.
 
+**Aspect: Whether `filter` takes one tag or several**
+
+* **Alternative 1:** Several `t/`, and a student must have every tag (AND).
+  * Pros: Matches `add` and `edit`, which accept several `t/`.
+  * Cons: `t/` would be the only filter that can repeat. Tags such as `paid` and `unpaid` rarely appear together, so most combinations find no one.
+
+* **Alternative 2:** Several `t/`, and a student needs any one of them (OR).
+  * Pros: Finds students with either tag in one command.
+  * Cons: `t/` would be the only filter combined with OR, which contradicts "a student must match every filter".
+
+* **Alternative 3 (current choice):** One `t/` per `filter`.
+  * Pros: Follows the same rule as every other filter, so there is no question of AND or OR. A repeated `t/` gets a message saying `filter` takes one tag.
+  * Cons: To see two tags, the tutor runs `filter` twice.
+
 **Aspect: Whether to search notes with a separate command or with `filter`**
 
 * **Alternative 1:** A separate `findnote` command.
@@ -424,95 +515,6 @@ The partial-match predicates (`n/`, `sch/`, `gn/`, `note/`) use `StringUtil#cont
 * **Alternative 2 (current choice):** A `note/` filter in `filter`.
   * Pros: One search command. A note search combines with other filters, such as `filter lvl/S3 note/algebra`.
   * Cons: The result shows students, not which of their notes matched. `note/` must be the last filter.
-
-### \[Proposed\] Undo/redo feature
-
-#### Proposed Implementation
-
-The proposed undo/redo mechanism is facilitated by `VersionedAddressBook`. It extends `AddressBook` with an undo/redo history, stored internally as an `addressBookStateList` and `currentStatePointer`. Additionally, it implements the following operations:
-
-* `VersionedAddressBook#commit()` — Saves the current address book state in its history.
-* `VersionedAddressBook#undo()` — Restores the previous address book state from its history.
-* `VersionedAddressBook#redo()` — Restores a previously undone address book state from its history.
-
-These operations are exposed in the `Model` interface as `Model#commitAddressBook()`, `Model#undoAddressBook()` and `Model#redoAddressBook()` respectively.
-
-Given below is an example usage scenario and how the undo/redo mechanism behaves at each step.
-
-Step 1. The user launches the application for the first time. The `VersionedAddressBook` will be initialized with the initial address book state, and the `currentStatePointer` pointing to that single address book state.
-
-![UndoRedoState0](images/UndoRedoState0.png)
-
-Step 2. The user executes `delete 5` command to delete the 5th person in the address book. The `delete` command calls `Model#commitAddressBook()`, causing the modified state of the address book after the `delete 5` command executes to be saved in the `addressBookStateList`, and the `currentStatePointer` is shifted to the newly inserted address book state.
-
-![UndoRedoState1](images/UndoRedoState1.png)
-
-Step 3. The user executes `add n/David …​` to add a new person. The `add` command also calls `Model#commitAddressBook()`, causing another modified address book state to be saved into the `addressBookStateList`.
-
-![UndoRedoState2](images/UndoRedoState2.png)
-
-<div markdown="span" class="alert alert-info">:information_source: **Note:** If a command fails its execution, it will not call `Model#commitAddressBook()`, so the address book state will not be saved into the `addressBookStateList`.
-
-</div>
-
-Step 4. The user now decides that adding the person was a mistake, and decides to undo that action by executing the `undo` command. The `undo` command will call `Model#undoAddressBook()`, which will shift the `currentStatePointer` once to the left, pointing it to the previous address book state, and restores the address book to that state.
-
-![UndoRedoState3](images/UndoRedoState3.png)
-
-<div markdown="span" class="alert alert-info">:information_source: **Note:** If the `currentStatePointer` is at index 0, pointing to the initial AddressBook state, then there are no previous AddressBook states to restore. The `undo` command uses `Model#canUndoAddressBook()` to check if this is the case. If so, it will return an error to the user rather
-than attempting to perform the undo.
-
-</div>
-
-The following sequence diagram shows how an undo operation goes through the `Logic` component:
-
-![UndoSequenceDiagram](images/UndoSequenceDiagram-Logic.png)
-
-<div markdown="span" class="alert alert-info">:information_source: **Note:** The lifeline for `UndoCommand` should end at the destroy marker (X), but due to a limitation of PlantUML, it continues to the end of the diagram.
-
-</div>
-
-Similarly, how an undo operation goes through the `Model` component is shown below:
-
-![UndoSequenceDiagram](images/UndoSequenceDiagram-Model.png)
-
-The `redo` command does the opposite — it calls `Model#redoAddressBook()`, which shifts the `currentStatePointer` once to the right, pointing to the previously undone state, and restores the address book to that state.
-
-<div markdown="span" class="alert alert-info">:information_source: **Note:** If the `currentStatePointer` is at index `addressBookStateList.size() - 1`, pointing to the latest address book state, then there are no undone AddressBook states to restore. The `redo` command uses `Model#canRedoAddressBook()` to check if this is the case. If so, it will return an error to the user rather than attempting to perform the redo.
-
-</div>
-
-Step 5. The user then decides to execute the command `list`. Commands that do not modify the address book, such as `list`, will usually not call `Model#commitAddressBook()`, `Model#undoAddressBook()` or `Model#redoAddressBook()`. Thus, the `addressBookStateList` remains unchanged.
-
-![UndoRedoState4](images/UndoRedoState4.png)
-
-Step 6. The user executes `clear`, which calls `Model#commitAddressBook()`. Since the `currentStatePointer` is not pointing at the end of the `addressBookStateList`, all address book states after the `currentStatePointer` will be purged. Reason: It no longer makes sense to redo the `add n/David …​` command. This is the behavior that most modern desktop applications follow.
-
-![UndoRedoState5](images/UndoRedoState5.png)
-
-The following activity diagram summarizes what happens when a user executes a new command:
-
-<img src="images/CommitActivityDiagram.png" width="250" />
-
-#### Design considerations:
-
-**Aspect: How undo & redo execute:**
-
-* **Alternative 1 (current choice):** Saves the entire address book.
-  * Pros: Easy to implement.
-  * Cons: May have performance issues in terms of memory usage.
-
-* **Alternative 2:** Individual command knows how to undo/redo by
-  itself.
-  * Pros: Will use less memory (e.g. for `delete`, just save the person being deleted).
-  * Cons: We must ensure that the implementation of each individual command is correct.
-
-_{more aspects and alternatives to be added}_
-
-### \[Proposed\] Data archiving
-
-_{Explain here how the data archiving feature will be implemented}_
-
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -811,8 +813,8 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
   Use case ends.
 
 ---
-  
-## Use case: UC5 - View a student's record
+
+**Use case: UC5 - View a student's record**
 
 **MSS**
 
@@ -823,19 +825,19 @@ Use case ends.
 
 **Extensions**
 
-- 1a. The given index is invalid.
-  - 1a1. TuteeBook3 shows an error message.
+* 1a. The given index is invalid.
+  * 1a1. TuteeBook3 shows an error message.
 
   Use case resumes at step 1.
 
-- 2a. The student has no notes.
-  - 2a1. TuteeBook3 shows the card with an empty notes section.
+* 2a. The student has no notes.
+  * 2a1. TuteeBook3 shows the card with an empty notes section.
 
   Use case ends.
 
 ---
 
-## Use case: UC6 - Find students by text in their notes
+**Use case: UC6 - Find students by text in their notes**
 
 **MSS**
 
@@ -870,7 +872,7 @@ Use case ends.
   Use case resumes at step 2.
 
 ---
-  
+
 **Use case: UC7 - Add a note to a student**
 
 **MSS**
@@ -1108,16 +1110,17 @@ Use case ends.
 * **Note**: A short piece of text that the tutor attaches to a student, such as "Weak in Geometry" or "WA2 Math: 36/50".
 * **Student**: A secondary school student whom the tutor teaches.
 * **Subject**: A school subject that the tutor teaches the student, such as "Mathematics" or "Chemistry".
+* **Tag**: A short label that the tutor attaches to a student to group or flag them at a glance, such as "paid" or "O-level". A tag is one word, which may contain hyphens. A student can have any number of tags.
 
 #### Commands
 
 * **Confirmation prompt**: An amber message that asks you to confirm a command before it runs. `delete`, `deletenote`, and `clear` show one before they delete anything, and `add` and `edit` show one when another student already has the same name. Type `CONFIRM` in uppercase to go ahead. Any other input, including `confirm`, cancels the command and runs as a normal command.
-* **Exact matching**: The way the `lvl/`, `sub/`, `band/`, `p/`, and `gp/` filters of `filter` compare values. The whole value must match, ignoring case and extra spaces. For example, `lvl/S3` matches only students in S3, and `sub/math` does not match `Mathematics`.
+* **Exact matching**: The way the `lvl/`, `sub/`, `band/`, `p/`, `gp/`, and `t/` filters of `filter` compare values. The whole value must match, ignoring case and extra spaces. For example, `lvl/S3` matches only students in S3, and `sub/math` does not match `Mathematics`.
 * **Filter**: A prefix and value given to the `filter` command, such as `n/Tan`, that narrows down the student list.
 * **Force flag**: The `-f` option of `delete`, `deletenote`, and `clear`, such as `delete -f 1`. It skips the confirmation prompt, so the command runs immediately. `add` and `edit` have no force flag.
 * **Index**: The number shown next to a student in the list currently on screen. Commands such as `view`, `edit`, and `delete` use it to pick a student. It is not permanent: it can change when the list changes, such as after `add`, `delete`, `filter`, or `list`.
 * **NID**: The number shown before a note in the student detail view. Notes are numbered 1, 2, 3 in the order they were added. After a note is deleted, the notes after it move up one number, so an NID is not permanent.
-* **Partial matching**: The way the `n/`, `sch/`, `gn/`, and `note/` filters of `filter` compare values. The value only needs to contain what you typed, even part of a word, ignoring case. For example, `sch/vic` matches `Victoria School`.
+* **Partial matching**: The way the `n/`, `sch/`, `e/`, `a/`, `gn/`, and `note/` filters of `filter` compare values. The value only needs to contain what you typed, even part of a word, ignoring case. For example, `sch/vic` matches `Victoria School`.
 * **Prefix**: A short marker ending in `/`, such as `n/` or `sch/`, that labels the value after it in a command.
 * **Warning**: An amber message that flags something that might be a mistake, without stopping the command. For example, TuteeBook3 saves a phone number that doesn't look like a Singapore number, but shows a warning so that you can check it.
 
@@ -1215,6 +1218,35 @@ testers are expected to do more *exploratory* testing.
 
    1. Test case: `edit 1 gn/ gp/` on Ken Lim<br>
       Expected: Ken Lim is unchanged. The status message shows `This student has no guardian to remove.`
+
+### Adding and editing tags
+
+1. Adding a student with tags
+
+   1. Test case: `add n/Mei Lin sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/exams t/Paid`<br>
+      Expected: Mei Lin is added. Her list card shows the tags `exams` and `Paid`, in that order.
+
+   1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/Paid t/paid`<br>
+      Expected: No student is added. The status message shows `Tag "paid" is given more than once.`
+
+   1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/exam_prep`<br>
+      Expected: No student is added. The status message shows `Tags must be one word of 1-30 English letters or digits. Single hyphens may join parts of the word, such as O-level, but spaces and other symbols are not allowed. For longer details, use a note instead.`
+
+   1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/O-level`<br>
+      Expected: Ken Ong is added with the tag `O-level`.
+
+   1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/exam prep`<br>
+      Expected: No student is added. The status message shows `Tag "exam prep" contains a space. Each tag is one word; to give more than one tag, put t/ before each, such as t/paid t/exams.`
+
+1. Editing tags
+
+   1. Prerequisites: Mei Lin was added as above. Use `filter n/Mei` so that she is first in the list.
+
+   1. Test case: `edit 1 t/online`<br>
+      Expected: Mei Lin's only tag is now `online`.
+
+   1. Test case: `edit 1 t/`<br>
+      Expected: Mei Lin has no tags. Her list card shows no tags, and viewing her details shows `Not provided` for tags.
 
 ### Entering phone numbers
 

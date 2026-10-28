@@ -13,12 +13,15 @@ import static seedu.address.logic.commands.CommandTestUtil.INVALID_NAME_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_PHONE_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_PHONE_MESSAGE;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_SCHOOL_DESC;
+import static seedu.address.logic.commands.CommandTestUtil.INVALID_TAG_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.LEVEL_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.NAME_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.PHONE_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.PHONE_DESC_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.SCHOOL_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.SCHOOL_DESC_BOB;
+import static seedu.address.logic.commands.CommandTestUtil.TAG_DESC_EXAMS;
+import static seedu.address.logic.commands.CommandTestUtil.TAG_DESC_PAID;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_GUARDIAN_NAME_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_GUARDIAN_PHONE_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_LEVEL_AMY;
@@ -26,6 +29,9 @@ import static seedu.address.logic.commands.CommandTestUtil.VALID_NAME_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_PHONE_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_PHONE_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_SCHOOL_AMY;
+import static seedu.address.logic.commands.CommandTestUtil.VALID_TAG_EXAMS;
+import static seedu.address.logic.commands.CommandTestUtil.VALID_TAG_PAID;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
@@ -44,11 +50,13 @@ import seedu.address.logic.Messages;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
 import seedu.address.model.person.Band;
+import seedu.address.model.person.Email;
 import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.School;
 import seedu.address.model.person.Subject;
+import seedu.address.model.tag.Tag;
 import seedu.address.testutil.EditPersonDescriptorBuilder;
 
 public class EditCommandParserTest {
@@ -79,6 +87,45 @@ public class EditCommandParserTest {
     public void parse_blankAddressWithSpaces_removesAddress() {
         EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withAddressRemoved().build();
         assertParseSuccess(parser, "1 a/   ", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
+    public void parse_emailSetOrRemoved_success() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withEmail("amy@example.com").build();
+        assertParseSuccess(parser, "1 e/amy@example.com", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+
+        descriptor = new EditPersonDescriptorBuilder().withEmailRemoved().build();
+        assertParseSuccess(parser, "1 e/", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+        assertParseSuccess(parser, "1 e/   ", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
+    public void parse_invalidEmail_failure() {
+        assertParseFailure(parser, "1 e/amy", String.format(Email.MESSAGE_MISSING_AT, "amy"));
+        assertParseFailure(parser, "1 e/amy@example.com e/bob@example.com",
+                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_EMAIL));
+    }
+
+    @Test
+    public void parse_tagsReplacedOrCleared_success() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withTags(VALID_TAG_PAID, VALID_TAG_EXAMS).build();
+        assertParseSuccess(parser, "1" + TAG_DESC_PAID + TAG_DESC_EXAMS,
+                new EditCommand(INDEX_FIRST_PERSON, descriptor));
+
+        descriptor = new EditPersonDescriptorBuilder().withTags().build();
+        assertParseSuccess(parser, "1 t/", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+        assertParseSuccess(parser, "1 t/   ", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
+    public void parse_invalidTag_failure() {
+        assertParseFailure(parser, "1" + INVALID_TAG_DESC, Tag.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1 t/exam prep", String.format(Messages.MESSAGE_TAG_HAS_SPACE, "exam prep"));
+        // an empty t/ only clears the tags when it is the only t/
+        assertParseFailure(parser, "1 t/" + TAG_DESC_PAID, Tag.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1 t/Paid" + TAG_DESC_PAID,
+                String.format(Tag.MESSAGE_DUPLICATE_TAG, VALID_TAG_PAID));
     }
 
     @Test
@@ -115,9 +162,7 @@ public class EditCommandParserTest {
         assertParseFailure(parser, "1 i/ string", MESSAGE_INVALID_FORMAT);
 
         // removed prefixes being parsed as preamble
-        assertParseFailure(parser, "1 e/bob@example.com", MESSAGE_INVALID_FORMAT);
         assertParseFailure(parser, "1 x/Clementi Road", MESSAGE_INVALID_FORMAT);
-        assertParseFailure(parser, "1 t/friend", MESSAGE_INVALID_FORMAT);
     }
 
     @Test
@@ -248,6 +293,20 @@ public class EditCommandParserTest {
         assertParseSuccess(parser, targetIndex.getOneBased() + " " + PREFIX_GUARDIAN_NAME + "  "
                 + VALID_GUARDIAN_NAME_AMY + "  " + PREFIX_GUARDIAN_PHONE + VALID_GUARDIAN_PHONE_AMY + "  ",
                 new EditCommand(targetIndex, descriptor));
+    }
+
+    @Test
+    public void parse_repeatedSpacesInTextFields_collapsesSpaces() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withName("John Doe")
+                .withSchool("Victoria School")
+                .withSubjects(new Subject("Additional Mathematics", Band.G2))
+                .withGuardianName("Mary Jane")
+                .build();
+        String userInput = "1 n/  John   Doe  sch/  Victoria   School  sub/  Additional   Mathematics  band/G2 "
+                + "gn/  Mary   Jane  ";
+
+        assertParseSuccess(parser, userInput, new EditCommand(INDEX_FIRST_PERSON, descriptor));
     }
 
     @Test

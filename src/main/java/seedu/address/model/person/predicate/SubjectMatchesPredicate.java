@@ -1,4 +1,4 @@
-package seedu.address.model.person;
+package seedu.address.model.person.predicate;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
@@ -7,6 +7,9 @@ import java.util.Optional;
 import java.util.function.Predicate;
 
 import seedu.address.commons.util.ToStringBuilder;
+import seedu.address.model.person.Band;
+import seedu.address.model.person.Person;
+import seedu.address.model.person.Subject;
 
 /**
  * Tests that a {@code Person} takes the given subject, optionally at the given band.

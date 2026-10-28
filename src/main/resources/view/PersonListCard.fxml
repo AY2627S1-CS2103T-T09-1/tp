@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
@@ -28,7 +29,10 @@
            wrapText="true" />
     <Label fx:id="address" maxWidth="Infinity" styleClass="cell_small_label"
            wrapText="true" />
+    <Label fx:id="email" maxWidth="Infinity" styleClass="cell_small_label"
+           wrapText="true" />
     <Label fx:id="level" maxWidth="Infinity" styleClass="cell_small_label" text="\$level"
            wrapText="true" />
+    <FlowPane fx:id="tags" />
   </VBox>
 </HBox>

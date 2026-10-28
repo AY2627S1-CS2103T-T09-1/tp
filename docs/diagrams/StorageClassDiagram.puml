@@ -20,6 +20,7 @@ Class JsonAdaptedPerson
 Class JsonAdaptedSubject
 Class JsonAdaptedNote
 Class JsonAdaptedGuardian
+Class JsonAdaptedTag
 }
 
 }
@@ -36,5 +37,6 @@ JsonSerializableAddressBook --> "0..*" JsonAdaptedPerson : persons
 JsonAdaptedPerson --> "1..8" JsonAdaptedSubject : subjects
 JsonAdaptedPerson --> "0..*" JsonAdaptedNote : notes
 JsonAdaptedPerson --> "0..1" JsonAdaptedGuardian : guardian
+JsonAdaptedPerson --> "0..*" JsonAdaptedTag : tags
 
 @enduml

@@ -1,4 +1,4 @@
-package seedu.address.model.person;
+package seedu.address.model.person.predicate;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
@@ -7,21 +7,21 @@ import java.util.function.Predicate;
 
 import seedu.address.commons.util.StringUtil;
 import seedu.address.commons.util.ToStringBuilder;
+import seedu.address.model.person.Person;
 
 /**
- * Tests that at least one of a {@code Person}'s notes contains the given text,
- * ignoring case and extra spaces.
+ * Tests that a {@code Person}'s email contains the given text, ignoring case and extra spaces.
  */
-public class NoteContainsTextPredicate implements Predicate<Person> {
+public class EmailContainsTextPredicate implements Predicate<Person> {
 
     private final String text;
 
     /**
-     * Creates a predicate that matches students with a note containing {@code text}.
+     * Creates a predicate that matches students whose email contains {@code text}.
      *
      * @param text Text to search for. Must not be blank.
      */
-    public NoteContainsTextPredicate(String text) {
+    public EmailContainsTextPredicate(String text) {
         requireNonNull(text);
         checkArgument(!text.isBlank());
         this.text = text;
@@ -29,8 +29,9 @@ public class NoteContainsTextPredicate implements Predicate<Person> {
 
     @Override
     public boolean test(Person person) {
-        return person.getNotes().stream()
-                .anyMatch(note -> StringUtil.containsIgnoreCaseAndSpaces(note.value, text));
+        return person.getEmail()
+                .map(email -> StringUtil.containsIgnoreCaseAndSpaces(email.value, text))
+                .orElse(false);
     }
 
     @Override
@@ -40,7 +41,7 @@ public class NoteContainsTextPredicate implements Predicate<Person> {
         }
 
         // instanceof handles nulls
-        if (!(other instanceof NoteContainsTextPredicate otherPredicate)) {
+        if (!(other instanceof EmailContainsTextPredicate otherPredicate)) {
             return false;
         }
 

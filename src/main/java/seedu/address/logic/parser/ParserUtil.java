@@ -4,15 +4,21 @@ import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.logging.Logger;
 
+import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.StringUtil;
 import seedu.address.logic.Messages;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Band;
+import seedu.address.model.person.Email;
 import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
@@ -21,6 +27,7 @@ import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
 import seedu.address.model.person.Subject;
+import seedu.address.model.tag.Tag;
 
 /**
  * Contains utility methods used for parsing strings in the various *Parser classes.
@@ -34,6 +41,12 @@ public class ParserUtil {
     public static final String PHONE_LABEL = "Phone";
 
     public static final String GUARDIAN_PHONE_LABEL = "Guardian phone";
+
+    private static final String REPEATED_SPACES_REGEX = " {2,}";
+
+    private static final String SINGLE_SPACE = " ";
+
+    private static final Logger logger = LogsCenter.getLogger(ParserUtil.class);
 
     /**
      * Validates that {@code args} contains no additional arguments.
@@ -77,13 +90,13 @@ public class ParserUtil {
 
     /**
      * Parses a {@code String name} into a {@code Name}.
-     * Leading and trailing whitespaces will be trimmed.
+     * Leading and trailing whitespaces will be trimmed, and repeated spaces are collapsed to one.
      *
      * @throws ParseException if the given {@code name} is invalid.
      */
     public static Name parseName(String name) throws ParseException {
         requireNonNull(name);
-        String trimmedName = name.trim();
+        String trimmedName = trimAndCollapseSpaces(name);
         if (!Name.isValidName(trimmedName)) {
             throw new ParseException(Name.MESSAGE_CONSTRAINTS);
         }
@@ -149,13 +162,13 @@ public class ParserUtil {
 
     /**
      * Parses a {@code String school} into a {@code School}.
-     * Leading and trailing whitespaces will be trimmed.
+     * Leading and trailing whitespaces will be trimmed, and repeated spaces are collapsed to one.
      *
      * @throws ParseException if the given {@code school} is invalid.
      */
     public static School parseSchool(String school) throws ParseException {
         requireNonNull(school);
-        String trimmedSchool = school.trim();
+        String trimmedSchool = trimAndCollapseSpaces(school);
         if (!School.isValidSchool(trimmedSchool)) {
             throw new ParseException(School.MESSAGE_CONSTRAINTS);
         }
@@ -177,6 +190,22 @@ public class ParserUtil {
     }
 
     /**
+     * Parses a {@code String email} into an {@code Email}.
+     * Leading and trailing whitespaces will be trimmed.
+     *
+     * @throws ParseException if the given {@code email} is invalid.
+     */
+    public static Email parseEmail(String email) throws ParseException {
+        requireNonNull(email);
+        String trimmedEmail = email.trim();
+        Optional<String> invalidReason = Email.getInvalidReason(trimmedEmail);
+        if (invalidReason.isPresent()) {
+            throw new ParseException(invalidReason.get());
+        }
+        return new Email(trimmedEmail);
+    }
+
+    /**
      * Parses a {@code String level} into a {@code Level}.
      * Leading and trailing whitespaces will be trimmed, and case is ignored.
      *
@@ -192,13 +221,13 @@ public class ParserUtil {
     }
 
     /**
-     * Parses a subject name and its mandatory band, trimming surrounding spaces.
+     * Parses a subject name and its mandatory band, trimming surrounding spaces and collapsing repeated spaces.
      */
     public static Subject parseSubject(String name, String band) throws ParseException {
         requireNonNull(name);
         requireNonNull(band);
         try {
-            return new Subject(name.trim(), Band.fromString(band));
+            return new Subject(trimAndCollapseSpaces(name), Band.fromString(band));
         } catch (IllegalArgumentException e) {
             throw new ParseException(e.getMessage(), e);
         }
@@ -246,5 +275,50 @@ public class ParserUtil {
             throw new ParseException(Note.getConstraintMessage(trimmedNote));
         }
         return new Note(trimmedNote);
+    }
+
+    /**
+     * Parses a {@code String tag} into a {@code Tag}.
+     * Leading and trailing whitespaces will be trimmed.
+     *
+     * @throws ParseException if the given {@code tag} is invalid, such as more than one word.
+     */
+    public static Tag parseTag(String tag) throws ParseException {
+        requireNonNull(tag);
+        String trimmedTag = tag.trim();
+        // a space usually means a missing t/ before a second tag, so it gets its own message
+        if (trimmedTag.chars().anyMatch(Character::isWhitespace)) {
+            throw new ParseException(String.format(Messages.MESSAGE_TAG_HAS_SPACE, trimmedTag));
+        }
+        if (!Tag.isValidTagName(trimmedTag)) {
+            throw new ParseException(Tag.MESSAGE_CONSTRAINTS);
+        }
+        return new Tag(trimmedTag);
+    }
+
+    /**
+     * Parses {@code Collection<String> tags} into a {@code Set<Tag>}, keeping the order they were given in.
+     *
+     * @throws ParseException if any tag is invalid, or the same tag is given more than once (ignoring case).
+     */
+    public static Set<Tag> parseTags(Collection<String> tags) throws ParseException {
+        requireNonNull(tags);
+        final Set<Tag> tagSet = new LinkedHashSet<>();
+        for (String tagName : tags) {
+            Tag tag = parseTag(tagName);
+            if (!tagSet.add(tag)) {
+                logger.fine("Rejected repeated tag: " + tag.tagName);
+                throw new ParseException(String.format(Tag.MESSAGE_DUPLICATE_TAG, tag.tagName));
+            }
+        }
+        assert tagSet.size() == tags.size() : "every given tag should be kept";
+        return tagSet;
+    }
+
+    /**
+     * Returns {@code value} trimmed, with repeated ordinary spaces collapsed to one.
+     */
+    private static String trimAndCollapseSpaces(String value) {
+        return value.trim().replaceAll(REPEATED_SPACES_REGEX, SINGLE_SPACE);
     }
 }

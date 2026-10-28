@@ -1,4 +1,4 @@
-package seedu.address.model.person;
+package seedu.address.model.person.predicate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -62,6 +62,13 @@ public class NameContainsKeywordsPredicateTest {
         // Keyword spans two words of the name
         predicate = new NameContainsKeywordsPredicate(List.of("ce bo"));
         assertTrue(predicate.test(new PersonBuilder().withName("Alice Bob").build()));
+    }
+
+    @Test
+    public void test_extraSpacesInName_returnsTrue() {
+        // A name saved with extra spaces, such as from a hand-edited data file
+        NameContainsKeywordsPredicate predicate = new NameContainsKeywordsPredicate(List.of("chloe tan"));
+        assertTrue(predicate.test(new PersonBuilder().withName("Chloe   Tan").build()));
     }
 
     @Test

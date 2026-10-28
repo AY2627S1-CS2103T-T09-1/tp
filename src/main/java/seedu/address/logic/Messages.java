@@ -2,6 +2,7 @@ package seedu.address.logic;
 
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +14,7 @@ import seedu.address.logic.parser.Prefix;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.Subject;
+import seedu.address.model.tag.Tag;
 
 /**
  * Container for user visible messages.
@@ -33,6 +35,9 @@ public class Messages {
     public static final String MESSAGE_GUARDIAN_PAIR =
             "Guardian name (" + PREFIX_GUARDIAN_NAME + ") and guardian phone (" + PREFIX_GUARDIAN_PHONE
             + ") must be given together.";
+    public static final String MESSAGE_TAG_HAS_SPACE = "Tag \"%1$s\" contains a space. Each tag is one word; "
+            + "to give more than one tag, put " + PREFIX_TAG + " before each, such as " + PREFIX_TAG + "paid "
+            + PREFIX_TAG + "exams.";
     public static final String MESSAGE_NOT_SINGAPORE_PHONE = "Warning: %1$s doesn't look like a Singapore number "
             + "(8 digits starting with 6, 8, or 9, with or without +65). Use edit to fix it if it's wrong.";
     public static final String MESSAGE_NOT_SINGAPORE_PHONES = "Warning: %1$s don't look like Singapore numbers "
@@ -105,11 +110,22 @@ public class Messages {
                 .append("; Subjects: ")
                 .append(person.getSubjects().stream().map(Subject::toString).collect(Collectors.joining(", ")))
                 .append("; Address: ")
-                .append(person.getAddress().map(Object::toString).orElse(MESSAGE_NOT_PROVIDED));
+                .append(person.getAddress().map(Object::toString).orElse(MESSAGE_NOT_PROVIDED))
+                .append("; Email: ")
+                .append(person.getEmail().map(Object::toString).orElse(MESSAGE_NOT_PROVIDED))
+                .append("; Tags: ")
+                .append(person.getTags().isEmpty() ? MESSAGE_NOT_PROVIDED : formatTags(person.getTags()));
         // labels match the student detail panel
         person.getGuardian().ifPresent(guardian -> builder.append("; Guardian name: ").append(guardian.getName())
                 .append("; Guardian phone: ").append(guardian.getPhone()));
         return builder.toString();
+    }
+
+    /**
+     * Formats {@code tags} for display, in the order they were given.
+     */
+    public static String formatTags(Set<Tag> tags) {
+        return tags.stream().map(tag -> tag.tagName).collect(Collectors.joining(", "));
     }
 
 }

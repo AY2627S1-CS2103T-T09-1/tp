@@ -1,29 +1,31 @@
-package seedu.address.model.person;
+package seedu.address.model.person.predicate;
 
 import static java.util.Objects.requireNonNull;
 
 import java.util.function.Predicate;
 
 import seedu.address.commons.util.ToStringBuilder;
+import seedu.address.model.person.Person;
+import seedu.address.model.person.Phone;
 
 /**
- * Tests that a {@code Person}'s guardian has exactly the given phone number.
+ * Tests that a {@code Person}'s own phone number is exactly the given phone.
  */
-public class GuardianPhoneMatchesPredicate implements Predicate<Person> {
+public class PhoneMatchesPredicate implements Predicate<Person> {
 
     private final Phone phone;
 
     /**
-     * Creates a predicate that matches students whose guardian's phone is {@code phone}.
+     * Creates a predicate that matches students whose phone is {@code phone}.
      */
-    public GuardianPhoneMatchesPredicate(Phone phone) {
+    public PhoneMatchesPredicate(Phone phone) {
         requireNonNull(phone);
         this.phone = phone;
     }
 
     @Override
     public boolean test(Person person) {
-        return person.getGuardian().map(Guardian::getPhone).map(phone::equals).orElse(false);
+        return person.getPhone().map(phone::equals).orElse(false);
     }
 
     @Override
@@ -33,7 +35,7 @@ public class GuardianPhoneMatchesPredicate implements Predicate<Person> {
         }
 
         // instanceof handles nulls
-        if (!(other instanceof GuardianPhoneMatchesPredicate otherPredicate)) {
+        if (!(other instanceof PhoneMatchesPredicate otherPredicate)) {
             return false;
         }
 

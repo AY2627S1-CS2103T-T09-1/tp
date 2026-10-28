@@ -1,7 +1,9 @@
 package seedu.address.logic.commands;
 
 import static java.util.Objects.requireNonNull;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
@@ -10,6 +12,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_NOTE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
 import java.util.logging.Logger;
 
@@ -17,7 +20,7 @@ import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.util.ToStringBuilder;
 import seedu.address.logic.Messages;
 import seedu.address.model.Model;
-import seedu.address.model.person.StudentMatchesAllPredicate;
+import seedu.address.model.person.predicate.StudentMatchesAllPredicate;
 
 /**
  * Filters the student list to students who match every filter given, ignoring case.
@@ -30,10 +33,10 @@ public class FilterCommand extends Command {
             + "given, ignoring case.\n"
             + "Parameters: [" + PREFIX_NAME + "NAME] [" + PREFIX_SCHOOL + "SCHOOL] "
             + "[" + PREFIX_LEVEL + "LEVEL] [" + PREFIX_SUBJECT + "SUBJECT [" + PREFIX_BAND + "BAND]] "
-            + "[" + PREFIX_PHONE + "PHONE] "
+            + "[" + PREFIX_PHONE + "PHONE] [" + PREFIX_EMAIL + "EMAIL] [" + PREFIX_ADDRESS + "ADDRESS] "
             + "[" + PREFIX_GUARDIAN_NAME + "GUARDIAN_NAME] [" + PREFIX_GUARDIAN_PHONE + "GUARDIAN_PHONE] "
-            + "[" + PREFIX_NOTE + "TEXT] "
-            + "(at least one)\n"
+            + "[" + PREFIX_TAG + "TAG] [" + PREFIX_NOTE + "TEXT] "
+            + "(at least one, each at most once)\n"
             + "Example: " + COMMAND_WORD + " " + PREFIX_LEVEL + "S5 " + PREFIX_SUBJECT + "Mathematics "
             + PREFIX_BAND + "G2";
 

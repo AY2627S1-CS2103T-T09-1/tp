@@ -1,4 +1,4 @@
-package seedu.address.model.person;
+package seedu.address.model.person.predicate;
 
 import static java.util.Objects.requireNonNull;
 
@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.function.Predicate;
 
 import seedu.address.commons.util.ToStringBuilder;
+import seedu.address.model.person.Person;
 
 /**
  * Tests that a {@code Person} matches every one of the given filters.

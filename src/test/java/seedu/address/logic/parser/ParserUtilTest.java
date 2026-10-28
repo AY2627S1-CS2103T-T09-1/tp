@@ -1,6 +1,7 @@
 package seedu.address.logic.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.Messages.MESSAGE_SUBJECT_BAND_PAIR;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_GUARDIAN_PHONE_MESSAGE;
@@ -11,28 +12,37 @@ import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.index.Index;
+import seedu.address.logic.Messages;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Address;
 import seedu.address.model.person.Band;
+import seedu.address.model.person.Email;
 import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.Subject;
+import seedu.address.model.tag.Tag;
 
 public class ParserUtilTest {
     private static final String INVALID_NAME = "R@chel";
     private static final String INVALID_PHONE = "12";
     private static final String INVALID_GUARDIAN_PHONE = "911a";
+    private static final String INVALID_EMAIL = "example.com";
+    private static final String INVALID_TAG = "exam_prep";
 
     private static final String VALID_NAME = "Rachel Walker";
     private static final String VALID_PHONE = "91234567";
     private static final String VALID_NOTE = "WA2 Math: 36/50";
+    private static final String VALID_EMAIL = "rachel@example.com";
+    private static final String VALID_TAG_1 = "exams";
+    private static final String VALID_TAG_2 = "paid";
 
     private static final String WHITESPACE = " \t\r\n";
 
@@ -109,6 +119,24 @@ public class ParserUtilTest {
         String nameWithWhitespace = WHITESPACE + VALID_NAME + WHITESPACE;
         Name expectedName = new Name(VALID_NAME);
         assertEquals(expectedName, ParserUtil.parseName(nameWithWhitespace));
+    }
+
+    @Test
+    public void parseName_repeatedSpaces_returnsCollapsedName() throws Exception {
+        assertEquals(new Name("Rachel Walker"), ParserUtil.parseName("  Rachel   Walker  "));
+    }
+
+    @Test
+    public void parseSchool_repeatedSpaces_returnsCollapsedSchool() throws Exception {
+        // School.equals ignores extra spaces, so compare the saved value
+        assertEquals("Victoria School", ParserUtil.parseSchool("  Victoria   School  ").value);
+    }
+
+    @Test
+    public void parseSubject_repeatedSpaces_returnsCollapsedSubject() throws Exception {
+        // Subject.equals ignores extra spaces, so compare the saved name
+        assertEquals("Additional Mathematics",
+                ParserUtil.parseSubject("  Additional   Mathematics  ", "G1").getName());
     }
 
     @Test
@@ -232,6 +260,28 @@ public class ParserUtilTest {
     }
 
     @Test
+    public void parseEmail_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> ParserUtil.parseEmail(null));
+    }
+
+    @Test
+    public void parseEmail_invalidValue_throwsParseException() {
+        assertThrows(ParseException.class, String.format(Email.MESSAGE_MISSING_AT, INVALID_EMAIL), () ->
+                ParserUtil.parseEmail(INVALID_EMAIL));
+    }
+
+    @Test
+    public void parseEmail_validValueWithoutWhitespace_returnsEmail() throws Exception {
+        assertEquals(new Email(VALID_EMAIL), ParserUtil.parseEmail(VALID_EMAIL));
+    }
+
+    @Test
+    public void parseEmail_validValueWithWhitespace_returnsTrimmedEmail() throws Exception {
+        String emailWithWhitespace = WHITESPACE + VALID_EMAIL + WHITESPACE;
+        assertEquals(new Email(VALID_EMAIL), ParserUtil.parseEmail(emailWithWhitespace));
+    }
+
+    @Test
     public void parseSubjects_validPairs_returnsSubjectsInOrder() throws Exception {
         List<Subject> expectedSubjects = List.of(new Subject("English", Band.G1), new Subject("Math", Band.G3));
         assertEquals(expectedSubjects, ParserUtil.parseSubjects(List.of(" English ", "Math"), List.of("G1", "G3")));
@@ -299,5 +349,64 @@ public class ParserUtilTest {
     public void parseNote_validValueWithWhitespace_returnsTrimmedNote() throws Exception {
         String noteWithWhitespace = WHITESPACE + VALID_NOTE + WHITESPACE;
         assertEquals(VALID_NOTE, ParserUtil.parseNote(noteWithWhitespace).value);
+    }
+
+    @Test
+    public void parseTag_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> ParserUtil.parseTag(null));
+    }
+
+    @Test
+    public void parseTag_invalidValue_throwsParseException() {
+        assertThrows(ParseException.class, Tag.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseTag(INVALID_TAG));
+    }
+
+    @Test
+    public void parseTag_validValueWithoutWhitespace_returnsTag() throws Exception {
+        assertEquals(new Tag(VALID_TAG_1), ParserUtil.parseTag(VALID_TAG_1));
+    }
+
+    @Test
+    public void parseTag_validValueWithWhitespace_returnsTrimmedTag() throws Exception {
+        String tagWithWhitespace = WHITESPACE + VALID_TAG_1 + WHITESPACE;
+        assertEquals(VALID_TAG_1, ParserUtil.parseTag(tagWithWhitespace).tagName);
+    }
+
+    @Test
+    public void parseTag_containsSpace_throwsParseException() {
+        assertThrows(ParseException.class, String.format(Messages.MESSAGE_TAG_HAS_SPACE, "exam prep"), () ->
+                ParserUtil.parseTag("exam prep"));
+        assertThrows(ParseException.class, String.format(Messages.MESSAGE_TAG_HAS_SPACE, "paid  urgent"), () ->
+                ParserUtil.parseTag(" paid  urgent "));
+    }
+
+    @Test
+    public void parseTags_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> ParserUtil.parseTags(null));
+    }
+
+    @Test
+    public void parseTags_collectionWithInvalidTags_throwsParseException() {
+        assertThrows(ParseException.class, Tag.MESSAGE_CONSTRAINTS, () ->
+                ParserUtil.parseTags(List.of(VALID_TAG_1, INVALID_TAG)));
+    }
+
+    @Test
+    public void parseTags_emptyCollection_returnsEmptySet() throws Exception {
+        assertTrue(ParserUtil.parseTags(List.of()).isEmpty());
+    }
+
+    @Test
+    public void parseTags_collectionWithValidTags_returnsTagSet() throws Exception {
+        Set<Tag> actualTagSet = ParserUtil.parseTags(List.of(VALID_TAG_1, VALID_TAG_2));
+        Set<Tag> expectedTagSet = Set.of(new Tag(VALID_TAG_1), new Tag(VALID_TAG_2));
+        assertEquals(expectedTagSet, actualTagSet);
+    }
+
+    @Test
+    public void parseTags_repeatedTagDifferentCase_throwsParseException() {
+        String expectedMessage = String.format(Tag.MESSAGE_DUPLICATE_TAG, "Paid");
+        assertThrows(ParseException.class, expectedMessage, () ->
+                ParserUtil.parseTags(List.of("paid", "Paid")));
     }
 }

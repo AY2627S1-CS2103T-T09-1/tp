@@ -5,6 +5,7 @@ import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.Messages.MESSAGE_SUBJECT_BAND_PAIR;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
@@ -12,12 +13,15 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
 import java.util.List;
+import java.util.Set;
 
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Address;
+import seedu.address.model.person.Email;
 import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
@@ -25,6 +29,7 @@ import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
 import seedu.address.model.person.Subject;
+import seedu.address.model.tag.Tag;
 
 /**
  * Parses input arguments and creates a new AddCommand object
@@ -42,8 +47,8 @@ public class AddCommandParser implements Parser<AddCommand> {
     public AddCommand parse(String args) throws ParseException {
         ArgumentMultimap argMultimap =
                 ArgumentTokenizer.tokenize(normalizeRepeatedSpaces(args), PREFIX_NAME, PREFIX_PHONE,
-                        PREFIX_SCHOOL, PREFIX_ADDRESS, PREFIX_LEVEL,
-                        PREFIX_SUBJECT, PREFIX_BAND, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE);
+                        PREFIX_SCHOOL, PREFIX_ADDRESS, PREFIX_EMAIL, PREFIX_LEVEL,
+                        PREFIX_SUBJECT, PREFIX_BAND, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE, PREFIX_TAG);
 
         // no parameters, or text before the first prefix, means the user needs the format, so show the usage
         if (args.isBlank() || !argMultimap.getPreamble().isEmpty()) {
@@ -51,8 +56,8 @@ public class AddCommandParser implements Parser<AddCommand> {
         }
 
         argMultimap.verifyAllPrefixesPresent(PREFIX_NAME, PREFIX_SCHOOL, PREFIX_LEVEL, PREFIX_SUBJECT);
-        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_ADDRESS, PREFIX_LEVEL,
-                PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE);
+        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_ADDRESS, PREFIX_EMAIL,
+                PREFIX_LEVEL, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE);
         Name name = ParserUtil.parseName(argMultimap.getValue(PREFIX_NAME).get());
         // Phone is optional; a person added without p/ has no phone
         Phone phone = argMultimap.getValue(PREFIX_PHONE).isPresent()
@@ -61,6 +66,8 @@ public class AddCommandParser implements Parser<AddCommand> {
         School school = ParserUtil.parseSchool(argMultimap.getValue(PREFIX_SCHOOL).get());
         Address address = argMultimap.getValue(PREFIX_ADDRESS).isPresent()
                 ? ParserUtil.parseAddress(argMultimap.getValue(PREFIX_ADDRESS).get()) : null;
+        Email email = argMultimap.getValue(PREFIX_EMAIL).isPresent()
+                ? ParserUtil.parseEmail(argMultimap.getValue(PREFIX_EMAIL).get()) : null;
         Level level = ParserUtil.parseLevel(argMultimap.getValue(PREFIX_LEVEL).get());
 
         argMultimap.verifyEachFollowedBy(PREFIX_SUBJECT, PREFIX_BAND, MESSAGE_SUBJECT_BAND_PAIR);
@@ -72,7 +79,10 @@ public class AddCommandParser implements Parser<AddCommand> {
                 ? ParserUtil.parseGuardian(argMultimap.getValue(PREFIX_GUARDIAN_NAME).get(),
                         argMultimap.getValue(PREFIX_GUARDIAN_PHONE).get())
                 : null;
-        Person person = new Person(name, phone, school, address, level, subjects, List.of(), guardian);
+        // t/ may repeat, one tag each
+        Set<Tag> tags = ParserUtil.parseTags(argMultimap.getAllValues(PREFIX_TAG));
+        Person person = new Person(name, phone, school, address, email, level, subjects, tags, List.of(),
+                guardian);
 
         return new AddCommand(person);
     }
