@@ -67,7 +67,14 @@ TuteeBook3 is a **desktop app for private tutors who teach secondary school stud
 * Commands that take no parameters, such as `help`, `list`, and `exit`, do not accept additional arguments.<br>
   For example, `help 123` is rejected.
 
+* Text pasted from web pages, documents, or chat apps can contain special spaces and invisible characters. TuteeBook3 reads common special spaces, such as a non-breaking space or a full-width space, as a normal space, and removes common invisible characters, such as a zero-width space.<br>
+  For example, if a pasted address looks blank because it holds only non-breaking spaces, it is rejected as blank.
+
 * If you are using a PDF version of this document, be careful when copying and pasting commands that span multiple lines as space characters surrounding line-breaks may be omitted when copied over to the application.
+</div>
+
+<div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
+Use the spacebar to type spaces whenever you can. TuteeBook3 handles the special spaces and invisible characters that pasted text commonly contains, but it does not yet handle every character that looks like a space or a symbol on the keyboard. For example, a full-width slash (`／`), which some keyboards type in full-width mode, does not start a parameter, so `n／John Doe` is not read as a name. Support for more of these characters is planned for a future version.
 </div>
 
 ### Viewing help: `help`
