@@ -61,11 +61,6 @@ public class ParserUtil {
             PREFIX_ADDRESS, PREFIX_EMAIL, PREFIX_LEVEL, PREFIX_SUBJECT, PREFIX_BAND, PREFIX_GUARDIAN_NAME,
             PREFIX_GUARDIAN_PHONE, PREFIX_TAG);
 
-    // gp/ ends in p/ and gn/ ends in n/, so "Tangp/" contains both; these are the more likely ones
-    private static final List<Prefix> LIKELY_PREFIXES = List.of(PREFIX_GUARDIAN_NAME, PREFIX_PHONE);
-    private static final List<Prefix> LIKELY_GUARDIAN_PREFIXES =
-            List.of(PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE);
-
     private static final Logger logger = LogsCenter.getLogger(ParserUtil.class);
 
     /**
@@ -118,7 +113,7 @@ public class ParserUtil {
         requireNonNull(name);
         String trimmedName = name.trim();
         if (!Name.isValidName(trimmedName)) {
-            throw new ParseException(withPrefixHint(Name.MESSAGE_CONSTRAINTS, trimmedName, false));
+            throw new ParseException(withPrefixHint(Name.MESSAGE_CONSTRAINTS, trimmedName));
         }
         return new Name(trimmedName);
     }
@@ -143,7 +138,7 @@ public class ParserUtil {
         try {
             return parseName(name);
         } catch (ParseException pe) {
-            throw new ParseException(withPrefixHint(Guardian.MESSAGE_NAME_CONSTRAINTS, name.trim(), true), pe);
+            throw new ParseException(withPrefixHint(Guardian.MESSAGE_NAME_CONSTRAINTS, name.trim()), pe);
         }
     }
 
@@ -165,7 +160,7 @@ public class ParserUtil {
         String trimmedPhone = phone.trim();
         Optional<String> invalidReason = Phone.getInvalidReason(label, trimmedPhone);
         if (invalidReason.isPresent()) {
-            throw new ParseException(withPrefixHint(invalidReason.get(), trimmedPhone, false));
+            throw new ParseException(withPrefixHint(invalidReason.get(), trimmedPhone));
         }
         return new Phone(Phone.normalize(trimmedPhone));
     }
@@ -190,7 +185,7 @@ public class ParserUtil {
         requireNonNull(school);
         String trimmedSchool = school.trim();
         if (!School.isValidSchool(trimmedSchool)) {
-            throw new ParseException(withPrefixHint(School.MESSAGE_CONSTRAINTS, trimmedSchool, false));
+            throw new ParseException(withPrefixHint(School.MESSAGE_CONSTRAINTS, trimmedSchool));
         }
         return new School(trimmedSchool);
     }
@@ -220,7 +215,7 @@ public class ParserUtil {
         String trimmedEmail = email.trim();
         Optional<String> invalidReason = Email.getInvalidReason(trimmedEmail);
         if (invalidReason.isPresent()) {
-            throw new ParseException(withPrefixHint(invalidReason.get(), trimmedEmail, false));
+            throw new ParseException(withPrefixHint(invalidReason.get(), trimmedEmail));
         }
         return new Email(trimmedEmail);
     }
@@ -236,7 +231,7 @@ public class ParserUtil {
         try {
             return Level.fromString(level);
         } catch (IllegalArgumentException e) {
-            throw new ParseException(withPrefixHint(Level.MESSAGE_CONSTRAINTS, level.trim(), false));
+            throw new ParseException(withPrefixHint(Level.MESSAGE_CONSTRAINTS, level.trim()));
         }
     }
 
@@ -249,7 +244,7 @@ public class ParserUtil {
         try {
             return new Subject(name.trim(), Band.fromString(band));
         } catch (IllegalArgumentException e) {
-            throw new ParseException(withPrefixHint(e.getMessage(), name + " " + band, false), e);
+            throw new ParseException(withPrefixHint(e.getMessage(), name + " " + band), e);
         }
     }
 
@@ -309,10 +304,10 @@ public class ParserUtil {
         // a space usually means a missing t/ before a second tag, so it gets its own message
         if (trimmedTag.chars().anyMatch(Character::isWhitespace)) {
             throw new ParseException(
-                    withPrefixHint(String.format(Messages.MESSAGE_TAG_HAS_SPACE, trimmedTag), trimmedTag, false));
+                    withPrefixHint(String.format(Messages.MESSAGE_TAG_HAS_SPACE, trimmedTag), trimmedTag));
         }
         if (!Tag.isValidTagName(trimmedTag)) {
-            throw new ParseException(withPrefixHint(Tag.MESSAGE_CONSTRAINTS, trimmedTag, false));
+            throw new ParseException(withPrefixHint(Tag.MESSAGE_CONSTRAINTS, trimmedTag));
         }
         return new Tag(trimmedTag);
     }
@@ -339,22 +334,20 @@ public class ParserUtil {
     /**
      * Returns a hint for the first word in {@code value} that contains one of {@code prefixes} after its first
      * character, which usually means the space before that prefix is missing, such as {@code Doep/98765432}.
+     * If the word contains more than one, the one that starts first is named.
      * Returns an empty {@code Optional} if no word does.
      *
      * @param value The value to check, already split from the command.
-     * @param isGuardianField Whether {@code value} is a guardian's, which makes {@code gp/} likelier than
-     *     {@code p/} when a word contains both.
      * @param prefixes The prefixes that the command accepts.
      */
-    public static Optional<String> getPrefixWithoutSpaceHint(String value, boolean isGuardianField,
-            List<Prefix> prefixes) {
+    public static Optional<String> getPrefixWithoutSpaceHint(String value, List<Prefix> prefixes) {
         requireNonNull(value);
         requireNonNull(prefixes);
-        List<Prefix> likelyPrefixes = isGuardianField ? LIKELY_GUARDIAN_PREFIXES : LIKELY_PREFIXES;
         for (String word : value.trim().split("\\s+")) {
+            // gp/ starts before the p/ inside it, so the longer prefix wins when they overlap
             Optional<Prefix> prefix = prefixes.stream()
                     .filter(candidate -> word.indexOf(candidate.getPrefix()) > 0)
-                    .min(Comparator.comparing(candidate -> !likelyPrefixes.contains(candidate)));
+                    .min(Comparator.comparingInt(candidate -> word.indexOf(candidate.getPrefix())));
             if (prefix.isPresent()) {
                 logger.fine("Found " + prefix.get() + " with no space before it in: " + word);
                 return Optional.of(String.format(Messages.MESSAGE_PREFIX_WITHOUT_SPACE_HINT, prefix.get(), word));
@@ -369,9 +362,8 @@ public class ParserUtil {
      * as part of {@code value}, such as {@code gp/} in a guardian name. {@code value} must be of a field that
      * cannot contain {@code /}, so that {@code message} is its correct error.
      */
-    public static void verifyNoPrefixWithoutSpace(String value, String message, boolean isGuardianField)
-            throws ParseException {
-        Optional<String> hint = getPrefixWithoutSpaceHint(value, isGuardianField, STUDENT_PREFIXES);
+    public static void verifyNoPrefixWithoutSpace(String value, String message) throws ParseException {
+        Optional<String> hint = getPrefixWithoutSpaceHint(value, STUDENT_PREFIXES);
         if (hint.isPresent()) {
             throw new ParseException(message + LINE_BREAK + hint.get());
         }
@@ -384,15 +376,15 @@ public class ParserUtil {
     public static void verifySubjectNamesHaveNoPrefixWithoutSpace(List<String> names) throws ParseException {
         requireNonNull(names);
         for (String name : names) {
-            verifyNoPrefixWithoutSpace(name, Subject.MESSAGE_CONSTRAINTS, false);
+            verifyNoPrefixWithoutSpace(name, Subject.MESSAGE_CONSTRAINTS);
         }
     }
 
     /**
      * Returns {@code message} followed by a hint if {@code value} contains a prefix with no space before it.
      */
-    private static String withPrefixHint(String message, String value, boolean isGuardianField) {
-        return getPrefixWithoutSpaceHint(value, isGuardianField, STUDENT_PREFIXES)
+    private static String withPrefixHint(String message, String value) {
+        return getPrefixWithoutSpaceHint(value, STUDENT_PREFIXES)
                 .map(hint -> message + LINE_BREAK + hint)
                 .orElse(message);
     }

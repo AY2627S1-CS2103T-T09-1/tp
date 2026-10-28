@@ -107,9 +107,9 @@ public class FilterCommandParser implements Parser<FilterCommand> {
         List<Predicate<Person>> filters = new ArrayList<>();
         addFilter(filters, argMultimap, PREFIX_NAME, value ->
                 new NameContainsKeywordsPredicate(List.of(
-                        parseSlashFreeSearchText(value, MESSAGE_BLANK_NAME, FIELD_NAME, false))));
+                        parseSlashFreeSearchText(value, MESSAGE_BLANK_NAME, FIELD_NAME))));
         addFilter(filters, argMultimap, PREFIX_SCHOOL, value -> new SchoolContainsTextPredicate(
-                parseSlashFreeSearchText(value, MESSAGE_BLANK_SCHOOL, FIELD_SCHOOL, false)));
+                parseSlashFreeSearchText(value, MESSAGE_BLANK_SCHOOL, FIELD_SCHOOL)));
         addFilter(filters, argMultimap, PREFIX_LEVEL, value ->
                 new LevelMatchesPredicate(ParserUtil.parseLevel(value)));
         addFilter(filters, argMultimap, PREFIX_SUBJECT, value ->
@@ -119,7 +119,7 @@ public class FilterCommandParser implements Parser<FilterCommand> {
         addFilter(filters, argMultimap, PREFIX_ADDRESS, value ->
                 new AddressContainsTextPredicate(parseSearchText(value, MESSAGE_BLANK_ADDRESS)));
         addFilter(filters, argMultimap, PREFIX_GUARDIAN_NAME, value -> new GuardianNameContainsTextPredicate(
-                parseSlashFreeSearchText(value, MESSAGE_BLANK_GUARDIAN_NAME, FIELD_GUARDIAN_NAME, true)));
+                parseSlashFreeSearchText(value, MESSAGE_BLANK_GUARDIAN_NAME, FIELD_GUARDIAN_NAME)));
         addFilter(filters, argMultimap, PREFIX_GUARDIAN_PHONE, value ->
                 new GuardianPhoneMatchesPredicate(ParserUtil.parseGuardianPhone(value)));
         addFilter(filters, argMultimap, PREFIX_NOTE, FilterCommandParser::parseNoteFilter);
@@ -214,14 +214,12 @@ public class FilterCommandParser implements Parser<FilterCommand> {
      * @param value The text given after the prefix.
      * @param blankMessage The error to show if {@code value} is blank.
      * @param fieldName The field searched, such as {@code "school"}, used in the error.
-     * @param isGuardianField Whether the field is a guardian's.
      * @throws ParseException if {@code value} is blank or contains a filter prefix with no space before it.
      */
-    private static String parseSlashFreeSearchText(String value, String blankMessage, String fieldName,
-            boolean isGuardianField) throws ParseException {
+    private static String parseSlashFreeSearchText(String value, String blankMessage, String fieldName)
+            throws ParseException {
         String text = parseSearchText(value, blankMessage);
-        Optional<String> hint = ParserUtil.getPrefixWithoutSpaceHint(text, isGuardianField,
-                List.of(FILTER_PREFIXES));
+        Optional<String> hint = ParserUtil.getPrefixWithoutSpaceHint(text, List.of(FILTER_PREFIXES));
         if (hint.isPresent()) {
             throw new ParseException(String.format(MESSAGE_SEARCH_CANNOT_MATCH, fieldName, text)
                     + "\n" + hint.get());

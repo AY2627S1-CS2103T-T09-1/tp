@@ -79,7 +79,7 @@ public class AddCommandParser implements Parser<AddCommand> {
         Optional<String> guardianName = argMultimap.getValue(PREFIX_GUARDIAN_NAME);
         if (guardianName.isPresent()) {
             // a gp/ with no space before it is read as part of the name, so report that instead of the pairing
-            ParserUtil.verifyNoPrefixWithoutSpace(guardianName.get(), Guardian.MESSAGE_NAME_CONSTRAINTS, true);
+            ParserUtil.verifyNoPrefixWithoutSpace(guardianName.get(), Guardian.MESSAGE_NAME_CONSTRAINTS);
         }
         argMultimap.verifyGivenTogether(PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE, MESSAGE_GUARDIAN_PAIR);
         Guardian guardian = argMultimap.getValue(PREFIX_GUARDIAN_NAME).isPresent()

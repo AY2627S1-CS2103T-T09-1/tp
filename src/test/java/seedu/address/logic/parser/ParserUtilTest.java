@@ -413,27 +413,27 @@ public class ParserUtilTest {
     @Test
     public void getPrefixWithoutSpaceHint_prefixWithoutSpace_returnsHint() {
         assertEquals(Optional.of(hint("p/", "Doep/98765432")),
-                ParserUtil.getPrefixWithoutSpaceHint("John Doep/98765432", false, STUDENT_PREFIXES));
+                ParserUtil.getPrefixWithoutSpaceHint("John Doep/98765432", STUDENT_PREFIXES));
 
-        // gp/ ends in p/, so the field decides which one is named
+        // gp/ ends in p/ and gn/ ends in n/, but each starts first, so it is named
         assertEquals(Optional.of(hint("gp/", "Tangp/91234567")),
-                ParserUtil.getPrefixWithoutSpaceHint("Mary Tangp/91234567", true, STUDENT_PREFIXES));
-        assertEquals(Optional.of(hint("p/", "Tangp/91234567")),
-                ParserUtil.getPrefixWithoutSpaceHint("Tim Tangp/91234567", false, STUDENT_PREFIXES));
-
-        // gn/ ends in n/, but n/ cannot be given twice
+                ParserUtil.getPrefixWithoutSpaceHint("Tim Tangp/91234567", STUDENT_PREFIXES));
         assertEquals(Optional.of(hint("gn/", "Tangn/Mary")),
-                ParserUtil.getPrefixWithoutSpaceHint("Tim Tangn/Mary", false, STUDENT_PREFIXES));
+                ParserUtil.getPrefixWithoutSpaceHint("Tim Tangn/Mary", STUDENT_PREFIXES));
+
+        // e/ starts before a/, even though a/ comes first in the list of prefixes
+        assertEquals(Optional.of(hint("e/", "Doee/john@example.coma/Blk")),
+                ParserUtil.getPrefixWithoutSpaceHint("John Doee/john@example.coma/Blk", STUDENT_PREFIXES));
     }
 
     @Test
     public void getPrefixWithoutSpaceHint_noPrefixWithoutSpace_returnsEmpty() {
         for (String value : List.of("John Doe", "Ali/Bakar", "AC/DC")) {
-            assertEquals(Optional.empty(), ParserUtil.getPrefixWithoutSpaceHint(value, false, STUDENT_PREFIXES));
+            assertEquals(Optional.empty(), ParserUtil.getPrefixWithoutSpaceHint(value, STUDENT_PREFIXES));
         }
         // nid/ is not one of the given prefixes
         assertEquals(Optional.empty(),
-                ParserUtil.getPrefixWithoutSpaceHint("algebranid/2", false, STUDENT_PREFIXES));
+                ParserUtil.getPrefixWithoutSpaceHint("algebranid/2", STUDENT_PREFIXES));
     }
 
     @Test
@@ -460,6 +460,10 @@ public class ParserUtilTest {
                 "98765432a/Blk 1", "a");
         assertThrows(ParseException.class, phoneMessage + "\n" + hint("a/", "98765432a/Blk"), () ->
                 ParserUtil.parsePhone("98765432a/Blk 1"));
+        String joinedPhoneMessage = String.format(Phone.MESSAGE_INVALID_CHARACTER, ParserUtil.PHONE_LABEL,
+                "91234567gp/92345678", "g");
+        assertThrows(ParseException.class, joinedPhoneMessage + "\n" + hint("gp/", "91234567gp/92345678"), () ->
+                ParserUtil.parsePhone("91234567gp/92345678"));
         assertThrows(ParseException.class, School.MESSAGE_CONSTRAINTS + "\n" + hint("e/", "Schoole/a@b.com"), () ->
                 ParserUtil.parseSchool("Victoria Schoole/a@b.com"));
         assertThrows(ParseException.class, Level.MESSAGE_CONSTRAINTS + "\n" + hint("p/", "S2p/91234567"), () ->

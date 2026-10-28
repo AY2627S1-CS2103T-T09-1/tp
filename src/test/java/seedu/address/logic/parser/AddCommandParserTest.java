@@ -61,6 +61,7 @@ import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
 import seedu.address.model.person.Subject;
 import seedu.address.model.tag.Tag;
@@ -210,6 +211,12 @@ public class AddCommandParserTest {
         // no space before gp/, so the guardian phone seems missing
         assertParseFailure(parser, NAME_DESC_BOB + details + SUBJECT_DESC + " gn/Mary Tangp/91234567",
                 Guardian.MESSAGE_NAME_CONSTRAINTS + "\n" + String.format(hint, "gp/", "Tangp/91234567"));
+
+        // no space before gp/, so it is read as part of the phone
+        String phoneMessage = String.format(Phone.MESSAGE_INVALID_CHARACTER, ParserUtil.PHONE_LABEL,
+                "91234567gp/92345678", "g");
+        assertParseFailure(parser, NAME_DESC_BOB + " p/91234567gp/92345678" + details + SUBJECT_DESC,
+                phoneMessage + "\n" + String.format(hint, "gp/", "91234567gp/92345678"));
 
         // no space before band/, so the band seems missing
         assertParseFailure(parser, NAME_DESC_BOB + details + " sub/Englishband/G1",
