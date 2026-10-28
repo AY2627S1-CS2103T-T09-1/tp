@@ -208,6 +208,22 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [a/ADDRESS] [e/EMAIL] [lvl/L
 * If a change to the student's name, school, or level results in a name match with another student, `edit` shows an amber prompt such as `Edit not saved yet: NAME is also recorded at SCHOOL (LEVEL).` The next line says `Type CONFIRM (uppercase) to save this edit anyway.` A final line says that any other input cancels the request and runs as a command. The student being edited is excluded from this check, and changes to other fields do not trigger a name prompt.
 * If another student has the same normalized name, school, and level as the proposed record, `edit` rejects the change and leaves the student unchanged. It shows the red error `Another student named NAME at SCHOOL, level LEVEL already exists. If these are different students, edit the name to include an identifier, for example Chloe Tan 2.` Two records with the same name, school, and level would be hard to tell apart in the app. Name and school comparisons ignore capitalization and repeated spaces; levels are compared directly. Subjects, bands, and phone numbers are not part of this duplicate check.
 
+If the command is wrong, `edit` shows one of these messages and does not change the student.
+
+Problem | Message
+--------|--------
+`INDEX` is missing or is not a positive integer, or there is text between `INDEX` and the first parameter, such as `edit 0 p/91234567` | `Invalid command format!` followed by how to use `edit`
+No field to edit is given, such as `edit 1` | `At least one field to edit must be provided.`
+`n/`, `p/`, `sch/`, `a/`, `e/`, `lvl/`, `gn/`, or `gp/` appears more than once | `Multiple values specified for the following single-valued field(s): p/`
+A value is invalid | The same message as in [`add`](#adding-a-person-add)
+A subject or band is wrong | See [Subject and band errors](#subject-and-band-errors)
+Only one of `gn/` and `gp/` is empty, such as `edit 1 gn/` | `Guardian name (gn/) and guardian phone (gp/) cannot be empty. To remove the guardian, use gn/ gp/ with no values.`
+The student has no guardian, and only one of `gn/` and `gp/` is given | `This student has no guardian yet. Give both gn/ and gp/ to add one.`
+`gn/ gp/` is given for a student with no guardian | `This student has no guardian to remove.`
+`INDEX` is larger than the number of students shown | `The student index provided is invalid.`
+Another student has the same normalized name, school, and level | `Another student named NAME at SCHOOL, level LEVEL already exists. If these are different students, edit the name to include an identifier, for example Chloe Tan 2.`
+Every value given is the same as the student's current value, such as `edit 1 n/Chloe Tan` for a student already named Chloe Tan, or `edit 1 p/` for a student with no phone | `No changes made: NAME already has these details.` in amber. The student stays as they are, and their record opens on the right. Changing only uppercase and lowercase letters, such as `chloe tan` to `Chloe Tan`, counts as a change.
+
 Examples:
 *  `edit 1 p/91234567 sch/Victoria School` Edits the phone number and school of the 1st person to be `91234567` and `Victoria School` respectively.
 *  `edit 1 p/+65 8123-4567` Edits the phone number of the 1st person to be `81234567`. The `+65`, spaces, and hyphens are removed.
