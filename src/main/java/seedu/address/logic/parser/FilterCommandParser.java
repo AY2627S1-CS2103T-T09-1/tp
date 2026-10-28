@@ -67,6 +67,7 @@ public class FilterCommandParser implements Parser<FilterCommand> {
     };
     private static final String FIELD_NAME = "name";
     private static final String FIELD_SCHOOL = "school";
+    private static final String FIELD_EMAIL = "email";
     private static final String FIELD_GUARDIAN_NAME = "guardian name";
 
     /**
@@ -119,8 +120,8 @@ public class FilterCommandParser implements Parser<FilterCommand> {
                 parseSubjectFilter(value, argMultimap.getValue(PREFIX_BAND)));
         addFilter(filters, argMultimap, PREFIX_PHONE, value ->
                 new PhoneMatchesPredicate(ParserUtil.parsePhone(value)));
-        addFilter(filters, argMultimap, PREFIX_EMAIL, value ->
-                new EmailContainsTextPredicate(parseSearchText(value, MESSAGE_BLANK_EMAIL)));
+        addFilter(filters, argMultimap, PREFIX_EMAIL, value -> new EmailContainsTextPredicate(
+                parseSlashFreeSearchText(value, MESSAGE_BLANK_EMAIL, FIELD_EMAIL)));
         addFilter(filters, argMultimap, PREFIX_ADDRESS, value ->
                 new AddressContainsTextPredicate(parseSearchText(value, MESSAGE_BLANK_ADDRESS)));
         addFilter(filters, argMultimap, PREFIX_GUARDIAN_NAME, value -> new GuardianNameContainsTextPredicate(
@@ -169,7 +170,7 @@ public class FilterCommandParser implements Parser<FilterCommand> {
             throws ParseException {
         String trimmedName = subjectName.strip();
         if (!Subject.isValidSubject(trimmedName)) {
-            throw new ParseException(Subject.MESSAGE_CONSTRAINTS);
+            throw new ParseException(ParserUtil.withSlashHint(Subject.MESSAGE_CONSTRAINTS, trimmedName));
         }
         if (band.isEmpty()) {
             return new SubjectMatchesPredicate(trimmedName);
@@ -213,18 +214,18 @@ public class FilterCommandParser implements Parser<FilterCommand> {
 
     /**
      * Returns the search text for a field whose values cannot contain {@code /}, such as a name.
-     * A prefix with no space before it in such text usually means a missing space, and the text cannot match
+     * A {@code /} in such text usually means a prefix with no space before it, and the text cannot match
      * any student, so it is rejected with a hint.
      *
      * @param value The text given after the prefix.
      * @param blankMessage The error to show if {@code value} is blank.
      * @param fieldName The field searched, such as {@code "school"}, used in the error.
-     * @throws ParseException if {@code value} is blank or contains a filter prefix with no space before it.
+     * @throws ParseException if {@code value} is blank or contains {@code /}.
      */
     private static String parseSlashFreeSearchText(String value, String blankMessage, String fieldName)
             throws ParseException {
         String text = parseSearchText(value, blankMessage);
-        Optional<String> hint = ParserUtil.getPrefixWithoutSpaceHint(text, List.of(FILTER_PREFIXES));
+        Optional<String> hint = ParserUtil.getSlashHint(text);
         if (hint.isPresent()) {
             throw new ParseException(String.format(MESSAGE_SEARCH_CANNOT_MATCH, fieldName, text)
                     + "\n" + hint.get());

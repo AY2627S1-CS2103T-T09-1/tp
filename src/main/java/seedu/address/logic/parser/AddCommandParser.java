@@ -71,16 +71,12 @@ public class AddCommandParser implements Parser<AddCommand> {
                 ? ParserUtil.parseEmail(argMultimap.getValue(PREFIX_EMAIL).get()) : null;
         Level level = ParserUtil.parseLevel(argMultimap.getValue(PREFIX_LEVEL).get());
 
-        ParserUtil.verifySubjectNamesHaveNoPrefixWithoutSpace(argMultimap.getAllValues(PREFIX_SUBJECT));
+        ParserUtil.verifySubjectNamesHaveNoSlash(argMultimap.getAllValues(PREFIX_SUBJECT));
         argMultimap.verifyEachFollowedBy(PREFIX_SUBJECT, PREFIX_BAND, MESSAGE_SUBJECT_BAND_PAIR);
         List<Subject> subjects = ParserUtil.parseSubjects(
                 argMultimap.getAllValues(PREFIX_SUBJECT), argMultimap.getAllValues(PREFIX_BAND));
         // Guardian is optional; gn/ and gp/ must be given together
-        Optional<String> guardianName = argMultimap.getValue(PREFIX_GUARDIAN_NAME);
-        if (guardianName.isPresent()) {
-            // a gp/ with no space before it is read as part of the name, so report that instead of the pairing
-            ParserUtil.verifyNoPrefixWithoutSpace(guardianName.get(), Guardian.MESSAGE_NAME_CONSTRAINTS);
-        }
+        verifyGuardianHasNoSlash(argMultimap);
         argMultimap.verifyGivenTogether(PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE, MESSAGE_GUARDIAN_PAIR);
         Guardian guardian = argMultimap.getValue(PREFIX_GUARDIAN_NAME).isPresent()
                 ? ParserUtil.parseGuardian(argMultimap.getValue(PREFIX_GUARDIAN_NAME).get(),
@@ -92,6 +88,23 @@ public class AddCommandParser implements Parser<AddCommand> {
                 guardian);
 
         return new AddCommand(person);
+    }
+
+    /**
+     * Throws a {@code ParseException} if the guardian name or phone contains {@code /}.
+     * A {@code gp/} with no space before it is read as part of the name, and a {@code gn/} as part of the
+     * phone, so the user would otherwise see that {@code gn/} and {@code gp/} must be given together.
+     */
+    private static void verifyGuardianHasNoSlash(ArgumentMultimap argMultimap) throws ParseException {
+        Optional<String> guardianName = argMultimap.getValue(PREFIX_GUARDIAN_NAME);
+        if (guardianName.isPresent()) {
+            ParserUtil.verifyNoSlash(guardianName.get(), Guardian.MESSAGE_NAME_CONSTRAINTS);
+        }
+        Optional<String> guardianPhone = argMultimap.getValue(PREFIX_GUARDIAN_PHONE);
+        if (guardianPhone.isPresent() && ParserUtil.getSlashHint(guardianPhone.get()).isPresent()) {
+            // a phone cannot contain /, so this throws with the phone's reason and the hint
+            ParserUtil.parseGuardianPhone(guardianPhone.get());
+        }
     }
 
     /**

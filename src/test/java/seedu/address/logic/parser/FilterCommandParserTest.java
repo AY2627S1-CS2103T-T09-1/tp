@@ -66,18 +66,32 @@ public class FilterCommandParserTest {
         String cannotMatch = FilterCommandParser.MESSAGE_SEARCH_CANNOT_MATCH;
         assertParseFailure(parser, " n/Chloesch/Victoria",
                 String.format(cannotMatch, "name", "Chloesch/Victoria") + "\n"
-                + String.format(hint, "sch/", "Chloesch/Victoria"));
+                + String.format(hint, "Chloesch/Victoria"));
         assertParseFailure(parser, " gn/Mary Tangp/91234567",
                 String.format(cannotMatch, "guardian name", "Mary Tangp/91234567") + "\n"
-                + String.format(hint, "gp/", "Tangp/91234567"));
+                + String.format(hint, "Tangp/91234567"));
         assertParseFailure(parser, " n/Chloenote/algebra",
                 String.format(cannotMatch, "name", "Chloenote/algebra") + "\n"
-                + String.format(hint, "note/", "Chloenote/algebra"));
+                + String.format(hint, "Chloenote/algebra"));
+        assertParseFailure(parser, " e/gmailn/Chloe",
+                String.format(cannotMatch, "email", "gmailn/Chloe") + "\n"
+                + String.format(hint, "gmailn/Chloe"));
+        assertParseFailure(parser, " sub/Mathsband/G1",
+                Subject.MESSAGE_CONSTRAINTS + "\n" + String.format(hint, "Mathsband/G1"));
+
+        // note/ is not a prefix of add, so it must not be named as one in filter
+        assertParseFailure(parser, " lvl/S3note/algebra",
+                Level.MESSAGE_CONSTRAINTS + "\n" + String.format(hint, "S3note/algebra"));
     }
 
     @Test
-    public void parse_slashWithoutPrefix_returnsFilterCommand() {
-        assertParseSuccess(parser, " n/AC/DC", filterCommandOf(name("AC/DC")));
+    public void parse_slashWithoutPrefix_throwsParseException() {
+        String hint = Messages.MESSAGE_PREFIX_WITHOUT_SPACE_HINT;
+        String cannotMatch = FilterCommandParser.MESSAGE_SEARCH_CANNOT_MATCH;
+        assertParseFailure(parser, " n/Rajesh s/o Kumar",
+                String.format(cannotMatch, "name", "Rajesh s/o Kumar") + "\n" + String.format(hint, "s/o"));
+        assertParseFailure(parser, " n/AC/DC",
+                String.format(cannotMatch, "name", "AC/DC") + "\n" + String.format(hint, "AC/DC"));
     }
 
     @Test

@@ -5,17 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.Messages.MESSAGE_SUBJECT_BAND_PAIR;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_GUARDIAN_PHONE_MESSAGE;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_INDEX;
 import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_NID;
 import static seedu.address.testutil.Assert.assertThrows;
@@ -61,10 +50,6 @@ public class ParserUtilTest {
     private static final String WHITESPACE = " \t\r\n";
 
     private static final String COMMAND_USAGE = "Usage message";
-
-    private static final List<Prefix> STUDENT_PREFIXES = List.of(PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL,
-            PREFIX_ADDRESS, PREFIX_EMAIL, PREFIX_LEVEL, PREFIX_SUBJECT, PREFIX_BAND, PREFIX_GUARDIAN_NAME,
-            PREFIX_GUARDIAN_PHONE, PREFIX_TAG);
 
     private static final List<String> VALID_SUBJECT_NAMES = List.of("English", "Math", "Science", "History",
             "Geography", "Chemistry", "Physics", "Biology", "Literature");
@@ -429,46 +414,48 @@ public class ParserUtilTest {
     }
 
     @Test
-    public void getPrefixWithoutSpaceHint_prefixWithoutSpace_returnsHint() {
-        assertEquals(Optional.of(hint("p/", "Doep/98765432")),
-                ParserUtil.getPrefixWithoutSpaceHint("John Doep/98765432", STUDENT_PREFIXES));
+    public void getSlashHint_prefixWithoutSpace_returnsHint() {
+        assertEquals(Optional.of(hint("Doep/98765432")), ParserUtil.getSlashHint("John Doep/98765432"));
 
-        // gp/ ends in p/ and gn/ ends in n/, but each starts first, so it is named
-        assertEquals(Optional.of(hint("gp/", "Tangp/91234567")),
-                ParserUtil.getPrefixWithoutSpaceHint("Tim Tangp/91234567", STUDENT_PREFIXES));
-        assertEquals(Optional.of(hint("gn/", "Tangn/Mary")),
-                ParserUtil.getPrefixWithoutSpaceHint("Tim Tangn/Mary", STUDENT_PREFIXES));
+        // could be p/ after the name "Alex Ng" or gp/ after "Alex N", so no prefix is named
+        assertEquals(Optional.of(hint("Ngp/91234567")), ParserUtil.getSlashHint("Alex Ngp/91234567"));
 
-        // e/ starts before a/, even though a/ comes first in the list of prefixes
-        assertEquals(Optional.of(hint("e/", "Doee/john@example.coma/Blk")),
-                ParserUtil.getPrefixWithoutSpaceHint("John Doee/john@example.coma/Blk", STUDENT_PREFIXES));
+        // a prefix at the start of the value, as in edit 1 gn/gp/
+        assertEquals(Optional.of(hint("gp/")), ParserUtil.getSlashHint("gp/"));
+
+        // only the first word with a slash is quoted
+        assertEquals(Optional.of(hint("Doee/john@example.coma/Blk")),
+                ParserUtil.getSlashHint("John Doee/john@example.coma/Blk 1 t/x"));
     }
 
     @Test
-    public void getPrefixWithoutSpaceHint_noPrefixWithoutSpace_returnsEmpty() {
-        for (String value : List.of("John Doe", "Ali/Bakar", "AC/DC")) {
-            assertEquals(Optional.empty(), ParserUtil.getPrefixWithoutSpaceHint(value, STUDENT_PREFIXES));
+    public void getSlashHint_slashWithoutPrefix_returnsHint() {
+        assertEquals(Optional.of(hint("s/o")), ParserUtil.getSlashHint("Rajesh s/o Kumar"));
+    }
+
+    @Test
+    public void getSlashHint_noSlash_returnsEmpty() {
+        for (String value : List.of("John Doe", "  John   Doe  ", "")) {
+            assertEquals(Optional.empty(), ParserUtil.getSlashHint(value));
         }
-        // nid/ is not one of the given prefixes
-        assertEquals(Optional.empty(),
-                ParserUtil.getPrefixWithoutSpaceHint("algebranid/2", STUDENT_PREFIXES));
     }
 
     @Test
     public void parseName_prefixWithoutSpace_throwsParseExceptionWithHint() {
-        assertThrows(ParseException.class, Name.MESSAGE_CONSTRAINTS + "\n" + hint("p/", "Doep/98765432"), () ->
+        assertThrows(ParseException.class, Name.MESSAGE_CONSTRAINTS + "\n" + hint("Doep/98765432"), () ->
                 ParserUtil.parseName("John Doep/98765432"));
     }
 
     @Test
-    public void parseName_slashWithoutPrefix_throwsParseExceptionWithoutHint() {
-        assertThrows(ParseException.class, Name.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseName("Ali/Bakar"));
+    public void parseName_slashWithoutPrefix_throwsParseExceptionWithHint() {
+        assertThrows(ParseException.class, Name.MESSAGE_CONSTRAINTS + "\n" + hint("Ali/Bakar"), () ->
+                ParserUtil.parseName("Ali/Bakar"));
     }
 
     @Test
     public void parseGuardianName_prefixWithoutSpace_throwsParseExceptionWithHint() {
         assertThrows(ParseException.class,
-                Guardian.MESSAGE_NAME_CONSTRAINTS + "\n" + hint("gp/", "Tangp/91234567"), () ->
+                Guardian.MESSAGE_NAME_CONSTRAINTS + "\n" + hint("Tangp/91234567"), () ->
                 ParserUtil.parseGuardianName("Mary Tangp/91234567"));
     }
 
@@ -476,37 +463,37 @@ public class ParserUtilTest {
     public void parseFields_prefixWithoutSpace_throwsParseExceptionWithHint() {
         String phoneMessage = String.format(Phone.MESSAGE_INVALID_CHARACTER, ParserUtil.PHONE_LABEL,
                 "98765432a/Blk 1", "a");
-        assertThrows(ParseException.class, phoneMessage + "\n" + hint("a/", "98765432a/Blk"), () ->
+        assertThrows(ParseException.class, phoneMessage + "\n" + hint("98765432a/Blk"), () ->
                 ParserUtil.parsePhone("98765432a/Blk 1"));
         String joinedPhoneMessage = String.format(Phone.MESSAGE_INVALID_CHARACTER, ParserUtil.PHONE_LABEL,
                 "91234567gp/92345678", "g");
-        assertThrows(ParseException.class, joinedPhoneMessage + "\n" + hint("gp/", "91234567gp/92345678"), () ->
+        assertThrows(ParseException.class, joinedPhoneMessage + "\n" + hint("91234567gp/92345678"), () ->
                 ParserUtil.parsePhone("91234567gp/92345678"));
-        assertThrows(ParseException.class, School.MESSAGE_CONSTRAINTS + "\n" + hint("e/", "Schoole/a@b.com"), () ->
+        assertThrows(ParseException.class, School.MESSAGE_CONSTRAINTS + "\n" + hint("Schoole/a@b.com"), () ->
                 ParserUtil.parseSchool("Victoria Schoole/a@b.com"));
-        assertThrows(ParseException.class, Level.MESSAGE_CONSTRAINTS + "\n" + hint("p/", "S2p/91234567"), () ->
+        assertThrows(ParseException.class, Level.MESSAGE_CONSTRAINTS + "\n" + hint("S2p/91234567"), () ->
                 ParserUtil.parseLevel("S2p/91234567"));
-        assertThrows(ParseException.class, Band.MESSAGE_CONSTRAINTS + "\n" + hint("t/", "G1t/paid"), () ->
+        assertThrows(ParseException.class, Band.MESSAGE_CONSTRAINTS + "\n" + hint("G1t/paid"), () ->
                 ParserUtil.parseSubject("English", "G1t/paid"));
     }
 
     @Test
     public void parseEmail_prefixWithoutSpace_throwsParseExceptionWithHint() {
         String emailMessage = String.format(Email.MESSAGE_INVALID_DOMAIN_CHARACTER, "a@b.comp/91234567", "/");
-        assertThrows(ParseException.class, emailMessage + "\n" + hint("p/", "a@b.comp/91234567"), () ->
+        assertThrows(ParseException.class, emailMessage + "\n" + hint("a@b.comp/91234567"), () ->
                 ParserUtil.parseEmail("a@b.comp/91234567"));
     }
 
     @Test
     public void parseTag_prefixWithoutSpace_throwsParseExceptionWithHint() {
-        assertThrows(ParseException.class, Tag.MESSAGE_CONSTRAINTS + "\n" + hint("p/", "paidp/91234567"), () ->
+        assertThrows(ParseException.class, Tag.MESSAGE_CONSTRAINTS + "\n" + hint("paidp/91234567"), () ->
                 ParserUtil.parseTag("paidp/91234567"));
         String spaceMessage = String.format(Messages.MESSAGE_TAG_HAS_SPACE, "paida/Blk 1");
-        assertThrows(ParseException.class, spaceMessage + "\n" + hint("a/", "paida/Blk"), () ->
+        assertThrows(ParseException.class, spaceMessage + "\n" + hint("paida/Blk"), () ->
                 ParserUtil.parseTag("paida/Blk 1"));
     }
 
-    private static String hint(String prefix, String word) {
-        return String.format(Messages.MESSAGE_PREFIX_WITHOUT_SPACE_HINT, prefix, word);
+    private static String hint(String word) {
+        return String.format(Messages.MESSAGE_PREFIX_WITHOUT_SPACE_HINT, word);
     }
 }

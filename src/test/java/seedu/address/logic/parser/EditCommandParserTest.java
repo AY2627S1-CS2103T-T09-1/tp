@@ -54,6 +54,7 @@ import seedu.address.model.person.Email;
 import seedu.address.model.person.Guardian;
 import seedu.address.model.person.Level;
 import seedu.address.model.person.Name;
+import seedu.address.model.person.Phone;
 import seedu.address.model.person.School;
 import seedu.address.model.person.Subject;
 import seedu.address.model.tag.Tag;
@@ -169,11 +170,21 @@ public class EditCommandParserTest {
     public void parse_prefixWithoutSpace_failure() {
         String hint = Messages.MESSAGE_PREFIX_WITHOUT_SPACE_HINT;
         assertParseFailure(parser, "1 n/John Doep/98765432",
-                Name.MESSAGE_CONSTRAINTS + "\n" + String.format(hint, "p/", "Doep/98765432"));
+                Name.MESSAGE_CONSTRAINTS + "\n" + String.format(hint, "Doep/98765432"));
         assertParseFailure(parser, "1 gn/Mary Tangp/91234567",
-                Guardian.MESSAGE_NAME_CONSTRAINTS + "\n" + String.format(hint, "gp/", "Tangp/91234567"));
+                Guardian.MESSAGE_NAME_CONSTRAINTS + "\n" + String.format(hint, "Tangp/91234567"));
         assertParseFailure(parser, "1 sub/Englishband/G1",
-                Subject.MESSAGE_CONSTRAINTS + "\n" + String.format(hint, "band/", "Englishband/G1"));
+                Subject.MESSAGE_CONSTRAINTS + "\n" + String.format(hint, "Englishband/G1"));
+
+        // no space after gn/, so gp/ starts the guardian name
+        assertParseFailure(parser, "1 gn/gp/",
+                Guardian.MESSAGE_NAME_CONSTRAINTS + "\n" + String.format(hint, "gp/"));
+
+        // no space before gn/, so it is read as part of the guardian phone
+        String guardianPhoneMessage = String.format(Phone.MESSAGE_INVALID_CHARACTER,
+                ParserUtil.GUARDIAN_PHONE_LABEL, "91234567gn/Mary Tan", "g");
+        assertParseFailure(parser, "1 gp/91234567gn/Mary Tan",
+                guardianPhoneMessage + "\n" + String.format(hint, "91234567gn/Mary"));
     }
 
     @Test

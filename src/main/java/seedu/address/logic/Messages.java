@@ -39,7 +39,8 @@ public class Messages {
             + "to give more than one tag, put " + PREFIX_TAG + " before each, such as " + PREFIX_TAG + "paid "
             + PREFIX_TAG + "exams.";
     public static final String MESSAGE_PREFIX_WITHOUT_SPACE_HINT =
-            "If \"%1$s\" in \"%2$s\" was meant to start a new parameter, put a space before it.";
+            "\"%1$s\" contains \"/\". If it was meant to start a new parameter, "
+            + "put a space before its prefix.";
     public static final String MESSAGE_NOT_SINGAPORE_PHONE = "Warning: %1$s doesn't look like a Singapore number "
             + "(8 digits starting with 6, 8, or 9, with or without +65). Use edit to fix it if it's wrong.";
     public static final String MESSAGE_NOT_SINGAPORE_PHONES = "Warning: %1$s don't look like Singapore numbers "

@@ -2,26 +2,15 @@ package seedu.address.logic.parser;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_TAG;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.core.index.Index;
@@ -56,10 +45,7 @@ public class ParserUtil {
 
     private static final String LINE_BREAK = "\n";
 
-    // the prefixes that add and edit accept
-    private static final List<Prefix> STUDENT_PREFIXES = List.of(PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL,
-            PREFIX_ADDRESS, PREFIX_EMAIL, PREFIX_LEVEL, PREFIX_SUBJECT, PREFIX_BAND, PREFIX_GUARDIAN_NAME,
-            PREFIX_GUARDIAN_PHONE, PREFIX_TAG);
+    private static final String SLASH = "/";
 
     private static final String REPEATED_SPACES_REGEX = " {2,}";
 
@@ -117,7 +103,7 @@ public class ParserUtil {
         requireNonNull(name);
         String trimmedName = trimAndCollapseSpaces(name);
         if (!Name.isValidName(trimmedName)) {
-            throw new ParseException(withPrefixHint(Name.MESSAGE_CONSTRAINTS, trimmedName));
+            throw new ParseException(withSlashHint(Name.MESSAGE_CONSTRAINTS, trimmedName));
         }
         return new Name(trimmedName);
     }
@@ -142,7 +128,7 @@ public class ParserUtil {
         try {
             return parseName(name);
         } catch (ParseException pe) {
-            throw new ParseException(withPrefixHint(Guardian.MESSAGE_NAME_CONSTRAINTS, name.trim()), pe);
+            throw new ParseException(withSlashHint(Guardian.MESSAGE_NAME_CONSTRAINTS, name.trim()), pe);
         }
     }
 
@@ -164,7 +150,7 @@ public class ParserUtil {
         String trimmedPhone = phone.trim();
         Optional<String> invalidReason = Phone.getInvalidReason(label, trimmedPhone);
         if (invalidReason.isPresent()) {
-            throw new ParseException(withPrefixHint(invalidReason.get(), trimmedPhone));
+            throw new ParseException(withSlashHint(invalidReason.get(), trimmedPhone));
         }
         return new Phone(Phone.normalize(trimmedPhone));
     }
@@ -189,7 +175,7 @@ public class ParserUtil {
         requireNonNull(school);
         String trimmedSchool = trimAndCollapseSpaces(school);
         if (!School.isValidSchool(trimmedSchool)) {
-            throw new ParseException(withPrefixHint(School.MESSAGE_CONSTRAINTS, trimmedSchool));
+            throw new ParseException(withSlashHint(School.MESSAGE_CONSTRAINTS, trimmedSchool));
         }
         return new School(trimmedSchool);
     }
@@ -219,7 +205,7 @@ public class ParserUtil {
         String trimmedEmail = email.trim();
         Optional<String> invalidReason = Email.getInvalidReason(trimmedEmail);
         if (invalidReason.isPresent()) {
-            throw new ParseException(withPrefixHint(invalidReason.get(), trimmedEmail));
+            throw new ParseException(withSlashHint(invalidReason.get(), trimmedEmail));
         }
         return new Email(trimmedEmail);
     }
@@ -235,7 +221,7 @@ public class ParserUtil {
         try {
             return Level.fromString(level);
         } catch (IllegalArgumentException e) {
-            throw new ParseException(withPrefixHint(Level.MESSAGE_CONSTRAINTS, level.trim()));
+            throw new ParseException(withSlashHint(Level.MESSAGE_CONSTRAINTS, level.trim()));
         }
     }
 
@@ -248,7 +234,7 @@ public class ParserUtil {
         try {
             return new Subject(trimAndCollapseSpaces(name), Band.fromString(band));
         } catch (IllegalArgumentException e) {
-            throw new ParseException(withPrefixHint(e.getMessage(), name + " " + band), e);
+            throw new ParseException(withSlashHint(e.getMessage(), name + " " + band), e);
         }
     }
 
@@ -308,10 +294,10 @@ public class ParserUtil {
         // a space usually means a missing t/ before a second tag, so it gets its own message
         if (trimmedTag.chars().anyMatch(Character::isWhitespace)) {
             throw new ParseException(
-                    withPrefixHint(String.format(Messages.MESSAGE_TAG_HAS_SPACE, trimmedTag), trimmedTag));
+                    withSlashHint(String.format(Messages.MESSAGE_TAG_HAS_SPACE, trimmedTag), trimmedTag));
         }
         if (!Tag.isValidTagName(trimmedTag)) {
-            throw new ParseException(withPrefixHint(Tag.MESSAGE_CONSTRAINTS, trimmedTag));
+            throw new ParseException(withSlashHint(Tag.MESSAGE_CONSTRAINTS, trimmedTag));
         }
         return new Tag(trimmedTag);
     }
@@ -336,59 +322,54 @@ public class ParserUtil {
     }
 
     /**
-     * Returns a hint for the first word in {@code value} that contains one of {@code prefixes} after its first
-     * character, which usually means the space before that prefix is missing, such as {@code Doep/98765432}.
-     * If the word contains more than one, the one that starts first is named.
-     * Returns an empty {@code Optional} if no word does.
+     * Returns a hint for the first word in {@code value} that contains {@code /}, such as {@code Doep/98765432}.
+     * The hint quotes the word but names no prefix, because the same word can come from different mistakes:
+     * {@code Ngp/91234567} may be a name ending in {@code g} before {@code p/}, or a name before {@code gp/}.
+     * Returns an empty {@code Optional} if no word contains {@code /}.
      *
      * @param value The value to check, already split from the command.
-     * @param prefixes The prefixes that the command accepts.
      */
-    public static Optional<String> getPrefixWithoutSpaceHint(String value, List<Prefix> prefixes) {
+    public static Optional<String> getSlashHint(String value) {
         requireNonNull(value);
-        requireNonNull(prefixes);
-        for (String word : value.trim().split("\\s+")) {
-            // gp/ starts before the p/ inside it, so the longer prefix wins when they overlap
-            Optional<Prefix> prefix = prefixes.stream()
-                    .filter(candidate -> word.indexOf(candidate.getPrefix()) > 0)
-                    .min(Comparator.comparingInt(candidate -> word.indexOf(candidate.getPrefix())));
-            if (prefix.isPresent()) {
-                logger.fine("Found " + prefix.get() + " with no space before it in: " + word);
-                return Optional.of(String.format(Messages.MESSAGE_PREFIX_WITHOUT_SPACE_HINT, prefix.get(), word));
-            }
-        }
-        return Optional.empty();
+        Optional<String> wordWithSlash = Stream.of(value.trim().split("\\s+"))
+                .filter(word -> word.contains(SLASH))
+                .findFirst();
+        wordWithSlash.ifPresent(word -> logger.fine("Found a slash, maybe a prefix with no space before it, in: "
+                + word));
+        return wordWithSlash.map(word -> String.format(Messages.MESSAGE_PREFIX_WITHOUT_SPACE_HINT, word));
     }
 
     /**
-     * Throws a {@code ParseException} with {@code message} and a hint if {@code value} contains a prefix with no
-     * space before it. Use it before a check that would otherwise fail first only because that prefix was read
-     * as part of {@code value}, such as {@code gp/} in a guardian name. {@code value} must be of a field that
-     * cannot contain {@code /}, so that {@code message} is its correct error.
+     * Throws a {@code ParseException} with {@code message} and a hint if {@code value} contains {@code /}.
+     * Use it before a check that would otherwise fail first only because a prefix with no space before it was
+     * read as part of {@code value}, such as {@code gp/} in a guardian name. {@code value} must be of a field
+     * that cannot contain {@code /}, so that {@code message} is its correct error.
      */
-    public static void verifyNoPrefixWithoutSpace(String value, String message) throws ParseException {
-        Optional<String> hint = getPrefixWithoutSpaceHint(value, STUDENT_PREFIXES);
+    public static void verifyNoSlash(String value, String message) throws ParseException {
+        requireNonNull(value);
+        requireNonNull(message);
+        Optional<String> hint = getSlashHint(value);
         if (hint.isPresent()) {
             throw new ParseException(message + LINE_BREAK + hint.get());
         }
     }
 
     /**
-     * Throws a {@code ParseException} if a subject name contains a prefix with no space before it, such as
-     * {@code band/} in {@code Mathsband/G1}. Call it before checking that each {@code sub/} has a {@code band/}.
+     * Throws a {@code ParseException} if a subject name contains {@code /}, such as {@code band/} with no space
+     * before it in {@code Mathsband/G1}. Call it before checking that each {@code sub/} has a {@code band/}.
      */
-    public static void verifySubjectNamesHaveNoPrefixWithoutSpace(List<String> names) throws ParseException {
+    public static void verifySubjectNamesHaveNoSlash(List<String> names) throws ParseException {
         requireNonNull(names);
         for (String name : names) {
-            verifyNoPrefixWithoutSpace(name, Subject.MESSAGE_CONSTRAINTS);
+            verifyNoSlash(name, Subject.MESSAGE_CONSTRAINTS);
         }
     }
 
     /**
-     * Returns {@code message} followed by a hint if {@code value} contains a prefix with no space before it.
+     * Returns {@code message} followed by a hint if {@code value} contains {@code /}.
      */
-    private static String withPrefixHint(String message, String value) {
-        return getPrefixWithoutSpaceHint(value, STUDENT_PREFIXES)
+    public static String withSlashHint(String message, String value) {
+        return getSlashHint(value)
                 .map(hint -> message + LINE_BREAK + hint)
                 .orElse(message);
     }
