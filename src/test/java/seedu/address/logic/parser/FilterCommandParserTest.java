@@ -270,6 +270,7 @@ public class FilterCommandParserTest {
     @Test
     public void parse_invalidSubject_throwsParseException() {
         assertParseFailure(parser, " sub/Math3", Subject.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, " sub/Français", Subject.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, " sub/", Subject.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, " sub/" + "a".repeat(Subject.MAX_LENGTH + 1), Subject.MESSAGE_CONSTRAINTS);
     }
