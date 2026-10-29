@@ -63,14 +63,21 @@ public class AddNoteCommandParserTest {
     }
 
     @Test
-    public void parse_textAfterIndex_throwsIndexError() {
-        assertParseFailure(parser, " 1 abc note/hi", MESSAGE_INVALID_INDEX);
+    public void parse_nonIntegerIndex_throwsCommandFormatError() {
+        String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddNoteCommand.MESSAGE_USAGE);
+
+        assertParseFailure(parser, " abc note/hi", expectedMessage);
+
+        // text after a valid index
+        assertParseFailure(parser, " 1 abc note/hi", expectedMessage);
+
+        // non-integer index is reported before the blank note
+        assertParseFailure(parser, " abc note/   ", expectedMessage);
     }
 
     @Test
     public void parse_invalidIndexAndInvalidNote_throwsIndexError() {
         assertParseFailure(parser, " 0 note/", MESSAGE_INVALID_INDEX);
-        assertParseFailure(parser, " abc note/   ", MESSAGE_INVALID_INDEX);
         assertParseFailure(parser, " 0 note/a note/b", MESSAGE_INVALID_INDEX);
         assertParseFailure(parser, " 0 note/" + "a".repeat(501), MESSAGE_INVALID_INDEX);
     }
