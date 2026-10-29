@@ -149,6 +149,21 @@ public class CommandResult {
     }
 
     /**
+     * Returns a copy of this result with each given warning that is present added on its own line, in order.
+     * Returns this result unchanged if no warning is present.
+     */
+    @SafeVarargs
+    public final CommandResult withWarnings(Optional<String>... warnings) {
+        CommandResult result = this;
+        for (Optional<String> warning : warnings) {
+            if (warning.isPresent()) {
+                result = result.withWarning(warning.get());
+            }
+        }
+        return result;
+    }
+
+    /**
      * Returns a copy of this result with a separate cancellation notice for display.
      */
     public CommandResult withCancellationNotice(String notice) {

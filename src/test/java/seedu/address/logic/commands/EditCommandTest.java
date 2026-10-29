@@ -279,6 +279,61 @@ public class EditCommandTest {
     }
 
     @Test
+    public void execute_emailWithoutDomainDot_successWithWarning() {
+        Person original = model.getFilteredPersonList().get(0);
+        Person edited = new PersonBuilder(original).withEmail("john@gmail").build();
+        EditCommand command = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withEmail("john@gmail").build());
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(original, edited);
+        String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS,
+                Messages.format(edited));
+        CommandResult expectedResult = CommandResult.showStudent(expectedMessage, edited, INDEX_FIRST_PERSON)
+                .withWarning(String.format(Messages.MESSAGE_EMAIL_NO_DOMAIN_DOT, "john@gmail"));
+        assertCommandSuccess(command, model, expectedResult, expectedModel);
+    }
+
+    @Test
+    public void execute_otherFieldWithExistingEmailWithoutDomainDot_noWarning() {
+        Person withDotlessEmail = giveFirstPersonEmail("john@gmail");
+        Person edited = new PersonBuilder(withDotlessEmail).withSchool("Victoria School").build();
+        EditCommand command = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withSchool("Victoria School").build());
+        assertEditSuccessWithoutWarning(command, withDotlessEmail, edited);
+    }
+
+    @Test
+    public void execute_removeEmailWithoutDomainDot_noWarning() {
+        Person withDotlessEmail = giveFirstPersonEmail("john@gmail");
+        Person edited = new PersonBuilder(withDotlessEmail).withoutEmail().build();
+        EditCommand command = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withEmailRemoved().build());
+        assertEditSuccessWithoutWarning(command, withDotlessEmail, edited);
+    }
+
+    /**
+     * Replaces the first student in {@code model} with a copy that has {@code email}, and returns the copy.
+     */
+    private Person giveFirstPersonEmail(String email) {
+        Person original = model.getFilteredPersonList().get(0);
+        Person withEmail = new PersonBuilder(original).withEmail(email).build();
+        model.setPerson(original, withEmail);
+        return withEmail;
+    }
+
+    /**
+     * Checks that {@code command} replaces {@code original} with {@code edited} and shows no warning.
+     */
+    private void assertEditSuccessWithoutWarning(EditCommand command, Person original, Person edited) {
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(original, edited);
+        String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS,
+                Messages.format(edited));
+        assertCommandSuccess(command, model,
+                CommandResult.showStudent(expectedMessage, edited, INDEX_FIRST_PERSON), expectedModel);
+    }
+
+    @Test
     public void execute_bothGuardianFieldsNoGuardian_addsGuardian() {
         Person original = model.getFilteredPersonList().get(0);
         Person edited = new PersonBuilder(original)

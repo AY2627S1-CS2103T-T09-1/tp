@@ -159,11 +159,11 @@ public class EditCommand extends Command implements ConfirmationCommand {
             feedback += "\n" + String.format(MESSAGE_NO_LONGER_MATCHES, editedPerson.getName());
         }
         CommandResult result = CommandResult.showStudent(feedback, editedPerson, index);
-        // only warn about phones typed in this command, not ones the person already had
-        return Messages.getNonSingaporePhoneWarning(editPersonDescriptor.getPhone(),
-                        editPersonDescriptor.getGuardianPhone())
-                .map(result::withWarning)
-                .orElse(result);
+        // only warn about phones and emails typed in this command, not ones the person already had
+        return result.withWarnings(
+                Messages.getNonSingaporePhoneWarning(editPersonDescriptor.getPhone(),
+                        editPersonDescriptor.getGuardianPhone()),
+                Messages.getEmailNoDomainDotWarning(editPersonDescriptor.getEmail()));
     }
 
     private Person getTargetPerson(Model model) throws CommandException {
