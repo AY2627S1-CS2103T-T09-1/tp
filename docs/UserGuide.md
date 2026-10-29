@@ -507,7 +507,7 @@ The command does not accept additional arguments.
 
 #### Viewing a student: `view`
 
-TuteeBook3 always shows a fixed, equal-width student list on the left and student record panel on the right. Both panels fill the available height down to the status bar, and you cannot move the divider. Student details stay fixed at the top of the right panel. If the notes need more space than the area below, only the notes section scrolls. The list cards are not clickable. The card for the student shown on the right is highlighted. When no student is selected, the right panel says `View a student to see details.`
+TuteeBook3 always shows a fixed, equal-width student list on the left and student record panel on the right. Both panels fill the available height down to the status bar, and you cannot move the divider. If the student record is taller than the right panel, the entire record scrolls, including the student details and notes. The list cards are not clickable. The card for the student shown on the right is highlighted. When no student is selected, the right panel says `View a student to see details.`
 
 `view` shows the full record of the student at the specified index on the right.
 
