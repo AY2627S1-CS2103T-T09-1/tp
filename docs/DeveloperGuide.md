@@ -291,6 +291,8 @@ The app uses the second option because it resolves the reported real-name cases 
 
 The add parser accepts optional `e/EMAIL`; the edit parser replaces an email, and a blank `e/` removes it. `JsonAdaptedPerson` leaves `email` out of the file when a student has none, and Jackson sets the field directly, so files without an email still load. Emails do not contribute to duplicate detection.
 
+A domain with no period, such as `john@gmail`, is valid (`localhost` is a real domain) but is almost always a missing `.com`. Rejecting it would block valid addresses, so `AddCommand` and `EditCommand` save it and add a warning instead, the same way as for phones (see [Phone number validation](#phone-number-validation)). `Email#hasDotInDomain` does the check, and `Messages#getEmailNoDomainDotWarning` builds the warning. `EditCommand` only checks an email typed in that command.
+
 ### Student tags
 
 A student has a set of `Tag`s, which may be empty but is never null. `Person#getTags()` returns an unmodifiable view that keeps the order the tags were typed in.
@@ -336,7 +338,7 @@ Students and guardians each have one phone number, stored as a `Phone`. The same
 
 1. `ParserUtil#parsePhone` calls `Phone#normalize`, which removes spaces and hyphens, then removes a leading `+65` if the rest is a Singapore number (8 digits starting with 6, 8, or 9). For example, `+65 9123-4567` becomes `91234567`, but `+65 1234 5678` becomes `+6512345678`.
 1. `ParserUtil#parsePhone` then calls `Phone#getInvalidReason`, which checks the result with `Phone#isValidPhone`: an optional `+` followed by 3 to 15 digits. If the check fails, it returns a message that names the field and the value as typed, and gives the first problem it finds: the value is empty, has a character that isn't allowed, has a `+` that isn't at the start, or has the wrong number of digits. `ParserUtil` throws a `ParseException` with that message. `ParserUtil#parseGuardianPhone` does the same, with the field named `Guardian phone`.
-1. After saving the student, `AddCommand` and `EditCommand` pass the phones given in the command to `Messages#getNonSingaporePhoneWarning`. If any of them is not a Singapore number, the command returns its usual result with `CommandResult#withWarning`, which adds the warning and displays the result in amber without changing what the main panel shows.
+1. After saving the student, `AddCommand` and `EditCommand` pass the phones given in the command to `Messages#getNonSingaporePhoneWarning`. If any of them is not a Singapore number, the command returns its usual result with `CommandResult#withWarnings`, which adds the warning on a new line and displays the result in amber without changing what the main panel shows.
 
 `EditCommand` only checks phones from its `EditPersonDescriptor`, so editing another detail of a student who already has an overseas number does not show the warning again.
 
