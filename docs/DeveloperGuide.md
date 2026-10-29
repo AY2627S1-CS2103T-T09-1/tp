@@ -1032,11 +1032,8 @@ Use case ends.
 
 **MSS**
 
-1.  Tutor requests help
-2.  TuteeBook3 shows the available commands, examples, and the user guide URL in the feedback box
-3.  TuteeBook3 copies the link to the clipboard
-4.  Tutor pastes the link into a browser to read the user guide
-5.  Tutor reads the user guide
+1. Tutor requests help.
+1. TuteeBook3 shows each available command as a summary followed by a minimal example on the next line, separates commands with blank lines, and shows the User Guide URL as selectable plain text after them.
 
     Use case ends.
 
@@ -1046,7 +1043,15 @@ Use case ends.
 
     * 1a1. TuteeBook3 reuses the feedback box and returns the help content to the top.
 
-      Use case resumes at step 3.
+      Use case resumes at step 2.
+
+* 2a. Tutor wants more detailed instructions.
+
+    * 2a1. Tutor selects and copies the User Guide URL using the operating system's copy shortcut.
+
+    * 2a2. Tutor pastes the URL into a browser and opens the User Guide.
+
+      Use case ends.
 
 ---
 

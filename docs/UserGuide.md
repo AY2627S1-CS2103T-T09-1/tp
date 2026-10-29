@@ -72,11 +72,13 @@ TuteeBook3 is a **desktop app for private tutors who teach secondary school stud
 
 ### Viewing help: `help`
 
-Shows a one-line summary of each available command and the URL of the TuteeBook3 User Guide directly in the feedback box. You can also show the same help using the **Help** menu or the F1 keyboard shortcut. Repeated requests reuse the feedback box instead of opening additional panels or windows.
+Shows each available command as a short summary with a minimal example on the next line. Blank lines separate the commands, and the URL of the TuteeBook3 User Guide appears after them. You can also show the same help using the **Help** menu or the F1 keyboard shortcut. Repeated requests reuse the feedback box instead of opening additional panels or windows.
 
 Format: `help`
 
 The command does not accept additional arguments.
+
+The User Guide URL is shown as selectable plain text, not as a clickable link, and TuteeBook3 does not copy it automatically. Select the URL and press **Ctrl+C** on Windows or Linux, or **Command+C** on macOS, to copy it, then paste it into your browser.
 
 ### Adding a person: `add`
 
