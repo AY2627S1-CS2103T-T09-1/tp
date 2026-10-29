@@ -104,7 +104,11 @@ No brackets | Required | `sch/SCHOOL` must be given
 `[ ]` | Optional | `[p/PHONE]` can be left out
 `...` | Can be given more than once, or not at all if it's in `[ ]` | `[t/TAG]...` → `t/paid t/exams`
 
-If you are using a PDF version of this guide, be careful when you copy a command that spans more than one line. The spaces around the line breaks may be lost when you paste it into TuteeBook3.
+The command box holds one line. When you paste text that spans more than one line, such as a lesson note from another app, TuteeBook3 replaces each line break or tab with a space, so the words stay apart. A run of line breaks or tabs, such as a blank line between paragraphs, becomes one space. For example, if you type `addnote 1 note/` and paste `Weak in` and `algebra` on two lines, TuteeBook3 adds the note `Weak in algebra`.
+
+<div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
+Check the command box before you press Enter after pasting text that spans more than one line. Line breaks are not kept, so a pasted list such as `1. Algebra` and `2. Geometry` on two lines is saved as one line, `1. Algebra 2. Geometry`. A word split across two lines, such as `alge-` and `bra`, becomes `alge- bra`. Some apps and PDF viewers also drop the spaces around line breaks when you copy text, so words can be joined before TuteeBook3 receives them. This includes copying a command from a PDF version of this guide.
+</div>
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -196,7 +200,7 @@ Parameter | Prefix | Used in | Rules | Example
 ----------|--------|---------|-------|--------
 `INDEX` | none, comes straight after the command word | `view`, `edit`, `delete`, `addnote`, `editnote`, `deletenote` | The number shown beside the student in the student list, or at the top of the student detail view. A positive integer no greater than the largest index in the student list. For example, if the list shows 1 to 3, you can use 1, 2, or 3. | `2`
 `NID` | `nid/` | `editnote`, `deletenote` | The number shown before the note in the student detail view. A positive integer. Use `view INDEX` to see a student's notes and their NIDs. | `1`
-`TEXT` | `note/` | `addnote`, `editnote`, `filter` | 1 to 500 characters, counting spaces between words. Any characters are allowed, including digits, punctuation, and slashes. Spaces before and after the text are removed. | `WA2 Math: 36/50`
+`TEXT` | `note/` | `addnote`, `editnote`, `filter` | 1 to 500 characters, counting spaces between words. Any characters are allowed, including digits, punctuation, and slashes. Spaces before and after the text are removed. Pasted line breaks and tabs become spaces, as described in [How commands are written](#how-commands-are-written). | `WA2 Math: 36/50`
 
 * `INDEX` and `NID` can change. An index changes when the list changes, such as after `filter` or `delete`. After a note is deleted, the notes after it move up one number. Check the list or the student detail view before you use them.
 * After `view`, the student's `INDEX` is also shown at the top of the student detail view, so you can use it in `edit`, `delete`, `addnote`, `editnote`, and `deletenote` without looking for the student in the list.
