@@ -12,6 +12,9 @@ import seedu.address.model.ModelManager;
 
 public class HelpCommandTest {
     private static final String EXPECTED_HELP_MESSAGE = String.join(System.lineSeparator(),
+            "For full details regarding optional inputs, select and copy this URL into your browser:",
+            "https://ay2627s1-cs2103t-t09-1.github.io/tp/UserGuide.html",
+            "",
             "Available commands:",
             "",
             "add - Adds a student.",
@@ -48,10 +51,7 @@ public class HelpCommandTest {
             "Example: help",
             "",
             "exit - Exits TuteeBook3.",
-            "Example: exit",
-            "",
-            "For full details regarding optional inputs, select and copy this URL into your browser:",
-            "https://ay2627s1-cs2103t-t09-1.github.io/tp/UserGuide.html");
+            "Example: exit");
 
     private Model model = new ModelManager();
     private Model expectedModel = new ModelManager();
