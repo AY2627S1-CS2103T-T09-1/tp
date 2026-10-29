@@ -504,6 +504,7 @@ Problem | Message
 --------|--------
 `INDEX` is not a positive integer shown in the displayed student list, such as `0`, `abc`, or `99999999999` | `Index must be a positive integer shown in the displayed student list.`
 There is other text between `INDEX` and `nid/`, such as `deletenote 1 abc nid/2` | `Invalid command format!` followed by how to use `deletenote`
+`-f` is not straight after `deletenote`, such as `deletenote 1 nid/2 -f` | `Invalid command format!` followed by how to use `deletenote`
 `NID` is empty or is not a positive integer, such as `0`, `-1`, or `abc` | `NID must be a positive integer.`
 The student has no notes | `NAME at SCHOOL (LEVEL) has no notes to delete.`
 `NID` is larger than the number of notes the student has | `NID 5 does not exist. NAME at SCHOOL (LEVEL) has only 3 notes.`, with the NID you typed and the number of notes the student has (`1 note` if they have one)
