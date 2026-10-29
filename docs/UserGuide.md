@@ -171,8 +171,8 @@ If the subjects or bands are wrong, `add` and `edit` show one of these messages:
 
 | Problem | Message |
 | --- | --- |
-| No `sub/` or `band/` in `add` | `Missing required parameters: sub/, band/.` Any other missing parameters are listed too, such as `Missing required parameters: lvl/, sub/, band/.` |
-| `band/` without a `sub/` before it in `add`, or `band/` supplied alone in `edit` | `Missing required parameter: sub/.` |
+| Neither `sub/` nor `band/` in `add` | `Missing required parameters: sub/, band/.` Any other missing parameters are listed too, such as `Missing required parameters: lvl/, sub/, band/.` |
+| `band/` but no `sub/` anywhere in `add`, or `band/` supplied alone in `edit` | `Missing required parameter: sub/.` |
 | Missing, misplaced, or repeated `band/` within a pair | `Each sub/ must be immediately followed by one band/.` |
 | Empty band or a value other than G1, G2, or G3 | `Band must be one of G1, G2, G3.` |
 | Invalid subject name | `Subjects must be 1-40 characters using only letters, spaces and hyphens, with at least one letter.` |
