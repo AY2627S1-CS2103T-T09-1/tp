@@ -873,26 +873,31 @@ Use case ends.
 
 ---
 
-**Use case: UC6 - Find students by a keyword in their notes**
+**Use case: UC6 - Find students by text in their notes**
 
 **MSS**
 
-1. Tutor requests to find students whose notes contain a keyword.
-2. TuteeBook3 shows the matching students, with the notes that match.
+1. Tutor requests to find students who have a note containing some text.
+2. TuteeBook3 shows the list of students who have at least one note containing that text, ignoring case and extra spaces.
 3. Tutor requests to view one of them by index.
-4. TuteeBook3 shows the student's full record.
+4. TuteeBook3 shows the student's full record, including all of their notes.
 
 Use case ends.
 
 **Extensions**
 
-* 1a. The keyword is blank or invalid.
+* 1a. The text is blank or longer than 500 characters.
   * 1a1. TuteeBook3 shows an error message.
-  * 1a2. Tutor enters a corrected keyword.
+  * 1a2. Tutor enters corrected text.
 
-  Steps 1a1-1a2 are repeated until the keyword is valid. Use case resumes at step 2.
+  Steps 1a1-1a2 are repeated until the text is valid. Use case resumes at step 2.
 
-* 2a. No student's notes contain the keyword.
+* 1b. Tutor also narrows the search by other details, such as level or school.
+  * 1b1. TuteeBook3 shows only the students who match all of them.
+
+  Use case resumes at step 3.
+
+* 2a. No student has a note containing the text.
   * 2a1. TuteeBook3 informs Tutor that no students match.
 
   Use case ends.
