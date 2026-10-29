@@ -77,6 +77,16 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_schoolWithBracketsAndComma_success() {
+        String[] schools = {"Anglo-Chinese School (Independent)", "School of Science and Technology, Singapore"};
+        for (String school : schools) {
+            EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withSchool(school).build();
+
+            assertParseSuccess(parser, "1 sch/" + school, new EditCommand(INDEX_FIRST_PERSON, descriptor));
+        }
+    }
+
+    @Test
     public void parse_addressSetOrRemoved_success() {
         EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withAddress("12 Example Road").build();
         assertParseSuccess(parser, "1 a/12 Example Road", new EditCommand(INDEX_FIRST_PERSON, descriptor));
