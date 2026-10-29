@@ -263,7 +263,7 @@ After all the input is valid, `add` checks whether the new student might already
 
 Another student has… | What happens
 ---------------------|-------------
-The same name, but a different school or level | An amber prompt, such as `Student not added yet: NAME is also recorded at SCHOOL (LEVEL).` Type `CONFIRM` to add the student anyway. See [Confirming a command](#confirming-a-command).
+The same name, but a different school or level | An amber prompt, such as `Student not added yet: NAME is also recorded at SCHOOL (LEVEL).` If several students match, their school and level details are separated by `; `. Type `CONFIRM` to add the student anyway. See [Confirming a command](#confirming-a-command).
 The same name, school, and level | A red error: `A student named NAME at SCHOOL, level LEVEL already exists. If this is a different student, enter a distinguishing name, for example Chloe Tan 2.` The student is not added.
 
 * Names and schools are compared ignoring capitalization and extra spaces. Levels are compared directly.
@@ -340,7 +340,7 @@ Every value given is the same as the student's current value, such as `edit 1 n/
 
 Another student has… | What happens
 ---------------------|-------------
-The same name, but a different school or level | An amber prompt, such as `Edit not saved yet: NAME is also recorded at SCHOOL (LEVEL).` Type `CONFIRM` to save the edit anyway. See [Confirming a command](#confirming-a-command).
+The same name, but a different school or level | An amber prompt, such as `Edit not saved yet: NAME is also recorded at SCHOOL (LEVEL).` If several students match, their school and level details are separated by `; `. Type `CONFIRM` to save the edit anyway. See [Confirming a command](#confirming-a-command).
 The same name, school, and level | A red error: `Another student named NAME at SCHOOL, level LEVEL already exists. If these are different students, edit the name to include an identifier, for example Chloe Tan 2.` The student is not changed.
 
 #### Deleting a student: `delete`
