@@ -1370,7 +1370,7 @@ testers are expected to do more *exploratory* testing.
    1. Prerequisites: Start with the sample data. Enter `filter n/an`, which lists `SAMPLE Chloe Tan`, `SAMPLE Aisha Rahman`, `SAMPLE Daniel Lee`, and `SAMPLE Ethan Kumar`, then `view 1`. Run the test cases in order.
 
    1. Test case: `edit 1 n/Chloe Lim`<br>
-      Expected: The student record stays open and shows the name Chloe Lim. The status message says `Chloe Lim no longer matches your last search, but stays in the list until you enter list or filter.`
+      Expected: The student record stays open and shows the name Chloe Lim. The status message says `Chloe Lim at Bedok Green Secondary School (S2) no longer matches your last search, but stays in the list until you enter list or filter.`
 
    1. Test case: `edit 2 lvl/S4`<br>
       Expected: The student record still shows Chloe Lim, so she is still first in the list even though another student was edited. The status message says `SAMPLE Aisha Rahman` was edited, with no line about the search. Enter `list`, then `filter n/an`: the list shows Aisha Rahman (now `S4`), Daniel Lee, and Ethan Kumar, and Chloe Lim is no longer in the results.
