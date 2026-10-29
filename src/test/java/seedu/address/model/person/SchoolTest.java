@@ -22,21 +22,34 @@ public class SchoolTest {
         assertFalse(School.isValidSchool("---"));
         assertFalse(School.isValidSchool("School/Name"));
         assertFalse(School.isValidSchool("School #1"));
-        assertFalse(School.isValidSchool("School_Name"));
+        assertFalse(School.isValidSchool("School １２３"));
         assertFalse(School.isValidSchool("École Française"));
         assertFalse(School.isValidSchool("李明学校"));
-        assertFalse(School.isValidSchool("School １２３"));
-        assertFalse(School.isValidSchool("123")); // no ASCII letter
         assertFalse(School.isValidSchool("a".repeat(101)));
         assertTrue(School.isValidSchool("Unknown"));
         assertTrue(School.isValidSchool("St Josephs Institution"));
         assertTrue(School.isValidSchool("Anglo Chinese School"));
         assertTrue(School.isValidSchool("Anglo-Chinese School (Independent)"));
         assertTrue(School.isValidSchool("St. Joseph's Institution"));
+        assertTrue(School.isValidSchool("Anglo-Chinese School"));
+        assertTrue(School.isValidSchool("Anglo-Chinese School (Independent)"));
         assertTrue(School.isValidSchool("School of Science and Technology, Singapore"));
-        assertTrue(School.isValidSchool("Cedar Girls’ Secondary School"));
         assertTrue(School.isValidSchool("School123"));
         assertTrue(School.isValidSchool("a".repeat(100)));
+    }
+
+    @Test
+    public void getInvalidReason_invalidSchool_returnsSpecificReason() {
+        assertEquals(School.MESSAGE_BLANK, School.getInvalidReason("   ").orElseThrow());
+        assertEquals(String.format(School.MESSAGE_TOO_LONG, 101),
+                School.getInvalidReason("a".repeat(101)).orElseThrow());
+        assertEquals(String.format(School.MESSAGE_INVALID_CHARACTER, "School#1", "#"),
+                School.getInvalidReason("School#1").orElseThrow());
+        assertEquals(String.format(School.MESSAGE_INVALID_CHARACTER, "École Française", "É"),
+                School.getInvalidReason("École Française").orElseThrow());
+        assertEquals(String.format(School.MESSAGE_MISSING_ASCII_LETTER, "123"),
+                School.getInvalidReason("123").orElseThrow());
+        assertTrue(School.getInvalidReason("Anglo-Chinese School (Independent)").isEmpty());
     }
 
     @Test

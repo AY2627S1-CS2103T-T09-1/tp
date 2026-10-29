@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
 
 import java.util.Locale;
+import java.util.Optional;
 
 /**
  * Represents a Person's school in the tutor book.
@@ -11,17 +12,24 @@ import java.util.Locale;
  */
 public class School {
 
-    public static final String MESSAGE_CONSTRAINTS =
-            "School names must be 1-100 characters, contain at least one ASCII letter, "
-                    + "and use only ASCII letters, digits, spaces, periods (.), apostrophes (' or ’), "
-                    + "ampersands (&), parentheses, commas, and hyphens (-).";
-    public static final String DEFAULT_VALUE = "Unknown";
     public static final int MAX_LENGTH = 100;
 
-    /*
-     * Keep the letter and number classes ASCII-only while retaining punctuation used in school names.
-     */
-    public static final String VALIDATION_REGEX = "(?=.*[A-Za-z])[A-Za-z0-9 .'’&(),-]+";
+    private static final String ALLOWED_CHARACTERS =
+            "ASCII letters (A-Z, a-z), digits (0-9), spaces, periods (.), "
+                    + "apostrophes (' or ’), ampersands (&), parentheses, commas, and hyphens (-)";
+
+    public static final String MESSAGE_BLANK = "School name cannot be blank.";
+    public static final String MESSAGE_TOO_LONG = "School name must be at most " + MAX_LENGTH
+            + " characters; this value has %d.";
+    public static final String MESSAGE_INVALID_CHARACTER = "School name \"%1$s\" contains \"%2$s\", "
+            + "which isn't allowed. Use " + ALLOWED_CHARACTERS + ".";
+    public static final String MESSAGE_MISSING_ASCII_LETTER =
+            "School name \"%s\" must contain at least one ASCII letter.";
+    public static final String MESSAGE_CONSTRAINTS =
+            "School names must be 1-" + MAX_LENGTH + " characters, contain at least one ASCII letter, "
+                    + "and use only " + ALLOWED_CHARACTERS + ".";
+    public static final String DEFAULT_VALUE = "Unknown";
+    private static final String ALLOWED_PUNCTUATION = " .'’&(),-";
 
     public final String value;
     private final String comparisonValue;
@@ -42,7 +50,53 @@ public class School {
      * Returns true if a given string is a valid school.
      */
     public static boolean isValidSchool(String test) {
-        return test.codePointCount(0, test.length()) <= MAX_LENGTH && test.matches(VALIDATION_REGEX);
+        return getInvalidReason(test).isEmpty();
+    }
+
+    /**
+     * Returns why {@code school} is invalid, or an empty {@code Optional} if it is valid.
+     * Checks blank values, length, unsupported characters, and the required ASCII letter in that order.
+     *
+     * @param school The school name to validate.
+     * @return The reason the school name is invalid, if any.
+     */
+    public static Optional<String> getInvalidReason(String school) {
+        requireNonNull(school);
+        if (school.isBlank()) {
+            return Optional.of(MESSAGE_BLANK);
+        }
+
+        int length = school.codePointCount(0, school.length());
+        if (length > MAX_LENGTH) {
+            return Optional.of(String.format(MESSAGE_TOO_LONG, length));
+        }
+
+        boolean hasAsciiLetter = false;
+        for (int offset = 0; offset < school.length();) {
+            int codePoint = school.codePointAt(offset);
+            if (isAsciiLetter(codePoint)) {
+                hasAsciiLetter = true;
+            }
+            if (!isAllowedCharacter(codePoint)) {
+                String invalidCharacter = new String(Character.toChars(codePoint));
+                return Optional.of(String.format(MESSAGE_INVALID_CHARACTER, school, invalidCharacter));
+            }
+            offset += Character.charCount(codePoint);
+        }
+
+        if (!hasAsciiLetter) {
+            return Optional.of(String.format(MESSAGE_MISSING_ASCII_LETTER, school));
+        }
+        return Optional.empty();
+    }
+
+    private static boolean isAllowedCharacter(int codePoint) {
+        return isAsciiLetter(codePoint) || (codePoint >= '0' && codePoint <= '9')
+                || ALLOWED_PUNCTUATION.indexOf(codePoint) >= 0;
+    }
+
+    private static boolean isAsciiLetter(int codePoint) {
+        return (codePoint >= 'A' && codePoint <= 'Z') || (codePoint >= 'a' && codePoint <= 'z');
     }
 
     @Override

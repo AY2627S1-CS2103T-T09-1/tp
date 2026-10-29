@@ -225,6 +225,13 @@ The ASCII letter/number rule also applies to existing data files. A file contain
 
 The third option was selected because the issue was inconsistent handling of letters, not a need to make names and school names use identical punctuation. ASCII-only letters and digits reject the accented school case consistently with student names, while keeping the punctuation needed for realistic school names. The User Guide lists the exact rules for each field and explains the existing-data limitation.
 
+### School validation and error messages
+
+School names must be 1 to 100 characters, contain at least one ASCII letter, and use only ASCII letters, digits, spaces, periods, apostrophes (`'` or `’`), ampersands, parentheses, commas, and hyphens. This keeps letters and numbers ASCII-only while preserving punctuation used in official school names. `ParserUtil#parseSchool` trims and collapses ordinary spaces before validating the value.
+
+`School#getInvalidReason` checks invalid values in this order: blank input, length over 100 characters, the first unsupported character, then the absence of an ASCII letter. It returns a targeted message for the first reason found. `School#isValidSchool` applies the shared character and length rules to the value it receives. `ParserUtil#parseSchool` first trims surrounding whitespace and collapses repeated ordinary spaces, then uses the targeted reason for `add` and `edit`; both commands therefore apply the same rules to the normalized value. Direct model construction and JSON loading validate the supplied value without that parser normalization, using the same character and length rules. The model and JSON adapter use `School.MESSAGE_CONSTRAINTS` as the general rule when constructing or loading an invalid school.
+
+Existing records with non-ASCII letters or numbers in a school name fail validation when loaded. Users must change those records in the previous version before upgrading. The supported school punctuation remains valid.
 ### Student subjects and bands
 
 Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `G2`, or `G3`. Subject names can contain 1 to 40 Unicode letters, spaces, hyphens, parentheses, commas, and ampersands, and must contain at least one letter. Digits, slashes, and other symbols are rejected. A student cannot have the same subject name more than once, even at different bands.

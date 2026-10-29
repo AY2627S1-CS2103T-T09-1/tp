@@ -478,7 +478,9 @@ public class ParserUtilTest {
                 "91234567gp/92345678", "g");
         assertThrows(ParseException.class, joinedPhoneMessage + "\n" + HINT, () ->
                 ParserUtil.parsePhone("91234567gp/92345678"));
-        assertThrows(ParseException.class, School.MESSAGE_CONSTRAINTS + "\n" + HINT, () ->
+        String invalidSchool = String.format(School.MESSAGE_INVALID_CHARACTER,
+                "Victoria Schoole/a@b.com", "/");
+        assertThrows(ParseException.class, invalidSchool + "\n" + HINT, () ->
                 ParserUtil.parseSchool("Victoria Schoole/a@b.com"));
         assertThrows(ParseException.class, Level.MESSAGE_CONSTRAINTS + "\n" + HINT, () ->
                 ParserUtil.parseLevel("S2p/91234567"));
