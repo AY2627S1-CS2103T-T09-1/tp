@@ -9,14 +9,25 @@ import seedu.address.logic.commands.ConfirmationCommand;
  * Manages a pending command that requires the user to confirm or cancel it.
  */
 public class ConfirmationManager {
+    public static final String CONFIRM_WORD = "CONFIRM";
     public static final String MESSAGE_CONFIRMATION_CANCELLATION =
             "Any other input cancels this request and runs as a command.";
     public static final String MESSAGE_CONFIRMATION_SUFFIX = System.lineSeparator()
             + "Type CONFIRM (uppercase) to proceed."
             + System.lineSeparator() + MESSAGE_CONFIRMATION_CANCELLATION;
     public static final String MESSAGE_CANCELLED_FORMAT = "The '%s' command has been cancelled.";
+    public static final String MESSAGE_NOTHING_TO_CONFIRM =
+            "There is no command waiting for confirmation. Nothing was changed.";
 
     private ConfirmationCommand pendingCommand;
+
+    /**
+     * Returns whether {@code input} confirms a pending command: exactly {@value #CONFIRM_WORD},
+     * ignoring leading and trailing spaces.
+     */
+    public static boolean isConfirmInput(String input) {
+        return input.trim().equals(CONFIRM_WORD);
+    }
 
     /**
      * Returns whether a command is waiting for confirmation.
