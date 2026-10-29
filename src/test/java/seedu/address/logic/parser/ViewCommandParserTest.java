@@ -26,12 +26,16 @@ public class ViewCommandParserTest {
         assertParseFailure(parser, "", expectedMessage);
         assertParseFailure(parser, "abc", expectedMessage);
         assertParseFailure(parser, "1 extra", expectedMessage);
-        assertParseFailure(parser, Long.toString((long) Integer.MAX_VALUE + 1), expectedMessage);
     }
 
     @Test
     public void parse_nonPositiveIndex_throwsIndexError() {
         assertParseFailure(parser, "0", MESSAGE_INVALID_INDEX);
         assertParseFailure(parser, "-1", MESSAGE_INVALID_INDEX);
+    }
+
+    @Test
+    public void parse_integerTooBigForInt_throwsIndexError() {
+        assertParseFailure(parser, "99999999999", MESSAGE_INVALID_INDEX);
     }
 }

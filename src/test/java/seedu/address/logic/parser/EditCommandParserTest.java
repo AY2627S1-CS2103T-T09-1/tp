@@ -178,6 +178,11 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_integerTooBigForInt_throwsIndexError() {
+        assertParseFailure(parser, "99999999999" + NAME_DESC_AMY, MESSAGE_INVALID_INDEX);
+    }
+
+    @Test
     public void parse_prefixWithoutSpace_failure() {
         String hint = Messages.MESSAGE_PREFIX_WITHOUT_SPACE_HINT;
         assertParseFailure(parser, "1 n/John Doep/98765432",

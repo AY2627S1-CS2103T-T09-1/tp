@@ -34,8 +34,7 @@ import seedu.address.model.tag.Tag;
  */
 public class ParserUtil {
 
-    public static final String MESSAGE_INVALID_INDEX =
-            "Index must be a positive integer shown in the displayed student list.";
+    public static final String MESSAGE_INVALID_INDEX = Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX;
 
     public static final String MESSAGE_INVALID_NID = "NID must be a positive integer.";
 
@@ -45,7 +44,7 @@ public class ParserUtil {
 
     private static final String LINE_BREAK = "\n";
 
-    private static final String NON_POSITIVE_INTEGER_REGEX = "-\\d+|0+";
+    private static final String INTEGER_REGEX = "-?\\d+";
 
     private static final String SLASH = "/";
 
@@ -82,11 +81,11 @@ public class ParserUtil {
     }
 
     /**
-     * Returns true if {@code value} is a whole number that is zero or negative.
+     * Returns true if {@code value} is an integer.
      */
-    public static boolean isNonPositiveInteger(String value) {
+    public static boolean isInteger(String value) {
         requireNonNull(value);
-        return value.trim().matches(NON_POSITIVE_INTEGER_REGEX);
+        return value.trim().matches(INTEGER_REGEX);
     }
 
     /**

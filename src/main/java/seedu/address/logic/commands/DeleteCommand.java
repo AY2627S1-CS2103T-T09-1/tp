@@ -6,6 +6,7 @@ import java.util.List;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.ToStringBuilder;
+import seedu.address.logic.Messages;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.model.Model;
 import seedu.address.model.person.Person;
@@ -35,7 +36,7 @@ public class DeleteCommand extends Command implements ConfirmationCommand {
     public static final String MESSAGE_INVALID_FORMAT = "Invalid format. Usage: " + COMMAND_WORD
             + " [-f] INDEX";
 
-    public static final String MESSAGE_INVALID_STUDENT_INDEX = "The student index provided is invalid.";
+    public static final String MESSAGE_INVALID_STUDENT_INDEX = Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX;
 
     private final Index targetIndex;
     private final boolean isForced;

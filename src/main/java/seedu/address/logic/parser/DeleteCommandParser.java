@@ -9,8 +9,6 @@ import seedu.address.logic.parser.exceptions.ParseException;
  */
 public class DeleteCommandParser implements Parser<DeleteCommand> {
 
-    private static final String DIGITS_REGEX = "\\d+";
-
     /**
      * Parses the given {@code String} of arguments in the context of the DeleteCommand
      * and returns a DeleteCommand object for execution.
@@ -34,16 +32,14 @@ public class DeleteCommandParser implements Parser<DeleteCommand> {
 
     /**
      * Returns the error for an index that could not be parsed.
-     * A positive whole number too big to store cannot match any student, so it is reported as an invalid index.
+     * Integer values that cannot identify a displayed student, including zero, negative values, and values too large
+     * to store, keep the shared index error. Other values use the command format error.
      */
-    private static ParseException createParseException(String trimmedArgs, ParseException cause) {
-        if (ParserUtil.isNonPositiveInteger(trimmedArgs)) {
+    private static ParseException createParseException(String indexArgument, ParseException cause) {
+        if (ParserUtil.isInteger(indexArgument)) {
             return cause;
         }
-        if (!trimmedArgs.matches(DIGITS_REGEX)) {
-            return new ParseException(DeleteCommand.MESSAGE_INVALID_FORMAT, cause);
-        }
-        return new ParseException(DeleteCommand.MESSAGE_INVALID_STUDENT_INDEX, cause);
+        return new ParseException(DeleteCommand.MESSAGE_INVALID_FORMAT, cause);
     }
 
 }

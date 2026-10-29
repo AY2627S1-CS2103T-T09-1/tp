@@ -49,7 +49,7 @@ public class EditCommandParser implements Parser<EditCommand> {
         try {
             index = ParserUtil.parseIndex(indexArgument);
         } catch (ParseException pe) {
-            if (ParserUtil.isNonPositiveInteger(indexArgument)) {
+            if (ParserUtil.isInteger(indexArgument)) {
                 throw pe;
             }
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditCommand.MESSAGE_USAGE), pe);

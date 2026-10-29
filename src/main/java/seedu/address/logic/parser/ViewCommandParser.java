@@ -21,7 +21,7 @@ public class ViewCommandParser implements Parser<ViewCommand> {
             Index index = ParserUtil.parseIndex(args);
             return new ViewCommand(index);
         } catch (ParseException pe) {
-            if (ParserUtil.isNonPositiveInteger(args)) {
+            if (ParserUtil.isInteger(args)) {
                 throw pe;
             }
             throw new ParseException(
