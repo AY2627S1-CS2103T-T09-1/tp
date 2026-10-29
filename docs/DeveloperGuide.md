@@ -1194,21 +1194,28 @@ testers are expected to do more *exploratory* testing.
 
 ### Launch and shutdown
 
-1. Initial launch
+1. First launch and relaunch
 
-   1. Download the JAR file and copy it into an empty folder.
+   1. Prerequisites: Download `TuteeBook3.jar` and copy it into an empty folder. Open a terminal in that folder.
 
-   1. Double-click the JAR file.<br>
-      Expected: The GUI opens with a set of sample contacts. The window size may not be optimal.
+   1. Run `java -jar TuteeBook3.jar`.<br>
+      Expected: The GUI opens with a set of sample students. The folder now contains `preferences.json`.
+
+   1. Enter `add n/Manual Test Student sch/Victoria School lvl/S2 sub/Mathematics band/G1`.<br>
+      Expected: Manual Test Student is added, and `data/addressbook.json` is created.
+
+   1. Close the window, and run `java -jar TuteeBook3.jar` again. Enter `filter n/Manual Test Student`.<br>
+      Expected: Manual Test Student appears in the student list, showing that the saved data was loaded after relaunch.
 
 1. Saving window preferences
 
-   1. Resize the window to an optimal size. Move the window to a different location. Close the window.
+   1. Prerequisites: Launch TuteeBook3 as described in the previous test.
 
-   1. Relaunch the app by double-clicking the JAR file.<br>
-       Expected: The most recent window size and location are retained.
+   1. Resize the window, move it to a different location, and close it.<br>
+      Expected: `preferences.json` remains in the folder containing `TuteeBook3.jar`.
 
-1. _{ more test cases …​ }_
+   1. Run `java -jar TuteeBook3.jar` again.<br>
+      Expected: The window opens at the most recently saved size and location.
 
 ### Deleting a person
 
@@ -1222,10 +1229,17 @@ testers are expected to do more *exploratory* testing.
    1. Test case: `delete 0`<br>
       Expected: No person is deleted. The status message shows error details.
 
-   1. Other incorrect delete commands to try: `delete`, `delete x`, `...` (where x is larger than the list size)<br>
-      Expected: Similar to previous.
+   1. Test case: `delete`<br>
+      Expected: No person is deleted. The status message shows `Invalid format. Usage: delete [-f] INDEX`.
 
-1. _{ more test cases …​ }_
+   1. Test case: `delete x`<br>
+      Expected: No person is deleted. The status message shows `Invalid format. Usage: delete [-f] INDEX`.
+
+   1. Test case: `delete 99999999999`<br>
+      Expected: No person is deleted. The status message shows `The student index provided is invalid.`
+
+   1. Test case: `delete 999`, when the list contains fewer than 999 persons<br>
+      Expected: No person is deleted. The status message shows `The student index provided is invalid.`
 
 ### Adding and editing a guardian
 
@@ -1322,8 +1336,59 @@ testers are expected to do more *exploratory* testing.
 
 ### Saving data
 
-1. Dealing with missing/corrupted data files
+The following tests intentionally change the data file. Use test data only, close TuteeBook3 before editing a file unless a step says otherwise, and keep a backup outside the `data` folder.
 
-   1. _{Explain how to simulate missing or corrupted data files and state the expected behavior.}_
+1. Starting with a missing data file
 
-1. _{ more test cases …​ }_
+   1. Prerequisites: Complete the first launch test so that `data/addressbook.json` contains Manual Test Student. Close TuteeBook3, and move `data/addressbook.json` to a backup outside the `data` folder.
+
+   1. Run `java -jar TuteeBook3.jar` without entering any command.<br>
+      Expected: TuteeBook3 starts with the sample students because `data/addressbook.json` is missing. Merely launching the app does not create a replacement `data/addressbook.json`.
+
+   1. Close the window using its close button.<br>
+      Expected: The backup remains unchanged, and `data/addressbook.json` is still missing.
+
+1. Starting with malformed JSON
+
+   1. Prerequisites: Restore a valid `data/addressbook.json`, copy it to a backup outside the `data` folder, and close TuteeBook3. Replace the entire contents of `data/addressbook.json` with `{`.
+
+   1. Run `java -jar TuteeBook3.jar` without entering any command.<br>
+      Expected: TuteeBook3 opens with an empty student list because the JSON cannot be read.
+
+   1. Close the window using its close button, and open `data/addressbook.json` in a text editor.<br>
+      Expected: The file still contains `{`; TuteeBook3 did not overwrite the malformed file during launch or shutdown.
+
+1. Starting with an invalid field in otherwise valid JSON
+
+   1. Prerequisites: Restore a valid `data/addressbook.json`, copy it to a backup outside the `data` folder, and close TuteeBook3. In the first student object, change the value of `"level"` to `"S6"` without changing any other JSON.
+
+   1. Run `java -jar TuteeBook3.jar` without entering any command.<br>
+      Expected: TuteeBook3 opens with an empty student list because `S6` is not a valid secondary school level.
+
+   1. Close the window using its close button, and inspect `data/addressbook.json`.<br>
+      Expected: The first student's level is still `S6`; TuteeBook3 did not overwrite the invalid file during launch or shutdown.
+
+1. Handling a save-permission failure
+
+   1. Prerequisites: Restore a valid `data/addressbook.json` that does not contain Permission Test Student, and launch TuteeBook3.
+
+   1. While TuteeBook3 is open, remove write permission from `data/addressbook.json`. On macOS or Linux, run `chmod u-w data/addressbook.json`. On Windows, open the file's **Properties**, use the **Security** tab to deny your account **Write** permission, and apply the change.
+
+   1. Enter `add n/Permission Test Student sch/Victoria School lvl/S2 sub/Mathematics band/G1`.<br>
+      Expected: Permission Test Student appears in the current student list, but the result display reports that TuteeBook3 could not save `data/addressbook.json` because it lacks permission to write to the file or folder. The file on disk remains unchanged.
+
+   1. Restore write permission. On macOS or Linux, run `chmod u+w data/addressbook.json`. On Windows, remove the **Deny** setting added in the previous step. Close the window using its close button, relaunch TuteeBook3, and enter `filter n/Permission Test Student`.<br>
+      Expected: No student matches because the failed change was not saved.
+
+1. Recovering without overwriting the original data
+
+   1. Prerequisites: Restore a valid `data/addressbook.json`, copy it to a backup outside the `data` folder, and close TuteeBook3. Replace the entire contents of `data/addressbook.json` with `{`.
+
+   1. Run `java -jar TuteeBook3.jar`.<br>
+      Expected: TuteeBook3 opens with an empty student list.
+
+   1. Do not enter any command, including `exit`. Close the window using its close button.<br>
+      Expected: The malformed `data/addressbook.json` still contains `{`.
+
+   1. Rename the malformed file to `data/addressbook.invalid.json`, copy the backup to `data/addressbook.json`, and run `java -jar TuteeBook3.jar` again.<br>
+      Expected: The students from the backup appear. The malformed original remains available as `data/addressbook.invalid.json` for inspection.
