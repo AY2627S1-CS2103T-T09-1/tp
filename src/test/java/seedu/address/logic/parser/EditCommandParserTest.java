@@ -43,6 +43,8 @@ import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_THIRD_PERSON;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.index.Index;
@@ -70,19 +72,22 @@ public class EditCommandParserTest {
     @Test
     public void parse_schoolOnly_success() {
         EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
-                .withSchool("St. John's Secondary School").build();
-        assertParseSuccess(parser, "1 sch/  St. John's Secondary School  ",
+                .withSchool("St Josephs Secondary School").build();
+        assertParseSuccess(parser, "1 sch/  St Josephs Secondary School  ",
                 new EditCommand(INDEX_FIRST_PERSON, descriptor));
     }
 
     @Test
-    public void parse_schoolWithBracketsAndComma_success() {
-        String[] schools = {"Anglo-Chinese School (Independent)", "School of Science and Technology, Singapore"};
-        for (String school : schools) {
-            EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withSchool(school).build();
-
-            assertParseSuccess(parser, "1 sch/" + school, new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    public void parse_schoolWithUnsupportedCharacters_failure() {
+        for (String school : List.of("École Française", "St Josephs School.",
+                "Anglo Chinese School (Independent)", "School & Technology")) {
+            assertParseFailure(parser, "1 sch/" + school, School.MESSAGE_CONSTRAINTS);
         }
+    }
+
+    @Test
+    public void parse_nonAsciiName_failure() {
+        assertParseFailure(parser, "1 n/Zoë Lim", Name.MESSAGE_CONSTRAINTS);
     }
 
     @Test
@@ -142,6 +147,7 @@ public class EditCommandParserTest {
     @Test
     public void parse_invalidSchool_failure() {
         assertParseFailure(parser, "1 sch/  ", School.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1 sch/École Française", School.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, "1 sch/School sch/Other School",
                 Messages.getErrorMessageForDuplicatePrefixes(PREFIX_SCHOOL));
     }

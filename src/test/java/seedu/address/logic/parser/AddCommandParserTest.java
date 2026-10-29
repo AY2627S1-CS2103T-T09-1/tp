@@ -83,14 +83,18 @@ public class AddCommandParserTest {
     }
 
     @Test
-    public void parse_schoolWithBracketsAndComma_success() {
-        String[] schools = {"Anglo-Chinese School (Independent)", "School of Science and Technology, Singapore"};
-        for (String school : schools) {
-            Person expectedPerson = new PersonBuilder(BOB).withSchool(school).build();
-            String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + " sch/" + school + SUBJECT_DESC;
-
-            assertParseSuccess(parser, details, new AddCommand(expectedPerson));
+    public void parse_schoolWithUnsupportedCharacters_failure() {
+        String person = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB;
+        for (String school : List.of("École Française", "St Josephs School.",
+                "Anglo Chinese School (Independent)", "School & Technology")) {
+            assertParseFailure(parser, person + " sch/" + school + SUBJECT_DESC, School.MESSAGE_CONSTRAINTS);
         }
+    }
+
+    @Test
+    public void parse_nonAsciiName_failure() {
+        String details = PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + SUBJECT_DESC;
+        assertParseFailure(parser, " n/Zoë Lim" + details, Name.MESSAGE_CONSTRAINTS);
     }
 
     @Test

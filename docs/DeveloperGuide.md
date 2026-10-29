@@ -203,6 +203,30 @@ The required subject and band are deliberately excluded from the key. A student 
 
 Every student record must include a name, school, and level. Many tutors teach students with common names. School helps distinguish students who attend different schools. Level helps distinguish students at the same school who are in different levels. These fields block many accidental repeat entries while still allowing students with the same name when their school or level differs.
 
+### Student names and schools
+
+`Name` and `School` use the same character rule: a value starts with an ASCII letter or digit and contains only ASCII letters (`A`–`Z` and `a`–`z`), digits (`0`–`9`), and spaces. This rejects Unicode letters, including accented letters, and punctuation. Names have no separate length limit; school names must be 1 to 100 characters. The parsers trim and collapse ordinary spaces before constructing these values. Direct model construction and JSON loading use the same validators.
+
+The ASCII-only rule also applies to existing data files. A file containing an older name or school with Unicode characters or punctuation fails validation when loaded, with the relevant field constraint. Users must edit those records in the previous version before upgrading.
+
+#### Design considerations
+
+**Aspect: Character rules for names and schools**
+
+* **Alternative 1: Allow Unicode letters and digits in both fields.**
+  * Pros: Preserves names and school names in their original writing systems and supports accented spellings.
+  * Cons: Does not match the User Guide's existing definition of alphanumeric as ASCII `A`–`Z` and `0`–`9`. It also broadens values accepted by both fields and changes the documented rule.
+
+* **Alternative 2: Keep separate rules for the two fields.**
+  * Pros: Lets each field accept punctuation or Unicode characters that are common in its values.
+  * Cons: Repeats the current inconsistency: the same accented letter can be accepted in a school but rejected in a student's name. Users must remember different character rules for two required text fields.
+
+* **Alternative 3 (chosen): Allow only ASCII letters, digits, and spaces in both fields.**
+  * Pros: Gives names and school names one predictable rule, matches the documented meaning of alphanumeric, and keeps input, model, and storage validation consistent.
+  * Cons: Rejects accurately written names and school names that use accents, other writing systems, or punctuation. Existing records with those characters must be converted before upgrading; spelling details such as apostrophes and hyphens cannot be stored as typed.
+
+The third option was selected to remove the reported name-school mismatch and make the supported character set explicit and consistent. The limitation is stated in the User Guide, including the required preparation for existing data files.
+
 ### Student subjects and bands
 
 Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `G2`, or `G3`. Subject names can contain 1 to 40 letters, spaces, or hyphens and must contain at least one letter. A student cannot have the same subject name more than once, even at different bands.

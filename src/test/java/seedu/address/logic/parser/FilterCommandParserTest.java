@@ -109,7 +109,7 @@ public class FilterCommandParserTest {
     }
 
     @Test
-    public void parse_schoolWithSymbols_returnsFilterCommand() {
+    public void parse_schoolSearchWithSymbols_returnsFilterCommand() {
         assertParseSuccess(parser, " sch/St. Nicholas Girls’",
                 filterCommandOf(school("St. Nicholas Girls’")));
         assertParseSuccess(parser, " sch/Cedar Girls'", filterCommandOf(school("Cedar Girls'")));
