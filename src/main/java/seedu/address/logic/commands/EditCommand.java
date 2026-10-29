@@ -72,10 +72,11 @@ public class EditCommand extends Command implements ConfirmationCommand {
             + PREFIX_LEVEL + "S3";
 
     public static final String MESSAGE_EDIT_PERSON_SUCCESS = "Edited student: %1$s";
-    public static final String MESSAGE_NO_LONGER_MATCHES = "%1$s no longer matches your last search, "
-            + "but stays in the list until you enter list or filter.";
+    public static final String MESSAGE_NO_LONGER_MATCHES = "%1$s at %2$s (%3$s) no longer matches your last "
+            + "search, but stays in the list until you enter list or filter.";
     public static final String MESSAGE_NOT_EDITED = "At least one field to edit must be provided.";
-    public static final String MESSAGE_NO_CHANGES = "No changes made: %1$s already has these details.";
+    public static final String MESSAGE_NO_CHANGES =
+            "No changes made: %1$s at %2$s (%3$s) already has these details.";
     public static final String MESSAGE_DUPLICATE_PERSON =
             "Another student named %1$s at %2$s, level %3$s already exists. If these are different students, "
                     + "edit the name to include an identifier, for example Chloe Tan 2.";
@@ -146,8 +147,8 @@ public class EditCommand extends Command implements ConfirmationCommand {
         Person personToEdit = getTargetPerson(model);
         Person editedPerson = createEditedPerson(personToEdit, editPersonDescriptor);
         if (editedPerson.equals(personToEdit)) {
-            return CommandResult.showStudentWarning(String.format(MESSAGE_NO_CHANGES, personToEdit.getName()),
-                    personToEdit, index);
+            return CommandResult.showStudentWarning(String.format(MESSAGE_NO_CHANGES, personToEdit.getName(),
+                    personToEdit.getSchool(), personToEdit.getLevel()), personToEdit, index);
         }
         ensureNoExactDuplicate(editedPerson, getOtherPersons(model, personToEdit));
 
@@ -156,7 +157,8 @@ public class EditCommand extends Command implements ConfirmationCommand {
         model.setPerson(personToEdit, editedPerson);
         String feedback = String.format(MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson));
         if (isOutsideFilter) {
-            feedback += "\n" + String.format(MESSAGE_NO_LONGER_MATCHES, editedPerson.getName());
+            feedback += "\n" + String.format(MESSAGE_NO_LONGER_MATCHES, editedPerson.getName(),
+                    editedPerson.getSchool(), editedPerson.getLevel());
         }
         CommandResult result = CommandResult.showStudent(feedback, editedPerson, index);
         // only warn about phones typed in this command, not ones the person already had
