@@ -466,6 +466,23 @@ public class FilterCommandParserTest {
     }
 
     @Test
+    public void parse_addressWithJoinedPrefix_reportsCaseSensitivePrefix() {
+        assertParseFailure(parser, " a/Blk 1/2P/91234567",
+                String.format(Messages.MESSAGE_PREFIX_CASE_SENSITIVE, "P/", "p/"));
+    }
+
+    @Test
+    public void parse_addressWithOrdinarySlash_success() {
+        assertParseSuccess(parser, " a/Blk 1/2", filterCommandOf(address("Blk 1/2")));
+    }
+
+    @Test
+    public void parse_addressWithJoinedLowercasePrefix_reportsMissingSpace() {
+        assertParseFailure(parser, " a/Blk 1/2p/91234567",
+                String.format(Messages.MESSAGE_MISSING_SPACE_BEFORE_PREFIX, "p/"));
+    }
+
+    @Test
     public void parse_blankAddress_throwsParseException() {
         assertParseFailure(parser, " a/", FilterCommandParser.MESSAGE_BLANK_ADDRESS);
         assertParseFailure(parser, " n/avi a/   ", FilterCommandParser.MESSAGE_BLANK_ADDRESS);

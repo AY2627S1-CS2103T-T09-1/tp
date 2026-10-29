@@ -54,6 +54,12 @@ public class EditCommandParser implements Parser<EditCommand> {
         argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_ADDRESS, PREFIX_EMAIL,
                 PREFIX_LEVEL, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE);
 
+        if (argMultimap.getValue(PREFIX_ADDRESS).isPresent()) {
+            AddressPrefixChecker.verifyNoJoinedPrefix(argMultimap.getValue(PREFIX_ADDRESS).get(), PREFIX_NAME,
+                    PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_ADDRESS, PREFIX_EMAIL, PREFIX_LEVEL, PREFIX_SUBJECT,
+                    PREFIX_BAND, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE, PREFIX_TAG);
+        }
+
         EditPersonDescriptor editPersonDescriptor = new EditPersonDescriptor();
 
         if (argMultimap.getValue(PREFIX_NAME).isPresent()) {

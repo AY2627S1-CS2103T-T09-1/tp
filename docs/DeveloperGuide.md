@@ -518,36 +518,46 @@ The partial-match predicates (`n/`, `sch/`, `e/`, `a/`, `gn/`, `note/`) use `Str
 
 ### Hint for a missing space before a prefix
 
-`ArgumentTokenizer` treats a prefix as a prefix only when a space comes before it. In `add n/John Doep/98765432 ...`, `p/98765432` becomes part of the name, so without a hint the user would see a name error that doesn't mention the missing space.
+`ArgumentTokenizer` treats a prefix as a prefix only when a space comes before it. In `add n/John Doep/98765432 ...`, `p/98765432` becomes part of the name, so without a hint the user would see a name error that doesn't mention the missing space. Prefixes are also case-sensitive: `P/` is not the same prefix as `p/`.
 
 #### Implementation
 
-1. `ParserUtil#getSlashHint` returns a hint if a value contains `/`: `If "/" was meant to start a new parameter, check that each prefix is one this command accepts and has a space before it.` The hint does not name a prefix or quote the value.
+1. `ParserUtil#getSlashHint` returns a general hint if a slash appears in a value that cannot contain `/`. The hint does not name a prefix or quote the value.
 1. When a value in `add` or `edit` fails its usual check, `ParserUtil#withSlashHint` adds the hint on a new line after the usual error. This applies to the name, phone numbers, school, email, level, subject, band, guardian name, and tags. None of these values can contain `/`, so a `/` in them is either a missing space or a character the field doesn't allow, and the hint helps in both cases.
 1. Some joined prefixes cause a misleading error before the value is checked. In `gn/Mary Tangp/91234567`, the guardian phone seems missing; in `gp/91234567gn/Mary Tan`, the guardian name seems missing; and in `sub/Englishband/G1`, the band seems missing. So `AddCommandParser` checks the guardian name and phone for `/` before checking that `gn/` and `gp/` are given together, and `AddCommandParser` and `EditCommandParser` call `ParserUtil#verifySubjectNamesHaveNoSlash` before checking that each `sub/` has a `band/`.
 1. `FilterCommandParser` rejects `/` in `n/`, `sch/`, `e/`, and `gn/`, with the hint. These values cannot contain `/`, so a search such as `Tangp/91234567` or `Rajesh s/o Kumar` could never match a student. The `sub/` filter adds the hint to the subject error.
 
-Addresses can contain `/`, such as `Blk 1/2`, so they never get a hint. The User Guide lists this as a known issue. Notes can also contain `/`, but `note/` takes the rest of the command, so no prefix can follow it.
+1. Addresses can contain `/`, such as `Blk 1/2`, so the general slash hint would reject valid values. `AddressPrefixChecker` instead examines each slash in an address for a known prefix accepted by the current command. It matches the prefix letters without regard to case, then validates the remaining text with the parser for that field. It reports a case-sensitive-prefix error when the entered capitalization differs, or a missing-space error when the spelling is correct. It does not inspect the same `a/` prefix again.
+1. `AddCommandParser` and `EditCommandParser` pass their accepted prefixes to `AddressPrefixChecker` before parsing the address. `FilterCommandParser` does the same for its address filter, including `note/`, whose trailing-text behavior is preserved. This check does not alter address text; it only rejects a likely joined parameter. A legitimate address segment that happens to be followed by a known prefix and valid field value can be interpreted as a missing space.
+1. Notes can contain `/`, but `note/` takes the rest of the command, so a parameter after a note is not possible.
 
 #### Design considerations
 
-**Aspect: How to handle a prefix with no space before it**
+**Aspect: How to detect a parameter joined to an address**
 
-* **Alternative 1 (current choice):** Keep the value as typed, and add a hint to its error.
-  * Pros: The app never changes what the user typed without telling them. A hint appears only when the value is already invalid.
-  * Cons: The user has to retype the command.
+* **Alternative 1:** Match the exact lowercase prefix before `/`, without checking the text after it.
+  * Pros: Simple and does not mistake differently-cased text for a prefix.
+  * Cons: Does not identify a common uppercase or mixed-case typo such as `P/`, and can still mistake an address segment that ends in a lowercase prefix for a parameter.
 
-* **Alternative 2:** Split the value at the prefix automatically.
-  * Pros: The user does not need to retype.
-  * Cons: The parser has to guess where the value ends. A wrong guess saves the wrong data without an error.
+* **Alternative 2:** Match a known prefix ignoring case, without checking the text after it.
+  * Pros: Catches misspelled capitalization consistently.
+  * Cons: Can reject a valid address simply because text after `/` starts with letters that look like a prefix, even when the rest is not a valid value for that field.
 
-**Aspect: Whether the hint names the prefix**
+* **Alternative 3 (current choice):** Match a known prefix ignoring case, then check whether the remaining text is valid for that field.
+  * Pros: Catches lowercase joined prefixes and capitalization mistakes, while allowing ordinary slashes such as `Blk 1/2`. It can give a targeted case-sensitive message for `P/` and a missing-space message for `p/`.
+  * Cons: An unusual but legitimate address can still look exactly like a prefix followed by a valid field value, so the parser may ask for a space. It does not guess how to split or silently change the address.
+
+* **Alternative 4:** Split the address at any known prefix automatically.
+  * Pros: The user may not need to retype a command when the intended split is clear.
+  * Cons: The parser can guess incorrectly and save or search for different values from what the user entered.
+
+**Aspect: Whether the error identifies a prefix**
 
 * **Alternative 1:** Find a known prefix in the word, and name the one that starts first.
   * Pros: More specific when it is right. For `Doep/98765432`, it says to put a space before `p/`.
   * Cons: The same word can come from different mistakes. In `n/Alex Ngp/91234567`, the user meant the name `Alex Ng` and `p/`, but `gp/` starts first. In `p/91234567gp/92345678`, the user meant `gp/`. No rule gets both right, and following a wrong hint leads to a second, unrelated error. It also misses a `/` that is not a prefix, such as `s/o`, and each command needs its own list of prefixes.
 
-* **Alternative 2 (current choice):** Show a fixed hint whenever the value contains `/`, without naming a prefix.
+* **Alternative 2 (current choice for fields that cannot contain `/`):** Show a fixed hint whenever the value contains `/`, without naming a prefix.
   * Pros: Never wrong, since it only asks the user to check their prefixes. It also covers an unknown prefix and a `/` that is not a prefix, and needs no list of prefixes.
   * Cons: Less specific. The user has to find the mistake in the command themselves.
 

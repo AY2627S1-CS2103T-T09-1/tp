@@ -129,6 +129,25 @@ public class AddCommandParserTest {
     }
 
     @Test
+    public void parse_addressWithJoinedPrefix_reportsCaseSensitivePrefix() {
+        String args = NAME_DESC_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB + " a/Blk 1/2P/91234567" + SUBJECT_DESC;
+        assertParseFailure(parser, args, String.format(Messages.MESSAGE_PREFIX_CASE_SENSITIVE, "P/", "p/"));
+    }
+
+    @Test
+    public void parse_addressWithOrdinarySlashAndSeparatedPrefix_success() {
+        Person expectedPerson = new PersonBuilder(BOB).withAddress("Blk 1/2").build();
+        assertParseSuccess(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB
+                + " a/Blk 1/2" + PHONE_DESC_BOB + SUBJECT_DESC, new AddCommand(expectedPerson));
+    }
+
+    @Test
+    public void parse_addressWithJoinedLowercasePrefix_reportsMissingSpace() {
+        String args = NAME_DESC_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB + " a/Blk 1/2p/91234567" + SUBJECT_DESC;
+        assertParseFailure(parser, args, String.format(Messages.MESSAGE_MISSING_SPACE_BEFORE_PREFIX, "p/"));
+    }
+
+    @Test
     public void parse_blankAddress_failure() {
         assertParseFailure(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + " a/ " + LEVEL_DESC_BOB + SUBJECT_DESC,
                 Address.MESSAGE_CONSTRAINTS);

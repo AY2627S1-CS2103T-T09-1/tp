@@ -63,18 +63,30 @@ edit 2 p/91234567 sub/Mathematics band/G2
 * **Prefix**: a short label ending in `/`, such as `p/` for phone. It tells TuteeBook3 what the value after it is.
 * **Value**: what you type after a prefix, such as `91234567`.
 
-**Put a space before every prefix.** Without one, TuteeBook3 reads the prefix as part of the value before it:
+**Prefixes are case-sensitive and must be written as shown. Put a space before every prefix.** Without a space,
+TuteeBook3 reads the prefix as part of the value before it:
 
 You type | TuteeBook3 reads
 ---------|-----------------
 `add n/John Doe p/98765432 ...` | name `John Doe`, phone `98765432`
 `add n/John Doep/98765432 ...` | name `John Doep/98765432`, which is not a valid name
 
-When a value contains `/`, the error also asks you to check that each prefix is one the command accepts and has a space before it. There are three exceptions:
+When a value that cannot contain `/` contains one, the error also asks you to check that each prefix is one the
+command accepts and has a space before it. For addresses, which can contain `/`, TuteeBook3 checks whether a known
+prefix and a valid value for that field appear immediately after a slash. If they do, it reports the missing space
+instead of saving or searching the joined text as part of the address.
 
-* In `add`, if the joined prefix is a required one (`n/`, `sch/`, `lvl/`, or `sub/`), the error says that parameter is missing.
-* In `edit`, a joined `sub/` gives the missing `sub/` error when `band/` is given.
-* Addresses can contain `/`, so a missing space before the prefix after an address is not detected. See [Known issues](#known-issues).
+In `add`, if a required prefix (`n/`, `sch/`, `lvl/`, or `sub/`) is joined to the value before it, the error may
+instead say that the parameter is missing. In `edit`, a joined `sub/` may produce the missing `sub/` error when
+`band/` is present.
+
+For example, `a/Blk 1/2` remains a valid address. But `a/Blk 1/2P/91234567` produces a red error explaining that
+`P/` is case-sensitive and must be written as `p/` with a space before it. `a/Blk 1/2p/91234567` produces a red
+error asking for a space before `p/`. Write `a/Blk 1/2 p/91234567` to give both values correctly. The same check
+applies to `add`, `edit`, and `filter a/...`.
+
+This check uses the text after the candidate prefix to avoid rejecting ordinary address slashes. An address whose
+text after a slash happens to be a valid value for a known field prefix may still be treated as a joined prefix.
 
 ### Confirming a command
 
@@ -737,13 +749,6 @@ Furthermore, certain edits can cause TuteeBook3 to behave in unexpected ways (e.
 ## Known issues
 
 1. **When using multiple screens**, if you move the application to a secondary screen, and later switch to using only the primary screen, the GUI will open off-screen. The remedy is to delete the `preferences.json` file created by the application before running the application again.
-
-1. **A missing space before a parameter is not detected in an address.** Addresses can contain `/`, such as `Blk 1/2`, so TuteeBook3 keeps the text as typed:
-
-Where | Example | What happens | Remedy
-------|---------|--------------|-------
-`a/ADDRESS` in `add` or `edit` | `add ... a/Blk 1e/chloe@example.com` | The student is added with the address `Blk 1e/chloe@example.com` and no email. | Check the student with `view`, then fix it with `edit INDEX a/Blk 1 e/chloe@example.com`.
-`a/ADDRESS` in `filter` | `filter a/Bedoksch/Victoria` | TuteeBook3 searches addresses for `Bedoksch/Victoria` and shows `0 students listed!`. | Put a space before `sch/` and filter again.
 
 --------------------------------------------------------------------------------------------------------------------
 
