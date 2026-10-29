@@ -116,19 +116,19 @@ These are the values you type in commands. The table below covers the student de
 
 Parameters can be given in any order, except that each `sub/SUBJECT` must be immediately followed by its `band/BAND`. For example, `sub/Mathematics band/G1 lvl/S3` is valid, but `sub/Mathematics lvl/S3 band/G1` is not.
 
-Parameter | Prefix | Required in `add` | Rules | Example
+Parameter | Prefix | Required in `add` | Rules | Examples
 ----------|--------|-------------------|-------|--------
-`NAME` | `n/` | Yes | English letters, digits, and spaces only. Symbols such as `/`, `-`, and `'` aren't supported yet, so type `Rajesh s/o Kumar` as `Rajesh so Kumar`. | `John Doe`
-`PHONE` | `p/` | No | 3 to 15 digits, with an optional `+` at the start. See [Phone numbers](#phone-numbers). | `9123 4567`
-`SCHOOL` | `sch/` | Yes | 1 to 100 characters: letters, spaces, `.`, `'`, and `-`, with at least one letter. Digits and brackets aren't allowed. | `St. Andrew's School`
-`ADDRESS` | `a/` | No | Any text up to 200 characters. | `Blk 123 Bedok North Avenue 2, #04-111`
-`EMAIL` | `e/` | No | Up to 254 characters, in the form `local-part@domain`. See [Emails](#emails). | `chloe.tan@example.com`
-`LEVEL` | `lvl/` | Yes | `S1`, `S2`, `S3`, `S4`, or `S5`, in any case. | `S3`
-`SUBJECT` | `sub/` | Yes, 1 to 8 | 1 to 40 characters: letters, spaces, and hyphens, with at least one letter. A subject can't appear twice, ignoring case and extra spaces. See [Subjects and bands](#subjects-and-bands). | `Mathematics`
-`BAND` | `band/` | Yes, after each `sub/` | `G1`, `G2`, or `G3`, in any case. Shown in uppercase. Must come right after its `sub/`. | `G1`
-`GUARDIAN_NAME` | `gn/` | No, but give both `gn/` and `gp/` or neither | Same rules as `NAME`. | `Mary Tan`
-`GUARDIAN_PHONE` | `gp/` | No, but give both `gn/` and `gp/` or neither | Same rules as `PHONE`. | `91234567`
-`TAG` | `t/` | No, any number | One word of 1 to 30 English letters or digits. Single hyphens may join parts of the word. A student can't have the same tag twice, ignoring case. See [Tags](#tags). | `O-level`
+`NAME` | `n/` | Yes | English letters, digits, and spaces only. Symbols such as `/`, `-`, and `'` aren't supported yet. | ✓ `Rajesh so Kumar`<br>✗ `Rajesh s/o Kumar`
+`PHONE` | `p/` | No | 3 to 15 digits, with an optional `+` at the start. See [Phone numbers](#phone-numbers). | ✓ `9123 4567`<br>✗ `12`
+`SCHOOL` | `sch/` | Yes | 1 to 100 characters: letters, spaces, `.`, `'`, and `-`, with at least one letter. Digits and brackets aren't allowed. | ✓ `St. Andrew's School`<br>✗ `Raffles Institution (RI)`
+`ADDRESS` | `a/` | No | Any text up to 200 characters. | ✓ `Blk 123 Bedok North Avenue 2, #04-111`<br>✗ more than 200 characters
+`EMAIL` | `e/` | No | Up to 254 characters, in the form `local-part@domain`. See [Emails](#emails). | ✓ `chloe.tan@example.com`<br>✗ `chloe.tan@`
+`LEVEL` | `lvl/` | Yes | `S1`, `S2`, `S3`, `S4`, or `S5`, in any case. | ✓ `S3`, `s3`<br>✗ `S6`
+`SUBJECT` | `sub/` | Yes, 1 to 8 | 1 to 40 characters: letters, spaces, and hyphens, with at least one letter. A subject can't appear twice, ignoring case and extra spaces. See [Subjects and bands](#subjects-and-bands). | ✓ `Mathematics`<br>✗ `Maths 2`
+`BAND` | `band/` | Yes, after each `sub/` | `G1`, `G2`, or `G3`, in any case. Shown in uppercase. Must come right after its `sub/`. | ✓ `G1`, `g1`<br>✗ `G4`
+`GUARDIAN_NAME` | `gn/` | No, but give both `gn/` and `gp/` or neither | Same rules as `NAME`. | ✓ `Mary Tan`<br>✗ `Mary-Ann Tan`
+`GUARDIAN_PHONE` | `gp/` | No, but give both `gn/` and `gp/` or neither | Same rules as `PHONE`. | ✓ `91234567`<br>✗ `12`
+`TAG` | `t/` | No, any number | One word of 1 to 30 English letters or digits. Single hyphens may join parts of the word. A student can't have the same tag twice, ignoring case. See [Tags](#tags). | ✓ `O-level`<br>✗ `O level`
 
 <div markdown="block" class="alert alert-primary">
 
@@ -204,7 +204,7 @@ Parameter | Prefix | Used in | Rules | Example
 
 ### Managing students
 
-These commands add, change, and remove students.
+These commands add students, edit their details, and remove them.
 
 #### Adding a student: `add`
 
