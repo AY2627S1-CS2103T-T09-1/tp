@@ -180,7 +180,7 @@ The detail panel contains the student's name, school, level, subject-band pairs,
 Format: `view INDEX`
 
 * The index refers to the index number shown in the displayed student list.
-* The index must be a positive integer, such as 1, 2, or 3.
+* The index must be a positive integer no greater than the largest index in the displayed student list. For example, if the list shows indices 1 to 3, you can use 1, 2, or 3.
 * The current search results remain visible on the left while you view the student.
 * Entering `view` again replaces the student record on the right instead of opening another panel.
 * Enter `list` to return to the full student list, or `filter` to display new search results. Both commands clear the selected record and show the empty-state message on the right.
