@@ -13,7 +13,8 @@ public class School {
 
     public static final String MESSAGE_CONSTRAINTS =
             "School names must be 1-100 characters, contain at least one letter, and use only letters, numbers, "
-                    + "spaces, periods (.), apostrophes (' or ’), ampersands (&), parentheses, commas, and hyphens (-).";
+                    + "spaces, periods (.), apostrophes (' or ’), ampersands (&), parentheses, "
+                    + "commas, and hyphens (-).";
     public static final String DEFAULT_VALUE = "Unknown";
     public static final int MAX_LENGTH = 100;
 
