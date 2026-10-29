@@ -17,10 +17,10 @@ public class School {
     public static final int MAX_LENGTH = 100;
 
     /*
-     * Allows Unicode letters, spaces, hyphens, straight and curly apostrophes, and periods.
+     * Allows Unicode letters and numbers, spaces, and common school-name punctuation.
      * Requires at least one letter so punctuation-only school names are rejected.
      */
-    public static final String VALIDATION_REGEX = "(?=.*\\p{L})[\\p{L} .'’-]+";
+    public static final String VALIDATION_REGEX = "(?=.*\\p{L})[\\p{L}\\p{N} .'’&(),-]+";
 
     public final String value;
     private final String comparisonValue;

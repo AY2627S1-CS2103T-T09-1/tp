@@ -20,12 +20,16 @@ public class SchoolTest {
         assertFalse(School.isValidSchool(""));
         assertFalse(School.isValidSchool(" "));
         assertFalse(School.isValidSchool("---"));
-        assertFalse(School.isValidSchool("School123"));
-        assertFalse(School.isValidSchool("School (Independent)"));
+        assertFalse(School.isValidSchool("School/Name"));
+        assertFalse(School.isValidSchool("School #1"));
+        assertFalse(School.isValidSchool("School_Name"));
         assertFalse(School.isValidSchool("a".repeat(101)));
         assertTrue(School.isValidSchool("Unknown"));
         assertTrue(School.isValidSchool("St. Joseph's Institution"));
         assertTrue(School.isValidSchool("Anglo-Chinese School"));
+        assertTrue(School.isValidSchool("École française"));
+        assertTrue(School.isValidSchool("School 123 (Independent), R&D"));
+        assertTrue(School.isValidSchool("School123"));
         assertTrue(School.isValidSchool("a".repeat(100)));
     }
 
