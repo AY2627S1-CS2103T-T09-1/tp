@@ -3,6 +3,8 @@ package seedu.address.logic.parser;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NID;
 
+import java.util.Arrays;
+
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.DeleteNoteCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
@@ -19,7 +21,8 @@ public class DeleteNoteCommandParser implements Parser<DeleteNoteCommand> {
      */
     public DeleteNoteCommand parse(String args) throws ParseException {
         ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(args, PREFIX_NID);
-        if (argMultimap.getPreamble().isEmpty() || argMultimap.getValue(PREFIX_NID).isEmpty()) {
+        if (argMultimap.getPreamble().isEmpty() || argMultimap.getValue(PREFIX_NID).isEmpty()
+                || hasForceOptionAfterNid(argMultimap)) {
             throw new ParseException(
                     String.format(MESSAGE_INVALID_COMMAND_FORMAT, DeleteNoteCommand.MESSAGE_USAGE));
         }
@@ -37,5 +40,15 @@ public class DeleteNoteCommandParser implements Parser<DeleteNoteCommand> {
         argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NID);
         Index nid = ParserUtil.parseNid(argMultimap.getValue(PREFIX_NID).get());
         return new DeleteNoteCommand(index, nid, isForced);
+    }
+
+    /**
+     * Returns true if {@code -f} is typed after {@code nid/}.
+     * The tokenizer reads such an option as part of the NID, so it would otherwise be reported as an invalid NID.
+     */
+    private static boolean hasForceOptionAfterNid(ArgumentMultimap argMultimap) {
+        return argMultimap.getAllValues(PREFIX_NID).stream()
+                .flatMap(nidValue -> Arrays.stream(nidValue.trim().split("\\s+")))
+                .anyMatch(DeleteNoteCommand.FORCE_OPTION::equals);
     }
 }
