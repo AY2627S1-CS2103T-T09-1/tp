@@ -616,7 +616,7 @@ A filter appears more than once | `Multiple values specified for the following s
 
 #### Viewing help: `help`
 
-Shows each available command as a short summary with a minimal example on the next line. Blank lines separate the commands, and the URL of the TuteeBook3 User Guide appears after them. You can also show the same help using the **Help** menu or the F1 keyboard shortcut.
+Shows the URL of the TuteeBook3 User Guide, followed by each available command as a short summary with a minimal example on the next line. Blank lines separate the commands. You can also show the same help using the **Help** menu or the F1 keyboard shortcut.
 
 Format: `help`
 

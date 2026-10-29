@@ -1033,7 +1033,7 @@ Use case ends.
 **MSS**
 
 1. Tutor requests help.
-1. TuteeBook3 shows each available command as a summary followed by a minimal example on the next line, separates commands with blank lines, and shows the User Guide URL as selectable plain text after them.
+1. TuteeBook3 shows the User Guide URL as selectable plain text, followed by each available command as a summary and a minimal example on the next line, with blank lines between commands.
 
     Use case ends.
 

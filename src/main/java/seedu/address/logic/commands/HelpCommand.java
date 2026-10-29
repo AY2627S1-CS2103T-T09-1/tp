@@ -17,6 +17,9 @@ public class HelpCommand extends Command {
             + "Example: " + COMMAND_WORD;
 
     public static final String SHOWING_HELP_MESSAGE = String.join(System.lineSeparator(),
+            "For full details regarding optional inputs, select and copy this URL into your browser:",
+            USER_GUIDE_URL,
+            "",
             "Available commands:",
             "",
             "add - Adds a student.",
@@ -53,10 +56,7 @@ public class HelpCommand extends Command {
             "Example: help",
             "",
             "exit - Exits TuteeBook3.",
-            "Example: exit",
-            "",
-            "For full details regarding optional inputs, select and copy this URL into your browser:",
-            USER_GUIDE_URL);
+            "Example: exit");
 
     @Override
     public CommandResult execute(Model model) {
