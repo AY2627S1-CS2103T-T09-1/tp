@@ -95,9 +95,6 @@ The sequence diagram below illustrates the interactions within the `Logic` compo
 
 ![Interactions Inside the Logic Component for the `delete -f 1` Command](images/DeleteSequenceDiagram.png)
 
-<div markdown="span" class="alert alert-info">:information_source: **Note:** The lifeline for `DeleteCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, it continues to the end of the diagram.
-</div>
-
 How the `Logic` component works:
 
 1. When `Logic` is called upon to execute a command, the command is passed to an `AddressBookParser` object, which in turn creates a parser that matches the command (e.g., `DeleteCommandParser`) and uses it to parse the command.
@@ -111,6 +108,7 @@ Here are the other classes in `Logic` (omitted from the class diagram above) tha
 <img src="images/ParserClasses.png" width="600"/>
 
 How the parsing works:
+* Before parsing, `AddressBookParser` passes the user command through `StringUtil#normalizeInput`. It turns every kind of whitespace, such as a non-breaking space, into a normal space and removes invisible characters, such as a zero-width space. Pasted text is then parsed the same way as typed text, so a prefix after a non-breaking space is still recognized.
 * When called upon to parse a user command, the `AddressBookParser` class creates an `XYZCommandParser` (`XYZ` is a placeholder for the specific command name, e.g., `AddCommandParser`). The parser uses the other classes shown above to parse the user command and create an `XYZCommand` object (e.g., `AddCommand`). The `AddressBookParser` returns that object as a `Command` object.
 * All `XYZCommandParser` classes, such as `AddCommandParser` and `DeleteCommandParser`, implement the `Parser` interface so they can be treated similarly where appropriate, for example during testing.
 
@@ -173,13 +171,13 @@ The diagram omits the routine `Storage#saveAddressBook` call that `LogicManager`
 1. For a valid index, `ViewCommand` returns a `CommandResult` containing `DisplayMode.SHOW_STUDENT`, the selected `Person`, and the displayed index. The command does not modify the `Model`.
 1. `MainWindow#updateMainContent` handles `SHOW_STUDENT` by creating a `StudentDetailPanel` with the selected student, index, and current filtered list. It replaces the content of the detail placeholder with the new panel and asks `PersonListPanel` to highlight and scroll to the same student.
 
-The `StudentDetailPanel` listens to the filtered list and refreshes the record at the displayed index when that list changes. This allows edits to update an open detail panel while keeping the command's displayed index consistent with the list.
+The `StudentDetailPanel` places the student's details and notes in one vertical scroll pane. It listens to the filtered list and refreshes the record at the displayed index when that list changes. This allows edits to update an open detail panel while keeping the command's displayed index consistent with the list.
 
 ### Student duplicate handling
 
 The app compares a student's normalized name, school, and level as the strict duplicate key. Name comparison trims surrounding spaces, collapses repeated spaces, and ignores case. School comparison uses the same case- and space-insensitive behavior. Levels are compared by their `Level` values. The original text remains available for display. Phone, subject, and band do not contribute to the key.
 
-`AddCommand` and `EditCommand` first reject an exact key collision with command-specific error text, which `MainWindow` displays in red. The errors recommend adding a distinguishing identifier to the saved name (for example, `Chloe Tan 2`) when the records are different people; otherwise, identical name, school, and level values would make the students indistinguishable in the app. If only the normalized name matches, the commands request confirmation with command-specific prompt text, displayed in amber. Each command also supplies an action-specific instruction on a separate line, followed by the shared cancellation guidance. On confirmation, they recheck the exact key before changing the model. For an edit, the record being edited is excluded from both checks; edits that leave name, school, and level unchanged do not prompt. This prevents a prompt against itself or an unrelated phone, subject, or note change, and prevents a confirmed operation from bypassing the model's invariant.
+`AddCommand` and `EditCommand` first reject an exact key collision with command-specific error text, which `MainWindow` displays in red. The errors recommend adding a distinguishing identifier to the saved name (for example, `Chloe Tan 2`) when the records are different people; otherwise, identical name, school, and level values would make the students indistinguishable in the app. If only the normalized name matches, the commands request confirmation with command-specific prompt text, displayed in amber. Each matching school and level pair is separated by a semicolon so commas inside school names remain unambiguous. Each command also supplies an action-specific instruction on a separate line, followed by the shared cancellation guidance. On confirmation, they recheck the exact key before changing the model. For an edit, the record being edited is excluded from both checks; edits that leave name, school, and level unchanged do not prompt. This prevents a prompt against itself or an unrelated phone, subject, or note change, and prevents a confirmed operation from bypassing the model's invariant.
 
 The model enforces the strict key through `UniquePersonList` for adds, replacements, and bulk resets. JSON loading uses the same check, so same-name records with different schools or levels load, while strict duplicates are rejected. `addnote` and `deletenote` replace a person without changing the key and remain valid. Delete and clear only remove records. Delete and delete-note prompts and feedback include school and level to distinguish same-name students. Sample data enters through the same model list and is subject to the same rule.
 
@@ -211,7 +209,7 @@ Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `
 
 #### Implementation
 
-<img src="images/SubjectBandClassDiagram.svg" width="700" />
+<img src="images/SubjectBandClassDiagram.png" width="700" />
 
 1. `AddCommandParser` and `EditCommandParser` tokenize `sub/` and `band/`. `ArgumentMultimap#verifyEachFollowedBy` checks that each `sub/` is immediately followed by one `band/`. `add` requires at least one pair. For `edit`, giving neither prefix leaves the subjects unchanged; giving either prefix requires complete pairs and replaces the subject list.
 1. `ParserUtil#parseSubjects` checks that the subject-name and band lists have the same number of values and that there are no more than eight pairs. It creates each `Subject` from the name and band at the same position, then calls `Person#validateSubjects` to reject repeated names.
@@ -229,7 +227,7 @@ Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `
 
 * **Alternative 2 (current choice): Store a subject and a required band together.**
   * Pros: Every recorded subject has complete information. The model prevents a subject from existing without a valid band, and `filter` can match a subject at a specific band.
-  * Cons: The tutor must know and enter a band for every subject, including when the band is not yet known.
+  * Cons: The tutor cannot record a subject until they know its band.
 
 * **Alternative 3: Store a subject with an optional band.**
   * Pros: Allows the tutor to record a subject before its band is known.
@@ -268,7 +266,7 @@ Tags are one word, so that they are quick to type and to filter by. Hyphens are 
 
 ### Command confirmations
 
-`ClearCommand`, `DeleteCommand`, and `DeleteNoteCommand` implement `ConfirmationCommand`. Before running one of these commands, `LogicManager` asks it whether a prompt is needed. `ConfirmationManager` stores the command and returns a warning `CommandResult`, which the UI displays in amber. The prompt states that the action is pending, puts the action-specific confirmation instruction on a new line, and displays shared cancellation guidance on another line. The next input confirms the stored command only when trimming leading and trailing spaces produces the exact uppercase word `CONFIRM`. Every other input first clears the pending command, then follows normal command parsing and execution. A red cancellation notice is displayed above the new command's unchanged output; if parsing or execution fails, the cancellation notice and error are both red. If the new command needs confirmation, it replaces the old request. These destructive commands accept `-f` to execute without prompting.
+`ClearCommand`, `DeleteCommand`, and `DeleteNoteCommand` implement `ConfirmationCommand`. Before running one of these commands, `LogicManager` asks it whether a prompt is needed. `ConfirmationManager` stores the command and returns a warning `CommandResult`, which the UI displays in amber. The prompt states that the action is pending, puts the action-specific confirmation instruction on a new line, and displays shared cancellation guidance on another line. The next input confirms the stored command only when trimming leading and trailing spaces produces the exact uppercase word `CONFIRM`. Every other input first clears the pending command, then follows normal command parsing and execution. A red cancellation notice is displayed above the new command's unchanged output; if parsing or execution fails, the cancellation notice and error are both red. If the new command needs confirmation, it replaces the old request. When no command is pending, `LogicManager` rejects the exact word `CONFIRM` before parsing, with `MESSAGE_NOTHING_TO_CONFIRM`, so a user who confirms after a request was cancelled learns that nothing changed instead of seeing `Unknown command.` These destructive commands accept `-f` to execute without prompting.
 
 The `delete`, `deletenote`, and `clear` prompts state the consequence directly (for example, `This will delete ...`). The `add` and `edit` prompts instead say that the record has not yet been added or saved, so it is clear that a name-match warning has not already carried out the action.
 
@@ -854,7 +852,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 **MSS**
 
 1. Tutor requests to view a specific student by index.
-2. TuteeBook3 keeps the fixed, equal-width student list on the left, highlights the student's non-clickable list card, and opens the student's details on the right, with a separately scrollable notes section below the fixed details.
+2. TuteeBook3 keeps the fixed, equal-width student list on the left, highlights the student's non-clickable list card, and opens the student's details and notes in one scrollable record on the right.
 
 Use case ends.
 
@@ -1032,11 +1030,8 @@ Use case ends.
 
 **MSS**
 
-1.  Tutor requests help
-2.  TuteeBook3 shows the available commands, examples, and the user guide URL in the feedback box
-3.  TuteeBook3 copies the link to the clipboard
-4.  Tutor pastes the link into a browser to read the user guide
-5.  Tutor reads the user guide
+1. Tutor requests help.
+1. TuteeBook3 shows the User Guide URL as selectable plain text, followed by each available command as a summary and a minimal example on the next line, with blank lines between commands.
 
     Use case ends.
 
@@ -1046,7 +1041,15 @@ Use case ends.
 
     * 1a1. TuteeBook3 reuses the feedback box and returns the help content to the top.
 
-      Use case resumes at step 3.
+      Use case resumes at step 2.
+
+* 2a. Tutor wants more detailed instructions.
+
+    * 2a1. Tutor selects and copies the User Guide URL using the operating system's copy shortcut.
+
+    * 2a2. Tutor pastes the URL into a browser and opens the User Guide.
+
+      Use case ends.
 
 ---
 

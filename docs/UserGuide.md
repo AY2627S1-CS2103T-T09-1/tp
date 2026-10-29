@@ -58,7 +58,7 @@ edit 2 p/91234567 sub/Mathematics band/G2
 └ command word
 ```
 
-* **Command word**: what to do, such as `add`, `edit`, or `filter`. Type it in lowercase. `ADD` or `Add` shows `Unknown command.`
+* **Command word**: what to do, such as `add`, `edit`, or `filter`. It is not case-sensitive, so `ADD` and `Add` work the same as `add`.
 * **INDEX**: which student, using the number shown beside them in the student list. It changes when the list changes, such as after `filter`.
 * **Prefix**: a short label ending in `/`, such as `p/` for phone. It tells TuteeBook3 what the value after it is.
 * **Value**: what you type after a prefix, such as `91234567`.
@@ -88,6 +88,7 @@ The command shows an amber prompt that says what will happen. The next line tell
 * To go ahead, type `CONFIRM` in uppercase and press Enter. Spaces before or after it are ignored.
 * Anything else, including `confirm`, cancels the request. TuteeBook3 then runs what you typed as a normal command, with the red notice `The 'delete' command has been cancelled.` (or the name of the command you cancelled) above its result.
 * Until you confirm, nothing changes. The student list and the student record on the right stay as they are.
+* If no command is waiting for confirmation, for example because you already cancelled it, `CONFIRM` shows `There is no command waiting for confirmation. Nothing was changed.`
 
 **Skipping confirmation with `-f`.** To skip the prompt for `delete`, `deletenote`, or `clear`, put `-f` straight after the command word. For example, `delete -f 2` deletes the 2nd student immediately. `add` and `edit` have no `-f`.
 
@@ -106,6 +107,12 @@ No brackets | Required | `sch/SCHOOL` must be given
 
 The command box holds one line, so line breaks and tabs in pasted text become single spaces. Some PDF viewers drop the spaces around line breaks when you copy, so check the command before you press Enter.
 
+Text pasted from web pages, documents, or chat apps can contain special spaces and invisible characters. TuteeBook3 reads special spaces, such as a non-breaking space, as normal spaces and removes invisible characters, such as a zero-width space.
+
+<div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
+Type commands on your keyboard rather than pasting them where you can. Some pasted characters only look like keyboard symbols. For example, a full-width slash (`／`) does not start a parameter, so `n／John Doe` is not read as a name.
+</div>
+
 --------------------------------------------------------------------------------------------------------------------
 
 ## Features
@@ -120,7 +127,7 @@ Parameter | Prefix | Required in `add` | Rules | Examples
 ----------|--------|-------------------|-------|--------
 `NAME` | `n/` | Yes | English letters, digits, and spaces only. Symbols such as `/`, `-`, and `'` aren't supported yet. | ✓ `Rajesh so Kumar`<br>✗ `Rajesh s/o Kumar`
 `PHONE` | `p/` | No | 3 to 15 digits, with an optional `+` at the start. See [Phone numbers](#phone-numbers). | ✓ `9123 4567`<br>✗ `12`
-`SCHOOL` | `sch/` | Yes | 1 to 100 characters: letters, spaces, `.`, `'`, and `-`, with at least one letter. Digits and brackets aren't allowed. | ✓ `St. Andrew's School`<br>✓ `Raffles Institution RI`<br>✗ `Raffles Institution (RI)`
+`SCHOOL` | `sch/` | Yes | 1 to 100 characters: Unicode letters and numbers, spaces, and `.`, `'`, `’`, `-`, `(`, `)`, `,`, and `&`. Must contain at least one letter. `/` and other symbols aren't allowed. | ✓ `St. Andrew's School`<br>✓ `Anglo-Chinese School (Independent)`<br>✓ `School of Science and Technology, Singapore`<br>✓ `École Française`<br>✗ `School/Name`
 `ADDRESS` | `a/` | No | Any text up to 200 characters. | ✓ `Blk 123 Bedok North Avenue 2, #04-111`<br>✗ more than 200 characters
 `EMAIL` | `e/` | No | Up to 254 characters, in the form `local-part@domain`. See [Emails](#emails). | ✓ `chloe.tan@example.com`<br>✗ `chloe.tan@`
 `LEVEL` | `lvl/` | Yes | `S1` to `S5`. Uppercase or lowercase both work. | ✓ `S3`, `s3`<br>✗ `S6`
@@ -171,7 +178,8 @@ If the subjects or bands are wrong, `add` and `edit` show one of these messages:
 
 | Problem | Message |
 | --- | --- |
-| No `sub/` in `add`, or `band/` supplied alone in `edit` | `Missing required parameter: sub/.` In `add`, any other missing parameters are listed too, such as `Missing required parameters: lvl/, sub/.` |
+| Neither `sub/` nor `band/` in `add` | `Missing required parameters: sub/, band/.` Any other missing parameters are listed too, such as `Missing required parameters: lvl/, sub/, band/.` |
+| `band/` but no `sub/` anywhere in `add`, or `band/` supplied alone in `edit` | `Missing required parameter: sub/.` |
 | Missing, misplaced, or repeated `band/` within a pair | `Each sub/ must be immediately followed by one band/.` |
 | Empty band or a value other than G1, G2, or G3 | `Band must be one of G1, G2, G3.` |
 | Invalid subject name | `Subjects must be 1-40 characters using only letters, spaces and hyphens, with at least one letter.` |
@@ -243,11 +251,11 @@ If the command has a mistake, `add` shows a red error and doesn't add the studen
 Problem | Message
 --------|--------
 There are no parameters, or there is text before the first one, such as `add John Doe sch/Victoria School ...` | `Invalid command format!` followed by how to use `add`
-`n/`, `sch/`, `lvl/`, or `sub/` is missing, or has no space before it | `Missing required parameters: sch/, lvl/.`, naming every missing one
+`n/`, `sch/`, `lvl/`, or `sub/` is missing, or has no space before it | `Missing required parameters: sch/, lvl/.`, naming every missing one. A missing `sub/` is named together with `band/`, as in `Missing required parameters: sub/, band/.`
 `n/`, `p/`, `sch/`, `a/`, `e/`, `lvl/`, `gn/`, or `gp/` is given more than once | `Multiple values specified for the following single-valued field(s): p/`
 `NAME` is invalid | `Names should only contain alphanumeric characters and spaces, and should not be blank`
 `PHONE` or `GUARDIAN_PHONE` is invalid | A message saying why. See [Phone numbers](#phone-numbers).
-`SCHOOL` is invalid | `School names must be 1-100 characters and contain at least one letter.`
+`SCHOOL` is invalid | `School names must be 1-100 characters, contain at least one letter, and use only letters, numbers, spaces, periods (.), apostrophes (' or ’), ampersands (&), parentheses, commas, and hyphens (-).`
 `ADDRESS` is blank or longer than 200 characters | `Addresses must not be blank and must be at most 200 characters.`
 `EMAIL` is invalid or longer than 254 characters | A message saying what is wrong, such as `Email "john@" has no domain after the "@", such as example.com.`
 `LEVEL` is not `S1` to `S5` | `Level must be one of S1, S2, S3, S4, S5.`
@@ -263,7 +271,7 @@ After all the input is valid, `add` checks whether the new student might already
 
 Another student has… | What happens
 ---------------------|-------------
-The same name, but a different school or level | An amber prompt, such as `Student not added yet: NAME is also recorded at SCHOOL (LEVEL).` Type `CONFIRM` to add the student anyway. See [Confirming a command](#confirming-a-command).
+The same name, but a different school or level | An amber prompt, such as `Student not added yet: NAME is also recorded at SCHOOL (LEVEL).` If several students match, their school and level details are separated by `; `. Type `CONFIRM` to add the student anyway. See [Confirming a command](#confirming-a-command).
 The same name, school, and level | A red error: `A student named NAME at SCHOOL, level LEVEL already exists. If this is a different student, enter a distinguishing name, for example Chloe Tan 2.` The student is not added.
 
 * Names and schools are compared ignoring capitalization and extra spaces. Levels are compared directly.
@@ -340,7 +348,7 @@ Every value given is the same as the student's current value, such as `edit 1 n/
 
 Another student has… | What happens
 ---------------------|-------------
-The same name, but a different school or level | An amber prompt, such as `Edit not saved yet: NAME is also recorded at SCHOOL (LEVEL).` Type `CONFIRM` to save the edit anyway. See [Confirming a command](#confirming-a-command).
+The same name, but a different school or level | An amber prompt, such as `Edit not saved yet: NAME is also recorded at SCHOOL (LEVEL).` If several students match, their school and level details are separated by `; `. Type `CONFIRM` to save the edit anyway. See [Confirming a command](#confirming-a-command).
 The same name, school, and level | A red error: `Another student named NAME at SCHOOL, level LEVEL already exists. If these are different students, edit the name to include an identifier, for example Chloe Tan 2.` The student is not changed.
 
 #### Deleting a student: `delete`
@@ -505,7 +513,7 @@ The command does not accept additional arguments.
 
 #### Viewing a student: `view`
 
-TuteeBook3 always shows a fixed, equal-width student list on the left and student record panel on the right. Both panels fill the available height down to the status bar, and you cannot move the divider. Student details stay fixed at the top of the right panel. If the notes need more space than the area below, only the notes section scrolls. The list cards are not clickable. The card for the student shown on the right is highlighted. When no student is selected, the right panel says `View a student to see details.`
+TuteeBook3 always shows a fixed, equal-width student list on the left and student record panel on the right. Both panels fill the available height down to the status bar, and you cannot move the divider. If the student record is taller than the right panel, the entire record scrolls, including the student details and notes. The list cards are not clickable. The card for the student shown on the right is highlighted. When no student is selected, the right panel says `View a student to see details.`
 
 `view` shows the full record of the student at the specified index on the right.
 
@@ -616,11 +624,13 @@ A filter appears more than once | `Multiple values specified for the following s
 
 #### Viewing help: `help`
 
-Shows a one-line summary of each available command and the URL of the TuteeBook3 User Guide directly in the result display. You can also show the same help using the **Help** menu or the F1 keyboard shortcut. Repeated requests reuse the result display instead of opening additional panels or windows.
+Shows the URL of the TuteeBook3 User Guide, followed by each available command as a short summary with a minimal example on the next line. Blank lines separate the commands. You can also show the same help using the **Help** menu or the F1 keyboard shortcut.
 
 Format: `help`
 
 The command does not accept additional arguments.
+
+The User Guide URL is shown as selectable plain text, not as a clickable link, and TuteeBook3 does not copy it automatically. Select the URL and press **Ctrl+C** on Windows or Linux, or **Command+C** on macOS, to copy it, then paste it into your browser.
 
 #### Clearing all entries: `clear`
 
@@ -693,7 +703,7 @@ Furthermore, certain edits can cause TuteeBook3 to behave in unexpected ways (e.
 
 #### Commands
 
-* **Case-sensitive**: Treating uppercase and lowercase letters as different. For example, `CONFIRM` is case-sensitive, so `confirm` does not confirm a command. Filters are not case-sensitive, so `n/tan` matches `Tan`.
+* **Case-sensitive**: Treating uppercase and lowercase letters as different. For example, `CONFIRM` is case-sensitive, so `confirm` does not confirm a command. Command words and filters are not case-sensitive, so `LIST` runs `list`, and `n/tan` matches `Tan`.
 * **Command**: An instruction that you type in the command box and press Enter to run, such as `list` or `view 1`. It starts with a word that says what to do, such as `add` or `filter`, followed by any parameters.
 * **Confirmation prompt**: An amber message that asks you to type `CONFIRM` before a command goes ahead. See [Confirming a command](#confirming-a-command).
 * **Exact matching**: The way the `lvl/`, `sub/`, `band/`, `p/`, `gp/`, and `t/` filters of `filter` compare values. The whole value must match, ignoring case and extra spaces. For example, `lvl/S3` matches only students in S3, and `sub/math` does not match `Mathematics`.

@@ -3,11 +3,13 @@ package seedu.address.logic.parser;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.Messages.MESSAGE_UNKNOWN_COMMAND;
 
+import java.util.Locale;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import seedu.address.commons.core.LogsCenter;
+import seedu.address.commons.util.StringUtil;
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.AddNoteCommand;
 import seedu.address.logic.commands.ClearCommand;
@@ -36,13 +38,15 @@ public class AddressBookParser {
 
     /**
      * Parses user input into command for execution.
+     * Special spaces and invisible characters are normalized first, as described in
+     * {@link StringUtil#normalizeInput(String)}.
      *
      * @param userInput full user input string
      * @return the command based on the user input
      * @throws ParseException if the user input does not conform to the expected format
      */
     public Command parseCommand(String userInput) throws ParseException {
-        final Matcher matcher = BASIC_COMMAND_FORMAT.matcher(userInput.trim());
+        final Matcher matcher = BASIC_COMMAND_FORMAT.matcher(StringUtil.normalizeInput(userInput).trim());
         if (!matcher.matches()) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, HelpCommand.MESSAGE_USAGE));
         }
@@ -55,7 +59,8 @@ public class AddressBookParser {
         // Lower level log messages are used sparingly to minimize noise in the code.
         logger.fine("Command word: " + commandWord + "; Arguments: " + arguments);
 
-        return switch (commandWord) {
+        // Command words are not case-sensitive, so ADD and Add both run add.
+        return switch (commandWord.toLowerCase(Locale.ROOT)) {
             case AddCommand.COMMAND_WORD -> new AddCommandParser().parse(arguments);
             case AddNoteCommand.COMMAND_WORD -> new AddNoteCommandParser().parse(arguments);
             case DeleteNoteCommand.COMMAND_WORD -> new DeleteNoteCommandParser().parse(arguments);

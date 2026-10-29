@@ -301,7 +301,22 @@ public class LogicManagerTest {
         assertEquals(CommandResult.DisplayMode.SHOW_LIST, result.getDisplayMode());
         assertEquals(expectedModel, model);
 
-        assertParseException("CONFIRM", MESSAGE_UNKNOWN_COMMAND);
+        assertParseException("CONFIRM", ConfirmationManager.MESSAGE_NOTHING_TO_CONFIRM);
+    }
+
+    @Test
+    public void execute_confirmWithNothingPending_throwsParseException() {
+        model.addPerson(AMY);
+        for (String input : new String[] {"CONFIRM", "  CONFIRM  "}) {
+            assertParseException(input, ConfirmationManager.MESSAGE_NOTHING_TO_CONFIRM);
+        }
+    }
+
+    @Test
+    public void execute_confirmVariantWithNothingPending_throwsUnknownCommand() {
+        for (String input : new String[] {"confirm", "CONFIRM extra"}) {
+            assertParseException(input, MESSAGE_UNKNOWN_COMMAND);
+        }
     }
 
     @Test

@@ -1,6 +1,7 @@
 package seedu.address.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -17,6 +18,8 @@ import org.testfx.framework.junit5.Start;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.geometry.Bounds;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -89,7 +92,7 @@ public class StudentDetailPanelTest {
     }
 
     @Test
-    public void constructor_studentWithDetails_displaysDetailsBeforeNotes(FxRobot robot) {
+    public void constructor_studentWithDetails_placesEntireRecordInsideScrollPane(FxRobot robot) {
         Person personWithNotes = new PersonBuilder(ALICE).withNotes("Strong in algebra").build();
 
         robot.interact(() -> {
@@ -97,20 +100,65 @@ public class StudentDetailPanelTest {
             container.getChildren().setAll(panel.getRoot());
             container.applyCss();
             BorderPane detailPanel = (BorderPane) panel.getRoot();
-            VBox fixedStudentDetails = (VBox) detailPanel.getTop();
-            ScrollPane notesScrollPane = (ScrollPane) container.lookup("#notesScrollPane");
+            ScrollPane detailScrollPane = (ScrollPane) container.lookup("#detailScrollPane");
+            VBox studentDetailContent = (VBox) detailScrollPane.getContent();
 
-            assertTrue(fixedStudentDetails.getChildren().indexOf(container.lookup("#name").getParent())
-                    < fixedStudentDetails.getChildren()
+            assertTrue(studentDetailContent.getChildren().indexOf(container.lookup("#name").getParent())
+                    < studentDetailContent.getChildren()
                             .indexOf(container.lookup(".student-detail-section-separator")));
-            assertTrue(fixedStudentDetails.getChildren()
+            assertTrue(studentDetailContent.getChildren()
                     .indexOf(container.lookup(".student-detail-section-separator"))
-                    < fixedStudentDetails.getChildren()
+                    < studentDetailContent.getChildren()
                             .indexOf(container.lookup(".student-detail-notes-heading")));
-            assertSame(fixedStudentDetails, detailPanel.getTop());
-            assertSame(notesScrollPane, detailPanel.getCenter());
-            assertNull(notesScrollPane.lookup("#name"));
-            assertSame(container.lookup("#noteCards"), notesScrollPane.getContent());
+            assertSame(detailScrollPane, detailPanel.getCenter());
+            assertSame(studentDetailContent, container.lookup("#noteCards").getParent());
+            assertNotNull(detailScrollPane.lookup("#name"));
+            assertNull(container.lookup("#notesScrollPane"));
+        });
+    }
+
+    @Test
+    public void constructor_studentWithDetails_configuresScrollBars(FxRobot robot) {
+        robot.interact(() -> {
+            StudentDetailPanel panel = new StudentDetailPanel(ALICE, INDEX_FIRST_PERSON, persons);
+            container.getChildren().setAll(panel.getRoot());
+            container.applyCss();
+            ScrollPane detailScrollPane = (ScrollPane) container.lookup("#detailScrollPane");
+
+            assertTrue(detailScrollPane.isFitToWidth());
+            assertEquals(ScrollBarPolicy.NEVER, detailScrollPane.getHbarPolicy());
+            assertEquals(ScrollBarPolicy.AS_NEEDED, detailScrollPane.getVbarPolicy());
+        });
+    }
+
+    @Test
+    public void constructor_longRecord_scrollsEntireRecord(FxRobot robot) {
+        String longNote = "Review algebra, geometry, and statistics before the next lesson. ".repeat(4);
+        Person personWithLongRecord = new PersonBuilder(ALICE)
+                .withNotes(longNote, longNote, longNote, longNote, longNote)
+                .build();
+
+        robot.interact(() -> {
+            container.getScene().getWindow().setWidth(500);
+            container.getScene().getWindow().setHeight(350);
+            StudentDetailPanel panel =
+                    new StudentDetailPanel(personWithLongRecord, INDEX_FIRST_PERSON, persons);
+            container.getChildren().setAll(panel.getRoot());
+            container.applyCss();
+            container.layout();
+            ScrollPane detailScrollPane = (ScrollPane) container.lookup("#detailScrollPane");
+            VBox studentDetailContent = (VBox) detailScrollPane.getContent();
+            Region viewport = (Region) container.lookup(".student-detail-scroll-pane > .viewport");
+            Node nameLabel = container.lookup("#name");
+
+            assertTrue(studentDetailContent.getHeight() > detailScrollPane.getViewportBounds().getHeight());
+            Bounds viewportBounds = viewport.localToScene(viewport.getBoundsInLocal());
+            assertTrue(nameLabel.localToScene(nameLabel.getBoundsInLocal()).intersects(viewportBounds));
+
+            detailScrollPane.setVvalue(detailScrollPane.getVmax());
+            detailScrollPane.layout();
+            assertTrue(nameLabel.localToScene(nameLabel.getBoundsInLocal()).getMaxY()
+                    < viewportBounds.getMinY());
         });
     }
 
@@ -161,10 +209,6 @@ public class StudentDetailPanelTest {
             assertLabelWraps("#guardianPhone");
             assertLabelWraps(".student-detail-note-card");
             assertViewportMatchesPanelBackground();
-            ScrollPane notesScrollPane = (ScrollPane) container.lookup("#notesScrollPane");
-            assertTrue(notesScrollPane.isFitToWidth());
-            assertEquals(ScrollBarPolicy.NEVER, notesScrollPane.getHbarPolicy());
-            assertEquals(ScrollBarPolicy.AS_NEEDED, notesScrollPane.getVbarPolicy());
         });
     }
 
@@ -203,7 +247,7 @@ public class StudentDetailPanelTest {
     }
 
     private void assertViewportMatchesPanelBackground() {
-        Region viewport = (Region) container.lookup(".student-detail-notes-scroll-pane > .viewport");
+        Region viewport = (Region) container.lookup(".student-detail-scroll-pane > .viewport");
         Region panel = (Region) container.lookup(".student-detail-panel");
         assertEquals(panel.getBackground(), viewport.getBackground());
     }
