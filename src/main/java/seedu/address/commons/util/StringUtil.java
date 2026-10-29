@@ -5,6 +5,7 @@ import static seedu.address.commons.util.AppUtil.checkArgument;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.Locale;
 
@@ -12,6 +13,15 @@ import java.util.Locale;
  * Helper functions for handling strings.
  */
 public class StringUtil {
+
+    /** Any Unicode whitespace, such as a tab, a non-breaking space, or a full-width space. */
+    private static final String WHITESPACE_REGEX = "\\p{IsWhite_Space}";
+
+    /**
+     * Invisible format and control characters, such as a zero-width space or a left-to-right mark.
+     * The zero-width joiner and non-joiner are kept, because emoji and some scripts need them.
+     */
+    private static final String INVISIBLE_CHARACTER_REGEX = "[\\p{Cf}\\p{Cc}&&[^\\u200C\\u200D]]";
 
     /**
      * Returns true if the {@code sentence} contains the {@code word}.
@@ -60,6 +70,26 @@ public class StringUtil {
 
     private static String normalizeForSearch(String value) {
         return value.strip().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
+    }
+
+    /**
+     * Returns {@code input} as if it had been typed with a standard keyboard, so that text pasted
+     * from web pages or documents is read the same way as typed text.
+     * Every kind of whitespace becomes a normal space, invisible characters are removed,
+     * and accented letters are composed into their single-character form.
+     * For example, a non-breaking space before {@code p/} becomes a normal space, so the prefix is recognized,
+     * and a zero-width space pasted inside {@code Bedok} is removed.
+     *
+     * @param input Text to normalize.
+     * @return The normalized text.
+     */
+    public static String normalizeInput(String input) {
+        requireNonNull(input);
+        // Whitespace goes first, so that a tab or line break becomes a space instead of being removed
+        String spacedInput = input.replaceAll(WHITESPACE_REGEX, " ");
+        // An invisible character between a letter and its accent stops them composing, so remove it first
+        String visibleInput = spacedInput.replaceAll(INVISIBLE_CHARACTER_REGEX, "");
+        return Normalizer.normalize(visibleInput, Normalizer.Form.NFC);
     }
 
     /**

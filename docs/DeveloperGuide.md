@@ -95,9 +95,6 @@ The sequence diagram below illustrates the interactions within the `Logic` compo
 
 ![Interactions Inside the Logic Component for the `delete -f 1` Command](images/DeleteSequenceDiagram.png)
 
-<div markdown="span" class="alert alert-info">:information_source: **Note:** The lifeline for `DeleteCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, it continues to the end of the diagram.
-</div>
-
 How the `Logic` component works:
 
 1. When `Logic` is called upon to execute a command, the command is passed to an `AddressBookParser` object, which in turn creates a parser that matches the command (e.g., `DeleteCommandParser`) and uses it to parse the command.
@@ -111,6 +108,7 @@ Here are the other classes in `Logic` (omitted from the class diagram above) tha
 <img src="images/ParserClasses.png" width="600"/>
 
 How the parsing works:
+* Before parsing, `AddressBookParser` passes the user command through `StringUtil#normalizeInput`. It turns every kind of whitespace, such as a non-breaking space, into a normal space and removes invisible characters, such as a zero-width space. Pasted text is then parsed the same way as typed text, so a prefix after a non-breaking space is still recognized.
 * When called upon to parse a user command, the `AddressBookParser` class creates an `XYZCommandParser` (`XYZ` is a placeholder for the specific command name, e.g., `AddCommandParser`). The parser uses the other classes shown above to parse the user command and create an `XYZCommand` object (e.g., `AddCommand`). The `AddressBookParser` returns that object as a `Command` object.
 * All `XYZCommandParser` classes, such as `AddCommandParser` and `DeleteCommandParser`, implement the `Parser` interface so they can be treated similarly where appropriate, for example during testing.
 
@@ -173,7 +171,7 @@ The diagram omits the routine `Storage#saveAddressBook` call that `LogicManager`
 1. For a valid index, `ViewCommand` returns a `CommandResult` containing `DisplayMode.SHOW_STUDENT`, the selected `Person`, and the displayed index. The command does not modify the `Model`.
 1. `MainWindow#updateMainContent` handles `SHOW_STUDENT` by creating a `StudentDetailPanel` with the selected student, index, and current filtered list. It replaces the content of the detail placeholder with the new panel and asks `PersonListPanel` to highlight and scroll to the same student.
 
-The `StudentDetailPanel` listens to the filtered list and refreshes the record at the displayed index when that list changes. This allows edits to update an open detail panel while keeping the command's displayed index consistent with the list.
+The `StudentDetailPanel` places the student's details and notes in one vertical scroll pane. It listens to the filtered list and refreshes the record at the displayed index when that list changes. This allows edits to update an open detail panel while keeping the command's displayed index consistent with the list.
 
 ### Student duplicate handling
 
@@ -229,7 +227,7 @@ The third option was selected to remove the reported name-school mismatch and ma
 
 ### Student subjects and bands
 
-Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `G2`, or `G3`. Subject names can contain 1 to 40 letters, spaces, or hyphens and must contain at least one letter. A student cannot have the same subject name more than once, even at different bands.
+Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `G2`, or `G3`. Subject names can contain 1 to 40 Unicode letters, spaces, hyphens, parentheses, commas, and ampersands, and must contain at least one letter. Digits, slashes, and other symbols are rejected. A student cannot have the same subject name more than once, even at different bands.
 
 `Subject` is an immutable value object containing both the subject name and its required `Band`. The band is an enum, so a `Subject` cannot be constructed with an unsupported band or without one. For comparison, `Subject` trims surrounding spaces, collapses repeated ordinary spaces, and lowercases the name. The band is included in `Subject.equals`, but `Person#validateSubjects` checks names separately and rejects a repeated subject even if the bands differ.
 
@@ -260,6 +258,22 @@ Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `
   * Cons: Adds a second state for every subject and requires commands, storage, and display to handle missing bands. Filtering by band must also distinguish between “any band” and “no band recorded.”
 
 The app uses the second option because the tutor needs each subject’s band to plan lessons at the right level. Requiring it when the subject is entered keeps the model and stored data consistent. The pair format also makes the relationship explicit in commands: each `sub/` must be followed by its own `band/`.
+
+**Aspect: Which characters to allow in subject names**
+
+* **Alternative 1:** Keep the existing letters, spaces, and hyphens.
+  * Pros: Keeps validation simple and rejects punctuation that may be accidental.
+  * Cons: Rejects commonly used subject names such as `Science (Physics, Chemistry)` and `Design & Technology`.
+
+* **Alternative 2 (current choice):** Also allow parentheses, commas, and ampersands.
+  * Pros: Accepts the real names reported in issue 263 while retaining the existing length limit, Unicode-letter support, and at-least-one-letter rule. Digits, slashes, and other symbols remain rejected.
+  * Cons: A subject can contain awkward punctuation placement because the rule checks allowed characters, not subject-name grammar.
+
+* **Alternative 3:** Allow any printable punctuation and digits.
+  * Pros: Supports a wider range of current and future course names.
+  * Cons: Allows more accidental or inconsistent names than the issue requires, which can make subjects harder to recognize and filter consistently.
+
+The app uses the second option because it resolves the reported real-name cases without making subject names unrestricted. The subject name remains one value before `band/`; the added characters do not change command tokenization.
 
 ### Student addresses
 
@@ -542,36 +556,46 @@ The partial-match predicates (`n/`, `sch/`, `e/`, `a/`, `gn/`, `note/`) use `Str
 
 ### Hint for a missing space before a prefix
 
-`ArgumentTokenizer` treats a prefix as a prefix only when a space comes before it. In `add n/John Doep/98765432 ...`, `p/98765432` becomes part of the name, so without a hint the user would see a name error that doesn't mention the missing space.
+`ArgumentTokenizer` treats a prefix as a prefix only when a space comes before it. In `add n/John Doep/98765432 ...`, `p/98765432` becomes part of the name, so without a hint the user would see a name error that doesn't mention the missing space. Prefixes are also case-sensitive: `P/` is not the same prefix as `p/`.
 
 #### Implementation
 
-1. `ParserUtil#getSlashHint` returns a hint if a value contains `/`: `If "/" was meant to start a new parameter, check that each prefix is one this command accepts and has a space before it.` The hint does not name a prefix or quote the value.
+1. `ParserUtil#getSlashHint` returns a general hint if a slash appears in a value that cannot contain `/`. The hint does not name a prefix or quote the value.
 1. When a value in `add` or `edit` fails its usual check, `ParserUtil#withSlashHint` adds the hint on a new line after the usual error. This applies to the name, phone numbers, school, email, level, subject, band, guardian name, and tags. None of these values can contain `/`, so a `/` in them is either a missing space or a character the field doesn't allow, and the hint helps in both cases.
 1. Some joined prefixes cause a misleading error before the value is checked. In `gn/Mary Tangp/91234567`, the guardian phone seems missing; in `gp/91234567gn/Mary Tan`, the guardian name seems missing; and in `sub/Englishband/G1`, the band seems missing. So `AddCommandParser` checks the guardian name and phone for `/` before checking that `gn/` and `gp/` are given together, and `AddCommandParser` and `EditCommandParser` call `ParserUtil#verifySubjectNamesHaveNoSlash` before checking that each `sub/` has a `band/`.
 1. `FilterCommandParser` rejects `/` in `n/`, `sch/`, `e/`, and `gn/`, with the hint. These values cannot contain `/`, so a search such as `Tangp/91234567` or `Rajesh s/o Kumar` could never match a student. The `sub/` filter adds the hint to the subject error.
 
-Addresses can contain `/`, such as `Blk 1/2`, so they never get a hint. The User Guide lists this as a known issue. Notes can also contain `/`, but `note/` takes the rest of the command, so no prefix can follow it.
+1. Addresses can contain `/`, such as `Blk 1/2`, so the general slash hint would reject valid values. `AddressPrefixChecker` instead examines each slash in an address for a known prefix accepted by the current command. It matches the prefix letters without regard to case, then validates the remaining text with the parser for that field. It reports a case-sensitive-prefix error when the entered capitalization differs, or a missing-space error when the spelling is correct. It does not inspect the same `a/` prefix again.
+1. `AddCommandParser` and `EditCommandParser` pass their accepted prefixes to `AddressPrefixChecker` before parsing the address. `FilterCommandParser` does the same for its address filter, including `note/`, whose trailing-text behavior is preserved. This check does not alter address text; it only rejects a likely joined parameter. A legitimate address segment that happens to be followed by a known prefix and valid field value can be interpreted as a missing space.
+1. Notes can contain `/`, but `note/` takes the rest of the command, so a parameter after a note is not possible.
 
 #### Design considerations
 
-**Aspect: How to handle a prefix with no space before it**
+**Aspect: How to detect a parameter joined to an address**
 
-* **Alternative 1 (current choice):** Keep the value as typed, and add a hint to its error.
-  * Pros: The app never changes what the user typed without telling them. A hint appears only when the value is already invalid.
-  * Cons: The user has to retype the command.
+* **Alternative 1:** Match the exact lowercase prefix before `/`, without checking the text after it.
+  * Pros: Simple and does not mistake differently-cased text for a prefix.
+  * Cons: Does not identify a common uppercase or mixed-case typo such as `P/`, and can still mistake an address segment that ends in a lowercase prefix for a parameter.
 
-* **Alternative 2:** Split the value at the prefix automatically.
-  * Pros: The user does not need to retype.
-  * Cons: The parser has to guess where the value ends. A wrong guess saves the wrong data without an error.
+* **Alternative 2:** Match a known prefix ignoring case, without checking the text after it.
+  * Pros: Catches misspelled capitalization consistently.
+  * Cons: Can reject a valid address simply because text after `/` starts with letters that look like a prefix, even when the rest is not a valid value for that field.
 
-**Aspect: Whether the hint names the prefix**
+* **Alternative 3 (current choice):** Match a known prefix ignoring case, then check whether the remaining text is valid for that field.
+  * Pros: Catches lowercase joined prefixes and capitalization mistakes, while allowing ordinary slashes such as `Blk 1/2`. It can give a targeted case-sensitive message for `P/` and a missing-space message for `p/`.
+  * Cons: An unusual but legitimate address can still look exactly like a prefix followed by a valid field value, so the parser may ask for a space. It does not guess how to split or silently change the address.
+
+* **Alternative 4:** Split the address at any known prefix automatically.
+  * Pros: The user may not need to retype a command when the intended split is clear.
+  * Cons: The parser can guess incorrectly and save or search for different values from what the user entered.
+
+**Aspect: Whether the error identifies a prefix**
 
 * **Alternative 1:** Find a known prefix in the word, and name the one that starts first.
   * Pros: More specific when it is right. For `Doep/98765432`, it says to put a space before `p/`.
   * Cons: The same word can come from different mistakes. In `n/Alex Ngp/91234567`, the user meant the name `Alex Ng` and `p/`, but `gp/` starts first. In `p/91234567gp/92345678`, the user meant `gp/`. No rule gets both right, and following a wrong hint leads to a second, unrelated error. It also misses a `/` that is not a prefix, such as `s/o`, and each command needs its own list of prefixes.
 
-* **Alternative 2 (current choice):** Show a fixed hint whenever the value contains `/`, without naming a prefix.
+* **Alternative 2 (current choice for fields that cannot contain `/`):** Show a fixed hint whenever the value contains `/`, without naming a prefix.
   * Pros: Never wrong, since it only asks the user to check their prefixes. It also covers an unknown prefix and a `/` that is not a prefix, and needs no list of prefixes.
   * Cons: Less specific. The user has to find the mistake in the command themselves.
 
@@ -878,7 +902,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 **MSS**
 
 1. Tutor requests to view a specific student by index.
-2. TuteeBook3 keeps the fixed, equal-width student list on the left, highlights the student's non-clickable list card, and opens the student's details on the right, with a separately scrollable notes section below the fixed details.
+2. TuteeBook3 keeps the fixed, equal-width student list on the left, highlights the student's non-clickable list card, and opens the student's details and notes in one scrollable record on the right.
 
 Use case ends.
 
@@ -1056,11 +1080,8 @@ Use case ends.
 
 **MSS**
 
-1.  Tutor requests help
-2.  TuteeBook3 shows the available commands, examples, and the user guide URL in the feedback box
-3.  TuteeBook3 copies the link to the clipboard
-4.  Tutor pastes the link into a browser to read the user guide
-5.  Tutor reads the user guide
+1. Tutor requests help.
+1. TuteeBook3 shows the User Guide URL as selectable plain text, followed by each available command as a summary and a minimal example on the next line, with blank lines between commands.
 
     Use case ends.
 
@@ -1070,7 +1091,15 @@ Use case ends.
 
     * 1a1. TuteeBook3 reuses the feedback box and returns the help content to the top.
 
-      Use case resumes at step 3.
+      Use case resumes at step 2.
+
+* 2a. Tutor wants more detailed instructions.
+
+    * 2a1. Tutor selects and copies the User Guide URL using the operating system's copy shortcut.
+
+    * 2a2. Tutor pastes the URL into a browser and opens the User Guide.
+
+      Use case ends.
 
 ---
 

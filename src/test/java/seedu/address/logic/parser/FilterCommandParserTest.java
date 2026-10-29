@@ -267,6 +267,14 @@ public class FilterCommandParserTest {
     }
 
     @Test
+    public void parse_subjectWithOfficialPunctuation_returnsFilterCommand() {
+        assertParseSuccess(parser, " sub/Science (Physics, Chemistry) band/G3",
+                filterCommandOf(subject("Science (Physics, Chemistry)", Band.G3)));
+        assertParseSuccess(parser, " sub/Design & Technology",
+                filterCommandOf(subject("Design & Technology")));
+    }
+
+    @Test
     public void parse_invalidSubject_throwsParseException() {
         assertParseFailure(parser, " sub/Math3", Subject.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, " sub/", Subject.MESSAGE_CONSTRAINTS);
@@ -463,6 +471,23 @@ public class FilterCommandParserTest {
     @Test
     public void parse_addressWithSymbols_returnsFilterCommand() {
         assertParseSuccess(parser, " a/Avenue 2, #04-111", filterCommandOf(address("Avenue 2, #04-111")));
+    }
+
+    @Test
+    public void parse_addressWithJoinedPrefix_reportsCaseSensitivePrefix() {
+        assertParseFailure(parser, " a/Blk 1/2P/91234567",
+                String.format(Messages.MESSAGE_PREFIX_CASE_SENSITIVE, "P/", "p/"));
+    }
+
+    @Test
+    public void parse_addressWithOrdinarySlash_success() {
+        assertParseSuccess(parser, " a/Blk 1/2", filterCommandOf(address("Blk 1/2")));
+    }
+
+    @Test
+    public void parse_addressWithJoinedLowercasePrefix_reportsMissingSpace() {
+        assertParseFailure(parser, " a/Blk 1/2p/91234567",
+                String.format(Messages.MESSAGE_MISSING_SPACE_BEFORE_PREFIX, "p/"));
     }
 
     @Test

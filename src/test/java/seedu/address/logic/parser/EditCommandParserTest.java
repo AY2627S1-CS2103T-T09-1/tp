@@ -91,12 +91,40 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_subjectWithOfficialPunctuation_success() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withSubjects(new Subject("Science (Physics, Chemistry)", Band.G3)).build();
+        assertParseSuccess(parser, "1 sub/Science (Physics, Chemistry) band/G3",
+                new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
     public void parse_addressSetOrRemoved_success() {
         EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withAddress("12 Example Road").build();
         assertParseSuccess(parser, "1 a/12 Example Road", new EditCommand(INDEX_FIRST_PERSON, descriptor));
 
         descriptor = new EditPersonDescriptorBuilder().withAddressRemoved().build();
         assertParseSuccess(parser, "1 a/", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
+    public void parse_addressWithJoinedPrefix_reportsCaseSensitivePrefix() {
+        assertParseFailure(parser, "1 a/Blk 1/2P/91234567",
+                String.format(Messages.MESSAGE_PREFIX_CASE_SENSITIVE, "P/", "p/"));
+    }
+
+    @Test
+    public void parse_addressWithOrdinarySlashAndSeparatedPrefix_success() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withAddress("Blk 1/2").withPhone(VALID_PHONE_AMY).build();
+        assertParseSuccess(parser, "1 a/Blk 1/2 p/" + VALID_PHONE_AMY,
+                new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
+    public void parse_addressWithJoinedLowercasePrefix_reportsMissingSpace() {
+        assertParseFailure(parser, "1 a/Blk 1/2p/91234567",
+                String.format(Messages.MESSAGE_MISSING_SPACE_BEFORE_PREFIX, "p/"));
     }
 
     @Test

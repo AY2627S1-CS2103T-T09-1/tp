@@ -63,18 +63,30 @@ edit 2 p/91234567 sub/Mathematics band/G2
 * **Prefix**: a short label ending in `/`, such as `p/` for phone. It tells TuteeBook3 what the value after it is.
 * **Value**: what you type after a prefix, such as `91234567`.
 
-**Put a space before every prefix.** Without one, TuteeBook3 reads the prefix as part of the value before it:
+**Prefixes are case-sensitive and must be written as shown. Put a space before every prefix.** Without a space,
+TuteeBook3 reads the prefix as part of the value before it:
 
 You type | TuteeBook3 reads
 ---------|-----------------
 `add n/John Doe p/98765432 ...` | name `John Doe`, phone `98765432`
 `add n/John Doep/98765432 ...` | name `John Doep/98765432`, which is not a valid name
 
-When a value contains `/`, the error also asks you to check that each prefix is one the command accepts and has a space before it. There are three exceptions:
+When a value that cannot contain `/` contains one, the error also asks you to check that each prefix is one the
+command accepts and has a space before it. For addresses, which can contain `/`, TuteeBook3 checks whether a known
+prefix and a valid value for that field appear immediately after a slash. If they do, it reports the missing space
+instead of saving or searching the joined text as part of the address.
 
-* In `add`, if the joined prefix is a required one (`n/`, `sch/`, `lvl/`, or `sub/`), the error says that parameter is missing.
-* In `edit`, a joined `sub/` gives the missing `sub/` error when `band/` is given.
-* Addresses can contain `/`, so a missing space before the prefix after an address is not detected. See [Known issues](#known-issues).
+In `add`, if a required prefix (`n/`, `sch/`, `lvl/`, or `sub/`) is joined to the value before it, the error may
+instead say that the parameter is missing. In `edit`, a joined `sub/` may produce the missing `sub/` error when
+`band/` is present.
+
+For example, `a/Blk 1/2` remains a valid address. But `a/Blk 1/2P/91234567` produces a red error explaining that
+`P/` is case-sensitive and must be written as `p/` with a space before it. `a/Blk 1/2p/91234567` produces a red
+error asking for a space before `p/`. Write `a/Blk 1/2 p/91234567` to give both values correctly. The same check
+applies to `add`, `edit`, and `filter a/...`.
+
+This check uses the text after the candidate prefix to avoid rejecting ordinary address slashes. An address whose
+text after a slash happens to be a valid value for a known field prefix may still be treated as a joined prefix.
 
 ### Confirming a command
 
@@ -105,7 +117,11 @@ No brackets | Required | `sch/SCHOOL` must be given
 `[ ]` | Optional | `[p/PHONE]` can be left out
 `...` | Can be given more than once, or not at all if it's in `[ ]` | `[t/TAG]...` → `t/paid t/exams`
 
-If you are using a PDF version of this guide, be careful when you copy a command that spans more than one line. The spaces around the line breaks may be lost when you paste it into TuteeBook3.
+The command box holds one line. In text pasted from web pages, documents, or chat apps, TuteeBook3 reads line breaks, tabs, and special spaces, such as a non-breaking space, as normal spaces, and removes invisible characters, such as a zero-width space.
+
+<div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
+Type commands on your keyboard rather than pasting them where you can. Some pasted characters only look like keyboard symbols. For example, a full-width slash (`／`) does not start a parameter, so `n／John Doe` is not read as a name. Some PDF viewers also drop the spaces around line breaks when you copy, so check a pasted command before you press Enter.
+</div>
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -125,7 +141,7 @@ Parameter | Prefix | Required in `add` | Rules | Examples
 `ADDRESS` | `a/` | No | Any text up to 200 characters. | ✓ `Blk 123 Bedok North Avenue 2, #04-111`<br>✗ more than 200 characters
 `EMAIL` | `e/` | No | Up to 254 characters, in the form `local-part@domain`. See [Emails](#emails). | ✓ `chloe.tan@example.com`<br>✗ `chloe.tan@`
 `LEVEL` | `lvl/` | Yes | `S1` to `S5`. Uppercase or lowercase both work. | ✓ `S3`, `s3`<br>✗ `S6`
-`SUBJECT` | `sub/` | Yes, 1 to 8 | 1 to 40 characters: letters, spaces, and hyphens, with at least one letter. A subject can't appear twice, ignoring case and extra spaces. See [Subjects and bands](#subjects-and-bands). | ✓ `Mathematics`<br>✗ `Maths 2`
+`SUBJECT` | `sub/` | Yes, 1 to 8 | 1 to 40 characters: letters, spaces, hyphens, parentheses, commas, and ampersands, with at least one letter. A subject can't appear twice, ignoring case and extra spaces. See [Subjects and bands](#subjects-and-bands). | ✓ `Mathematics`<br>✓ `Science (Physics, Chemistry)`<br>✓ `Design & Technology`<br>✗ `Maths 2`
 `BAND` | `band/` | Yes, after each `sub/` | `G1`, `G2`, or `G3`. Uppercase or lowercase both work, and it is shown in uppercase. Must come right after its `sub/`. | ✓ `G1`, `g1`<br>✗ `G4`
 `GUARDIAN_NAME` | `gn/` | No, but give both `gn/` and `gp/` or neither | Same rules as `NAME`. | ✓ `Mary Tan`<br>✗ `Zoë Tan`<br>✗ `Mary-Ann Tan`
 `GUARDIAN_PHONE` | `gp/` | No, but give both `gn/` and `gp/` or neither | Same rules as `PHONE`. | ✓ `91234567`<br>✗ `12`
@@ -165,7 +181,9 @@ Each student and guardian has one phone number, which is the number you use to r
 
 #### Subjects and bands
 
-Each student takes 1 to 8 subjects. Give each subject with `sub/`, followed immediately by its band with `band/`, such as `sub/Mathematics band/G1 sub/English band/G3`.
+Each student takes 1 to 8 subjects. A subject name can contain Unicode letters, spaces, hyphens, parentheses, commas, and ampersands. It must be 1 to 40 characters long and contain at least one letter. For example, `Science (Physics, Chemistry)`, `Design & Technology`, and `Food & Consumer Education` are valid names. Digits, slashes, and other symbols are not allowed.
+
+Give each subject with `sub/`, followed immediately by its band with `band/`, such as `sub/Science (Physics, Chemistry) band/G3 sub/English band/G3`.
 
 * A subject can't be given twice, even with different bands. Capitalization and extra spaces are ignored, so `Additional Mathematics` and `additional  mathematics` are the same subject.
 * In `edit`, giving subject-band pairs replaces all of the student's subjects. Leaving out `sub/` keeps them. An empty `sub/` doesn't remove subjects, since every student needs at least one.
@@ -178,7 +196,7 @@ If the subjects or bands are wrong, `add` and `edit` show one of these messages:
 | `band/` but no `sub/` anywhere in `add`, or `band/` supplied alone in `edit` | `Missing required parameter: sub/.` |
 | Missing, misplaced, or repeated `band/` within a pair | `Each sub/ must be immediately followed by one band/.` |
 | Empty band or a value other than G1, G2, or G3 | `Band must be one of G1, G2, G3.` |
-| Invalid subject name | `Subjects must be 1-40 characters using only letters, spaces and hyphens, with at least one letter.` |
+| Invalid subject name | `Subjects must be 1-40 characters using only letters, spaces, hyphens, parentheses, commas and ampersands, with at least one letter.` |
 | More than eight subject-band pairs | `A student may have at most 8 subjects.` |
 | Repeated subject name | `Subject is repeated: SUBJECT.` |
 
@@ -200,7 +218,7 @@ Parameter | Prefix | Used in | Rules | Example
 ----------|--------|---------|-------|--------
 `INDEX` | none, comes straight after the command word | `view`, `edit`, `delete`, `addnote`, `editnote`, `deletenote` | The number shown beside the student in the student list, or at the top of the student detail view. A positive integer no greater than the largest index in the student list. For example, if the list shows 1 to 3, you can use 1, 2, or 3. | `2`
 `NID` | `nid/` | `editnote`, `deletenote` | The number shown before the note in the student detail view. A positive integer. Use `view INDEX` to see a student's notes and their NIDs. | `1`
-`TEXT` | `note/` | `addnote`, `editnote`, `filter` | 1 to 500 characters, counting spaces between words. Any characters are allowed, including digits, punctuation, and slashes. Spaces before and after the text are removed. | `WA2 Math: 36/50`
+`TEXT` | `note/` | `addnote`, `editnote`, `filter` | 1 to 500 characters, counting spaces between words. Any characters are allowed, including digits, punctuation, and slashes. Spaces before and after the text are removed. Pasted line breaks and tabs become spaces, as described in [Reading a command format](#reading-a-command-format). | `WA2 Math: 36/50`
 
 * `INDEX` and `NID` can change. An index changes when the list changes, such as after `filter` or `delete`. After a note is deleted, the notes after it move up one number. Check the list or the student detail view before you use them.
 * After `view`, the student's `INDEX` is also shown at the top of the student detail view, so you can use it in `edit`, `delete`, `addnote`, `editnote`, and `deletenote` without looking for the student in the list.
@@ -509,7 +527,7 @@ The command does not accept additional arguments.
 
 #### Viewing a student: `view`
 
-TuteeBook3 always shows a fixed, equal-width student list on the left and student record panel on the right. Both panels fill the available height down to the status bar, and you cannot move the divider. Student details stay fixed at the top of the right panel. If the notes need more space than the area below, only the notes section scrolls. The list cards are not clickable. The card for the student shown on the right is highlighted. When no student is selected, the right panel says `View a student to see details.`
+TuteeBook3 always shows a fixed, equal-width student list on the left and student record panel on the right. Both panels fill the available height down to the status bar, and you cannot move the divider. If the student record is taller than the right panel, the entire record scrolls, including the student details and notes. The list cards are not clickable. The card for the student shown on the right is highlighted. When no student is selected, the right panel says `View a student to see details.`
 
 `view` shows the full record of the student at the specified index on the right.
 
@@ -604,7 +622,7 @@ There is text before the first filter | `Invalid command format!` followed by ho
 A filter is empty, such as `sch/` | `The school to search for cannot be blank.` (or `name`, `email`, or `address`)
 A filter appears more than once | `Multiple values specified for the following single-valued field(s): sch/`
 `LEVEL` is not one of `S1` to `S5`, or is empty | `Level must be one of S1, S2, S3, S4, S5.`
-`SUBJECT` is empty or invalid | `Subjects must be 1-40 characters using only letters, spaces and hyphens, with at least one letter.`
+`SUBJECT` is empty or invalid | `Subjects must be 1-40 characters using only letters, spaces, hyphens, parentheses, commas and ampersands, with at least one letter.`
 `BAND` is not one of `G1` to `G3`, or is empty | `Band must be one of G1, G2, G3.`
 `band/` is not right after `sub/`, or there is no `sub/` | `band/ must come right after sub/, such as: filter sub/Mathematics band/G2`
 `PHONE` or `GUARDIAN_PHONE` is empty or not a valid phone number | The same message as `add`, such as `Phone cannot be empty.`
@@ -621,11 +639,13 @@ A filter appears more than once | `Multiple values specified for the following s
 
 #### Viewing help: `help`
 
-Shows a one-line summary of each available command and the URL of the TuteeBook3 User Guide directly in the result display. You can also show the same help using the **Help** menu or the F1 keyboard shortcut. Repeated requests reuse the result display instead of opening additional panels or windows.
+Shows the URL of the TuteeBook3 User Guide, followed by each available command as a short summary with a minimal example on the next line. Blank lines separate the commands. You can also show the same help using the **Help** menu or the F1 keyboard shortcut.
 
 Format: `help`
 
 The command does not accept additional arguments.
+
+The User Guide URL is shown as selectable plain text, not as a clickable link, and TuteeBook3 does not copy it automatically. Select the URL and press **Ctrl+C** on Windows or Linux, or **Command+C** on macOS, to copy it, then paste it into your browser.
 
 #### Clearing all entries: `clear`
 
@@ -742,13 +762,6 @@ Furthermore, certain edits can cause TuteeBook3 to behave in unexpected ways (e.
 ## Known issues
 
 1. **When using multiple screens**, if you move the application to a secondary screen, and later switch to using only the primary screen, the GUI will open off-screen. The remedy is to delete the `preferences.json` file created by the application before running the application again.
-
-1. **A missing space before a parameter is not detected in an address.** Addresses can contain `/`, such as `Blk 1/2`, so TuteeBook3 keeps the text as typed:
-
-Where | Example | What happens | Remedy
-------|---------|--------------|-------
-`a/ADDRESS` in `add` or `edit` | `add ... a/Blk 1e/chloe@example.com` | The student is added with the address `Blk 1e/chloe@example.com` and no email. | Check the student with `view`, then fix it with `edit INDEX a/Blk 1 e/chloe@example.com`.
-`a/ADDRESS` in `filter` | `filter a/Bedoksch/Victoria` | TuteeBook3 searches addresses for `Bedoksch/Victoria` and shows `0 students listed!`. | Put a space before `sch/` and filter again.
 
 --------------------------------------------------------------------------------------------------------------------
 

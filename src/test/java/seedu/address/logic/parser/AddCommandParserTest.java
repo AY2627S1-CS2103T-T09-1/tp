@@ -98,6 +98,16 @@ public class AddCommandParserTest {
     }
 
     @Test
+    public void parse_subjectWithOfficialPunctuation_success() {
+        String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB;
+        String[] subjects = {"Science (Physics, Chemistry)", "Design & Technology", "Food & Consumer Education"};
+        for (String subject : subjects) {
+            Person expectedPerson = new PersonBuilder(BOB).withSubjects(new Subject(subject, Band.G3)).build();
+            assertParseSuccess(parser, details + " sub/" + subject + " band/G3", new AddCommand(expectedPerson));
+        }
+    }
+
+    @Test
     public void parse_allFieldsPresent_success() {
         Person expectedPerson = new PersonBuilder(BOB).build();
         String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB;
@@ -141,6 +151,25 @@ public class AddCommandParserTest {
         Person expectedPerson = new PersonBuilder(BOB).withoutPhone().withAddress(VALID_ADDRESS_BOB).build();
         assertParseSuccess(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + ADDRESS_DESC_BOB + LEVEL_DESC_BOB
                 + SUBJECT_DESC, new AddCommand(expectedPerson));
+    }
+
+    @Test
+    public void parse_addressWithJoinedPrefix_reportsCaseSensitivePrefix() {
+        String args = NAME_DESC_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB + " a/Blk 1/2P/91234567" + SUBJECT_DESC;
+        assertParseFailure(parser, args, String.format(Messages.MESSAGE_PREFIX_CASE_SENSITIVE, "P/", "p/"));
+    }
+
+    @Test
+    public void parse_addressWithOrdinarySlashAndSeparatedPrefix_success() {
+        Person expectedPerson = new PersonBuilder(BOB).withAddress("Blk 1/2").build();
+        assertParseSuccess(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB
+                + " a/Blk 1/2" + PHONE_DESC_BOB + SUBJECT_DESC, new AddCommand(expectedPerson));
+    }
+
+    @Test
+    public void parse_addressWithJoinedLowercasePrefix_reportsMissingSpace() {
+        String args = NAME_DESC_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB + " a/Blk 1/2p/91234567" + SUBJECT_DESC;
+        assertParseFailure(parser, args, String.format(Messages.MESSAGE_MISSING_SPACE_BEFORE_PREFIX, "p/"));
     }
 
     @Test
