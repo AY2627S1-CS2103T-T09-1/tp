@@ -13,6 +13,7 @@ import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 
 import java.util.List;
+import java.util.Locale;
 
 import org.junit.jupiter.api.Test;
 
@@ -216,5 +217,66 @@ public class AddressBookParserTest {
         Person person = new PersonBuilder().withoutAddress().build();
         String userInput = PersonUtil.getAddCommand(person) + " " + PREFIX_ADDRESS + NON_BREAKING_SPACE;
         assertThrows(ParseException.class, Address.MESSAGE_CONSTRAINTS, () -> parser.parseCommand(userInput));
+    }
+
+    @Test
+    public void parseCommand_uppercaseCommandWord_parsesSameAsLowercase() throws Exception {
+        Person person = new PersonBuilder().build();
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder(person).build();
+        List<String> inputs = List.of(
+                PersonUtil.getAddCommand(person),
+                AddNoteCommand.COMMAND_WORD + " 1 " + PREFIX_NOTE + "hi",
+                ClearCommand.COMMAND_WORD,
+                DeleteCommand.COMMAND_WORD + " 1",
+                DeleteNoteCommand.COMMAND_WORD + " 1 " + PREFIX_NID + "2",
+                EditCommand.COMMAND_WORD + " 1 " + PersonUtil.getEditPersonDescriptorDetails(descriptor),
+                EditNoteCommand.COMMAND_WORD + " 1 " + PREFIX_NID + "2 " + PREFIX_NOTE + "hi",
+                FilterCommand.COMMAND_WORD + " " + PREFIX_NAME + "foo",
+                ViewCommand.COMMAND_WORD + " 1");
+        for (String input : inputs) {
+            assertEquals(parser.parseCommand(input), parser.parseCommand(withUppercaseCommandWord(input)));
+        }
+
+        // These commands have no equals method, so only their type is checked.
+        assertTrue(parser.parseCommand(withUppercaseCommandWord(ListCommand.COMMAND_WORD)) instanceof ListCommand);
+        assertTrue(parser.parseCommand(withUppercaseCommandWord(HelpCommand.COMMAND_WORD)) instanceof HelpCommand);
+        assertTrue(parser.parseCommand(withUppercaseCommandWord(ExitCommand.COMMAND_WORD)) instanceof ExitCommand);
+    }
+
+    @Test
+    public void parseCommand_capitalizedCommandWord_returnsCommand() throws Exception {
+        assertEquals(new AddNoteCommand(INDEX_FIRST_PERSON, new Note("hi")),
+                parser.parseCommand("Addnote 1 " + PREFIX_NOTE + "hi"));
+    }
+
+    @Test
+    public void parseCommand_mixedCaseCommandWord_returnsCommand() throws Exception {
+        assertEquals(new DeleteCommand(INDEX_FIRST_PERSON), parser.parseCommand("dElEtE 1"));
+    }
+
+    @Test
+    public void parseCommand_uppercaseCommandWord_keepsArgumentCase() throws Exception {
+        assertEquals(new AddNoteCommand(INDEX_FIRST_PERSON, new Note("Hi THERE")),
+                parser.parseCommand("ADDNOTE 1 " + PREFIX_NOTE + "Hi THERE"));
+    }
+
+    @Test
+    public void parseCommand_uppercaseCommandWordInvalidArgument_throwsCommandSpecificParseException() {
+        assertThrows(ParseException.class, DeleteCommand.MESSAGE_INVALID_FORMAT, () ->
+                parser.parseCommand("DELETE abc"));
+    }
+
+    @Test
+    public void parseCommand_uppercaseUnknownCommand_throwsParseException() {
+        assertThrows(ParseException.class, MESSAGE_UNKNOWN_COMMAND, () -> parser.parseCommand("FIND n/avi"));
+    }
+
+    /**
+     * Returns {@code input} with its command word in uppercase and its arguments unchanged.
+     */
+    private static String withUppercaseCommandWord(String input) {
+        String[] parts = input.split(" ", 2);
+        String commandWord = parts[0].toUpperCase(Locale.ROOT);
+        return parts.length == 1 ? commandWord : commandWord + " " + parts[1];
     }
 }

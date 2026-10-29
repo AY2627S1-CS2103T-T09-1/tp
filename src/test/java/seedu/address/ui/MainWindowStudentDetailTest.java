@@ -80,7 +80,7 @@ public class MainWindowStudentDetailTest {
     }
 
     @Test
-    public void execute_viewCommand_showsListBesideStudentDetails(FxRobot robot) {
+    public void execute_viewCommand_longRecordKeepsRightPanelFullHeight(FxRobot robot) {
         Node originalList = mainWindow.getPersonListPanel().getRoot();
 
         enterCommand(robot, "view 1");
@@ -95,9 +95,9 @@ public class MainWindowStudentDetailTest {
             mainWindow.getRoot().getScene().getRoot().applyCss();
             mainWindow.getRoot().getScene().getRoot().layout();
         });
-        ScrollPane notesScrollPane = (ScrollPane) getStudentDetailNode().lookup("#notesScrollPane");
-        VBox noteCards = (VBox) getStudentDetailNode().lookup("#noteCards");
-        assertTrue(noteCards.getHeight() > notesScrollPane.getViewportBounds().getHeight());
+        ScrollPane detailScrollPane = (ScrollPane) getStudentDetailNode().lookup("#detailScrollPane");
+        VBox studentDetailContent = (VBox) getStudentDetailNode().lookup("#studentDetailContent");
+        assertTrue(studentDetailContent.getHeight() > detailScrollPane.getViewportBounds().getHeight());
         assertEquals(getContentGridPane().getHeight(), getPersonListPanelPlaceholder().getHeight(), 0.1);
         assertEquals(getContentGridPane().getHeight(), getStudentDetailPanelPlaceholder().getHeight(), 0.1);
 
