@@ -354,7 +354,12 @@ public class AddCommandParserTest {
 
     @Test
     public void parse_compulsoryFieldMissing_failure() {
+        // missing subject and band
         assertParseFailure(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB,
+                "Missing required parameters: sub/, band/.");
+
+        // band given without its subject
+        assertParseFailure(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB + " band/G1",
                 "Missing required parameter: sub/.");
 
         // missing level prefix
@@ -376,7 +381,7 @@ public class AddCommandParserTest {
 
     @Test
     public void parse_allRequiredMissing_failure() {
-        assertParseFailure(parser, PHONE_DESC_BOB, "Missing required parameters: n/, sch/, lvl/, sub/.");
+        assertParseFailure(parser, PHONE_DESC_BOB, "Missing required parameters: n/, sch/, lvl/, sub/, band/.");
     }
 
     @Test
