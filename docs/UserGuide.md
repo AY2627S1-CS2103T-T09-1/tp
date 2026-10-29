@@ -560,7 +560,7 @@ Format: `filter [n/NAME] [sch/SCHOOL] [lvl/LEVEL] [sub/SUBJECT [band/BAND]] [p/P
 * A student must match every filter you give. For example, `filter n/tan sch/bedok` shows students whose name contains `tan` and whose school contains `bedok`.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
-Each filter can be given only once. For example, `filter n/tan n/lim`, `filter sch/bedok sch/tampines`, and `filter t/paid t/exams` are rejected. To find students who match either value, run `filter` once for each value.
+Each filter can be given only once, including `sub/` and `t/`, even though `add` and `edit` accept several. For example, `filter n/tan n/lim`, `filter sub/Mathematics sub/Science`, and `filter t/paid t/exams` are rejected. To find students who match either value, run `filter` once for each value.
 </div>
 
 Filter | Matches students whose… | Match
@@ -626,7 +626,7 @@ Problem | Message
 No filter is given | `Give at least one filter.` followed by how to use `filter`
 There is text before the first filter | `Invalid command format!` followed by how to use `filter`
 A filter is empty, such as `sch/` | `The school to search for cannot be blank.` (or `name`, `email`, or `address`)
-A filter appears more than once | `Multiple values specified for the following single-valued field(s): sch/`
+A filter other than `t/` appears more than once | `Each filter can be given only once, but you repeated: sub/. To see students who match either value, run filter once for each value.`, with the repeated filters listed in place of `sub/`. If `t/` is also repeated, the `t/` message is shown first.
 `LEVEL` is not one of `S1` to `S5`, or is empty | `Level must be one of S1, S2, S3, S4, S5.`
 `SUBJECT` is empty or invalid | `Subjects must be 1-40 characters using only letters, spaces, hyphens, parentheses, commas and ampersands, with at least one letter.`
 `BAND` is not one of `G1` to `G3`, or is empty | `Band must be one of G1, G2, G3.`

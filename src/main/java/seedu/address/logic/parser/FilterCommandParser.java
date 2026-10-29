@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import seedu.address.logic.commands.FilterCommand;
@@ -59,6 +60,8 @@ public class FilterCommandParser implements Parser<FilterCommand> {
             + ", such as: filter " + PREFIX_NOTE + "algebra";
     public static final String MESSAGE_ONE_TAG = "filter takes one tag, so give " + PREFIX_TAG
             + " only once, such as: filter " + PREFIX_TAG + "paid";
+    public static final String MESSAGE_REPEATED_FILTER = "Each filter can be given only once, but you repeated: "
+            + "%1$s. To see students who match either value, run filter once for each value.";
     public static final String MESSAGE_FILTER_TAG_HAS_SPACE = "Tag \"%1$s\" contains a space. filter takes one "
             + "tag of one word, such as: filter " + PREFIX_TAG + "paid";
     public static final String MESSAGE_BLANK_NOTE = "The note text to search for cannot be blank.";
@@ -109,7 +112,7 @@ public class FilterCommandParser implements Parser<FilterCommand> {
         if (argMultimap.getAllValues(PREFIX_TAG).size() > 1) {
             throw new ParseException(MESSAGE_ONE_TAG);
         }
-        argMultimap.verifyNoDuplicatePrefixesFor(FILTER_PREFIXES);
+        verifyNoRepeatedFilter(argMultimap);
         verifyBandFollowsSubject(argMultimap.getPrefixes());
     }
 
@@ -159,6 +162,19 @@ public class FilterCommandParser implements Parser<FilterCommand> {
 
     private static Prefix[] allPrefixes() {
         return Stream.concat(Stream.of(FILTER_PREFIXES), Stream.of(PREFIX_NID)).toArray(Prefix[]::new);
+    }
+
+    /**
+     * Throws a {@code ParseException} naming every filter prefix given more than once.
+     */
+    private static void verifyNoRepeatedFilter(ArgumentMultimap argMultimap) throws ParseException {
+        String repeatedPrefixes = Stream.of(FILTER_PREFIXES)
+                .filter(prefix -> argMultimap.getAllValues(prefix).size() > 1)
+                .map(Prefix::toString)
+                .collect(Collectors.joining(" "));
+        if (!repeatedPrefixes.isEmpty()) {
+            throw new ParseException(String.format(MESSAGE_REPEATED_FILTER, repeatedPrefixes));
+        }
     }
 
     /**
