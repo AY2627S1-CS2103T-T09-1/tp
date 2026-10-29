@@ -56,7 +56,16 @@ public class AddCommandParser implements Parser<AddCommand> {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddCommand.MESSAGE_USAGE));
         }
 
-        argMultimap.verifyAllPrefixesPresent(PREFIX_NAME, PREFIX_SCHOOL, PREFIX_LEVEL, PREFIX_SUBJECT);
+        if (argMultimap.getValue(PREFIX_ADDRESS).isPresent()) {
+            AddressPrefixChecker.verifyNoJoinedPrefix(argMultimap.getValue(PREFIX_ADDRESS).get(), PREFIX_NAME,
+                    PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_ADDRESS, PREFIX_EMAIL, PREFIX_LEVEL, PREFIX_SUBJECT,
+                    PREFIX_BAND, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE, PREFIX_TAG);
+        }
+        // a missing sub/ also requires band/, so the user adds the whole pair in one go
+        Prefix[] requiredPrefixes = argMultimap.getValue(PREFIX_SUBJECT).isPresent()
+                ? new Prefix[] {PREFIX_NAME, PREFIX_SCHOOL, PREFIX_LEVEL, PREFIX_SUBJECT}
+                : new Prefix[] {PREFIX_NAME, PREFIX_SCHOOL, PREFIX_LEVEL, PREFIX_SUBJECT, PREFIX_BAND};
+        argMultimap.verifyAllPrefixesPresent(requiredPrefixes);
         argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NAME, PREFIX_PHONE, PREFIX_SCHOOL, PREFIX_ADDRESS, PREFIX_EMAIL,
                 PREFIX_LEVEL, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE);
         Name name = ParserUtil.parseName(argMultimap.getValue(PREFIX_NAME).get());

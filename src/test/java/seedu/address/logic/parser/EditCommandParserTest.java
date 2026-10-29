@@ -39,6 +39,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailure;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSuccess;
+import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_INDEX;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_THIRD_PERSON;
@@ -76,12 +77,50 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_schoolWithBracketsAndComma_success() {
+        String[] schools = {"Anglo-Chinese School (Independent)", "School of Science and Technology, Singapore"};
+        for (String school : schools) {
+            EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withSchool(school).build();
+
+            assertParseSuccess(parser, "1 sch/" + school, new EditCommand(INDEX_FIRST_PERSON, descriptor));
+        }
+    }
+
+    @Test
+    public void parse_subjectWithOfficialPunctuation_success() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withSubjects(new Subject("Science (Physics, Chemistry)", Band.G3)).build();
+        assertParseSuccess(parser, "1 sub/Science (Physics, Chemistry) band/G3",
+                new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
     public void parse_addressSetOrRemoved_success() {
         EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withAddress("12 Example Road").build();
         assertParseSuccess(parser, "1 a/12 Example Road", new EditCommand(INDEX_FIRST_PERSON, descriptor));
 
         descriptor = new EditPersonDescriptorBuilder().withAddressRemoved().build();
         assertParseSuccess(parser, "1 a/", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
+    public void parse_addressWithJoinedPrefix_reportsCaseSensitivePrefix() {
+        assertParseFailure(parser, "1 a/Blk 1/2P/91234567",
+                String.format(Messages.MESSAGE_PREFIX_CASE_SENSITIVE, "P/", "p/"));
+    }
+
+    @Test
+    public void parse_addressWithOrdinarySlashAndSeparatedPrefix_success() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withAddress("Blk 1/2").withPhone(VALID_PHONE_AMY).build();
+        assertParseSuccess(parser, "1 a/Blk 1/2 p/" + VALID_PHONE_AMY,
+                new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
+    public void parse_addressWithJoinedLowercasePrefix_reportsMissingSpace() {
+        assertParseFailure(parser, "1 a/Blk 1/2p/91234567",
+                String.format(Messages.MESSAGE_MISSING_SPACE_BEFORE_PREFIX, "p/"));
     }
 
     @Test
@@ -151,10 +190,10 @@ public class EditCommandParserTest {
     @Test
     public void parse_invalidPreamble_failure() {
         // negative index
-        assertParseFailure(parser, "-5" + NAME_DESC_AMY, MESSAGE_INVALID_FORMAT);
+        assertParseFailure(parser, "-5" + NAME_DESC_AMY, MESSAGE_INVALID_INDEX);
 
         // zero index
-        assertParseFailure(parser, "0" + NAME_DESC_AMY, MESSAGE_INVALID_FORMAT);
+        assertParseFailure(parser, "0" + NAME_DESC_AMY, MESSAGE_INVALID_INDEX);
 
         // invalid arguments being parsed as preamble
         assertParseFailure(parser, "1 some random string", MESSAGE_INVALID_FORMAT);
@@ -164,6 +203,11 @@ public class EditCommandParserTest {
 
         // removed prefixes being parsed as preamble
         assertParseFailure(parser, "1 x/Clementi Road", MESSAGE_INVALID_FORMAT);
+    }
+
+    @Test
+    public void parse_integerTooBigForInt_throwsIndexError() {
+        assertParseFailure(parser, "99999999999" + NAME_DESC_AMY, MESSAGE_INVALID_INDEX);
     }
 
     @Test

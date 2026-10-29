@@ -193,7 +193,7 @@ public class EditCommand extends Command implements ConfirmationCommand {
         return persons.stream()
                 .map(person -> person.getSchool() + " (" + person.getLevel() + ")")
                 .distinct()
-                .collect(Collectors.joining(", "));
+                .collect(Collectors.joining("; "));
     }
 
     /**

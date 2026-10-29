@@ -1,7 +1,5 @@
 package seedu.address.logic.parser;
 
-import java.math.BigInteger;
-
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.DeleteCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
@@ -10,8 +8,6 @@ import seedu.address.logic.parser.exceptions.ParseException;
  * Parses input arguments and creates a new DeleteCommand object
  */
 public class DeleteCommandParser implements Parser<DeleteCommand> {
-
-    private static final String DIGITS_REGEX = "\\d+";
 
     /**
      * Parses the given {@code String} of arguments in the context of the DeleteCommand
@@ -36,17 +32,14 @@ public class DeleteCommandParser implements Parser<DeleteCommand> {
 
     /**
      * Returns the error for an index that could not be parsed.
-     * A positive whole number too big to store cannot match any student, so it is reported as an invalid index.
+     * Integer values that cannot identify a displayed student, including zero, negative values, and values too large
+     * to store, keep the shared index error. Other values use the command format error.
      */
-    private static ParseException createParseException(String trimmedArgs, ParseException cause) {
-        if (!trimmedArgs.matches(DIGITS_REGEX)) {
-            return new ParseException(DeleteCommand.MESSAGE_INVALID_FORMAT, cause);
+    private static ParseException createParseException(String indexArgument, ParseException cause) {
+        if (ParserUtil.isInteger(indexArgument)) {
+            return cause;
         }
-        boolean isZero = new BigInteger(trimmedArgs).signum() == 0;
-        if (isZero) {
-            return new ParseException(DeleteCommand.MESSAGE_INVALID_FORMAT, cause);
-        }
-        return new ParseException(DeleteCommand.MESSAGE_INVALID_STUDENT_INDEX, cause);
+        return new ParseException(DeleteCommand.MESSAGE_INVALID_FORMAT, cause);
     }
 
 }

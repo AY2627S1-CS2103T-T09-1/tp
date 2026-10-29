@@ -20,6 +20,23 @@ public class SubjectTest {
     }
 
     @Test
+    public void constructor_subjectWithOfficialPunctuation_storesName() {
+        assertEquals("Science (Physics, Chemistry)",
+                new Subject("Science (Physics, Chemistry)", Band.G3).getName());
+        assertEquals("Design & Technology", new Subject("Design & Technology", Band.G2).getName());
+        assertEquals("Food & Consumer Education", new Subject("Food & Consumer Education", Band.G1).getName());
+    }
+
+    @Test
+    public void isValidSubject_digitsSlashOrOtherPunctuation_returnsFalse() {
+        assertFalse(Subject.isValidSubject("Maths 2"));
+        assertFalse(Subject.isValidSubject("Science/Physics"));
+        assertFalse(Subject.isValidSubject("Science: Physics"));
+        assertFalse(Subject.isValidSubject("!!!"));
+        assertFalse(Subject.isValidSubject("A".repeat(Subject.MAX_LENGTH + 1)));
+    }
+
+    @Test
     public void constructor_nullBand_throwsNullPointerException() {
         assertThrows(NullPointerException.class, () -> new Subject("Mathematics", null));
     }
@@ -44,6 +61,12 @@ public class SubjectTest {
         } finally {
             Locale.setDefault(originalLocale);
         }
+    }
+
+    @Test
+    public void equals_samePunctuatedNameIgnoringCaseAndSpaces_returnsTrue() {
+        assertEquals(new Subject("Science (Physics, Chemistry)", Band.G3),
+                new Subject("science  (physics, chemistry)", Band.G3));
     }
 
     @Test

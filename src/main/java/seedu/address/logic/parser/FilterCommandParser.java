@@ -133,8 +133,10 @@ public class FilterCommandParser implements Parser<FilterCommand> {
                 new PhoneMatchesPredicate(ParserUtil.parsePhone(value)));
         addFilter(filters, argMultimap, PREFIX_EMAIL, value -> new EmailContainsTextPredicate(
                 parseSlashFreeSearchText(value, MESSAGE_BLANK_EMAIL, FIELD_EMAIL)));
-        addFilter(filters, argMultimap, PREFIX_ADDRESS, value ->
-                new AddressContainsTextPredicate(parseSearchText(value, MESSAGE_BLANK_ADDRESS)));
+        addFilter(filters, argMultimap, PREFIX_ADDRESS, value -> {
+            AddressPrefixChecker.verifyNoJoinedPrefix(value, FILTER_PREFIXES);
+            return new AddressContainsTextPredicate(parseSearchText(value, MESSAGE_BLANK_ADDRESS));
+        });
         addFilter(filters, argMultimap, PREFIX_GUARDIAN_NAME, value -> new GuardianNameContainsTextPredicate(
                 parseSlashFreeSearchText(value, MESSAGE_BLANK_GUARDIAN_NAME, FIELD_GUARDIAN_NAME)));
         addFilter(filters, argMultimap, PREFIX_GUARDIAN_PHONE, value ->

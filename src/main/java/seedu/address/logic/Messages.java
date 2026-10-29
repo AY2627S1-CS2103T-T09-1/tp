@@ -23,7 +23,8 @@ public class Messages {
 
     public static final String MESSAGE_UNKNOWN_COMMAND = "Unknown command.";
     public static final String MESSAGE_INVALID_COMMAND_FORMAT = "Invalid command format!\n%1$s";
-    public static final String MESSAGE_INVALID_PERSON_DISPLAYED_INDEX = "The student index provided is invalid.";
+    public static final String MESSAGE_INVALID_PERSON_DISPLAYED_INDEX =
+            "Index must be a positive integer shown in the displayed student list.";
     public static final String MESSAGE_PERSONS_LISTED_OVERVIEW = "%1$d student(s) listed!";
     public static final String MESSAGE_NOT_PROVIDED = "Not provided";
     public static final String MESSAGE_DUPLICATE_FIELDS =
@@ -41,6 +42,10 @@ public class Messages {
     public static final String MESSAGE_PREFIX_WITHOUT_SPACE_HINT =
             "If \"/\" was meant to start a new parameter, "
             + "check that each prefix is one this command accepts and has a space before it.";
+    public static final String MESSAGE_PREFIX_CASE_SENSITIVE =
+            "The \"%1$s\" prefix is case-sensitive. Use \"%2$s\" with a space before it.";
+    public static final String MESSAGE_MISSING_SPACE_BEFORE_PREFIX =
+            "Put a space before the \"%1$s\" prefix.";
     public static final String MESSAGE_NOT_SINGAPORE_PHONE = "Warning: %1$s doesn't look like a Singapore number "
             + "(8 digits starting with 6, 8, or 9, with or without +65). Use edit to fix it if it's wrong.";
     public static final String MESSAGE_NOT_SINGAPORE_PHONES = "Warning: %1$s don't look like Singapore numbers "
