@@ -107,6 +107,12 @@ No brackets | Required | `sch/SCHOOL` must be given
 
 If you are using a PDF version of this guide, be careful when you copy a command that spans more than one line. The spaces around the line breaks may be lost when you paste it into TuteeBook3.
 
+Text pasted from web pages, documents, or chat apps can contain special spaces and invisible characters. TuteeBook3 reads special spaces, such as a non-breaking space, as normal spaces and removes invisible characters, such as a zero-width space.
+
+<div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
+Type commands on your keyboard rather than pasting them where you can. Some pasted characters only look like keyboard symbols. For example, a full-width slash (`／`) does not start a parameter, so `n／John Doe` is not read as a name.
+</div>
+
 --------------------------------------------------------------------------------------------------------------------
 
 ## Features
