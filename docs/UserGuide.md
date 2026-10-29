@@ -140,7 +140,7 @@ Parameter | Prefix | Required in `add` | Rules | Examples
 
 </div>
 
-Names and school names accept ASCII letters, digits, and spaces only. Before upgrading, use the previous version to change saved school names that contain accents or punctuation. Otherwise, those records fail validation when the data file is loaded.
+Names and school names accept ASCII letters, digits, and spaces only. Before upgrading, use the previous version to change saved names or school names that contain accents or punctuation. Otherwise, those records fail validation when the data file is loaded.
 
 #### Phone numbers
 
