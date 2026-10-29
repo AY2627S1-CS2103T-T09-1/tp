@@ -1,6 +1,5 @@
 package seedu.address.logic.parser;
 
-import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
@@ -22,6 +21,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import seedu.address.logic.Messages;
 import seedu.address.logic.commands.FilterCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.Band;
@@ -69,6 +69,8 @@ public class FilterCommandParser implements Parser<FilterCommand> {
             + Note.MAX_LENGTH + " characters.";
     public static final String MESSAGE_SEARCH_CANNOT_MATCH =
             "No student's %1$s can contain \"/\", so \"%2$s\" matches no one.";
+    public static final String MESSAGE_TEXT_BEFORE_FILTER = "\"%1$s\" has no filter prefix before it. "
+            + "Start each filter with its prefix, such as: filter " + PREFIX_NAME + "tan";
 
     private static final Prefix[] FILTER_PREFIXES = {
         PREFIX_NAME, PREFIX_SCHOOL, PREFIX_LEVEL, PREFIX_SUBJECT, PREFIX_BAND,
@@ -102,8 +104,9 @@ public class FilterCommandParser implements Parser<FilterCommand> {
         if (hasAny(argMultimap, PREFIX_NID)) {
             throw new ParseException(MESSAGE_USE_NOTE_FILTER);
         }
-        if (!argMultimap.getPreamble().isEmpty()) {
-            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, FilterCommand.MESSAGE_USAGE));
+        String preamble = argMultimap.getPreamble();
+        if (!preamble.isEmpty()) {
+            throw new ParseException(describeTextBeforeFilter(preamble));
         }
         if (!hasAny(argMultimap, FILTER_PREFIXES)) {
             throw new ParseException(MESSAGE_NO_FILTER);
@@ -114,6 +117,21 @@ public class FilterCommandParser implements Parser<FilterCommand> {
         }
         verifyNoRepeatedFilter(argMultimap);
         verifyBandFollowsSubject(argMultimap.getPrefixes());
+    }
+
+    /**
+     * Returns the error for {@code preamble}, the text before the first filter prefix.
+     * A prefix typed in capitals, such as {@code N/}, is not recognized, so the error names it.
+     */
+    private static String describeTextBeforeFilter(String preamble) {
+        for (Prefix prefix : FILTER_PREFIXES) {
+            String prefixText = prefix.getPrefix();
+            if (preamble.regionMatches(true, 0, prefixText, 0, prefixText.length())) {
+                return String.format(Messages.MESSAGE_PREFIX_CASE_SENSITIVE,
+                        preamble.substring(0, prefixText.length()), prefixText);
+            }
+        }
+        return String.format(MESSAGE_TEXT_BEFORE_FILTER, preamble);
     }
 
     /**

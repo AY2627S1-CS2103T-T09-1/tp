@@ -629,7 +629,8 @@ If the command is wrong, `filter` shows one of these messages and does not chang
 Problem | Message
 --------|--------
 No filter is given | `Give at least one filter.` followed by how to use `filter`
-There is text before the first filter | `Invalid command format!` followed by how to use `filter`
+There is text before the first filter, such as `filter tan` | `"tan" has no filter prefix before it. Start each filter with its prefix, such as: filter n/tan`, with the text you typed in place of `tan`
+A filter prefix is typed in capitals, such as `filter N/tan` | `The "N/" prefix is case-sensitive. Use "n/" with a space before it.`, naming the prefix you typed
 A filter is empty, such as `sch/` | `The school to search for cannot be blank.` (or `name`, `email`, or `address`)
 A filter other than `t/` appears more than once | `Each filter can be given only once, but you repeated: sub/. To see students who match either value, run filter once for each value.`, with the repeated filters listed in place of `sub/`. If `t/` is also repeated, the `t/` message is shown first.
 `LEVEL` is not one of `S1` to `S5`, or is empty | `Level must be one of S1, S2, S3, S4, S5.`

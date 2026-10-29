@@ -1,6 +1,5 @@
 package seedu.address.logic.parser;
 
-import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailure;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSuccess;
 
@@ -32,9 +31,6 @@ import seedu.address.model.person.predicate.TagMatchesPredicate;
 import seedu.address.model.tag.Tag;
 
 public class FilterCommandParserTest {
-
-    private static final String MESSAGE_INVALID_FORMAT =
-            String.format(MESSAGE_INVALID_COMMAND_FORMAT, FilterCommand.MESSAGE_USAGE);
 
     private final FilterCommandParser parser = new FilterCommandParser();
 
@@ -119,13 +115,25 @@ public class FilterCommandParserTest {
 
     @Test
     public void parse_missingPrefix_throwsParseException() {
-        assertParseFailure(parser, " avi", MESSAGE_INVALID_FORMAT);
+        assertParseFailure(parser, " avi", textBeforeFilter("avi"));
     }
 
     @Test
     public void parse_textBeforePrefix_throwsParseException() {
-        assertParseFailure(parser, " avi n/li", MESSAGE_INVALID_FORMAT);
-        assertParseFailure(parser, " victoria sch/school", MESSAGE_INVALID_FORMAT);
+        assertParseFailure(parser, " avi n/li", textBeforeFilter("avi"));
+        assertParseFailure(parser, " victoria sch/school", textBeforeFilter("victoria"));
+    }
+
+    @Test
+    public void parse_capitalPrefix_throwsCaseSensitiveMessage() {
+        assertParseFailure(parser, " N/tan", capitalPrefix("N/", "n/"));
+        assertParseFailure(parser, " Lvl/S2", capitalPrefix("Lvl/", "lvl/"));
+        assertParseFailure(parser, " GN/amy", capitalPrefix("GN/", "gn/"));
+    }
+
+    @Test
+    public void parse_capitalNidPrefix_throwsNoPrefixMessage() {
+        assertParseFailure(parser, " NID/1", textBeforeFilter("NID/1"));
     }
 
     @Test
@@ -496,6 +504,14 @@ public class FilterCommandParserTest {
                 filterCommandOf(name("tan"), phone("91234567"), address("bedok"));
         assertParseSuccess(parser, " n/tan p/91234567 a/bedok", expectedFilterCommand);
         assertParseSuccess(parser, " a/bedok p/91234567 n/tan", expectedFilterCommand);
+    }
+
+    private static String textBeforeFilter(String text) {
+        return String.format(FilterCommandParser.MESSAGE_TEXT_BEFORE_FILTER, text);
+    }
+
+    private static String capitalPrefix(String typedPrefix, String prefix) {
+        return String.format(Messages.MESSAGE_PREFIX_CASE_SENSITIVE, typedPrefix, prefix);
     }
 
     private static String repeatedFilter(String prefixes) {
