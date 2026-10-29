@@ -58,7 +58,7 @@ edit 2 p/91234567 sub/Mathematics band/G2
 └ command word
 ```
 
-* **Command word**: what to do, such as `add`, `edit`, or `filter`. Type it in lowercase. `ADD` or `Add` shows `Unknown command.`
+* **Command word**: what to do, such as `add`, `edit`, or `filter`. It is not case-sensitive, so `ADD` and `Add` work the same as `add`.
 * **INDEX**: which student, using the number shown beside them in the student list. It changes when the list changes, such as after `filter`.
 * **Prefix**: a short label ending in `/`, such as `p/` for phone. It tells TuteeBook3 what the value after it is.
 * **Value**: what you type after a prefix, such as `91234567`.
@@ -693,7 +693,7 @@ Furthermore, certain edits can cause TuteeBook3 to behave in unexpected ways (e.
 
 #### Commands
 
-* **Case-sensitive**: Treating uppercase and lowercase letters as different. For example, `CONFIRM` is case-sensitive, so `confirm` does not confirm a command. Filters are not case-sensitive, so `n/tan` matches `Tan`.
+* **Case-sensitive**: Treating uppercase and lowercase letters as different. For example, `CONFIRM` is case-sensitive, so `confirm` does not confirm a command. Command words and filters are not case-sensitive, so `LIST` runs `list`, and `n/tan` matches `Tan`.
 * **Command**: An instruction that you type in the command box and press Enter to run, such as `list` or `view 1`. It starts with a word that says what to do, such as `add` or `filter`, followed by any parameters.
 * **Confirmation prompt**: An amber message that asks you to type `CONFIRM` before a command goes ahead. See [Confirming a command](#confirming-a-command).
 * **Exact matching**: The way the `lvl/`, `sub/`, `band/`, `p/`, `gp/`, and `t/` filters of `filter` compare values. The whole value must match, ignoring case and extra spaces. For example, `lvl/S3` matches only students in S3, and `sub/math` does not match `Mathematics`.
