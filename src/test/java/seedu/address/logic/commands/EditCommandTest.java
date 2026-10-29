@@ -68,7 +68,21 @@ public class EditCommandTest {
         EditCommand command = new EditCommand(INDEX_FIRST_PERSON,
                 new EditPersonDescriptorBuilder().withName(original.getName().toString()).build());
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
-        String expectedMessage = String.format(EditCommand.MESSAGE_NO_CHANGES, original.getName());
+        String expectedMessage = String.format(EditCommand.MESSAGE_NO_CHANGES, original.getName(),
+                original.getSchool(), original.getLevel());
+        assertCommandSuccess(command, model,
+                CommandResult.showStudentWarning(expectedMessage, original, INDEX_FIRST_PERSON), expectedModel);
+    }
+
+    @Test
+    public void execute_sameNameAsAnotherStudentNoChanges_messageNamesSchoolAndLevel() {
+        Person original = model.getFilteredPersonList().get(0);
+        model.addPerson(new PersonBuilder(original).withSchool("Victoria School").withLevel("S3").build());
+        EditCommand command = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withName(original.getName().toString()).build());
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        String expectedMessage = "No changes made: Alice Pauline at Maplewood Secondary School (S1) "
+                + "already has these details.";
         assertCommandSuccess(command, model,
                 CommandResult.showStudentWarning(expectedMessage, original, INDEX_FIRST_PERSON), expectedModel);
     }
@@ -81,7 +95,8 @@ public class EditCommandTest {
         EditCommand command = new EditCommand(INDEX_FIRST_PERSON,
                 new EditPersonDescriptorBuilder().withPhoneRemoved().build());
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
-        String expectedMessage = String.format(EditCommand.MESSAGE_NO_CHANGES, withoutPhone.getName());
+        String expectedMessage = String.format(EditCommand.MESSAGE_NO_CHANGES, withoutPhone.getName(),
+                withoutPhone.getSchool(), withoutPhone.getLevel());
         assertCommandSuccess(command, model,
                 CommandResult.showStudentWarning(expectedMessage, withoutPhone, INDEX_FIRST_PERSON), expectedModel);
     }
@@ -472,7 +487,8 @@ public class EditCommandTest {
         EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON, new EditPersonDescriptor());
         Person editedPerson = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
 
-        String expectedMessage = String.format(EditCommand.MESSAGE_NO_CHANGES, editedPerson.getName());
+        String expectedMessage = String.format(EditCommand.MESSAGE_NO_CHANGES, editedPerson.getName(),
+                editedPerson.getSchool(), editedPerson.getLevel());
 
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
 
@@ -510,7 +526,8 @@ public class EditCommandTest {
 
         String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS,
                 Messages.format(editedPerson))
-                + "\n" + String.format(EditCommand.MESSAGE_NO_LONGER_MATCHES, VALID_NAME_BOB);
+                + "\n" + String.format(EditCommand.MESSAGE_NO_LONGER_MATCHES, VALID_NAME_BOB,
+                        BENSON.getSchool(), BENSON.getLevel());
 
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setPerson(BENSON, editedPerson);
@@ -520,6 +537,18 @@ public class EditCommandTest {
         assertCommandSuccess(editCommand, model,
                 CommandResult.showStudent(expectedMessage, editedPerson, INDEX_FIRST_PERSON), expectedModel);
         assertEquals(List.of(editedPerson, DANIEL), model.getFilteredPersonList());
+    }
+
+    @Test
+    public void execute_editedPersonNoLongerMatchesFilter_messageNamesSchoolAndLevel() throws Exception {
+        model.updateFilteredPersonList(new NameContainsKeywordsPredicate(List.of(KEYWORD_MATCHING_MEIER)));
+        CommandResult result = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withName(VALID_NAME_BOB).build())
+                .execute(model);
+
+        String[] lines = result.getFeedbackToUser().split("\n");
+        assertEquals("Bob Choo at Northvale Primary School (S2) no longer matches your last search, "
+                + "but stays in the list until you enter list or filter.", lines[lines.length - 1]);
     }
 
     @Test
@@ -545,7 +574,8 @@ public class EditCommandTest {
 
         String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS,
                 Messages.format(editedPerson))
-                + "\n" + String.format(EditCommand.MESSAGE_NO_LONGER_MATCHES, VALID_NAME_BOB);
+                + "\n" + String.format(EditCommand.MESSAGE_NO_LONGER_MATCHES, VALID_NAME_BOB,
+                        BENSON.getSchool(), BENSON.getLevel());
         CommandResult expectedResult = CommandResult.showStudent(
                 expectedMessage, editedPerson, INDEX_FIRST_PERSON)
                 .withWarning(String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONE, "phone +447911123456"));
