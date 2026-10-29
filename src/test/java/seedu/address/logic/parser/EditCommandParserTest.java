@@ -78,10 +78,18 @@ public class EditCommandParserTest {
     }
 
     @Test
-    public void parse_schoolWithUnsupportedCharacters_failure() {
-        for (String school : List.of("École Française", "St Josephs School.",
-                "Anglo Chinese School (Independent)", "School & Technology")) {
+    public void parse_schoolWithUnicode_failure() {
+        for (String school : List.of("École Française", "李明学校")) {
             assertParseFailure(parser, "1 sch/" + school, School.MESSAGE_CONSTRAINTS);
+        }
+    }
+
+    @Test
+    public void parse_schoolWithOfficialPunctuation_success() {
+        for (String school : List.of("Anglo-Chinese School (Independent)", "St. Joseph's Institution",
+                "School of Science and Technology, Singapore")) {
+            EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withSchool(school).build();
+            assertParseSuccess(parser, "1 sch/" + school, new EditCommand(INDEX_FIRST_PERSON, descriptor));
         }
     }
 

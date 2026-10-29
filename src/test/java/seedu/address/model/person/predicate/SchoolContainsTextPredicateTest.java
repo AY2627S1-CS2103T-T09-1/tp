@@ -51,9 +51,9 @@ public class SchoolContainsTextPredicateTest {
     @Test
     public void test_wordsInSchoolName_returnsTrue() {
         assertTrue(new SchoolContainsTextPredicate("Nicholas")
-                .test(studentAt("CHIJ St Nicholas Girls School")));
+                .test(studentAt("CHIJ St. Nicholas Girls’ School")));
         assertTrue(new SchoolContainsTextPredicate("Girls")
-                .test(studentAt("CHIJ St Nicholas Girls School")));
+                .test(studentAt("CHIJ St. Nicholas Girls’ School")));
     }
 
     @Test

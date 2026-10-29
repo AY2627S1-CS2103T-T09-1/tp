@@ -83,11 +83,24 @@ public class AddCommandParserTest {
     }
 
     @Test
-    public void parse_schoolWithUnsupportedCharacters_failure() {
+    public void parse_schoolWithUnicode_failure() {
         String person = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB;
-        for (String school : List.of("École Française", "St Josephs School.",
-                "Anglo Chinese School (Independent)", "School & Technology")) {
+        for (String school : List.of("École Française", "李明学校")) {
             assertParseFailure(parser, person + " sch/" + school + SUBJECT_DESC, School.MESSAGE_CONSTRAINTS);
+        }
+    }
+
+    @Test
+    public void parse_schoolWithOfficialPunctuation_success() {
+        String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB;
+        String[] schools = {
+            "Anglo-Chinese School (Independent)",
+            "St. Joseph's Institution",
+            "School of Science and Technology, Singapore"
+        };
+        for (String school : schools) {
+            Person expectedPerson = new PersonBuilder(BOB).withSchool(school).build();
+            assertParseSuccess(parser, details + " sch/" + school + SUBJECT_DESC, new AddCommand(expectedPerson));
         }
     }
 

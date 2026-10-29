@@ -203,9 +203,9 @@ Every student record must include a name, school, and level. Many tutors teach s
 
 ### Student names and schools
 
-`Name` and `School` use the same character rule: a value starts with an ASCII letter or digit and contains only ASCII letters (`A`–`Z` and `a`–`z`), digits (`0`–`9`), and spaces. This rejects Unicode letters, including accented letters, and punctuation. Names have no separate length limit; school names must be 1 to 100 characters. The parsers trim and collapse ordinary spaces before constructing these values. Direct model construction and JSON loading use the same validators.
+`Name` and `School` both use ASCII letters and digits, so neither accepts Unicode letters or numbers. A name starts with an ASCII letter or digit and can contain only ASCII letters, digits, and spaces; guardian names use the same rule. A school name must be 1 to 100 characters, contain at least one ASCII letter, and can also contain spaces, periods, apostrophes (`'` or `’`), ampersands, parentheses, commas, and hyphens. Names and schools therefore share an ASCII letter/number rule while retaining different punctuation rules for their fields. The parsers trim and collapse ordinary spaces before constructing these values. Direct model construction and JSON loading use the same validators.
 
-The ASCII-only rule also applies to existing data files. A file containing an older name or school with Unicode characters or punctuation fails validation when loaded, with the relevant field constraint. Users must edit those records in the previous version before upgrading.
+The ASCII letter/number rule also applies to existing data files. A file containing a name or school with non-ASCII letters or numbers fails validation when loaded, with the relevant field constraint. Users must edit those records in the previous version before upgrading. Previously supported school punctuation remains valid.
 
 #### Design considerations
 
@@ -213,17 +213,17 @@ The ASCII-only rule also applies to existing data files. A file containing an ol
 
 * **Alternative 1: Allow Unicode letters and digits in both fields.**
   * Pros: Preserves names and school names in their original writing systems and supports accented spellings.
-  * Cons: Does not match the User Guide's existing definition of alphanumeric as ASCII `A`–`Z` and `0`–`9`. It also broadens values accepted by both fields and changes the documented rule.
+  * Cons: Does not match the User Guide's definition of alphanumeric as ASCII `A`–`Z` and `0`–`9`. Names and schools would also continue to accept different character sets if their punctuation rules differ.
 
-* **Alternative 2: Keep separate rules for the two fields.**
-  * Pros: Lets each field accept punctuation or Unicode characters that are common in its values.
-  * Cons: Repeats the current inconsistency: the same accented letter can be accepted in a school but rejected in a student's name. Users must remember different character rules for two required text fields.
+* **Alternative 2: Use the same strict ASCII letters, digits, and spaces rule for both fields.**
+  * Pros: Gives both fields exactly the same simple validation rule.
+  * Cons: Rejects common official school-name punctuation such as periods, apostrophes, ampersands, parentheses, commas, and hyphens. Existing school records using that punctuation would fail to load.
 
-* **Alternative 3 (chosen): Allow only ASCII letters, digits, and spaces in both fields.**
-  * Pros: Gives names and school names one predictable rule, matches the documented meaning of alphanumeric, and keeps input, model, and storage validation consistent.
-  * Cons: Rejects accurately written names and school names that use accents, other writing systems, or punctuation. Existing records with those characters must be converted before upgrading; spelling details such as apostrophes and hyphens cannot be stored as typed.
+* **Alternative 3 (chosen): Require ASCII letters and digits in both fields, while retaining school-specific punctuation.**
+  * Pros: Rejects non-ASCII letters consistently, preserves real school formats such as `Anglo-Chinese School (Independent)` and `St. Joseph's Institution`, and keeps parser, model, and storage validation aligned.
+  * Cons: Names and schools still have different punctuation rules, which must be documented. Accented and other non-ASCII letters in either field are rejected, so existing records with them must be changed before upgrading.
 
-The third option was selected to remove the reported name-school mismatch and make the supported character set explicit and consistent. The limitation is stated in the User Guide, including the required preparation for existing data files.
+The third option was selected because the issue was inconsistent handling of letters, not a need to make names and school names use identical punctuation. ASCII-only letters and digits reject the accented school case consistently with student names, while keeping the punctuation needed for realistic school names. The User Guide lists the exact rules for each field and explains the existing-data limitation.
 
 ### Student subjects and bands
 

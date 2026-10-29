@@ -61,7 +61,7 @@ public class SampleDataUtil {
                     List.of(new Subject("Mathematics", Band.G2), new Subject("Science", Band.G2)), Set.of(),
                     List.of(new Note("Practise fractions before the next lesson."))),
             new Person(new Name(SAMPLE_PREFIX + "Natalie Goh"), new Phone("84567890"),
-                    new School("Cedar Girls Secondary School"),
+                    new School("Cedar Girls' Secondary School"),
                     new Address("Blk 107 Toa Payoh Lorong 1, #08-212"),
                     new Email("natalie.goh@example.com"), Level.S4,
                     List.of(new Subject("Physics", Band.G3), new Subject("Chemistry", Band.G3)),

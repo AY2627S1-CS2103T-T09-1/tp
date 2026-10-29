@@ -48,14 +48,18 @@ public class JsonAdaptedPersonTest {
     }
 
     @Test
-    public void toModelType_schoolWithUnicodeOrPunctuation_throwsIllegalValueException() {
-        JsonAdaptedPerson unicodeSchool = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, "École Française", null,
-                VALID_LEVEL, VALID_SUBJECTS);
+    public void toModelType_schoolWithUnicode_throwsIllegalValueException() {
+        JsonAdaptedPerson unicodeSchool = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE,
+                "École Française", null, VALID_LEVEL, VALID_SUBJECTS);
         assertThrows(IllegalValueException.class, School.MESSAGE_CONSTRAINTS, unicodeSchool::toModelType);
+    }
 
-        JsonAdaptedPerson punctuatedSchool = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE,
-                "St Josephs School.", null, VALID_LEVEL, VALID_SUBJECTS);
-        assertThrows(IllegalValueException.class, School.MESSAGE_CONSTRAINTS, punctuatedSchool::toModelType);
+    @Test
+    public void toModelType_punctuatedSchool_returnsPerson() throws Exception {
+        String school = "St. Joseph's Institution";
+        JsonAdaptedPerson punctuatedSchool = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, school, null,
+                VALID_LEVEL, VALID_SUBJECTS);
+        assertEquals(new PersonBuilder(BENSON).withSchool(school).build(), punctuatedSchool.toModelType());
     }
 
     @Test

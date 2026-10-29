@@ -63,7 +63,7 @@ public class TypicalPersons {
             .build();
     public static final Person IDA = new PersonBuilder().withName("Ida Mueller")
             .withPhone("84821310")
-            .withSchool("CHIJ St Nicholas Girls School")
+            .withSchool("CHIJ St. Nicholas Girls’ School")
             .withLevel("S4")
             .build();
 

@@ -12,15 +12,16 @@ import java.util.Locale;
 public class School {
 
     public static final String MESSAGE_CONSTRAINTS =
-            "School names must be 1-100 characters, start with an ASCII letter or digit, and contain only ASCII "
-                    + "letters, digits, and spaces.";
+            "School names must be 1-100 characters, contain at least one ASCII letter, "
+                    + "and use only ASCII letters, digits, spaces, periods (.), apostrophes (' or ’), "
+                    + "ampersands (&), parentheses, commas, and hyphens (-).";
     public static final String DEFAULT_VALUE = "Unknown";
     public static final int MAX_LENGTH = 100;
 
     /*
-     * Keep the character rule aligned with Name. School names also have a 100-character limit.
+     * Keep the letter and number classes ASCII-only while retaining punctuation used in school names.
      */
-    public static final String VALIDATION_REGEX = "[A-Za-z0-9][A-Za-z0-9 ]*";
+    public static final String VALIDATION_REGEX = "(?=.*[A-Za-z])[A-Za-z0-9 .'’&(),-]+";
 
     public final String value;
     private final String comparisonValue;

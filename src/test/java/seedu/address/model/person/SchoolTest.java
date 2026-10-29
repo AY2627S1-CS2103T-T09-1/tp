@@ -25,14 +25,17 @@ public class SchoolTest {
         assertFalse(School.isValidSchool("School_Name"));
         assertFalse(School.isValidSchool("École Française"));
         assertFalse(School.isValidSchool("李明学校"));
-        assertFalse(School.isValidSchool("St Josephs School."));
-        assertFalse(School.isValidSchool("Anglo Chinese School (Independent)"));
+        assertFalse(School.isValidSchool("School １２３"));
+        assertFalse(School.isValidSchool("123")); // no ASCII letter
         assertFalse(School.isValidSchool("a".repeat(101)));
         assertTrue(School.isValidSchool("Unknown"));
         assertTrue(School.isValidSchool("St Josephs Institution"));
         assertTrue(School.isValidSchool("Anglo Chinese School"));
+        assertTrue(School.isValidSchool("Anglo-Chinese School (Independent)"));
+        assertTrue(School.isValidSchool("St. Joseph's Institution"));
+        assertTrue(School.isValidSchool("School of Science and Technology, Singapore"));
+        assertTrue(School.isValidSchool("Cedar Girls’ Secondary School"));
         assertTrue(School.isValidSchool("School123"));
-        assertTrue(School.isValidSchool("123"));
         assertTrue(School.isValidSchool("a".repeat(100)));
     }
 
