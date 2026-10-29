@@ -174,6 +174,7 @@ An email has the form `local-part@domain`, such as `chloe.tan@example.com`: exac
 
 * The local part can contain English letters, digits, and the symbols `+`, `_`, `.`, and `-`. It cannot start or end with a symbol or have two symbols in a row, so `chloe..tan@example.com` and `chloe.-tan@example.com` are rejected.
 * The domain is made up of labels separated by single periods. Each label starts and ends with an English letter or digit and can contain single hyphens, such as `my-school`. The last label has at least 2 letters or digits in a row, such as `com`.
+* If the domain has no period, such as `john@gmail`, TuteeBook3 still saves the email but shows a warning, since an ending such as `.com` may be missing: `Warning: email john@gmail has no "." after the "@", so an ending such as ".com" may be missing. Use edit to fix it if it's wrong.`
 
 <div markdown="span" class="alert alert-info">:information_source: **Note:**
 Each student and guardian has one phone number, which is the number you use to reach them. TuteeBook3 does not support a second phone number or a guardian email address. To keep one, add it as a note on that student with `addnote`, for example `addnote 1 note/Mum's office: 6123 4567`.
@@ -248,6 +249,7 @@ Parameters in a different order | `add n/Betsy Crowe lvl/S1 sch/Bedok Green Seco
 Two subjects at different bands | `add n/Chloe Tan sch/Bedok Green Secondary School lvl/S2 sub/Mathematics band/G1 sub/English band/G3`
 An address | `add n/Mei Lin sch/Bedok Green Secondary School a/Blk 123 Bedok North Avenue 2, #04-111 lvl/S2 sub/Mathematics band/G1`
 An email | `add n/Priya Nair sch/Bedok Green Secondary School e/priya.nair@example.com lvl/S2 sub/Mathematics band/G1`
+An email with no period in its domain (saved, with a warning that an ending such as `.com` may be missing) | `add n/John Tan sch/Victoria School lvl/S3 sub/Mathematics band/G3 e/john@gmail`
 Tags | `add n/Ryan Ong sch/Bedok Green Secondary School lvl/S2 sub/Mathematics band/G1 t/exams t/paid`
 A guardian (use `view INDEX` to see the guardian's details) | `add n/Jun Wei Lim sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Lim gp/91234567`
 A guardian with an overseas number (saved as `+60123456789`, with a warning that it doesn't look like a Singapore number) | `add n/Aisha Rahman sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Farah Rahman gp/+60 12-345 6789`
@@ -301,7 +303,7 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [a/ADDRESS] [e/EMAIL] [lvl/L
 * `INDEX` follows the rules in [Indexes and notes](#indexes-and-notes). Every other parameter follows the rules in [Parameter details](#parameter-details).
 * Give at least one parameter. Each one you give replaces the student's current value. Anything you leave out stays as it is, and the student's notes are kept.
 * Tags and subjects are replaced as a whole. `t/paid` replaces all of the student's tags with `paid`, and `sub/English band/G2` replaces all of their subjects with English at G2. Include every tag and subject you want to keep. See [Subjects and bands](#subjects-and-bands).
-* The warning that a phone number doesn't look like a Singapore number only appears when you type `p/` or `gp/` in that command.
+* The warning that a phone number doesn't look like a Singapore number only appears when you type `p/` or `gp/` in that command. Likewise, the warning about an email with no period in its domain only appears when you type `e/`.
 * The displayed list stays in place, and the edited student's record opens on the right. Fields shown on the list card are updated immediately. If the edited student no longer matches your last `filter`, they stay in the list until you enter `list` or `filter` again. The result display tells you when an edit makes a student stop matching.
 
 To remove a detail, type its prefix with no value, or for a subject, give the subjects to keep:
@@ -335,6 +337,7 @@ Replace the tags with `paid` and `exams` | `edit 1 t/paid t/exams`
 Add a guardian, or replace both of the guardian's details | `edit 1 gn/Mary Tan gp/91234567`
 Change only the guardian's phone number | `edit 1 gp/98765432`
 Change the guardian's phone number to an overseas number (saved as `+60123456789`, with a warning that it doesn't look like a Singapore number) | `edit 1 gp/+60 12-345 6789`
+Change the email to one with no period in its domain (saved, with a warning that an ending such as `.com` may be missing) | `edit 1 e/john@gmail`
 Remove the phone number of the 3rd student | `edit 3 p/`
 Remove all tags | `edit 1 t/`
 Remove the guardian | `edit 1 gn/ gp/`
@@ -737,7 +740,7 @@ Furthermore, certain edits can cause TuteeBook3 to behave in unexpected ways (e.
 * **Parameter**: A value that you supply in a command, shown in `UPPER_CASE` in this guide, such as `NAME` in `n/NAME`.
 * **Partial matching**: The way the `n/`, `sch/`, `e/`, `a/`, `gn/`, and `note/` filters of `filter` compare values. The value only needs to contain what you typed, even part of a word, ignoring case. For example, `sch/vic` matches `Victoria School`.
 * **Prefix**: A short marker ending in `/`, such as `n/` or `sch/`, that labels the value after it in a command.
-* **Warning**: An amber message that flags something that might be a mistake, without stopping the command. For example, TuteeBook3 saves a phone number that doesn't look like a Singapore number, but shows a warning so that you can check it.
+* **Warning**: An amber message that flags something that might be a mistake, without stopping the command. For example, TuteeBook3 saves a phone number that doesn't look like a Singapore number, or an email such as `john@gmail` with no period in its domain, but shows a warning so that you can check it.
 
 #### Screen layout
 

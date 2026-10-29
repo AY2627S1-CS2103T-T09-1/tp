@@ -113,9 +113,9 @@ public class AddCommand extends Command implements ConfirmationCommand {
         Index addedPersonIndex = Index.fromOneBased(model.getFilteredPersonList().size());
         CommandResult result = CommandResult.showStudent(
                 String.format(MESSAGE_SUCCESS, Messages.format(toAdd)), toAdd, addedPersonIndex);
-        return Messages.getNonSingaporePhoneWarning(toAdd.getPhone(), toAdd.getGuardian().map(Guardian::getPhone))
-                .map(result::withWarning)
-                .orElse(result);
+        return result.withWarnings(
+                Messages.getNonSingaporePhoneWarning(toAdd.getPhone(), toAdd.getGuardian().map(Guardian::getPhone)),
+                Messages.getEmailNoDomainDotWarning(toAdd.getEmail()));
     }
 
     private static void ensureNoExactDuplicate(Model model, Person person) throws CommandException {

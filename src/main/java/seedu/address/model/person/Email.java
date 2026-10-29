@@ -47,6 +47,7 @@ public class Email {
             + "    - have each domain label start and end with alphanumeric characters\n"
             + "    - have each domain label consist of alphanumeric characters, separated only by hyphens, if any.";
     private static final String AT = "@";
+    private static final String DOMAIN_LABEL_SEPARATOR = ".";
     private static final String DOMAIN_LABEL_SEPARATOR_REGEX = "\\.";
     // alphanumeric and special characters
     private static final String ALPHANUMERIC_NO_UNDERSCORE = "[^\\W_]+"; // alphanumeric characters except underscore
@@ -78,6 +79,16 @@ public class Email {
      */
     public static boolean isValidEmail(String test) {
         return test.codePointCount(0, test.length()) <= MAX_LENGTH && test.matches(VALIDATION_REGEX);
+    }
+
+    /**
+     * Returns true if the domain, the part after the "@", contains a period.
+     * A domain without one, such as {@code gmail}, is valid but is often missing an ending such as {@code .com}.
+     */
+    public boolean hasDotInDomain() {
+        int atIndex = value.indexOf(AT);
+        assert atIndex > 0 && atIndex == value.lastIndexOf(AT) : "A valid email has exactly one @";
+        return value.substring(atIndex + 1).contains(DOMAIN_LABEL_SEPARATOR);
     }
 
     /**

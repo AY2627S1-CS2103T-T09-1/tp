@@ -199,6 +199,13 @@ public class AddCommandParserTest {
     }
 
     @Test
+    public void parse_emailWithoutDomainDot_success() {
+        Person expectedPerson = new PersonBuilder(BOB).withoutPhone().withEmail("bob@gmail").build();
+        assertParseSuccess(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + " e/bob@gmail" + LEVEL_DESC_BOB
+                + SUBJECT_DESC, new AddCommand(expectedPerson));
+    }
+
+    @Test
     public void parse_invalidEmail_failure() {
         assertParseFailure(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + INVALID_EMAIL_DESC + LEVEL_DESC_BOB
                 + SUBJECT_DESC, String.format(Email.MESSAGE_MISSING_AT, "bob!yahoo"));
