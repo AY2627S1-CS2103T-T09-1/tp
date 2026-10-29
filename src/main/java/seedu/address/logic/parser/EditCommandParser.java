@@ -43,11 +43,15 @@ public class EditCommandParser implements Parser<EditCommand> {
                         PREFIX_LEVEL, PREFIX_SUBJECT, PREFIX_BAND, PREFIX_GUARDIAN_NAME, PREFIX_GUARDIAN_PHONE,
                         PREFIX_TAG);
 
+        String indexArgument = argMultimap.getPreamble();
         Index index;
 
         try {
-            index = ParserUtil.parseIndex(argMultimap.getPreamble());
+            index = ParserUtil.parseIndex(indexArgument);
         } catch (ParseException pe) {
+            if (ParserUtil.isInteger(indexArgument)) {
+                throw pe;
+            }
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditCommand.MESSAGE_USAGE), pe);
         }
 

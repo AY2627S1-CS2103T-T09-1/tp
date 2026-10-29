@@ -1,6 +1,7 @@
 package seedu.address.logic.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.Messages.MESSAGE_SUBJECT_BAND_PAIR;
@@ -86,6 +87,24 @@ public class ParserUtilTest {
 
         // Leading and trailing whitespaces
         assertEquals(INDEX_FIRST_PERSON, ParserUtil.parseIndex("  1  "));
+    }
+
+    @Test
+    public void isInteger_integer_returnsTrue() {
+        assertTrue(ParserUtil.isInteger("1"));
+        assertTrue(ParserUtil.isInteger("0"));
+        assertTrue(ParserUtil.isInteger("-1"));
+        assertTrue(ParserUtil.isInteger("  99999999999  "));
+        assertTrue(ParserUtil.isInteger("  -99999999999  "));
+    }
+
+    @Test
+    public void isInteger_notInteger_returnsFalse() {
+        assertFalse(ParserUtil.isInteger(""));
+        assertFalse(ParserUtil.isInteger(WHITESPACE));
+        assertFalse(ParserUtil.isInteger("3.5"));
+        assertFalse(ParserUtil.isInteger("abc"));
+        assertFalse(ParserUtil.isInteger("1 2"));
     }
 
     @Test

@@ -23,7 +23,8 @@ public class Messages {
 
     public static final String MESSAGE_UNKNOWN_COMMAND = "Unknown command.";
     public static final String MESSAGE_INVALID_COMMAND_FORMAT = "Invalid command format!\n%1$s";
-    public static final String MESSAGE_INVALID_PERSON_DISPLAYED_INDEX = "The student index provided is invalid.";
+    public static final String MESSAGE_INVALID_PERSON_DISPLAYED_INDEX =
+            "Index must be a positive integer shown in the displayed student list.";
     public static final String MESSAGE_PERSONS_LISTED_OVERVIEW = "%1$d student(s) listed!";
     public static final String MESSAGE_NOT_PROVIDED = "Not provided";
     public static final String MESSAGE_DUPLICATE_FIELDS =
