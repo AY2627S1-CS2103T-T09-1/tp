@@ -14,21 +14,18 @@ public class School {
 
     public static final int MAX_LENGTH = 100;
 
-    private static final String ALLOWED_CHARACTERS =
-            "ASCII letters (A-Z, a-z), digits (0-9), spaces, periods (.), "
-                    + "apostrophes (' or ’), ampersands (&), parentheses, commas, and hyphens (-)";
-
     public static final String MESSAGE_BLANK = "School name cannot be blank.";
     public static final String MESSAGE_TOO_LONG = "School name must be at most " + MAX_LENGTH
             + " characters; this value has %d.";
     public static final String MESSAGE_INVALID_CHARACTER = "School name \"%1$s\" contains \"%2$s\", "
-            + "which isn't allowed. Use " + ALLOWED_CHARACTERS + ".";
+            + "which isn't allowed. Use " + getAllowedCharacters() + ".";
     public static final String MESSAGE_MISSING_ASCII_LETTER =
             "School name \"%s\" must contain at least one ASCII letter.";
     public static final String MESSAGE_CONSTRAINTS =
             "School names must be 1-" + MAX_LENGTH + " characters, contain at least one ASCII letter, "
-                    + "and use only " + ALLOWED_CHARACTERS + ".";
+                    + "and use only " + getAllowedCharacters() + ".";
     public static final String DEFAULT_VALUE = "Unknown";
+
     private static final String ALLOWED_PUNCTUATION = " .'’&(),-";
 
     public final String value;
@@ -93,6 +90,11 @@ public class School {
     private static boolean isAllowedCharacter(int codePoint) {
         return isAsciiLetter(codePoint) || (codePoint >= '0' && codePoint <= '9')
                 || ALLOWED_PUNCTUATION.indexOf(codePoint) >= 0;
+    }
+
+    private static String getAllowedCharacters() {
+        return "ASCII letters (A-Z, a-z), digits (0-9), spaces, periods (.), "
+                + "apostrophes (' or ’), ampersands (&), parentheses, commas, and hyphens (-)";
     }
 
     private static boolean isAsciiLetter(int codePoint) {

@@ -80,9 +80,10 @@ public class EditCommandParserTest {
 
     @Test
     public void parse_schoolWithUnicode_failure() {
-        for (String school : List.of("École Française", "李明学校")) {
-            assertParseFailure(parser, "1 sch/" + school, School.MESSAGE_CONSTRAINTS);
-        }
+        assertParseFailure(parser, "1 sch/École Française",
+                String.format(School.MESSAGE_INVALID_CHARACTER, "École Française", "É"));
+        assertParseFailure(parser, "1 sch/李明学校",
+                String.format(School.MESSAGE_INVALID_CHARACTER, "李明学校", "李"));
     }
 
     @Test
