@@ -83,6 +83,17 @@ public class AddCommandParserTest {
     }
 
     @Test
+    public void parse_schoolWithBracketsAndComma_success() {
+        String[] schools = {"Anglo-Chinese School (Independent)", "School of Science and Technology, Singapore"};
+        for (String school : schools) {
+            Person expectedPerson = new PersonBuilder(BOB).withSchool(school).build();
+            String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + " sch/" + school + SUBJECT_DESC;
+
+            assertParseSuccess(parser, details, new AddCommand(expectedPerson));
+        }
+    }
+
+    @Test
     public void parse_allFieldsPresent_success() {
         Person expectedPerson = new PersonBuilder(BOB).build();
         String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB;
