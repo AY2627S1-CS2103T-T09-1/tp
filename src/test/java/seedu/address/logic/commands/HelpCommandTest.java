@@ -18,7 +18,7 @@ public class HelpCommandTest {
             "Available commands:",
             "",
             "add - Adds a student.",
-            "Example: add n/Amy Lee sch/Victoria School lvl/S1 sub/Mathematics band/G1",
+            "Example: add n/Amy sch/NUS High lvl/S1 sub/Math band/G1",
             "",
             "edit - Edits a student's details.",
             "Example: edit 1 lvl/S3",
