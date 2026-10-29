@@ -94,6 +94,16 @@ public class AddCommandParserTest {
     }
 
     @Test
+    public void parse_subjectWithOfficialPunctuation_success() {
+        String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB;
+        String[] subjects = {"Science (Physics, Chemistry)", "Design & Technology", "Food & Consumer Education"};
+        for (String subject : subjects) {
+            Person expectedPerson = new PersonBuilder(BOB).withSubjects(new Subject(subject, Band.G3)).build();
+            assertParseSuccess(parser, details + " sub/" + subject + " band/G3", new AddCommand(expectedPerson));
+        }
+    }
+
+    @Test
     public void parse_allFieldsPresent_success() {
         Person expectedPerson = new PersonBuilder(BOB).build();
         String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB;

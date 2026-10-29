@@ -86,6 +86,14 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_subjectWithOfficialPunctuation_success() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withSubjects(new Subject("Science (Physics, Chemistry)", Band.G3)).build();
+        assertParseSuccess(parser, "1 sub/Science (Physics, Chemistry) band/G3",
+                new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
     public void parse_addressSetOrRemoved_success() {
         EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withAddress("12 Example Road").build();
         assertParseSuccess(parser, "1 a/12 Example Road", new EditCommand(INDEX_FIRST_PERSON, descriptor));

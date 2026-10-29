@@ -267,6 +267,14 @@ public class FilterCommandParserTest {
     }
 
     @Test
+    public void parse_subjectWithOfficialPunctuation_returnsFilterCommand() {
+        assertParseSuccess(parser, " sub/Science (Physics, Chemistry) band/G3",
+                filterCommandOf(subject("Science (Physics, Chemistry)", Band.G3)));
+        assertParseSuccess(parser, " sub/Design & Technology",
+                filterCommandOf(subject("Design & Technology")));
+    }
+
+    @Test
     public void parse_invalidSubject_throwsParseException() {
         assertParseFailure(parser, " sub/Math3", Subject.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, " sub/", Subject.MESSAGE_CONSTRAINTS);
