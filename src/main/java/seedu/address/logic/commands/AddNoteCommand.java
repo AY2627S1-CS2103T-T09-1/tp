@@ -24,7 +24,7 @@ public class AddNoteCommand extends Command {
             + "Parameters: INDEX (must be a positive integer) " + PREFIX_NOTE + "TEXT\n"
             + "Example: " + COMMAND_WORD + " 1 " + PREFIX_NOTE + "Weak in algebra";
 
-    public static final String MESSAGE_SUCCESS = "Added note to %1$s: %2$s";
+    public static final String MESSAGE_SUCCESS = "Added note to %1$s at %2$s (%3$s): %4$s";
 
     private final Index targetIndex;
     private final Note note;
@@ -51,8 +51,9 @@ public class AddNoteCommand extends Command {
         Person editedPerson = person.copyWithNotes(notes);
 
         model.setPerson(person, editedPerson);
-        return CommandResult.showStudent(
-                String.format(MESSAGE_SUCCESS, editedPerson.getName(), note), editedPerson, targetIndex);
+        String successMessage = String.format(MESSAGE_SUCCESS, editedPerson.getName(), editedPerson.getSchool(),
+                editedPerson.getLevel(), note);
+        return CommandResult.showStudent(successMessage, editedPerson, targetIndex);
     }
 
     @Override

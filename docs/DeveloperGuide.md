@@ -201,9 +201,33 @@ The required subject and band are deliberately excluded from the key. A student 
 
 Every student record must include a name, school, and level. Many tutors teach students with common names. School helps distinguish students who attend different schools. Level helps distinguish students at the same school who are in different levels. These fields block many accidental repeat entries while still allowing students with the same name when their school or level differs.
 
+### Student names and schools
+
+`Name` and `School` both use ASCII letters and digits, so neither accepts Unicode letters or numbers. A name starts with an ASCII letter or digit and can contain only ASCII letters, digits, and spaces; guardian names use the same rule. A school name must be 1 to 100 characters, contain at least one ASCII letter, and can also contain spaces, periods, apostrophes (`'` or `’`), ampersands, parentheses, commas, and hyphens. Names and schools therefore share an ASCII letter/number rule while retaining different punctuation rules for their fields. The parsers trim and collapse ordinary spaces before constructing these values. Direct model construction and JSON loading use the same validators.
+
+The ASCII letter/number rule also applies to existing data files. A file containing a name or school with non-ASCII letters or numbers fails validation when loaded, with the relevant field constraint. Users must edit those records in the previous version before upgrading. Previously supported school punctuation remains valid.
+
+#### Design considerations
+
+**Aspect: Character rules for names and schools**
+
+* **Alternative 1: Allow Unicode letters and digits in both fields.**
+  * Pros: Preserves names and school names in their original writing systems and supports accented spellings.
+  * Cons: Does not match the User Guide's definition of alphanumeric as ASCII `A`–`Z` and `0`–`9`. Names and schools would also continue to accept different character sets if their punctuation rules differ.
+
+* **Alternative 2: Use the same strict ASCII letters, digits, and spaces rule for both fields.**
+  * Pros: Gives both fields exactly the same simple validation rule.
+  * Cons: Rejects common official school-name punctuation such as periods, apostrophes, ampersands, parentheses, commas, and hyphens. Existing school records using that punctuation would fail to load.
+
+* **Alternative 3 (chosen): Require ASCII letters and digits in both fields, while retaining school-specific punctuation.**
+  * Pros: Rejects non-ASCII letters consistently, preserves real school formats such as `Anglo-Chinese School (Independent)` and `St. Joseph's Institution`, and keeps parser, model, and storage validation aligned.
+  * Cons: Names and schools still have different punctuation rules, which must be documented. Accented and other non-ASCII letters in either field are rejected, so existing records with them must be changed before upgrading.
+
+The third option was selected because the issue was inconsistent handling of letters, not a need to make names and school names use identical punctuation. ASCII-only letters and digits reject the accented school case consistently with student names, while keeping the punctuation needed for realistic school names. The User Guide lists the exact rules for each field and explains the existing-data limitation.
+
 ### Student subjects and bands
 
-Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `G2`, or `G3`. Subject names can contain 1 to 40 letters, spaces, or hyphens and must contain at least one letter. A student cannot have the same subject name more than once, even at different bands.
+Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `G2`, or `G3`. Subject names can contain 1 to 40 Unicode letters, spaces, hyphens, parentheses, commas, and ampersands, and must contain at least one letter. Digits, slashes, and other symbols are rejected. A student cannot have the same subject name more than once, even at different bands.
 
 `Subject` is an immutable value object containing both the subject name and its required `Band`. The band is an enum, so a `Subject` cannot be constructed with an unsupported band or without one. For comparison, `Subject` trims surrounding spaces, collapses repeated ordinary spaces, and lowercases the name. The band is included in `Subject.equals`, but `Person#validateSubjects` checks names separately and rejects a repeated subject even if the bands differ.
 
@@ -234,6 +258,22 @@ Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `
   * Cons: Adds a second state for every subject and requires commands, storage, and display to handle missing bands. Filtering by band must also distinguish between “any band” and “no band recorded.”
 
 The app uses the second option because the tutor needs each subject’s band to plan lessons at the right level. Requiring it when the subject is entered keeps the model and stored data consistent. The pair format also makes the relationship explicit in commands: each `sub/` must be followed by its own `band/`.
+
+**Aspect: Which characters to allow in subject names**
+
+* **Alternative 1:** Keep the existing letters, spaces, and hyphens.
+  * Pros: Keeps validation simple and rejects punctuation that may be accidental.
+  * Cons: Rejects commonly used subject names such as `Science (Physics, Chemistry)` and `Design & Technology`.
+
+* **Alternative 2 (current choice):** Also allow parentheses, commas, and ampersands.
+  * Pros: Accepts the real names reported in issue 263 while retaining the existing length limit, Unicode-letter support, and at-least-one-letter rule. Digits, slashes, and other symbols remain rejected.
+  * Cons: A subject can contain awkward punctuation placement because the rule checks allowed characters, not subject-name grammar.
+
+* **Alternative 3:** Allow any printable punctuation and digits.
+  * Pros: Supports a wider range of current and future course names.
+  * Cons: Allows more accidental or inconsistent names than the issue requires, which can make subjects harder to recognize and filter consistently.
+
+The app uses the second option because it resolves the reported real-name cases without making subject names unrestricted. The subject name remains one value before `band/`; the added characters do not change command tokenization.
 
 ### Student addresses
 
@@ -456,7 +496,14 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 1. It wraps the predicates in a `StudentMatchesAllPredicate`, which returns `true` only if every predicate does, and returns a `FilterCommand` holding it.
 1. `FilterCommand#execute` passes the predicate to `Model#updateFilteredPersonList` and returns `CommandResult.showList(...)` with the number of students found, or a no-match message.
 
-The partial-match predicates (`n/`, `sch/`, `e/`, `a/`, `gn/`, `note/`) use `StringUtil#containsIgnoreCaseAndSpaces`, which lowercases both strings and squeezes runs of whitespace before comparing. The exact-match filters are parsed first with the same `ParserUtil` methods as `add`, into a `Level`, `Band`, `Phone`, or `Tag`. So `lvl/s3` becomes `S3` and `p/+65 9123 4567` becomes `91234567`, the form in which they are stored, and the predicates can compare values directly. `TagMatchesPredicate` relies on `Tag#equals`, which ignores case. `parseTagFilter` checks for a space before calling `ParserUtil#parseTag`, so a tag with a space gets `MESSAGE_FILTER_TAG_HAS_SPACE`, which quotes the value and says `filter` takes one tag, in place of `parseTag`'s advice to put `t/` before each tag. `SubjectMatchesPredicate` compares names with `Subject#hasName`, the same rule `add` uses to detect a repeated subject, and requires the band to belong to that same subject.
+The partial-match predicates (`n/`, `sch/`, `e/`, `a/`, `gn/`, `note/`) use `StringUtil#containsIgnoreCaseAndSpaces`, which ignores case and runs of whitespace.
+
+Apart from `NameContainsKeywordsPredicate`, these predicates extend the abstract `ContainsTextPredicate`. It holds the text, rejects blank text, and defines `containsText`, `equals`, and `toString`, so each subclass only picks the field to search in `test`. `equals` compares classes, so `sch/bedok` and `a/bedok` are different filters.
+
+The exact-match filters are parsed first with the same `ParserUtil` methods as `add`, into a `Level`, `Band`, `Phone`, or `Tag`, the form in which they are stored. So `lvl/s3` becomes `S3` and `p/+65 9123 4567` becomes `91234567`, and the predicates can compare values directly. Two need more:
+
+* `TagMatchesPredicate` relies on `Tag#equals`, which ignores case. `parseTagFilter` checks for a space before calling `ParserUtil#parseTag`, so a tag with a space gets `filter`'s own message, `MESSAGE_FILTER_TAG_HAS_SPACE`, in place of `parseTag`'s advice to put `t/` before each tag.
+* `SubjectMatchesPredicate` compares names with `Subject#hasName`, the same rule `add` uses to detect a repeated subject, and requires the band to belong to that same subject.
 
 #### Design considerations
 
@@ -516,36 +563,46 @@ The partial-match predicates (`n/`, `sch/`, `e/`, `a/`, `gn/`, `note/`) use `Str
 
 ### Hint for a missing space before a prefix
 
-`ArgumentTokenizer` treats a prefix as a prefix only when a space comes before it. In `add n/John Doep/98765432 ...`, `p/98765432` becomes part of the name, so without a hint the user would see a name error that doesn't mention the missing space.
+`ArgumentTokenizer` treats a prefix as a prefix only when a space comes before it. In `add n/John Doep/98765432 ...`, `p/98765432` becomes part of the name, so without a hint the user would see a name error that doesn't mention the missing space. Prefixes are also case-sensitive: `P/` is not the same prefix as `p/`.
 
 #### Implementation
 
-1. `ParserUtil#getSlashHint` returns a hint if a value contains `/`: `If "/" was meant to start a new parameter, check that each prefix is one this command accepts and has a space before it.` The hint does not name a prefix or quote the value.
+1. `ParserUtil#getSlashHint` returns a general hint if a slash appears in a value that cannot contain `/`. The hint does not name a prefix or quote the value.
 1. When a value in `add` or `edit` fails its usual check, `ParserUtil#withSlashHint` adds the hint on a new line after the usual error. This applies to the name, phone numbers, school, email, level, subject, band, guardian name, and tags. None of these values can contain `/`, so a `/` in them is either a missing space or a character the field doesn't allow, and the hint helps in both cases.
 1. Some joined prefixes cause a misleading error before the value is checked. In `gn/Mary Tangp/91234567`, the guardian phone seems missing; in `gp/91234567gn/Mary Tan`, the guardian name seems missing; and in `sub/Englishband/G1`, the band seems missing. So `AddCommandParser` checks the guardian name and phone for `/` before checking that `gn/` and `gp/` are given together, and `AddCommandParser` and `EditCommandParser` call `ParserUtil#verifySubjectNamesHaveNoSlash` before checking that each `sub/` has a `band/`.
 1. `FilterCommandParser` rejects `/` in `n/`, `sch/`, `e/`, and `gn/`, with the hint. These values cannot contain `/`, so a search such as `Tangp/91234567` or `Rajesh s/o Kumar` could never match a student. The `sub/` filter adds the hint to the subject error.
 
-Addresses can contain `/`, such as `Blk 1/2`, so they never get a hint. The User Guide lists this as a known issue. Notes can also contain `/`, but `note/` takes the rest of the command, so no prefix can follow it.
+1. Addresses can contain `/`, such as `Blk 1/2`, so the general slash hint would reject valid values. `AddressPrefixChecker` instead examines each slash in an address for a known prefix accepted by the current command. It matches the prefix letters without regard to case, then validates the remaining text with the parser for that field. It reports a case-sensitive-prefix error when the entered capitalization differs, or a missing-space error when the spelling is correct. It does not inspect the same `a/` prefix again.
+1. `AddCommandParser` and `EditCommandParser` pass their accepted prefixes to `AddressPrefixChecker` before parsing the address. `FilterCommandParser` does the same for its address filter, including `note/`, whose trailing-text behavior is preserved. This check does not alter address text; it only rejects a likely joined parameter. A legitimate address segment that happens to be followed by a known prefix and valid field value can be interpreted as a missing space.
+1. Notes can contain `/`, but `note/` takes the rest of the command, so a parameter after a note is not possible.
 
 #### Design considerations
 
-**Aspect: How to handle a prefix with no space before it**
+**Aspect: How to detect a parameter joined to an address**
 
-* **Alternative 1 (current choice):** Keep the value as typed, and add a hint to its error.
-  * Pros: The app never changes what the user typed without telling them. A hint appears only when the value is already invalid.
-  * Cons: The user has to retype the command.
+* **Alternative 1:** Match the exact lowercase prefix before `/`, without checking the text after it.
+  * Pros: Simple and does not mistake differently-cased text for a prefix.
+  * Cons: Does not identify a common uppercase or mixed-case typo such as `P/`, and can still mistake an address segment that ends in a lowercase prefix for a parameter.
 
-* **Alternative 2:** Split the value at the prefix automatically.
-  * Pros: The user does not need to retype.
-  * Cons: The parser has to guess where the value ends. A wrong guess saves the wrong data without an error.
+* **Alternative 2:** Match a known prefix ignoring case, without checking the text after it.
+  * Pros: Catches misspelled capitalization consistently.
+  * Cons: Can reject a valid address simply because text after `/` starts with letters that look like a prefix, even when the rest is not a valid value for that field.
 
-**Aspect: Whether the hint names the prefix**
+* **Alternative 3 (current choice):** Match a known prefix ignoring case, then check whether the remaining text is valid for that field.
+  * Pros: Catches lowercase joined prefixes and capitalization mistakes, while allowing ordinary slashes such as `Blk 1/2`. It can give a targeted case-sensitive message for `P/` and a missing-space message for `p/`.
+  * Cons: An unusual but legitimate address can still look exactly like a prefix followed by a valid field value, so the parser may ask for a space. It does not guess how to split or silently change the address.
+
+* **Alternative 4:** Split the address at any known prefix automatically.
+  * Pros: The user may not need to retype a command when the intended split is clear.
+  * Cons: The parser can guess incorrectly and save or search for different values from what the user entered.
+
+**Aspect: Whether the error identifies a prefix**
 
 * **Alternative 1:** Find a known prefix in the word, and name the one that starts first.
   * Pros: More specific when it is right. For `Doep/98765432`, it says to put a space before `p/`.
   * Cons: The same word can come from different mistakes. In `n/Alex Ngp/91234567`, the user meant the name `Alex Ng` and `p/`, but `gp/` starts first. In `p/91234567gp/92345678`, the user meant `gp/`. No rule gets both right, and following a wrong hint leads to a second, unrelated error. It also misses a `/` that is not a prefix, such as `s/o`, and each command needs its own list of prefixes.
 
-* **Alternative 2 (current choice):** Show a fixed hint whenever the value contains `/`, without naming a prefix.
+* **Alternative 2 (current choice for fields that cannot contain `/`):** Show a fixed hint whenever the value contains `/`, without naming a prefix.
   * Pros: Never wrong, since it only asks the user to check their prefixes. It also covers an unknown prefix and a `/` that is not a prefix, and needs no list of prefixes.
   * Cons: Less specific. The user has to find the mistake in the command themselves.
 
@@ -1031,15 +1088,15 @@ Use case ends.
 **MSS**
 
 1. Tutor requests help.
-1. TuteeBook3 shows the User Guide URL as selectable plain text, followed by each available command as a summary and a minimal example on the next line, with blank lines between commands.
+1. TuteeBook3 shows the User Guide URL as selectable plain text, followed by each available command as a summary and a minimal example on the next line, with blank lines between commands. TuteeBook3 does not copy the URL automatically.
 
     Use case ends.
 
 **Extensions**
 
-* 1a. Help is already shown in the feedback box.
+* 1a. Help is already shown in the result display.
 
-    * 1a1. TuteeBook3 reuses the feedback box and returns the help content to the top.
+    * 1a1. TuteeBook3 reuses the result display and returns the help content to the top.
 
       Use case resumes at step 2.
 

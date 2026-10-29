@@ -34,7 +34,7 @@ import seedu.address.model.tag.Tag;
  */
 public class ParserUtil {
 
-    public static final String MESSAGE_INVALID_INDEX = "Index must be a positive integer.";
+    public static final String MESSAGE_INVALID_INDEX = Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX;
 
     public static final String MESSAGE_INVALID_NID = "NID must be a positive integer.";
 
@@ -43,6 +43,8 @@ public class ParserUtil {
     public static final String GUARDIAN_PHONE_LABEL = "Guardian phone";
 
     private static final String LINE_BREAK = "\n";
+
+    private static final String INTEGER_REGEX = "-?\\d+";
 
     private static final String SLASH = "/";
 
@@ -76,6 +78,14 @@ public class ParserUtil {
             throw new ParseException(MESSAGE_INVALID_INDEX);
         }
         return Index.fromOneBased(Integer.parseInt(trimmedIndex));
+    }
+
+    /**
+     * Returns true if {@code value} is an integer.
+     */
+    public static boolean isInteger(String value) {
+        requireNonNull(value);
+        return value.trim().matches(INTEGER_REGEX);
     }
 
     /**

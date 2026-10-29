@@ -23,12 +23,18 @@ public class SchoolTest {
         assertFalse(School.isValidSchool("School/Name"));
         assertFalse(School.isValidSchool("School #1"));
         assertFalse(School.isValidSchool("School_Name"));
+        assertFalse(School.isValidSchool("École Française"));
+        assertFalse(School.isValidSchool("李明学校"));
+        assertFalse(School.isValidSchool("School １２３"));
+        assertFalse(School.isValidSchool("123")); // no ASCII letter
         assertFalse(School.isValidSchool("a".repeat(101)));
         assertTrue(School.isValidSchool("Unknown"));
+        assertTrue(School.isValidSchool("St Josephs Institution"));
+        assertTrue(School.isValidSchool("Anglo Chinese School"));
+        assertTrue(School.isValidSchool("Anglo-Chinese School (Independent)"));
         assertTrue(School.isValidSchool("St. Joseph's Institution"));
-        assertTrue(School.isValidSchool("Anglo-Chinese School"));
-        assertTrue(School.isValidSchool("École française"));
-        assertTrue(School.isValidSchool("School 123 (Independent), R&D"));
+        assertTrue(School.isValidSchool("School of Science and Technology, Singapore"));
+        assertTrue(School.isValidSchool("Cedar Girls’ Secondary School"));
         assertTrue(School.isValidSchool("School123"));
         assertTrue(School.isValidSchool("a".repeat(100)));
     }
@@ -36,7 +42,7 @@ public class SchoolTest {
     @Test
     public void equals_caseAndSpacingVariants_returnsTrue() {
         School school = new School("Bedok Green Secondary School");
-        School variant = new School(" bedok  green secondary school ");
+        School variant = new School("bedok  green secondary school");
         assertEquals(school, variant);
         assertEquals(school.hashCode(), variant.hashCode());
         assertEquals("Bedok Green Secondary School", school.toString());
