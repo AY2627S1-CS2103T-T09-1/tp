@@ -1057,15 +1057,15 @@ Use case ends.
 **MSS**
 
 1. Tutor requests help.
-1. TuteeBook3 shows the User Guide URL as selectable plain text, followed by each available command as a summary and a minimal example on the next line, with blank lines between commands.
+1. TuteeBook3 shows the User Guide URL as selectable plain text, followed by each available command as a summary and a minimal example on the next line, with blank lines between commands. TuteeBook3 does not copy the URL automatically.
 
     Use case ends.
 
 **Extensions**
 
-* 1a. Help is already shown in the feedback box.
+* 1a. Help is already shown in the result display.
 
-    * 1a1. TuteeBook3 reuses the feedback box and returns the help content to the top.
+    * 1a1. TuteeBook3 reuses the result display and returns the help content to the top.
 
       Use case resumes at step 2.
 
