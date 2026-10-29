@@ -56,7 +56,7 @@ public class AddCommandParser implements Parser<AddCommand> {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddCommand.MESSAGE_USAGE));
         }
 
-        // a missing sub/ also names band/, so the user adds the whole pair in one go
+        // a missing sub/ also requires band/, so the user adds the whole pair in one go
         Prefix[] requiredPrefixes = argMultimap.getValue(PREFIX_SUBJECT).isPresent()
                 ? new Prefix[] {PREFIX_NAME, PREFIX_SCHOOL, PREFIX_LEVEL, PREFIX_SUBJECT}
                 : new Prefix[] {PREFIX_NAME, PREFIX_SCHOOL, PREFIX_LEVEL, PREFIX_SUBJECT, PREFIX_BAND};
