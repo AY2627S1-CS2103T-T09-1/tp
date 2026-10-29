@@ -1,16 +1,6 @@
 package seedu.address.logic.parser;
 
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_ADDRESS;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_BAND;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_EMAIL;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_NAME;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_GUARDIAN_PHONE;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
-import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailure;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSuccess;
 
@@ -152,9 +142,8 @@ public class FilterCommandParserTest {
 
     @Test
     public void parse_repeatedPrefix_throwsParseException() {
-        assertParseFailure(parser, " n/avi n/li", Messages.getErrorMessageForDuplicatePrefixes(PREFIX_NAME));
-        assertParseFailure(parser, " sch/victoria sch/raffles",
-                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_SCHOOL));
+        assertParseFailure(parser, " n/avi n/li", repeatedFilter("n/"));
+        assertParseFailure(parser, " sch/victoria sch/raffles", repeatedFilter("sch/"));
     }
 
     @Test
@@ -240,9 +229,13 @@ public class FilterCommandParserTest {
     }
 
     @Test
+    public void parse_severalRepeatedFilters_namesEach() {
+        assertParseFailure(parser, " n/avi n/li sch/a sch/b", repeatedFilter("n/ sch/"));
+    }
+
+    @Test
     public void parse_repeatedLevel_throwsParseException() {
-        assertParseFailure(parser, " lvl/S1 lvl/S2",
-                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_LEVEL));
+        assertParseFailure(parser, " lvl/S1 lvl/S2", repeatedFilter("lvl/"));
     }
 
     @Test
@@ -290,10 +283,10 @@ public class FilterCommandParserTest {
 
     @Test
     public void parse_repeatedSubjectOrBand_throwsParseException() {
-        assertParseFailure(parser, " sub/Mathematics sub/Science",
-                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_SUBJECT));
-        assertParseFailure(parser, " sub/Mathematics band/G1 band/G2",
-                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_BAND));
+        assertParseFailure(parser, " sub/Mathematics sub/Science", repeatedFilter("sub/"));
+        assertParseFailure(parser, " sub/Mathematics band/G1 band/G2", repeatedFilter("band/"));
+        assertParseFailure(parser, " lvl/S2 sub/Mathematics sub/English", repeatedFilter("sub/"));
+        assertParseFailure(parser, " sub/Mathematics band/G1 sub/Science band/G2", repeatedFilter("sub/ band/"));
     }
 
     @Test
@@ -354,12 +347,9 @@ public class FilterCommandParserTest {
 
     @Test
     public void parse_repeatedPhoneOrGuardianPrefix_throwsParseException() {
-        assertParseFailure(parser, " p/91234567 p/82345678",
-                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_PHONE));
-        assertParseFailure(parser, " gn/amy gn/grace",
-                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_GUARDIAN_NAME));
-        assertParseFailure(parser, " gp/92345678 gp/98765432",
-                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_GUARDIAN_PHONE));
+        assertParseFailure(parser, " p/91234567 p/82345678", repeatedFilter("p/"));
+        assertParseFailure(parser, " gn/amy gn/grace", repeatedFilter("gn/"));
+        assertParseFailure(parser, " gp/92345678 gp/98765432", repeatedFilter("gp/"));
     }
 
     @Test
@@ -438,8 +428,7 @@ public class FilterCommandParserTest {
 
     @Test
     public void parse_repeatedEmail_throwsParseException() {
-        assertParseFailure(parser, " e/gmail e/yahoo",
-                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_EMAIL));
+        assertParseFailure(parser, " e/gmail e/yahoo", repeatedFilter("e/"));
     }
 
     @Test
@@ -473,8 +462,7 @@ public class FilterCommandParserTest {
 
     @Test
     public void parse_repeatedAddress_throwsParseException() {
-        assertParseFailure(parser, " a/bedok a/tampines",
-                Messages.getErrorMessageForDuplicatePrefixes(PREFIX_ADDRESS));
+        assertParseFailure(parser, " a/bedok a/tampines", repeatedFilter("a/"));
     }
 
     @Test
@@ -483,6 +471,10 @@ public class FilterCommandParserTest {
                 filterCommandOf(name("tan"), phone("91234567"), address("bedok"));
         assertParseSuccess(parser, " n/tan p/91234567 a/bedok", expectedFilterCommand);
         assertParseSuccess(parser, " a/bedok p/91234567 n/tan", expectedFilterCommand);
+    }
+
+    private static String repeatedFilter(String prefixes) {
+        return String.format(FilterCommandParser.MESSAGE_REPEATED_FILTER, prefixes);
     }
 
     private static Predicate<Person> name(String text) {
