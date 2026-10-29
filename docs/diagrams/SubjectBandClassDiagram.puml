@@ -3,19 +3,20 @@
 skinparam arrowThickness 1.1
 skinparam arrowColor MODEL_COLOR
 skinparam classBackgroundColor MODEL_COLOR
+skinparam classAttributeFontColor #FFFFFF
 
 Package Model as ModelPackage <<Rectangle>> {
     Class Person
     Class Subject
-    Class "<<enumeration>>\nBand" as Band
+    enum Band <<enumeration>> {
+        G1
+        G2
+        G3
+    }
 }
 
-Person "1" *--> "1..8" Subject : subjects
-Subject --> "1" Band : band
+show Band fields
 
-note bottom of Band
-  G1
-  G2
-  G3
-end note
+Person -right-> "1..8" Subject : subjects
+Subject -right-> "1" Band : band
 @enduml

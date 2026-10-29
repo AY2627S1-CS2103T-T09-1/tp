@@ -211,7 +211,7 @@ Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `
 
 #### Implementation
 
-<img src="images/SubjectBandClassDiagram.svg" width="700" />
+<img src="images/SubjectBandClassDiagram.png" width="700" />
 
 1. `AddCommandParser` and `EditCommandParser` tokenize `sub/` and `band/`. `ArgumentMultimap#verifyEachFollowedBy` checks that each `sub/` is immediately followed by one `band/`. `add` requires at least one pair. For `edit`, giving neither prefix leaves the subjects unchanged; giving either prefix requires complete pairs and replaces the subject list.
 1. `ParserUtil#parseSubjects` checks that the subject-name and band lists have the same number of values and that there are no more than eight pairs. It creates each `Subject` from the name and band at the same position, then calls `Person#validateSubjects` to reject repeated names.
@@ -229,7 +229,7 @@ Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `
 
 * **Alternative 2 (current choice): Store a subject and a required band together.**
   * Pros: Every recorded subject has complete information. The model prevents a subject from existing without a valid band, and `filter` can match a subject at a specific band.
-  * Cons: The tutor must know and enter a band for every subject, including when the band is not yet known.
+  * Cons: The tutor cannot record a subject until they know its band.
 
 * **Alternative 3: Store a subject with an optional band.**
   * Pros: Allows the tutor to record a subject before its band is known.
