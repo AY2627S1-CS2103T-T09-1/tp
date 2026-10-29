@@ -56,13 +56,13 @@ public class AddressPrefixCheckerTest {
     @Test
     public void verifyNoJoinedPrefix_nullArguments_throwsNullPointerException() {
         assertThrows(NullPointerException.class, () -> AddressPrefixChecker.verifyNoJoinedPrefix(null, PREFIX_PHONE));
-        assertThrows(NullPointerException.class,
-                () -> AddressPrefixChecker.verifyNoJoinedPrefix("address", (Prefix[]) null));
+        assertThrows(NullPointerException.class, () ->
+                AddressPrefixChecker.verifyNoJoinedPrefix("address", (Prefix[]) null));
     }
 
     private static void assertJoinedPrefix(Prefix prefix, String value) {
-        ParseException exception = assertThrows(ParseException.class,
-                () -> AddressPrefixChecker.verifyNoJoinedPrefix("Blk 1" + prefix + value, prefix));
+        ParseException exception = assertThrows(ParseException.class, () ->
+                AddressPrefixChecker.verifyNoJoinedPrefix("Blk 1" + prefix + value, prefix));
         assertEquals(String.format(Messages.MESSAGE_MISSING_SPACE_BEFORE_PREFIX, prefix), exception.getMessage());
     }
 }
