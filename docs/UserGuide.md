@@ -104,11 +104,7 @@ No brackets | Required | `sch/SCHOOL` must be given
 `[ ]` | Optional | `[p/PHONE]` can be left out
 `...` | Can be given more than once, or not at all if it's in `[ ]` | `[t/TAG]...` → `t/paid t/exams`
 
-The command box holds one line. When you paste text that spans more than one line, such as a lesson note from another app, TuteeBook3 replaces each line break or tab with a space, so the words stay apart. A run of line breaks or tabs, such as a blank line between paragraphs, becomes one space. For example, if you type `addnote 1 note/` and paste `Weak in` and `algebra` on two lines, TuteeBook3 adds the note `Weak in algebra`.
-
-<div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
-Check the command box before you press Enter after pasting text that spans more than one line. Line breaks are not kept, so a pasted list such as `1. Algebra` and `2. Geometry` on two lines is saved as one line, `1. Algebra 2. Geometry`. A word split across two lines, such as `alge-` and `bra`, becomes `alge- bra`. Some apps and PDF viewers also drop the spaces around line breaks when you copy text, so words can be joined before TuteeBook3 receives them. This includes copying a command from a PDF version of this guide.
-</div>
+The command box holds one line, so line breaks and tabs in pasted text become single spaces. Some PDF viewers drop the spaces around line breaks when you copy, so check the command before you press Enter.
 
 --------------------------------------------------------------------------------------------------------------------
 
