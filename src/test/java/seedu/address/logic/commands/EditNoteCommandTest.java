@@ -107,7 +107,7 @@ public class EditNoteCommandTest {
         Person person = addNotesToFirstPerson(NOTE_ALGEBRA, NOTE_TEST_SCORE);
         Person editedPerson = new PersonBuilder(person).withNotes(NOTE_IMPROVING, NOTE_TEST_SCORE).build();
         String expectedMessage = String.format(EditNoteCommand.MESSAGE_SUCCESS, 1, person.getName(),
-                NOTE_ALGEBRA, NOTE_IMPROVING);
+                person.getSchool(), person.getLevel(), NOTE_ALGEBRA, NOTE_IMPROVING);
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.setPerson(person, editedPerson);
@@ -124,7 +124,7 @@ public class EditNoteCommandTest {
         model.updateFilteredPersonList(HAS_ALGEBRA_NOTE);
         Person editedFirst = new PersonBuilder(first).withNotes(NOTE_CALCULATOR).build();
         String expectedMessage = String.format(EditNoteCommand.MESSAGE_SUCCESS, 1, first.getName(),
-                NOTE_ALGEBRA, NOTE_CALCULATOR)
+                first.getSchool(), first.getLevel(), NOTE_ALGEBRA, NOTE_CALCULATOR)
                 + "\n" + String.format(EditCommand.MESSAGE_NO_LONGER_MATCHES, first.getName());
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
@@ -143,7 +143,7 @@ public class EditNoteCommandTest {
         model.updateFilteredPersonList(HAS_ALGEBRA_NOTE);
         Person editedFirst = new PersonBuilder(first).withNotes(NOTE_ALGEBRA, NOTE_CALCULATOR).build();
         String expectedMessage = String.format(EditNoteCommand.MESSAGE_SUCCESS, 2, first.getName(),
-                NOTE_TEST_SCORE, NOTE_CALCULATOR);
+                first.getSchool(), first.getLevel(), NOTE_TEST_SCORE, NOTE_CALCULATOR);
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.setPerson(first, editedFirst);
@@ -213,11 +213,30 @@ public class EditNoteCommandTest {
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         Person person = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
         CommandResult expectedResult = CommandResult.showStudentWarning(
-                "No changes made: note 2 of Alice Pauline already says: WA2 Math: 36/50",
+                "No changes made: note 2 of Alice Pauline at Maplewood Secondary School (S1) already says: "
+                        + "WA2 Math: 36/50",
                 person, INDEX_FIRST_PERSON);
 
         assertCommandSuccess(new EditNoteCommand(INDEX_FIRST_PERSON, NID_SECOND, new Note(NOTE_TEST_SCORE)),
                 model, expectedResult, expectedModel);
+    }
+
+    @Test
+    public void execute_sameNameStudents_messageNamesSchoolAndLevel() {
+        Person first = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Person sameName = new PersonBuilder(first).withSchool("Victoria School").withLevel("S3")
+                .withNotes(NOTE_ALGEBRA).build();
+        model.addPerson(sameName);
+        Index sameNameIndex = Index.fromOneBased(model.getFilteredPersonList().size());
+        Person editedPerson = new PersonBuilder(sameName).withNotes(NOTE_IMPROVING).build();
+        String expectedMessage = "Edited note 1 of Alice Pauline at Victoria School (S3).\n"
+                + "Old: Weak in algebra\nNew: Improving in algebra";
+
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        expectedModel.setPerson(sameName, editedPerson);
+
+        assertCommandSuccess(new EditNoteCommand(sameNameIndex, NID_FIRST, new Note(NOTE_IMPROVING)), model,
+                CommandResult.showStudent(expectedMessage, editedPerson, sameNameIndex), expectedModel);
     }
 
     @Test
@@ -277,7 +296,7 @@ public class EditNoteCommandTest {
         Person person = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
         Person editedPerson = new PersonBuilder(person).withNotes(expectedNotes).build();
         String expectedMessage = String.format(EditNoteCommand.MESSAGE_SUCCESS, nid.getOneBased(),
-                person.getName(), oldText, newText);
+                person.getName(), person.getSchool(), person.getLevel(), oldText, newText);
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.setPerson(person, editedPerson);

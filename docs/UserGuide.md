@@ -444,7 +444,7 @@ Format: `editnote INDEX nid/NID note/TEXT`
 * `INDEX`, `NID`, and `TEXT` follow the rules in [Indexes and notes](#indexes-and-notes). `TEXT` is the new text of the note.
 * `nid/NID` must come before `note/TEXT`. Everything after `note/` is the note text, so `TEXT` can contain anything, including `t/f`, `nid/`, or another `note/`. For example, `editnote 1 nid/2 note/Revise t/f questions` saves the note `Revise t/f questions`.
 * The edited note keeps its NID, and the student's other notes do not change.
-* If the new text is the same as the current text, the note stays as it is and `editnote` shows the message `No changes made: note NID of NAME already says: TEXT` in amber. Changing only uppercase and lowercase letters, such as `algebra` to `Algebra`, counts as a change.
+* If the new text is the same as the current text, the note stays as it is and `editnote` shows the message `No changes made: note NID of NAME at SCHOOL (LEVEL) already says: TEXT` in amber. Changing only uppercase and lowercase letters, such as `algebra` to `Algebra`, counts as a change.
 * Editing a note does not change which students are shown.
 * After the note is edited, the student's updated record opens on the right. If the text is unchanged, the same record opens with the warning.
 
