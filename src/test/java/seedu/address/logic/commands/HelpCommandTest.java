@@ -50,7 +50,7 @@ public class HelpCommandTest {
             "exit - Exits TuteeBook3.",
             "Example: exit",
             "",
-            "For more details, select and copy this URL into your browser:",
+            "For full details regarding optional inputs, select and copy this URL into your browser:",
             "https://ay2627s1-cs2103t-t09-1.github.io/tp/UserGuide.html");
 
     private Model model = new ModelManager();
