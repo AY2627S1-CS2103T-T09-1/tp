@@ -618,11 +618,13 @@ A filter appears more than once | `Multiple values specified for the following s
 
 #### Viewing help: `help`
 
-Shows a one-line summary of each available command and the URL of the TuteeBook3 User Guide directly in the result display. You can also show the same help using the **Help** menu or the F1 keyboard shortcut. Repeated requests reuse the result display instead of opening additional panels or windows.
+Shows the URL of the TuteeBook3 User Guide, followed by each available command as a short summary with a minimal example on the next line. Blank lines separate the commands. You can also show the same help using the **Help** menu or the F1 keyboard shortcut.
 
 Format: `help`
 
 The command does not accept additional arguments.
+
+The User Guide URL is shown as selectable plain text, not as a clickable link, and TuteeBook3 does not copy it automatically. Select the URL and press **Ctrl+C** on Windows or Linux, or **Command+C** on macOS, to copy it, then paste it into your browser.
 
 #### Clearing all entries: `clear`
 
