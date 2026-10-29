@@ -14,6 +14,8 @@ import seedu.address.model.person.Note;
  */
 public class AddNoteCommandParser implements Parser<AddNoteCommand> {
 
+    private static final String WHITESPACE_REGEX = "\\s+";
+
     /**
      * Parses the given {@code args} and returns an {@code AddNoteCommand}.
      *
@@ -21,11 +23,16 @@ public class AddNoteCommandParser implements Parser<AddNoteCommand> {
      */
     public AddNoteCommand parse(String args) throws ParseException {
         ArgumentMultimap argMultimap = ArgumentTokenizer.tokenizeWithTrailingText(args, PREFIX_NOTE);
-        if (argMultimap.getPreamble().isEmpty() || argMultimap.getValue(PREFIX_NOTE).isEmpty()) {
+        String preamble = argMultimap.getPreamble();
+        // INDEX is one word, so more words before note/, such as nid/1, are not part of the command
+        boolean hasTextAfterIndex = preamble.split(WHITESPACE_REGEX).length > 1;
+        boolean isInvalidFormat = preamble.isEmpty() || hasTextAfterIndex
+                || argMultimap.getValue(PREFIX_NOTE).isEmpty();
+        if (isInvalidFormat) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddNoteCommand.MESSAGE_USAGE));
         }
 
-        Index index = ParserUtil.parseIndex(argMultimap.getPreamble());
+        Index index = ParserUtil.parseIndex(preamble);
         Note note = ParserUtil.parseNote(argMultimap.getValue(PREFIX_NOTE).get());
         return new AddNoteCommand(index, note);
     }
