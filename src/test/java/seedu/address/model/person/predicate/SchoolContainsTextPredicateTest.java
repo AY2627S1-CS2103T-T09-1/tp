@@ -57,6 +57,11 @@ public class SchoolContainsTextPredicateTest {
     }
 
     @Test
+    public void test_curlyApostrophe_returnsTrue() {
+        assertTrue(new SchoolContainsTextPredicate("joseph's").test(studentAt("St. Joseph’s Institution")));
+    }
+
+    @Test
     public void test_noMatch_returnsFalse() {
         assertFalse(new SchoolContainsTextPredicate("raffles").test(studentAt("Victoria School")));
     }

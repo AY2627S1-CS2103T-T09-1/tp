@@ -139,6 +139,17 @@ public class StringUtilTest {
     }
 
     @Test
+    public void containsIgnoreCaseAndSpaces_curlyApostrophe_matchesStraight() {
+        assertTrue(StringUtil.containsIgnoreCaseAndSpaces("St. Joseph’s Institution", "joseph's"));
+        assertTrue(StringUtil.containsIgnoreCaseAndSpaces("Cedar Girls' School", "girls’"));
+    }
+
+    @Test
+    public void containsIgnoreCaseAndSpaces_nonBreakingSpaceInText_returnsTrue() {
+        assertTrue(StringUtil.containsIgnoreCaseAndSpaces("Bedok\u00A0North", "bedok north"));
+    }
+
+    @Test
     public void containsIgnoreCaseAndSpaces_textNotPresent_returnsFalse() {
         assertFalse(StringUtil.containsIgnoreCaseAndSpaces("Victoria School", "raffles"));
         assertFalse(StringUtil.containsIgnoreCaseAndSpaces("Victoria School", "school victoria"));

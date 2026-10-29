@@ -592,7 +592,7 @@ Filter | Matches students whose… | Match
 * Give one tag per `filter`. `t/paid` does not match `unpaid`.
 * `note/` searches all of a student's notes. `TEXT` can be up to 500 characters, the same as a note.
 * Everything after `note/` is the note text, so put `note/` last. For example, `filter note/revise t/f` finds notes containing `revise t/f`. In `filter note/algebra lvl/S3`, `lvl/S3` is read as part of the note text, so write `filter lvl/S3 note/algebra` instead.
-* Filters are not case-sensitive, and extra spaces are ignored.
+* Filters are not case-sensitive, extra spaces are ignored, and a curly apostrophe (`’`) matches a straight one (`'`).
 * Each value is matched as one piece of text, including its spaces: `n/david lim` matches `David Lim`, but `n/lim david` does not.
 * If no student matches, the student list is empty and a message tells you how to see all students again.
 * Running `filter` clears the selected student record and shows `View a student to see details.` on the right.
