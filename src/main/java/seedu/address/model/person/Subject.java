@@ -3,6 +3,7 @@ package seedu.address.model.person;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
 
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -62,7 +63,7 @@ public final class Subject {
     }
 
     private static String toComparisonName(String name) {
-        return name.trim().replaceAll(" +", " ").toLowerCase();
+        return name.trim().replaceAll(" +", " ").toLowerCase(Locale.ROOT);
     }
 
     @Override
