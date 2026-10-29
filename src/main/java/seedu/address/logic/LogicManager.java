@@ -48,7 +48,7 @@ public class LogicManager implements Logic {
 
         if (confirmationManager.hasPendingConfirmation()) {
             ConfirmationCommand pendingCommand = confirmationManager.clearPending().orElseThrow();
-            if (commandText.trim().equals("CONFIRM")) {
+            if (ConfirmationManager.isConfirmInput(commandText)) {
                 ConfirmationCommand confirmedCommand = pendingCommand;
                 return executeAndSave(confirmedCommand.execute(model));
             }
@@ -60,6 +60,11 @@ public class LogicManager implements Logic {
             } catch (ParseException e) {
                 throw new ParseException(cancellationNotice + System.lineSeparator() + e.getMessage(), e);
             }
+        }
+
+        if (ConfirmationManager.isConfirmInput(commandText)) {
+            logger.info("CONFIRM entered with no command waiting for confirmation");
+            throw new ParseException(ConfirmationManager.MESSAGE_NOTHING_TO_CONFIRM);
         }
 
         Command command = addressBookParser.parseCommand(commandText);
