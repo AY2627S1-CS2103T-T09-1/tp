@@ -205,7 +205,7 @@ Every student record must include a name, school, and level. Many tutors teach s
 
 ### Student subjects and bands
 
-Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `G2`, or `G3`. Subject names can contain 1 to 40 letters, spaces, or hyphens and must contain at least one letter. A student cannot have the same subject name more than once, even at different bands.
+Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `G2`, or `G3`. Subject names can contain 1 to 40 Unicode letters, spaces, hyphens, parentheses, commas, and ampersands, and must contain at least one letter. Digits, slashes, and other symbols are rejected. A student cannot have the same subject name more than once, even at different bands.
 
 `Subject` is an immutable value object containing both the subject name and its required `Band`. The band is an enum, so a `Subject` cannot be constructed with an unsupported band or without one. For comparison, `Subject` trims surrounding spaces, collapses repeated ordinary spaces, and lowercases the name. The band is included in `Subject.equals`, but `Person#validateSubjects` checks names separately and rejects a repeated subject even if the bands differ.
 
@@ -236,6 +236,22 @@ Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `
   * Cons: Adds a second state for every subject and requires commands, storage, and display to handle missing bands. Filtering by band must also distinguish between “any band” and “no band recorded.”
 
 The app uses the second option because the tutor needs each subject’s band to plan lessons at the right level. Requiring it when the subject is entered keeps the model and stored data consistent. The pair format also makes the relationship explicit in commands: each `sub/` must be followed by its own `band/`.
+
+**Aspect: Which characters to allow in subject names**
+
+* **Alternative 1:** Keep the existing letters, spaces, and hyphens.
+  * Pros: Keeps validation simple and rejects punctuation that may be accidental.
+  * Cons: Rejects commonly used subject names such as `Science (Physics, Chemistry)` and `Design & Technology`.
+
+* **Alternative 2 (current choice):** Also allow parentheses, commas, and ampersands.
+  * Pros: Accepts the real names reported in issue 263 while retaining the existing length limit, Unicode-letter support, and at-least-one-letter rule. Digits, slashes, and other symbols remain rejected.
+  * Cons: A subject can contain awkward punctuation placement because the rule checks allowed characters, not subject-name grammar.
+
+* **Alternative 3:** Allow any printable punctuation and digits.
+  * Pros: Supports a wider range of current and future course names.
+  * Cons: Allows more accidental or inconsistent names than the issue requires, which can make subjects harder to recognize and filter consistently.
+
+The app uses the second option because it resolves the reported real-name cases without making subject names unrestricted. The subject name remains one value before `band/`; the added characters do not change command tokenization.
 
 ### Student addresses
 
