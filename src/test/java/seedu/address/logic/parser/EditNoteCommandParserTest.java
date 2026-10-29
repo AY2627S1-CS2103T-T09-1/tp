@@ -127,6 +127,12 @@ public class EditNoteCommandParserTest {
     }
 
     @Test
+    public void parse_nonAsciiNote_throwsParseException() {
+        assertParseFailure(parser, " 1 nid/2 " + PREFIX_NOTE + "Café",
+                String.format(Note.MESSAGE_INVALID_CHARACTER, "é"));
+    }
+
+    @Test
     public void parse_severalInvalidValues_reportsIndexThenNid() {
         assertParseFailure(parser, " 0 nid/0 " + PREFIX_NOTE, MESSAGE_INVALID_INDEX);
         assertParseFailure(parser, " 0 nid/1 nid/2 " + PREFIX_NOTE + "hi", MESSAGE_INVALID_INDEX);

@@ -169,6 +169,12 @@ public class FilterCommandParserTest {
     }
 
     @Test
+    public void parse_nonAsciiNote_returnsFilterCommand() {
+        // search text is not restricted to the characters a note can contain
+        assertParseSuccess(parser, " note/café", filterCommandOf(note("café")));
+    }
+
+    @Test
     public void parse_noteAtMaxLength_returnsFilterCommand() {
         String text = "a".repeat(Note.MAX_LENGTH);
         assertParseSuccess(parser, " note/" + text, filterCommandOf(note(text)));

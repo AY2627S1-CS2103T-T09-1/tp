@@ -36,6 +36,7 @@ public class JsonSerializableAddressBookTest {
             TEST_DATA_FOLDER.resolve("nullNoteEntryAddressBook.json");
     private static final Path BLANK_NOTE_FILE = TEST_DATA_FOLDER.resolve("blankNoteAddressBook.json");
     private static final Path TOO_LONG_NOTE_FILE = TEST_DATA_FOLDER.resolve("tooLongNoteAddressBook.json");
+    private static final Path NON_ASCII_NOTE_FILE = TEST_DATA_FOLDER.resolve("nonAsciiNoteAddressBook.json");
 
     @Test
     public void toModelType_typicalPersonsFile_success() throws Exception {
@@ -137,6 +138,14 @@ public class JsonSerializableAddressBookTest {
         JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(TOO_LONG_NOTE_FILE,
                 JsonSerializableAddressBook.class).get();
         assertThrows(IllegalValueException.class, Note.MESSAGE_TOO_LONG, dataFromFile::toModelType);
+    }
+
+    @Test
+    public void toModelType_nonAsciiNoteFile_throwsIllegalValueException() throws Exception {
+        JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(NON_ASCII_NOTE_FILE,
+                JsonSerializableAddressBook.class).get();
+        assertThrows(IllegalValueException.class, String.format(Note.MESSAGE_INVALID_CHARACTER, "ç"),
+                dataFromFile::toModelType);
     }
 
 }

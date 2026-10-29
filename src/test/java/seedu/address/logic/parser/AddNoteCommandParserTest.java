@@ -97,6 +97,14 @@ public class AddNoteCommandParserTest {
     }
 
     @Test
+    public void parse_nonAsciiNote_throwsParseException() {
+        assertParseFailure(parser, " 1 note/Français oral 18/20 😀",
+                String.format(Note.MESSAGE_INVALID_CHARACTER, "ç"));
+        assertParseFailure(parser, " 1 note/Good effort 😀",
+                String.format(Note.MESSAGE_INVALID_CHARACTER, "😀"));
+    }
+
+    @Test
     public void parse_trailingTextTooLong_throwsParseException() {
         assertParseFailure(parser, " 1 note/" + "a".repeat(495) + " note/abcdef", Note.MESSAGE_TOO_LONG);
     }
