@@ -74,7 +74,7 @@ TuteeBook3 is a **desktop app for private tutors who teach secondary school stud
 </div>
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
-Use the spacebar to type spaces whenever you can. TuteeBook3 handles the special spaces and invisible characters that pasted text commonly contains, but it does not yet handle every character that looks like a space or a symbol on the keyboard. For example, a full-width slash (`／`), which some keyboards type in full-width mode, does not start a parameter, so `n／John Doe` is not read as a name. Support for more of these characters is planned for a future version.
+Type commands on your keyboard rather than pasting them where you can. TuteeBook3 reads the special spaces and invisible characters that pasted text often contains, but not every character that looks like a keyboard symbol. For example, a full-width slash (`／`) does not start a parameter, so `n／John Doe` is not read as a name.
 </div>
 
 ### Viewing help: `help`
