@@ -1,7 +1,5 @@
 package seedu.address.logic.parser;
 
-import java.math.BigInteger;
-
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.commands.DeleteCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
@@ -39,11 +37,10 @@ public class DeleteCommandParser implements Parser<DeleteCommand> {
      * A positive whole number too big to store cannot match any student, so it is reported as an invalid index.
      */
     private static ParseException createParseException(String trimmedArgs, ParseException cause) {
-        if (!trimmedArgs.matches(DIGITS_REGEX)) {
-            return new ParseException(DeleteCommand.MESSAGE_INVALID_FORMAT, cause);
+        if (ParserUtil.isNonPositiveInteger(trimmedArgs)) {
+            return cause;
         }
-        boolean isZero = new BigInteger(trimmedArgs).signum() == 0;
-        if (isZero) {
+        if (!trimmedArgs.matches(DIGITS_REGEX)) {
             return new ParseException(DeleteCommand.MESSAGE_INVALID_FORMAT, cause);
         }
         return new ParseException(DeleteCommand.MESSAGE_INVALID_STUDENT_INDEX, cause);

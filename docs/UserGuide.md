@@ -180,7 +180,7 @@ The detail panel contains the student's name, school, level, subject-band pairs,
 Format: `view INDEX`
 
 * The index refers to the index number shown in the displayed student list.
-* The index must be a positive integer, such as 1, 2, or 3.
+* The index must be a positive integer no greater than the largest index in the displayed student list. For example, if the list shows indices 1 to 3, you can use 1, 2, or 3.
 * The current search results remain visible on the left while you view the student.
 * Entering `view` again replaces the student record on the right instead of opening another panel.
 * Enter `list` to return to the full student list, or `filter` to display new search results. Both commands clear the selected record and show the empty-state message on the right.
@@ -189,13 +189,21 @@ Format: `view INDEX`
 
 Example: `view 2` shows the full record of the second student in the currently displayed list.
 
+If the command is wrong, `view` shows one of these messages and does not change the student record.
+
+Problem | Message
+--------|--------
+`INDEX` is zero or negative, such as `0` or `-1` | `Index must be a positive integer shown in the displayed student list.`
+`INDEX` is missing or is not an integer, or there is more than one value | `Invalid command format!` followed by how to use `view`
+`INDEX` is larger than the number of students shown | `The student index provided is invalid.`
+
 ### Editing a person: `edit`
 
 Edits an existing person in the address book.
 
 Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [a/ADDRESS] [e/EMAIL] [lvl/LEVEL] [sub/SUBJECT band/BAND]... [gn/GUARDIAN_NAME] [gp/GUARDIAN_PHONE] [t/TAG]...`
 
-* Edits the person at the specified `INDEX`. The index refers to the index number shown in the displayed person list. The index **must be a positive integer** 1, 2, 3, …​
+* Edits the person at the specified `INDEX`. The index must be a positive integer shown in the displayed person list, such as 1, 2, or 3.
 * At least one of the optional fields must be provided.
 * Existing values will be updated to the input values.
 * `a/ADDRESS` replaces the student's address. It follows the same rules as in `add`; use `a/` with no value to remove it. Omitting `a/` keeps the current address.
@@ -215,7 +223,8 @@ If the command is wrong, `edit` shows one of these messages and does not change 
 
 Problem | Message
 --------|--------
-`INDEX` is missing or is not a positive integer, or there is text between `INDEX` and the first parameter, such as `edit 0 p/91234567` | `Invalid command format!` followed by how to use `edit`
+`INDEX` is zero or negative, such as `0` or `-1` | `Index must be a positive integer shown in the displayed student list.`
+`INDEX` is missing or is not an integer, or there is text between `INDEX` and the first parameter | `Invalid command format!` followed by how to use `edit`
 No field to edit is given, such as `edit 1` | `At least one field to edit must be provided.`
 `n/`, `p/`, `sch/`, `a/`, `e/`, `lvl/`, `gn/`, or `gp/` appears more than once, such as `edit 1 n/Amy n/Ben` | `Multiple values specified for the following single-valued field(s): n/`
 A value is invalid | The same message as in [`add`](#adding-a-person-add)
@@ -248,7 +257,7 @@ Adds a note to the end of a student's notes.
 
 Format: `addnote INDEX note/TEXT`
 
-* `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
+* `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer shown in the displayed student list, such as 1, 2, or 3.
 * `TEXT` must be 1 to 500 characters long, including spaces between words. Spaces before and after the text are removed and not counted.
 * `TEXT` can contain any characters, including digits, punctuation, and slashes, such as `WA2 Math: 36/50`, `Rajesh s/o Kumar`, or `Call Mrs Tan c/o school`.
 * Everything after `note/` is the note text, so `TEXT` can contain other prefixes, such as `t/f` or another `note/`. For example, `addnote 1 note/Revise t/f questions` adds the note `Revise t/f questions`.
@@ -269,7 +278,7 @@ If the command is wrong, `addnote` shows one of these messages and does not chan
 
 Problem | Message
 --------|--------
-`INDEX` is not a positive integer, such as `0` or `abc` | `Index must be a positive integer.`
+`INDEX` is not a positive integer shown in the displayed student list, such as `0` or `abc` | `Index must be a positive integer shown in the displayed student list.`
 `INDEX` is larger than the number of students shown | `The student index provided is invalid.`
 `TEXT` is empty or only spaces | `Note text cannot be blank.`
 `TEXT` is longer than 500 characters | `Note text must be at most 500 characters.`
@@ -281,7 +290,7 @@ Replaces the text of one of a student's notes.
 
 Format: `editnote INDEX nid/NID note/TEXT`
 
-* `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
+* `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer shown in the displayed student list, such as 1, 2, or 3.
 * `NID` is the number shown before the note in the student detail view. It must be a positive integer, such as 1, 2, or 3. To see a student's notes and their NIDs, use `view INDEX`.
 * `TEXT` is the new text of the note. It follows the same rules as in `addnote`: 1 to 500 characters, with spaces before and after the text removed.
 * `nid/NID` must come before `note/TEXT`. Everything after `note/` is the note text, so `TEXT` can contain anything, including `t/f`, `nid/`, or another `note/`. For example, `editnote 1 nid/2 note/Revise t/f questions` saves the note `Revise t/f questions`.
@@ -302,8 +311,8 @@ Problem | Message
 --------|--------
 `nid/NID` comes after `note/TEXT`, such as `editnote 1 note/hi nid/2` | `Put nid/NID before note/TEXT. Everything after note/ is read as the note text.`
 `INDEX`, `nid/NID`, or `note/TEXT` is missing, or there is no space before `nid/` or `note/` | `Invalid command format!` followed by how to use `editnote`
-`INDEX` is not a positive integer, such as `0` or `abc` | `Index must be a positive integer.`
-There is other text between `INDEX` and the first prefix, such as `editnote 1 abc nid/2 note/hi` | `Index must be a positive integer.`
+`INDEX` is not a positive integer shown in the displayed student list, such as `0` or `abc` | `Index must be a positive integer shown in the displayed student list.`
+There is other text between `INDEX` and the first prefix, such as `editnote 1 abc nid/2 note/hi` | `Index must be a positive integer shown in the displayed student list.`
 `nid/` appears more than once before `note/` | `Multiple values specified for the following single-valued field(s): nid/`
 `NID` is empty or is not a positive integer, such as `0`, `-1`, or `abc` | `NID must be a positive integer.`
 `TEXT` is empty or only spaces | `Note text cannot be blank.`
@@ -318,7 +327,7 @@ Deletes one note from a student's notes.
 
 Format: `deletenote [-f] INDEX nid/NID`
 
-* `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
+* `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer shown in the displayed student list, such as 1, 2, or 3.
 * `NID` is the number shown before the note in the student detail view. It must be a positive integer, such as 1, 2, or 3. To see a student's notes and their NIDs, use `view INDEX`.
 * The command shows an amber prompt. Its first line identifies the note and student: `This will delete note NID from NAME at SCHOOL (LEVEL).` The next line says `Type CONFIRM (uppercase) to delete this note.` A final line says that any other input cancels the request and runs as a command. You can use `deletenote -f INDEX nid/NID` to delete immediately.
 * The displayed list and student record remain unchanged while confirmation is pending.
@@ -340,7 +349,7 @@ If the command is wrong, `deletenote` shows one of these messages and does not c
 
 Problem | Message
 --------|--------
-`INDEX` is not a positive integer, such as `0` or `abc` | `Index must be a positive integer.`
+`INDEX` is not a positive integer shown in the displayed student list, such as `0` or `abc` | `Index must be a positive integer shown in the displayed student list.`
 There is other text between `INDEX` and `nid/`, such as `deletenote 1 abc nid/2` | `Invalid command format!` followed by how to use `deletenote`
 `INDEX` is larger than the number of students shown | `The student index provided is invalid.`
 `NID` is empty or is not a positive integer, such as `0`, `-1`, or `abc` | `NID must be a positive integer.`
@@ -435,7 +444,7 @@ Deletes a student, together with their guardian details and all of their notes.
 
 Format: `delete [-f] INDEX`
 
-* `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer, such as 1, 2, or 3.
+* `INDEX` is the index number shown in the student list or at the top of the student detail view. It must be a positive integer shown in the displayed student list, such as 1, 2, or 3.
 * `delete` shows an amber prompt. Its first line identifies the student and says what will happen: `This will delete NAME at SCHOOL (LEVEL) and all their notes.` The next line says `Type CONFIRM (uppercase) to delete this student and all their notes.` A final line says that any other input cancels the request and runs as a command. Use `delete -f INDEX` to delete immediately.
 * The displayed list and student record remain unchanged while confirmation is pending.
 * After `view`, use the index shown at the top of the student detail view when running `delete`.
@@ -456,7 +465,8 @@ If the command is wrong, `delete` shows one of these messages and does not delet
 
 Problem | Message
 --------|--------
-`INDEX` is missing or is not a positive integer, such as `0`, `-1`, or `abc` | `Invalid format. Usage: delete [-f] INDEX`
+`INDEX` is zero or negative, such as `0` or `-1` | `Index must be a positive integer shown in the displayed student list.`
+`INDEX` is missing or is not an integer, such as `abc` | `Invalid format. Usage: delete [-f] INDEX`
 There is more than one value, such as `delete 1 2` | `Invalid format. Usage: delete [-f] INDEX`
 `INDEX` is larger than the number of students shown | `The student index provided is invalid.`
 
