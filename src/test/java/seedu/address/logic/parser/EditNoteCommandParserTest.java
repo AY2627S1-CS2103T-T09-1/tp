@@ -101,8 +101,17 @@ public class EditNoteCommandParserTest {
     public void parse_invalidIndex_throwsParseException() {
         assertParseFailure(parser, " 0 nid/1 " + PREFIX_NOTE + "hi", MESSAGE_INVALID_INDEX);
         assertParseFailure(parser, " -1 nid/1 " + PREFIX_NOTE + "hi", MESSAGE_INVALID_INDEX);
-        assertParseFailure(parser, " abc nid/1 " + PREFIX_NOTE + "hi", MESSAGE_INVALID_INDEX);
         assertParseFailure(parser, " 99999999999 nid/1 " + PREFIX_NOTE + "hi", MESSAGE_INVALID_INDEX);
+    }
+
+    @Test
+    public void parse_nonIntegerIndex_throwsCommandFormatError() {
+        String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditNoteCommand.MESSAGE_USAGE);
+
+        assertParseFailure(parser, " abc nid/1 " + PREFIX_NOTE + "hi", expectedMessage);
+
+        // text after a valid index
+        assertParseFailure(parser, " 1 abc nid/2 " + PREFIX_NOTE + "hi", expectedMessage);
     }
 
     @Test
@@ -124,6 +133,12 @@ public class EditNoteCommandParserTest {
     public void parse_tooLongNote_throwsParseException() {
         assertParseFailure(parser, " 1 nid/2 " + PREFIX_NOTE + "a".repeat(Note.MAX_LENGTH + 1),
                 Note.MESSAGE_TOO_LONG);
+    }
+
+    @Test
+    public void parse_nonAsciiNote_throwsParseException() {
+        assertParseFailure(parser, " 1 nid/2 " + PREFIX_NOTE + "Café",
+                String.format(Note.MESSAGE_INVALID_CHARACTER, "é"));
     }
 
     @Test

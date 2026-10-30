@@ -12,10 +12,10 @@ import java.util.Objects;
 public final class Subject {
 
     public static final String MESSAGE_CONSTRAINTS =
-            "Subjects must be 1-40 characters using only letters, spaces, hyphens, parentheses, commas and ampersands, "
-                    + "with at least one letter.";
+            "Subjects must be 1-40 characters using only English letters without accents, spaces, hyphens, "
+                    + "parentheses, commas and ampersands, with at least one letter.";
     public static final int MAX_LENGTH = 40;
-    public static final String VALIDATION_REGEX = "(?=.*\\p{L})[\\p{L} (),&-]+";
+    public static final String VALIDATION_REGEX = "(?=.*[A-Za-z])[A-Za-z (),&-]+";
 
     private final String name;
     private final Band band;

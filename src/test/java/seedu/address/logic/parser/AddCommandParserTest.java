@@ -502,7 +502,7 @@ public class AddCommandParserTest {
                 " sub/English p/91234567 band/G1")) {
             assertParseFailure(parser, details + pairs, Messages.MESSAGE_SUBJECT_BAND_PAIR);
         }
-        for (String name : List.of("", "---", "Maths2", "A".repeat(41))) {
+        for (String name : List.of("", "---", "Maths2", "A".repeat(41), "Français", "华文")) {
             assertParseFailure(parser, details + " sub/" + name + " band/G1", Subject.MESSAGE_CONSTRAINTS);
         }
         assertParseFailure(parser, details + " sub/English band/", Band.MESSAGE_CONSTRAINTS);

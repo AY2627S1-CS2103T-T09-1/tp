@@ -81,6 +81,28 @@ public class ParserUtil {
     }
 
     /**
+     * Parses {@code indexArgument}, the text a command reads as its student index, into an {@code Index}.
+     * An integer that cannot pick a student, such as {@code 0} or {@code 99999999999}, keeps the index error.
+     * Any other text, such as {@code abc} or {@code 1 abc}, is a command format error.
+     *
+     * @param indexArgument Text that should hold only the index.
+     * @param commandUsage Usage message of the command being parsed.
+     * @return The parsed index.
+     * @throws ParseException if {@code indexArgument} is not a positive integer.
+     */
+    public static Index parseIndex(String indexArgument, String commandUsage) throws ParseException {
+        requireNonNull(commandUsage);
+        try {
+            return parseIndex(indexArgument);
+        } catch (ParseException pe) {
+            if (isInteger(indexArgument)) {
+                throw pe;
+            }
+            throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, commandUsage), pe);
+        }
+    }
+
+    /**
      * Returns true if {@code value} is an integer.
      */
     public static boolean isInteger(String value) {
