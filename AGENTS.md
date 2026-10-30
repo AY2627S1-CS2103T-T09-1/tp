@@ -8,12 +8,15 @@ Read [Maintaining this file](#maintaining-this-file) before you edit it.
 
 * Brownfield evolution of AddressBook-Level3 (AB3). Contact management stays the primary focus.
 * Base package: `seedu.address`. Layers: `ui`, `logic`, `model`, `storage`, `commons`. See `docs/DeveloperGuide.md` for the architecture.
+* Follow the current course website (`nus-cs2103-ay2627-s1`). Past semesters' sites, such as `nus-cs2103-ay2526s1`, describe rules that no longer apply, such as the PE dry run and `Appendix: Planned Enhancements`.
 
 ### Current phase: feature freeze (v1.6)
 
 Features are frozen. The work now is fixing leftover bugs, tightening error messages, and cleaning up the UG, DG, and UML diagrams. Source: [week 12 tP tasks](https://nus-cs2103-ay2627-s1.github.io/website/schedule/week12/project.html).
 
 * Dates: the freeze started Fri 30 Oct 2026, 10:00. Final deliverables are due Tue 3 Nov 2026, 14:00 (14:00:01 is late). Push no code for 30 days after that. The PE runs Fri 6 Nov to Sat 7 Nov.
+* The UG and DG are submitted through the team repo. A commit pushed after the deadline is late, even if it was made before the deadline.
+* When drafting PE bug responses, assign each bug to the member who owns the feature. Unassigned bugs beyond a set limit, and wrong rejections, downgrades, or objections, cost marks. Source: [PE](https://nus-cs2103-ay2627-s1.github.io/website/admin/tp-pe.html).
 * Do not add commands, prefixes, parameters, or other features. If a fix seems to need one, stop and ask the user.
 * Each member may change at most 15% or 150 lines (whichever is higher) of their own `src/main` code during v1.6. Blank lines and comments count. Going over costs at least 2 marks. Tests, docs, and diagrams have no limit.
   * Lines you edit count against your quota, even lines a teammate wrote. Refactoring counts too.
@@ -21,7 +24,7 @@ Features are frozen. The work now is fixing leftover bugs, tightening error mess
   * In the handoff, report the branch's `src/main` changes from `git diff --stat $(git merge-base upstream/master HEAD) -- src/main`. Members track their running total on the tP Code Dashboard.
 * Triage each bug before you touch code:
   1. Should have been fixed in v1.5: fix it now. If the fix costs too many lines, state the limitation in the UG instead.
-  1. Worth fixing only in a later version: leave the code, and list it under **Known issues** in the UG if users are likely to hit it. This lowers the severity of a PE report but does not cancel it.
+  1. Worth fixing only in a later version: leave the code, and list it under **Known issues** in the UG if users are likely to hit it. Say that it is planned for a future version, so the team can respond `NotInScope` to a PE report. This lowers the severity of a PE report but does not cancel it. Do not add an `Appendix: Planned Enhancements` to the DG; it no longer protects against PE reports.
   1. Intended behavior: leave the code, and make sure the UG states the behavior.
 
 ### Target user
@@ -74,7 +77,8 @@ Never violate these. They come from the [tP constraints](https://nus-cs2103-ay26
 * Store data locally in human-editable text files (JSON, like AB3). No DBMS.
 * Object-oriented design first.
 * Must run on Windows, Linux, and macOS with only Java 25 installed. No OS-specific libraries or paths.
-* No installer, no remote server of our own, and one JAR under 100 MB.
+* No installer, no remote server of our own, and one JAR under 100 MB that runs on every OS, including macOS on ARM and Windows WSL.
+* Read and write files only in the folder that contains the JAR and its subfolders. Never change OS settings.
 * Third-party libraries must be free, open source, permissively licensed, and approved by the teaching team first. Do not add dependencies without asking the user.
 * GUI must work at 1920x1080 (100% and 125% scale) and stay usable at 1280x720 (150% scale).
 * Every commit leaves the product working. Deliver in small increments.
@@ -148,7 +152,7 @@ Code quality is graded along with the coding standard. Checkstyle does not check
 
 ## Preventing bugs and feature flaws
 
-Other teams will test this app and file bugs against it, and every accepted bug costs marks.
+Other teams will test this app and file bugs against it, and every accepted bug costs marks, including bugs inherited from AB3.
 Treat this section as correctness requirements, not polish.
 Define "correct" from the user's point of view, not from what is easy to parse or store.
 Source: [functionality bugs](https://nus-cs2103-ay2627-s1.github.io/website/schedule/week8/project.html#functionality-bugs) and [feature flaws](https://nus-cs2103-ay2627-s1.github.io/website/schedule/week8/project.html#feature-flaws).
@@ -403,6 +407,7 @@ Graders and PE testers file bugs against text that is too long, unclear, or repe
 ### User Guide and Developer Guide
 
 * The UG must match the product exactly. Remove anything not implemented, or mark it **Coming soon**.
+* Testers and graders read the UG and DG as web pages in current Chrome and Firefox, not as PDFs. Check layout and links on the rendered site, not only in the Markdown.
 * UG: give each command a one-line purpose, its format, and one or two examples. Leave out detail that the error message already tells the user.
 * DG: aim for comprehensible, not comprehensive. Use code snippets sparingly.
 * DG appendices: keep manual testing to the key cases, merge use cases that differ only slightly, and make every NFR measurable and met by the product. _Appendix: Effort_ is optional and at most about one page.
