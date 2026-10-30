@@ -415,14 +415,14 @@ Graders and PE testers file bugs against text that is too long, unclear, or repe
 * UG: open with the target user and the value proposition.
 * UG: give each command a one-line purpose, its format, and one or two examples. Leave out detail that the error message already tells the user.
 * UG: add a screenshot where it explains something words can't, such as the detail panel. Place it next to its text, and don't repeat near-identical screenshots.
-* DG: aim for comprehensible, not comprehensive. Use code snippets sparingly.
+* DG: write for a new team member learning the internal design. Keep what explains the design and cut low-level detail, such as exact message wording. Aim for comprehensible, not comprehensive. Use code snippets sparingly.
 * DG appendices:
   * User stories: each has all three parts (`As a ...`, `I can ...`, `So that ...`), the parts match, and no important story is missing.
   * Use cases: steps are numbered correctly, each has the extensions it needs, and none mentions UI details such as colors or panels. Merge use cases that differ only slightly.
   * NFRs: each is truly non-functional, measurable, and met by the product. Don't leave out a highly relevant one.
   * Glossary: include every term the DG needs, and nothing it doesn't use.
   * Manual testing: keep to the key cases.
-  * _Appendix: Effort_ is optional and at most about one page.
+  * _Appendix: Effort_: write it. PE testers read it before estimating our implementation effort, which feeds the effort marks. In about one page, list the main implementation work beyond AB3 and what made each part hard. Don't overclaim; testers are told not to inflate estimates.
 
 ### UML diagrams
 
