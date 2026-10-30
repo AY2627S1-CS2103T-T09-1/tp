@@ -1418,17 +1418,18 @@ AB3 manages one entity, `Person`, whose fields are four strings and a set of tag
 
 ### Effort required
 
-The figures compare the AB3 base the team started from with the current `master`. Line counts include comments and blank lines.
+The figures compare the AB3 base the team started from with the current `master`. Line counts follow the [RepoSense tP Dashboard](https://nus-cs2103-ay2627-s1.github.io/tp-dashboard/?search=AY2627S1-CS2103T-T09-1%2Ftp&sort=groupTitle&sortWithin=title&timeframe=commit&mergegroup=&groupSelect=groupByRepos&breakdown=true&checkedFileTypes=functional-code&since=2026-09-18), which counts the Java, FXML, and CSS files in `src/main` as functional code. They include comments and blank lines.
 
 Measure | AB3 | TuteeBook3
 --------|-----|-----------
-Production code (`src/main/java`) | 4,692 lines | 9,215 lines (5,233 added and 608 deleted, across 90 files)
+Functional code in the product | 5,261 lines | 9,886 lines
+Functional code written by the team, as credited by RepoSense | Not applicable | 5,113 lines (4,545 non-blank)
 User commands | 8 | 12, plus `CONFIRM`
 Field classes in `model.person` | 4 | 10
 Search predicate classes | 1 | 13
 `JsonAdapted*` classes | 2 | 5
 
-A large share of the added code is validation and error handling rather than new commands. For example, `ParserUtil` and `EditCommand` each grew by about 290 lines. For context only, test code grew from 4,565 to 13,099 lines.
+RepoSense credits a line to a member only if they wrote it, so lines kept from AB3 are not counted. The team therefore wrote about as much functional code as AB3 contains in total. A large share of it is validation and error handling rather than new commands. For example, RepoSense credits the team with about 300 lines each in `ParserUtil` and `EditCommand`. For context only, RepoSense also credits the team with 9,012 lines of test code.
 
 The team also checked the UML diagrams inherited from AB3 against the code, and fixed the ones that did not match:
 
