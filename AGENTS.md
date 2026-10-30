@@ -206,6 +206,7 @@ Error messages are the riskiest text in the app. Testers trigger every one, and 
   * Use one sentence pattern for every field, such as `<Field> must ...`, with the field name in the same form each time.
   * Say the same kind of rule the same way. Don't write "1-40 characters" for one field and "at most 200 characters" for another.
   * When several fields share a rule or a phrase, build it from one shared constant or helper instead of copying it. Keep `model` classes independent of `logic.Messages`.
+  * Share only text that means exactly the same for every field that uses it, and keep each field's own details in its own message. Don't merge messages just because they look alike. Each refactor counts against your freeze limit, so make it only where it fixes an inconsistency users can see.
   * Before you change a message, read the messages for similar fields and match them, or change them together.
 * When you change a message, update the tests that assert it and any UG text that quotes it. In the UG, describe the rule rather than quote the whole message.
 * Tell format errors apart from invalid values. For a `YYYY-MM-DD` date, `2025-13-28` is a format error (the month must be 1 to 12), but `2025-02-30` is an invalid value (February has no 30th). Calling one the other is a bug. A combined "Invalid date or incorrect format" message is acceptable only if the team rules the distinction out of scope.
