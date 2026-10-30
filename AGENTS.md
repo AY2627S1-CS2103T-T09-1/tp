@@ -367,7 +367,9 @@ Each member sends PRs for their own work, including their own part of the docume
 * Title: when the PR fully fixes an issue, use the issue title. Otherwise, write it like a commit subject for the whole PR.
 * Description:
   * Write `Fixes #123` for a full fix or `Fixes part of #123` for a partial fix.
+  * Keep it short, non-verbose and easy to read: one or two sentences on what changed and why, then a few plain bullets only if needed. The same applies to issue descriptions.
   * Add before-and-after screenshots for UI changes.
+* When drafting an issue or PR for the member, give the title and description as text they can paste into GitHub's web form.
 * Assign the PR to the issue's milestone.
 * Open the PR as a draft. Mark it ready for review only after CI passes and you have read the full diff for unintended changes.
 
