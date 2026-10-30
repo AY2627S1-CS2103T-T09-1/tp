@@ -2,6 +2,7 @@ package seedu.address.model.person;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
+import static seedu.address.commons.util.StringUtil.findInvalidCharacter;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -162,19 +163,6 @@ public class Email {
         String lastLabel = labels[labels.length - 1];
         assert !lastLabel.matches(DOMAIN_LAST_PART_REGEX);
         return String.format(MESSAGE_SHORT_LAST_DOMAIN_LABEL, email);
-    }
-
-    /**
-     * Returns the first character in {@code text} that {@code allowedCharacterRegex} doesn't match,
-     * or an empty {@code Optional} if every character is allowed.
-     */
-    private static Optional<String> findInvalidCharacter(String text, String allowedCharacterRegex) {
-        String invalidCharacters = text.replaceAll(allowedCharacterRegex, "");
-        if (invalidCharacters.isEmpty()) {
-            return Optional.empty();
-        }
-        int firstLength = Character.charCount(invalidCharacters.codePointAt(0));
-        return Optional.of(invalidCharacters.substring(0, firstLength));
     }
 
     @Override

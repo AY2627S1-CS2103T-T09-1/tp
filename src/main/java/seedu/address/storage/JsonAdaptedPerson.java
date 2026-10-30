@@ -118,7 +118,7 @@ class JsonAdaptedPerson {
         final School modelSchool = new School(school);
 
         if (address != null && !Address.isValidAddress(address)) {
-            throw new IllegalValueException(Address.MESSAGE_CONSTRAINTS);
+            throw new IllegalValueException(Address.getConstraintMessage(address));
         }
         final Address modelAddress = address == null ? null : new Address(address);
 

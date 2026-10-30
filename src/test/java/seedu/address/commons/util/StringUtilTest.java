@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
 
 import java.io.FileNotFoundException;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -205,6 +206,31 @@ public class StringUtilTest {
     @Test
     public void normalizeInput_null_throwsNullPointerException() {
         assertThrows(NullPointerException.class, () -> StringUtil.normalizeInput(null));
+    }
+
+    //---------------- Tests for findInvalidCharacter --------------------------------------
+
+    @Test
+    public void findInvalidCharacter_allAllowed_returnsEmpty() {
+        assertEquals(Optional.empty(), StringUtil.findInvalidCharacter("Cafe", "[A-Za-z]"));
+        assertEquals(Optional.empty(), StringUtil.findInvalidCharacter("", "[A-Za-z]"));
+    }
+
+    @Test
+    public void findInvalidCharacter_severalInvalid_returnsFirst() {
+        assertEquals(Optional.of("é"), StringUtil.findInvalidCharacter("Café 中文", "[A-Za-z ]"));
+    }
+
+    @Test
+    public void findInvalidCharacter_emoji_returnsWholeEmoji() {
+        String emoji = "😀";
+        assertEquals(Optional.of(emoji), StringUtil.findInvalidCharacter("Good " + emoji, "[A-Za-z ]"));
+    }
+
+    @Test
+    public void findInvalidCharacter_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> StringUtil.findInvalidCharacter(null, "[A-Za-z]"));
+        assertThrows(NullPointerException.class, () -> StringUtil.findInvalidCharacter("Cafe", null));
     }
 
     //---------------- Tests for getDetails --------------------------------------

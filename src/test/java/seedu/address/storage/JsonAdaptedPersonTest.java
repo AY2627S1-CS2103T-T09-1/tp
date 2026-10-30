@@ -154,6 +154,14 @@ public class JsonAdaptedPersonTest {
     }
 
     @Test
+    public void toModelType_nonAsciiAddress_throwsIllegalValueException() {
+        JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, VALID_SCHOOL, "Rue de l'Église 5",
+                VALID_LEVEL, VALID_SUBJECTS);
+        assertThrows(IllegalValueException.class, String.format(Address.MESSAGE_INVALID_CHARACTER, "É"),
+                person::toModelType);
+    }
+
+    @Test
     public void toModelType_personWithNotes_roundTripsThroughJson() throws Exception {
         Person bensonWithNotes = new PersonBuilder(BENSON)
                 .withNotes("Weak in algebra", "WA2 Math: 36/50").build();

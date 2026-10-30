@@ -209,6 +209,10 @@ The ASCII letter/number rule also applies to existing data files. A file contain
 
 `Note` text uses the same ASCII-only approach, so an accented letter is rejected in a note just as it is in a name or school. A note can contain 1 to 500 printable ASCII characters (`\x20` to `\x7E`): letters, digits, spaces, and every keyboard symbol, because notes record scores and reminders such as `WA2 Math: 36/50`. It also accepts the curly apostrophe `’`, as `School` does, so `Didn’t finish` is not rejected in a note when `St. Joseph’s Institution` is accepted as a school. For any other character, `Note#getConstraintMessage` names the first one, and returns an emoji whole rather than half of its UTF-16 pair. `ParserUtil#parseNote` (used by `addnote` and `editnote`) and `JsonAdaptedNote` both use this message. `filter note/` search text is not restricted, like `n/` and `sch/` search text. A data file containing a note with any other character fails validation when loaded, so users must edit those notes in the previous version before upgrading.
 
+`Address` accepts the same characters as `Note`, because addresses also need keyboard symbols such as `#`, `/`, and `,`, as in `Blk 123 Bedok North Ave 2, #04-111`. It declares its own copy of the allowed-character regex, as every field class owns its rules. `Address#getConstraintMessage` names the first character that isn't allowed, like `Note#getConstraintMessage`, and is used by the `Address` constructor, `ParserUtil#parseAddress` (used by `add` and `edit`), and `JsonAdaptedPerson`. Blank and too-long addresses keep the existing `Address.MESSAGE_CONSTRAINTS`. `filter a/` search text is not restricted. A data file containing an address with any other character fails validation when loaded, so users must edit those addresses in the previous version before upgrading.
+
+`Address`, `Note`, `Phone`, and `Email` find the first character that isn't allowed with `StringUtil#findInvalidCharacter`, passing their own allowed-character regex. It returns an emoji whole rather than half of its UTF-16 pair.
+
 #### Design considerations
 
 **Aspect: Character rules for names and schools**
@@ -226,6 +230,10 @@ The ASCII letter/number rule also applies to existing data files. A file contain
   * Cons: Names and schools still have different punctuation rules, which must be documented. Accented and other non-ASCII letters in either field are rejected, so existing records with them must be changed before upgrading.
 
 The third option was selected because the issue was inconsistent handling of letters, not a need to make names and school names use identical punctuation. ASCII-only letters and digits reject the accented school case consistently with student names, while keeping the punctuation needed for realistic school names. The User Guide lists the exact rules for each field and explains the existing-data limitation.
+
+### School validation and error messages
+
+`ParserUtil#parseSchool` trims and collapses repeated spaces, then calls `School#getInvalidReason`, which returns a targeted message for the first problem found, in this order: blank input, more than 100 characters, the first unsupported character, then no ASCII letter. `School#isValidSchool` uses the same checks, so `add`, `edit`, model construction, and JSON loading apply the same rules. The model and JSON adapter report the general `School.MESSAGE_CONSTRAINTS` instead of a targeted message.
 
 ### Student subjects and bands
 
@@ -480,7 +488,7 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 <img src="images/FilterClassDiagram.png" width="650" />
 
 1. `FilterCommandParser` splits the arguments at the filter prefixes `n/`, `sch/`, `lvl/`, `sub/`, `band/`, `p/`, `e/`, `a/`, `gn/`, `gp/`, `t/`, and `note/`. It also recognizes `nid/`, the note index prefix of `deletenote` and `editnote`, only to reject it with a message pointing to `note/`, so that it is not read as part of another value. `note/` is read with `ArgumentTokenizer#tokenizeWithTrailingText`, so everything after it is the note text, as in `addnote`.
-1. It then checks, in order, that there is no text before the first prefix, that at least one filter is given, that `t/` is not repeated, that no other prefix is repeated, and that `band/` comes with `sub/`. A repeated `t/` gets its own message, `MESSAGE_ONE_TAG`, because `add` and `edit` accept several `t/`. Any other repeated prefix gets `MESSAGE_REPEATED_FILTER`, which lists the repeated prefixes and suggests running `filter` once for each value, instead of the general duplicate-prefix message that `add` and `edit` use. If `t/` is also repeated, the `t/` message is shown first.
+1. It then checks, in order, that there is no unknown prefix-shaped token, that there is no text before the first prefix, that at least one filter is given, that `t/` is not repeated, that no other prefix is repeated, and that `band/` comes with `sub/`. A repeated `t/` gets its own message, `MESSAGE_ONE_TAG`, because `add` and `edit` accept several `t/`. Any other repeated prefix gets `MESSAGE_REPEATED_FILTER`, which lists the repeated prefixes and suggests running `filter` once for each value, instead of the general duplicate-prefix message that `add` and `edit` use. If `t/` is also repeated, the `t/` message is shown first. Address values are excluded from the unknown-prefix check because `/` can be ordinary address text, while `note/` consumes all trailing text before this check.
 1. It creates one `Predicate<Person>` for each filter given:
 
    Prefix | Predicate | Matches when the student's…
