@@ -159,7 +159,7 @@ Deliberate sabotage, such as typing a 30-digit phone number on purpose, is not a
 A plausible mistake is: a missing space between parameters, a repeated prefix, an extra space, or an empty value.
 A plausible mistake must never crash the app, corrupt the data file, or leave the app unusable.
 
-* Do: `add n/John Doep/98765432` shows an error that says the phone number is missing.
+* Do: `add n/John Doep/98765432` shows the name rule and a hint to check for a missing space before a prefix.
 * Don't: let the value flow through and fail later with an uncaught exception.
 * Do: `delete 99999999999` shows an invalid index error.
 * Don't: call `Integer.parseInt` without handling overflow. Numbers from user input follow the same rule as any other mistake.
@@ -173,14 +173,11 @@ Define "valid" by what real users need to enter, not by the narrowest data type.
   * Do: when a rule is narrow on purpose, state it exactly in the UG and say why.
   * Do: pick a limit no realistic value reaches, and document it in the UG.
 * Do not reject symbols that real values contain.
-  * Don't: reject `Rajesh s/o Kumar`, `Mary-Jane O'Brien`, or `J. Tan`. AB3's `Name.VALIDATION_REGEX` rejects all three today. Treat that as a known flaw to fix, not a pattern to copy.
-  * Don't: add a prefix that collides with realistic values. A new `s/` prefix would split `s/o` inside a name.
+  * Names accept only ASCII letters, digits, and spaces (`Name.VALIDATION_REGEX`), so `Rajesh s/o Kumar`, `Mary-Jane O'Brien`, and `J. Tan` are rejected. The UG and DG document this choice, but testers may still report it as a feature flaw. Do not change the rule without asking the user.
   * Do: when a symbol is hard to parse, improve the parser before banning the symbol.
 * Warn rather than block unusual but harmless input.
   * Don't: reject `+65 9123 4567`, `9123-4567` or an overseas number. `ParserUtil.parsePhone` removes spaces, dashes, and a leading `+65` when the rest is a Singapore number.
   * Do: save a number that isn't a Singapore number and add a warning with `CommandResult.withWarning`, as `add` and `edit` do for `p/` and `gp/`.
-  * Don't: reject a date in the past. Users record past events.
-  * Do: accept the value and show a warning if it might be a mistake, such as "Note: this date is in the past."
 * Still guard against harmful input. Accepting a value that makes data ambiguous or breaks a later command is also a flaw. Block it or warn about it.
 
 ### Keep long values usable
@@ -217,19 +214,19 @@ Error messages are the riskiest text in the app. Testers trigger every one, and 
 ### Match case sensitivity to the real world
 
 * Names and search keywords are not case-sensitive in real life, so they must not be in the app.
-* Don't: treat `find alice` and `find Alice` differently.
+* Don't: treat `filter n/alice` and `filter n/Alice` differently.
 
 ### Make search useful
 
-* Match keywords with OR, not AND, unless the use case needs AND. `find Alice Richards` returns both `Alice Davidson` and `Alison Richards`, so a user who misremembers one word still finds the person.
-* Consider partial matching. AB3's `find` matches whole words only, so `find Ali` does not find `Alice`.
+* `filter` replaces AB3's `find`. It combines different filters with AND. Text filters such as `n/` and `sch/` match any part of the value, ignoring case and extra spaces. Fields with fixed values, such as `lvl/`, `sub/`, `p/`, and `t/`, must match the whole value.
+* The UG's `filter` section is the reference for this behavior. Keep the code and that section in sync.
 
 ### Treat duplicate detection as uncertain
 
-* Don't: compare with exact string equality. AB3's `Person.isSamePerson` does this today, so `John Doe`, `john doe`, and `John  Doe` count as three different people.
-* Do: normalize before comparing (trim, collapse spaces, ignore case).
-* Do: when a match is likely but not certain, warn and let the user decide.
-* Do: state the detector's limits in the UG, such as "Duplicates are detected by name only." Never imply that all duplicates are caught.
+* Don't: compare with exact string equality.
+* Do: normalize before comparing (trim, collapse spaces, ignore case), as `Name` does for `Person.isSamePerson`.
+* Do: when a match is likely but not certain, warn and let the user decide. `add` and `edit` ask for `CONFIRM` when only the name matches, and block a student whose name, school, and level all match.
+* Do: state the detector's limits in the UG. Never imply that all duplicates are caught.
 
 ### Protect the data file
 
