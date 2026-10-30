@@ -227,7 +227,7 @@ The third option was selected because the issue was inconsistent handling of let
 
 ### Student subjects and bands
 
-Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `G2`, or `G3`. Subject names can contain 1 to 40 Unicode letters, spaces, hyphens, parentheses, commas, and ampersands, and must contain at least one letter. Digits, slashes, and other symbols are rejected. A student cannot have the same subject name more than once, even at different bands.
+Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `G2`, or `G3`. Subject names can contain 1 to 40 ASCII letters, spaces, hyphens, parentheses, commas, and ampersands, and must contain at least one letter. Digits, slashes, non-ASCII letters, and other symbols are rejected. Subject names use ASCII letters for the same reason as names and schools, as explained in [Student names and schools](#student-names-and-schools), so the same accented letter is handled the same way in every student field. A data file containing a subject name with non-ASCII letters fails validation when loaded, with the subject constraint. Users must edit those subjects in the previous version before upgrading. A student cannot have the same subject name more than once, even at different bands.
 
 `Subject` is an immutable value object containing both the subject name and its required `Band`. The band is an enum, so a `Subject` cannot be constructed with an unsupported band or without one. For comparison, `Subject` trims surrounding spaces, collapses repeated ordinary spaces, and lowercases the name. The band is included in `Subject.equals`, but `Person#validateSubjects` checks names separately and rejects a repeated subject even if the bands differ.
 
@@ -266,7 +266,7 @@ The app uses the second option because the tutor needs each subject’s band to 
   * Cons: Rejects commonly used subject names such as `Science (Physics, Chemistry)` and `Design & Technology`.
 
 * **Alternative 2 (current choice):** Also allow parentheses, commas, and ampersands.
-  * Pros: Accepts the real names reported in issue 263 while retaining the existing length limit, Unicode-letter support, and at-least-one-letter rule. Digits, slashes, and other symbols remain rejected.
+  * Pros: Accepts the real names reported in issue 263 while retaining the existing length limit and at-least-one-letter rule. Digits, slashes, and other symbols remain rejected.
   * Cons: A subject can contain awkward punctuation placement because the rule checks allowed characters, not subject-name grammar.
 
 * **Alternative 3:** Allow any printable punctuation and digits.

@@ -17,6 +17,7 @@ import seedu.address.model.person.Address;
 import seedu.address.model.person.Note;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.School;
+import seedu.address.model.person.Subject;
 import seedu.address.testutil.PersonBuilder;
 import seedu.address.testutil.TypicalPersons;
 
@@ -28,6 +29,7 @@ public class JsonSerializableAddressBookTest {
             TEST_DATA_FOLDER.resolve("oldFormatTypicalPersonsAddressBook.json");
     private static final Path INVALID_PERSON_FILE = TEST_DATA_FOLDER.resolve("invalidPersonAddressBook.json");
     private static final Path NON_ASCII_SCHOOL_FILE = TEST_DATA_FOLDER.resolve("nonAsciiSchoolAddressBook.json");
+    private static final Path NON_ASCII_SUBJECT_FILE = TEST_DATA_FOLDER.resolve("nonAsciiSubjectAddressBook.json");
     private static final Path DUPLICATE_PERSON_FILE = TEST_DATA_FOLDER.resolve("duplicatePersonAddressBook.json");
     private static final Path VALID_NOTES_FILE = TEST_DATA_FOLDER.resolve("validNotesAddressBook.json");
     private static final Path MISSING_NOTES_FILE = TEST_DATA_FOLDER.resolve("missingNotesAddressBook.json");
@@ -83,6 +85,13 @@ public class JsonSerializableAddressBookTest {
         JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(NON_ASCII_SCHOOL_FILE,
                 JsonSerializableAddressBook.class).get();
         assertThrows(IllegalValueException.class, School.MESSAGE_CONSTRAINTS, dataFromFile::toModelType);
+    }
+
+    @Test
+    public void toModelType_nonAsciiSubjectFile_throwsIllegalValueException() throws Exception {
+        JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(NON_ASCII_SUBJECT_FILE,
+                JsonSerializableAddressBook.class).get();
+        assertThrows(IllegalValueException.class, Subject.MESSAGE_CONSTRAINTS, dataFromFile::toModelType);
     }
 
     @Test

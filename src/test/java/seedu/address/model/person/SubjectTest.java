@@ -37,6 +37,13 @@ public class SubjectTest {
     }
 
     @Test
+    public void isValidSubject_accentedOrNonLatinLetters_returnsFalse() {
+        assertFalse(Subject.isValidSubject("Français"));
+        assertFalse(Subject.isValidSubject("Español"));
+        assertFalse(Subject.isValidSubject("华文"));
+    }
+
+    @Test
     public void constructor_nullBand_throwsNullPointerException() {
         assertThrows(NullPointerException.class, () -> new Subject("Mathematics", null));
     }

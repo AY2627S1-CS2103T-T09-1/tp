@@ -249,6 +249,7 @@ public class EditCommandParserTest {
     public void parse_invalidValue_failure() {
         assertParseFailure(parser, "1 sub/English", Messages.MESSAGE_SUBJECT_BAND_PAIR);
         assertParseFailure(parser, "1 sub/English band/G4", Band.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1 sub/Français band/G3", Subject.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, "1 band/G2", "Missing required parameter: sub/."); // band without subject
         assertParseFailure(parser, "1" + INVALID_NAME_DESC, Name.MESSAGE_CONSTRAINTS); // invalid name
         assertParseFailure(parser, "1" + INVALID_PHONE_DESC, INVALID_PHONE_MESSAGE); // invalid phone
