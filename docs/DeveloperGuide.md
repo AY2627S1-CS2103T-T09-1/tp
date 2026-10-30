@@ -1433,9 +1433,9 @@ Search predicate classes | 1 | 13
 <div markdown="span" class="alert alert-info">:information_source: **Note:** The line counts were taken on 30 October 2026, and may not exactly match the current code. RepoSense regenerates its report as the team adds code, so the figures on the dashboard may differ slightly from those in this table.
 </div>
 
-RepoSense credits a line to a member only if they wrote it, so lines kept from AB3 are not counted. The team therefore wrote about as much functional code as AB3 contains in total. A large share of it is validation and error handling rather than new commands. For example, RepoSense credits the team with about 300 lines each in `ParserUtil` and `EditCommand`.
+RepoSense does not count lines kept from AB3, so the team wrote about as much functional code as AB3 contains in total. Much of it is validation and error handling, such as about 300 lines each in `ParserUtil` and `EditCommand`.
 
-Lines of code may not be a direct measure of effort, especially now that modern AI coding tools make code cheaper to write. Much of the effort in a change may lie in getting it right rather than in the number of lines it adds, so the figures above are perhaps best read as a lower bound on the team's effort. How much the team found and corrected in its own code might be a better indication. During alpha testing, the team found and fixed about 30 bugs in the product's behavior.
+Lines of code may not be a direct measure of effort, especially now that AI coding tools make code cheaper to write, so the figures above are perhaps best read as a lower bound. A better indication might be the bugs the team found and fixed in its own code: about 30 during alpha testing.
 
 ### Achievements
 
