@@ -101,8 +101,17 @@ public class EditNoteCommandParserTest {
     public void parse_invalidIndex_throwsParseException() {
         assertParseFailure(parser, " 0 nid/1 " + PREFIX_NOTE + "hi", MESSAGE_INVALID_INDEX);
         assertParseFailure(parser, " -1 nid/1 " + PREFIX_NOTE + "hi", MESSAGE_INVALID_INDEX);
-        assertParseFailure(parser, " abc nid/1 " + PREFIX_NOTE + "hi", MESSAGE_INVALID_INDEX);
         assertParseFailure(parser, " 99999999999 nid/1 " + PREFIX_NOTE + "hi", MESSAGE_INVALID_INDEX);
+    }
+
+    @Test
+    public void parse_nonIntegerIndex_throwsCommandFormatError() {
+        String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditNoteCommand.MESSAGE_USAGE);
+
+        assertParseFailure(parser, " abc nid/1 " + PREFIX_NOTE + "hi", expectedMessage);
+
+        // text after a valid index
+        assertParseFailure(parser, " 1 abc nid/2 " + PREFIX_NOTE + "hi", expectedMessage);
     }
 
     @Test

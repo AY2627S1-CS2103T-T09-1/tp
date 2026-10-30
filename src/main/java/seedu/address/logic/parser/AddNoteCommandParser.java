@@ -32,7 +32,7 @@ public class AddNoteCommandParser implements Parser<AddNoteCommand> {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddNoteCommand.MESSAGE_USAGE));
         }
 
-        Index index = ParserUtil.parseIndex(preamble);
+        Index index = ParserUtil.parseIndex(preamble, AddNoteCommand.MESSAGE_USAGE);
         Note note = ParserUtil.parseNote(argMultimap.getValue(PREFIX_NOTE).get());
         return new AddNoteCommand(index, note);
     }
