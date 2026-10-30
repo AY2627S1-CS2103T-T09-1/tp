@@ -12,8 +12,8 @@ import java.util.Locale;
 public class School {
 
     public static final String MESSAGE_CONSTRAINTS =
-            "School names must be 1-100 characters, contain at least one ASCII letter, "
-                    + "and use only ASCII letters, digits, spaces, periods (.), apostrophes (' or ’), "
+            "School names must be 1-100 characters, contain at least one English letter (A-Z), "
+                    + "and use only English letters, digits, spaces, periods (.), apostrophes (' or ’), "
                     + "ampersands (&), parentheses, commas, and hyphens (-).";
     public static final String DEFAULT_VALUE = "Unknown";
     public static final int MAX_LENGTH = 100;
