@@ -81,6 +81,12 @@ public class NoteTest {
         }
         assertTrue(Note.isValidNote(printableAscii.toString()));
 
+        // curly apostrophe, as in school names -> returns true
+        assertTrue(Note.isValidNote("Didn’t finish homework"));
+
+        // other curly quotes -> returns false
+        assertFalse(Note.isValidNote("‘Revise’"));
+
         // accented letter -> returns false
         assertFalse(Note.isValidNote("Français oral 18/20"));
 

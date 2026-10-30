@@ -16,8 +16,8 @@ public class Note {
     public static final String MESSAGE_TOO_LONG = "Note text must be at most " + MAX_LENGTH + " characters.";
     public static final String MESSAGE_INVALID_CHARACTER = "Note text contains \"%1$s\", which isn't "
             + "allowed. Use only English letters, digits, spaces, and keyboard symbols.";
-    /** Printable ASCII: a space, English letters, digits, and the symbols on a standard keyboard. */
-    private static final String ALLOWED_CHARACTERS_REGEX = "[\\x20-\\x7E]";
+    /** Printable ASCII, plus the curly apostrophe that school names also accept. */
+    private static final String ALLOWED_CHARACTERS_REGEX = "[\\x20-\\x7E’]";
 
     public final String value;
 
@@ -34,7 +34,7 @@ public class Note {
 
     /**
      * Returns true if {@code test} has 1 to {@value #MAX_LENGTH} characters, ignoring leading and trailing
-     * whitespace, and contains only printable ASCII characters.
+     * whitespace, and contains only printable ASCII characters or ’.
      */
     public static boolean isValidNote(String test) {
         return !test.isBlank() && findInvalidCharacter(test).isEmpty() && !isTooLong(test);
@@ -54,7 +54,7 @@ public class Note {
     }
 
     /**
-     * Returns the first character of {@code test} that is not printable ASCII, ignoring leading and trailing
+     * Returns the first character of {@code test} that is not allowed, ignoring leading and trailing
      * whitespace. A character made of two UTF-16 chars, such as an emoji, is returned whole.
      */
     private static Optional<String> findInvalidCharacter(String test) {
