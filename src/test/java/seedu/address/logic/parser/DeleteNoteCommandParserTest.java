@@ -41,6 +41,22 @@ public class DeleteNoteCommandParserTest {
     }
 
     @Test
+    public void parse_forceOptionAfterNid_throwsCommandFormatError() {
+        String expectedMessage = String.format(
+                MESSAGE_INVALID_COMMAND_FORMAT, DeleteNoteCommand.MESSAGE_USAGE);
+        assertParseFailure(parser, "1 nid/1 -f", expectedMessage);
+        assertParseFailure(parser, "  1 nid/1   -f  ", expectedMessage);
+        assertParseFailure(parser, "1 nid/-f", expectedMessage);
+        assertParseFailure(parser, "-f 1 nid/1 -f", expectedMessage);
+
+        // reported before an invalid index
+        assertParseFailure(parser, "0 nid/1 -f", expectedMessage);
+
+        // -f after an earlier nid/ is also caught when nid/ is repeated
+        assertParseFailure(parser, "1 nid/1 -f nid/2", expectedMessage);
+    }
+
+    @Test
     public void parse_maxIntNid_returnsDeleteNoteCommand() {
         assertParseSuccess(parser, "1 nid/2147483647",
                 new DeleteNoteCommand(INDEX_FIRST_PERSON, Index.fromOneBased(Integer.MAX_VALUE)));

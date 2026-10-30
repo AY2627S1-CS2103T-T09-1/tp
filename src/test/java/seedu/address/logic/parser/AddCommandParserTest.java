@@ -83,14 +83,31 @@ public class AddCommandParserTest {
     }
 
     @Test
-    public void parse_schoolWithBracketsAndComma_success() {
-        String[] schools = {"Anglo-Chinese School (Independent)", "School of Science and Technology, Singapore"};
+    public void parse_schoolWithUnicode_failure() {
+        String person = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB;
+        for (String school : List.of("École Française", "李明学校")) {
+            assertParseFailure(parser, person + " sch/" + school + SUBJECT_DESC, School.MESSAGE_CONSTRAINTS);
+        }
+    }
+
+    @Test
+    public void parse_schoolWithOfficialPunctuation_success() {
+        String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB;
+        String[] schools = {
+            "Anglo-Chinese School (Independent)",
+            "St. Joseph's Institution",
+            "School of Science and Technology, Singapore"
+        };
         for (String school : schools) {
             Person expectedPerson = new PersonBuilder(BOB).withSchool(school).build();
-            String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + " sch/" + school + SUBJECT_DESC;
-
-            assertParseSuccess(parser, details, new AddCommand(expectedPerson));
+            assertParseSuccess(parser, details + " sch/" + school + SUBJECT_DESC, new AddCommand(expectedPerson));
         }
+    }
+
+    @Test
+    public void parse_nonAsciiName_failure() {
+        String details = PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + SUBJECT_DESC;
+        assertParseFailure(parser, " n/Zoë Lim" + details, Name.MESSAGE_CONSTRAINTS);
     }
 
     @Test
@@ -178,6 +195,13 @@ public class AddCommandParserTest {
     public void parse_emailProvided_success() {
         Person expectedPerson = new PersonBuilder(BOB).withoutPhone().withEmail(VALID_EMAIL_BOB).build();
         assertParseSuccess(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + EMAIL_DESC_BOB + LEVEL_DESC_BOB
+                + SUBJECT_DESC, new AddCommand(expectedPerson));
+    }
+
+    @Test
+    public void parse_emailWithoutDomainDot_success() {
+        Person expectedPerson = new PersonBuilder(BOB).withoutPhone().withEmail("bob@gmail").build();
+        assertParseSuccess(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + " e/bob@gmail" + LEVEL_DESC_BOB
                 + SUBJECT_DESC, new AddCommand(expectedPerson));
     }
 

@@ -64,6 +64,7 @@ class NoteCommandUtil {
             return successMessage;
         }
         return successMessage + "\n"
-                + String.format(EditCommand.MESSAGE_NO_LONGER_MATCHES, editedPerson.getName());
+                + String.format(EditCommand.MESSAGE_NO_LONGER_MATCHES, editedPerson.getName(),
+                        editedPerson.getSchool(), editedPerson.getLevel());
     }
 }

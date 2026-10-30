@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import seedu.address.logic.parser.Prefix;
+import seedu.address.model.person.Email;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.Subject;
@@ -50,6 +51,8 @@ public class Messages {
             + "(8 digits starting with 6, 8, or 9, with or without +65). Use edit to fix it if it's wrong.";
     public static final String MESSAGE_NOT_SINGAPORE_PHONES = "Warning: %1$s don't look like Singapore numbers "
             + "(8 digits starting with 6, 8, or 9, with or without +65). Use edit to fix them if they're wrong.";
+    public static final String MESSAGE_EMAIL_NO_DOMAIN_DOT = "Warning: email %1$s has no \".\" after the \"@\", "
+            + "so an ending such as \".com\" may be missing. Use edit to fix it if it's wrong.";
     public static final String WARNING_LABEL_PHONE = "phone ";
     public static final String WARNING_LABEL_GUARDIAN_PHONE = "guardian phone ";
 
@@ -97,6 +100,17 @@ public class Messages {
             return Optional.of(String.format(MESSAGE_NOT_SINGAPORE_PHONE, nonSingaporePhones.get(0)));
         }
         return Optional.of(String.format(MESSAGE_NOT_SINGAPORE_PHONES, String.join(" and ", nonSingaporePhones)));
+    }
+
+    /**
+     * Returns a warning that {@code email} may be missing an ending such as ".com",
+     * or an empty {@code Optional} if no email was given or its domain has a period.
+     *
+     * @param email The student's email, if one was given.
+     */
+    public static Optional<String> getEmailNoDomainDotWarning(Optional<Email> email) {
+        return email.filter(e -> !e.hasDotInDomain())
+                .map(e -> String.format(MESSAGE_EMAIL_NO_DOMAIN_DOT, e));
     }
 
     private static Optional<String> labelIfNotSingapore(String label, Optional<Phone> phone) {

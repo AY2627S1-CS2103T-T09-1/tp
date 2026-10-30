@@ -75,6 +75,21 @@ public class AddCommandTest {
                         "phone +60123456789 and guardian phone +60123456789"));
     }
 
+    @Test
+    public void execute_emailWithoutDomainDot_addSuccessfulWithWarning() throws Exception {
+        assertAddedWithWarning(new PersonBuilder().withEmail("john@gmail").build(),
+                "Warning: email john@gmail has no \".\" after the \"@\", so an ending such as \".com\" "
+                + "may be missing. Use edit to fix it if it's wrong.");
+    }
+
+    @Test
+    public void execute_nonSingaporePhoneAndEmailWithoutDomainDot_addSuccessfulWithBothWarnings()
+            throws Exception {
+        assertAddedWithWarning(new PersonBuilder().withPhone("+447911123456").withEmail("john@gmail").build(),
+                String.format(Messages.MESSAGE_NOT_SINGAPORE_PHONE, "phone +447911123456") + "\n"
+                + String.format(Messages.MESSAGE_EMAIL_NO_DOMAIN_DOT, "john@gmail"));
+    }
+
     /**
      * Executes an {@code AddCommand} for {@code person} and checks that it is added,
      * with {@code expectedWarning} after the success message.

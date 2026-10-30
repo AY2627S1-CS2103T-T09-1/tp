@@ -68,11 +68,23 @@ public class AddNoteCommandParserTest {
 
         assertParseFailure(parser, " abc note/hi", expectedMessage);
 
-        // text after a valid index
-        assertParseFailure(parser, " 1 abc note/hi", expectedMessage);
-
         // non-integer index is reported before the blank note
         assertParseFailure(parser, " abc note/   ", expectedMessage);
+    }
+
+    @Test
+    public void parse_textAfterIndex_throwsParseException() {
+        String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, AddNoteCommand.MESSAGE_USAGE);
+
+        assertParseFailure(parser, " 1 abc note/hi", expectedMessage);
+
+        // prefixes that addnote does not take, such as nid/ from editnote or t/ from older versions
+        assertParseFailure(parser, " 1 nid/1 note/Weak in algebra", expectedMessage);
+        assertParseFailure(parser, " 1 t/x note/Weak in algebra", expectedMessage);
+        assertParseFailure(parser, "  1   nid/1   note/hi", expectedMessage);
+
+        // extra text is reported before an invalid index
+        assertParseFailure(parser, " 0 nid/1 note/hi", expectedMessage);
     }
 
     @Test
