@@ -1435,7 +1435,13 @@ Search predicate classes | 1 | 13
 
 RepoSense does not count lines kept from AB3, so the team wrote about as much functional code as AB3 contains in total. Much of it is validation and error handling, such as about 300 lines each in `ParserUtil` and `EditCommand`.
 
-Lines of code may not be a direct measure of effort, especially now that AI coding tools make code cheaper to write, so the figures above are perhaps best read as a lower bound. A better indication might be the bugs the team found and fixed in its own code: about 30 during alpha testing.
+Lines of code may not be a direct measure of effort, especially now that AI coding tools make code cheaper to write, so the figures above are perhaps best read as a lower bound.
+
+A better indication might be the work behind each change:
+
+* Agreeing on a design before coding.
+* Revising pull requests in response to teammates' reviews.
+* Finding and fixing bugs in the team's own code, about 30 of them during alpha testing.
 
 ### Achievements
 
