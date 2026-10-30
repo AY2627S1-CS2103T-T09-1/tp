@@ -1446,9 +1446,10 @@ The `Model`, `Storage`, `UI`, and parser diagrams were also updated for the new 
 
 ### Achievements
 
-* A tutor can keep a student's school, level, subjects with bands, guardian contact, tags, and lesson notes in one record, and see all of it in one detail panel with `view`.
-* A tutor can narrow the list to a lesson group, such as `filter lvl/S3 sub/Mathematics band/G2`, or find a student from part of a guardian's name while the guardian is on the phone.
-* Destructive commands and likely duplicates ask for confirmation, and common typing mistakes get an error message that names the problem.
+* TuteeBook3 delivers its value proposition: a tutor keeps each student's school, level, subjects with bands, guardian contact, tags, and lesson notes in one record, sees all of it with `view`, and narrows the list to a lesson group with `filter`, such as `filter lvl/S3 sub/Mathematics band/G2`.
+* Field rules are shared by the parsers, the model, and JSON loading, so a value that a command rejects is also rejected in a hand-edited data file.
+* Destructive commands and likely duplicates ask for confirmation, and common typing mistakes, such as a missing space before a prefix, get an error message that names the field and the problem.
+* JUnit tests cover 95% of the code.
 
 ### Reuse
 
