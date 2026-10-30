@@ -272,7 +272,10 @@ There are no parameters, or there is text before the first one, such as `add Joh
 `n/`, `p/`, `sch/`, `a/`, `e/`, `lvl/`, `gn/`, or `gp/` is given more than once | `Multiple values specified for the following single-valued field(s): p/`
 `NAME` is invalid | `Names must start with an ASCII letter or digit and contain only ASCII letters, digits, and spaces.`
 `PHONE` or `GUARDIAN_PHONE` is invalid | A message saying why. See [Phone numbers](#phone-numbers).
-`SCHOOL` is invalid | `School names must be 1-100 characters, contain at least one ASCII letter, and use only ASCII letters, digits, spaces, periods (.), apostrophes (' or ’), ampersands (&), parentheses, commas, and hyphens (-).`
+`sch/` has no value or only spaces | `School name cannot be blank.`
+`SCHOOL` is longer than 100 characters | `School name must be at most 100 characters; this value has 101.`, with the actual character count
+`SCHOOL` contains an unsupported character | A message naming the school and first unsupported character, and listing the allowed characters. For example, `School name "School#1" contains "#", which isn't allowed. Use ASCII letters (A-Z, a-z), digits (0-9), spaces, periods (.), apostrophes (' or ’), ampersands (&), parentheses, commas, and hyphens (-).`
+`SCHOOL` contains only digits and allowed punctuation | `School name "123" must contain at least one ASCII letter.`
 `ADDRESS` is blank or longer than 200 characters | `Addresses must not be blank and must be at most 200 characters.`
 `EMAIL` is invalid or longer than 254 characters | A message saying what is wrong, such as `Email "john@" has no domain after the "@", such as example.com.`
 `LEVEL` is not `S1` to `S5` | `Level must be one of S1, S2, S3, S4, S5.`
@@ -303,6 +306,7 @@ Format: `edit INDEX [n/NAME] [p/PHONE] [sch/SCHOOL] [a/ADDRESS] [e/EMAIL] [lvl/L
 
 * `INDEX` follows the rules in [Indexes and notes](#indexes-and-notes). Every other parameter follows the rules in [Parameter details](#parameter-details).
 * Give at least one parameter. Each one you give replaces the student's current value. Anything you leave out stays as it is, and the student's notes are kept.
+* Every student must have a school. `edit INDEX sch/` with no school value is rejected; it cannot remove the school.
 * Tags and subjects are replaced as a whole. `t/paid` replaces all of the student's tags with `paid`, and `sub/English band/G2` replaces all of their subjects with English at G2. Include every tag and subject you want to keep. See [Subjects and bands](#subjects-and-bands).
 * The warning that a phone number doesn't look like a Singapore number only appears when you type `p/` or `gp/` in that command. Likewise, the warning about an email with no period in its domain only appears when you type `e/`.
 * The displayed list stays in place, and the edited student's record opens on the right. Fields shown on the list card are updated immediately. If the edited student no longer matches your last `filter`, they stay in the list until you enter `list` or `filter` again. The result display tells you when an edit makes a student stop matching.
