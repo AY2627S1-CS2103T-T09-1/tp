@@ -160,10 +160,11 @@ Source: [functionality bugs](https://nus-cs2103-ay2627-s1.github.io/website/sche
 ### Handle user mistakes without harm
 
 Deliberate sabotage, such as typing a 30-digit phone number on purpose, is not a bug.
-A plausible mistake is: a missing space between parameters, a repeated prefix, an extra space, or an empty value.
+A plausible mistake is: a missing space between parameters, a repeated prefix, an extra space, an empty value, or extra parameters or text where the command expects none.
 A plausible mistake must never crash the app, corrupt the data file, or leave the app unusable.
 
 * Do: `add n/John Doep/98765432` shows the name rule and a hint to check for a missing space before a prefix.
+* Do: `list 5` and `delete 1 2` show an error instead of ignoring the extra text.
 * Don't: let the value flow through and fail later with an uncaught exception.
 * Do: `delete 99999999999` shows an invalid index error.
 * Don't: call `Integer.parseInt` without handling overflow. Numbers from user input follow the same rule as any other mistake.
@@ -245,6 +246,7 @@ Support manual edits at least as well as AB3: a correctly edited file loads, and
 * A mismatch between the UG and the app is a bug, whichever side is wrong.
 * Document every limit, restriction, and default that users can observe.
 * Update the UG in the same PR as the behavior change.
+* Make every feature easy to test. Each UG example must work when run in order on the sample data. A feature that testers can't easily try is a feature flaw.
 
 ### Keep terminal output clean
 
@@ -263,7 +265,7 @@ A missing or weak feature still counts as a flaw when:
 For every new or changed command, add tests for:
 
 1. The happy path.
-1. Plausible typing mistakes: missing space, missing or repeated prefix, extra whitespace, and empty values.
+1. Plausible typing mistakes: missing space, missing or repeated prefix, extra whitespace, empty values, extra parameters, and text before the first prefix.
 1. Case variants and realistic symbols, such as `s/o`, `-`, `'`, `+`, and `.`.
 1. Boundaries: very long values, zero, negative numbers, and numbers too big for an `int`.
 1. Duplicates and near-duplicates.
@@ -396,26 +398,38 @@ Applies to `docs/` (User Guide, Developer Guide) and all Markdown in the repo.
 Graders and PE testers file bugs against text that is too long, unclear, or repeated. Source: [tP grading](https://nus-cs2103-ay2627-s1.github.io/website/admin/tp-grading.html) and [tP deliverables](https://nus-cs2103-ay2627-s1.github.io/website/admin/tp-deliverables.html).
 
 * Use short sentences and plain words. Cut filler such as "note that", "simply", "in order to", and "please".
-* Cut any sentence that does not help the reader use the app or understand the design.
+* Cut any sentence that does not help the reader use the app or understand the design. Cut repetition, not information: text that is too brief is also a bug.
 * Say each fact once, where readers look for it first, and link to it from elsewhere. Watch for these repeats:
   * Parameter rules restated in every command section.
   * Error lists that restate a parameter rule.
   * The same warning, tip, or note in several places.
   * The same point made in both prose and a table.
 * Keep the UG and DG consistent in terms: one name per concept, matching the glossary and the app.
+* Use terms the reader knows. Define any other term in the glossary, or replace it with plain words.
 
 ### User Guide and Developer Guide
 
 * The UG must match the product exactly. Remove anything not implemented, or mark it **Coming soon**.
 * Testers and graders read the UG and DG as web pages in current Chrome and Firefox, not as PDFs. Check layout and links on the rendered site, not only in the Markdown.
+* Keep heading levels consistent so the table of contents is easy to navigate. Spell-check before you push; typos are bugs too.
+* UG: open with the target user and the value proposition.
 * UG: give each command a one-line purpose, its format, and one or two examples. Leave out detail that the error message already tells the user.
+* UG: add a screenshot where it explains something words can't, such as the detail panel. Place it next to its text, and don't repeat near-identical screenshots.
 * DG: aim for comprehensible, not comprehensive. Use code snippets sparingly.
-* DG appendices: keep manual testing to the key cases, merge use cases that differ only slightly, and make every NFR measurable and met by the product. _Appendix: Effort_ is optional and at most about one page.
+* DG appendices:
+  * User stories: each has all three parts (`As a ...`, `I can ...`, `So that ...`), the parts match, and no important story is missing.
+  * Use cases: steps are numbered correctly, each has the extensions it needs, and none mentions UI details such as colors or panels. Merge use cases that differ only slightly.
+  * NFRs: each is truly non-functional, measurable, and met by the product. Don't leave out a highly relevant one.
+  * Glossary: include every term the DG needs, and nothing it doesn't use.
+  * Manual testing: keep to the key cases.
+  * _Appendix: Effort_ is optional and at most about one page.
 
 ### UML diagrams
 
 * Edit the `.puml` source in `docs/diagrams/` and regenerate its PNG in `docs/images/` with PlantUML. Never edit only the PNG.
 * Use textbook UML notation exactly: line styles, arrowheads, multiplicities, and activation bars. A notation error is at least a `severity.Low` bug.
+* Pick the diagram type for its purpose: class diagrams for structure, sequence diagrams for interactions, and activity diagrams for workflows. Use UML wherever it works as well as another kind of diagram.
+* Keep architecture diagrams and their descriptions high level: components only, intuitive symbols, and no double-headed arrows.
 * Make each diagram match the current code. Rename AB3 classes and methods, and delete diagrams, sources, and images that no page uses.
 * A sequence diagram shows the internals of at most one component; treat other components as black boxes.
 * Be consistent within and across diagrams, such as using activation bars everywhere or nowhere.
