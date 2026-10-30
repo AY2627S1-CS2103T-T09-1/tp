@@ -12,8 +12,8 @@ import java.util.Objects;
 public final class Subject {
 
     public static final String MESSAGE_CONSTRAINTS =
-            "Subjects must be 1-40 characters using only English letters without accents, spaces, hyphens, "
-                    + "parentheses, commas and ampersands, with at least one letter.";
+            "Subjects must be 1-40 characters, contain at least one English letter (A-Z), and use only "
+                    + "English letters, spaces, hyphens (-), parentheses, commas, and ampersands (&).";
     public static final int MAX_LENGTH = 40;
     public static final String VALIDATION_REGEX = "(?=.*[A-Za-z])[A-Za-z (),&-]+";
 

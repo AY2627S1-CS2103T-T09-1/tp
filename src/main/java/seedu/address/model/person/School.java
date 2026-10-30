@@ -20,10 +20,10 @@ public class School {
     public static final String MESSAGE_INVALID_CHARACTER = "School name \"%1$s\" contains \"%2$s\", "
             + "which isn't allowed. Use " + getAllowedCharacters() + ".";
     public static final String MESSAGE_MISSING_ASCII_LETTER =
-            "School name \"%s\" must contain at least one ASCII letter.";
+            "School name \"%s\" must contain at least one English letter (A-Z).";
     public static final String MESSAGE_CONSTRAINTS =
-            "School names must be 1-" + MAX_LENGTH + " characters, contain at least one ASCII letter, "
-                    + "and use only " + getAllowedCharacters() + ".";
+            "School names must be 1-" + MAX_LENGTH + " characters, contain at least one English letter "
+                    + "(A-Z), and use only " + getAllowedCharacters() + ".";
     public static final String DEFAULT_VALUE = "Unknown";
 
     private static final String ALLOWED_PUNCTUATION = " .'’&(),-";
@@ -93,7 +93,7 @@ public class School {
     }
 
     private static String getAllowedCharacters() {
-        return "ASCII letters (A-Z, a-z), digits (0-9), spaces, periods (.), "
+        return "English letters, digits, spaces, periods (.), "
                 + "apostrophes (' or ’), ampersands (&), parentheses, commas, and hyphens (-)";
     }
 
