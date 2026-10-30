@@ -30,6 +30,12 @@ public class NoteTest {
     }
 
     @Test
+    public void constructor_nonAsciiText_throwsIllegalArgumentException() {
+        String expectedMessage = String.format(Note.MESSAGE_INVALID_CHARACTER, "ç");
+        assertThrows(IllegalArgumentException.class, expectedMessage, () -> new Note("Français oral"));
+    }
+
+    @Test
     public void constructor_paddedText_storesTrimmedText() {
         assertEquals("Weak in algebra", new Note("  Weak in algebra  ").value);
     }
@@ -58,12 +64,52 @@ public class NoteTest {
         // 500 characters with padding -> returns true, padding is not counted
         assertTrue(Note.isValidNote("  " + "a".repeat(500) + "  "));
 
-        // 500 emoji -> returns true, each emoji counts as one character
-        assertTrue(Note.isValidNote(EMOJI.repeat(500)));
-
         // 501 characters -> returns false
         assertFalse(Note.isValidNote("a".repeat(501)));
-        assertFalse(Note.isValidNote(EMOJI.repeat(501)));
+
+        // emoji -> returns false
+        assertFalse(Note.isValidNote(EMOJI));
+        assertFalse(Note.isValidNote("Good effort " + EMOJI));
+    }
+
+    @Test
+    public void isValidNote_printableAsciiAndOtherCharacters_returnsExpectedResult() {
+        // every printable ASCII character -> returns true
+        StringBuilder printableAscii = new StringBuilder();
+        for (char c = ' '; c <= '~'; c++) {
+            printableAscii.append(c);
+        }
+        assertTrue(Note.isValidNote(printableAscii.toString()));
+
+        // curly apostrophe, as in school names -> returns true
+        assertTrue(Note.isValidNote("Didn’t finish homework"));
+
+        // other curly quotes -> returns false
+        assertFalse(Note.isValidNote("‘Revise’"));
+
+        // accented letter -> returns false
+        assertFalse(Note.isValidNote("Français oral 18/20"));
+
+        // non-Latin script -> returns false
+        assertFalse(Note.isValidNote("Revise 中文"));
+    }
+
+    @Test
+    public void getConstraintMessage_severalInvalidCharacters_namesFirst() {
+        assertEquals(String.format(Note.MESSAGE_INVALID_CHARACTER, "é"),
+                Note.getConstraintMessage("Café 中文"));
+    }
+
+    @Test
+    public void getConstraintMessage_tooLongWithInvalidCharacter_namesCharacter() {
+        assertEquals(String.format(Note.MESSAGE_INVALID_CHARACTER, "é"),
+                Note.getConstraintMessage("é" + "a".repeat(Note.MAX_LENGTH)));
+    }
+
+    @Test
+    public void getConstraintMessage_emoji_namesWholeEmoji() {
+        assertEquals(String.format(Note.MESSAGE_INVALID_CHARACTER, EMOJI),
+                Note.getConstraintMessage("Good effort " + EMOJI));
     }
 
     @Test

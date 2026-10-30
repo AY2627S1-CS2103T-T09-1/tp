@@ -207,6 +207,8 @@ Every student record must include a name, school, and level. Many tutors teach s
 
 The ASCII letter/number rule also applies to existing data files. A file containing a name or school with non-ASCII letters or numbers fails validation when loaded, with the relevant field constraint. Users must edit those records in the previous version before upgrading. Previously supported school punctuation remains valid.
 
+`Note` text uses the same ASCII-only approach, so an accented letter is rejected in a note just as it is in a name or school. A note can contain 1 to 500 printable ASCII characters (`\x20` to `\x7E`): letters, digits, spaces, and every keyboard symbol, because notes record scores and reminders such as `WA2 Math: 36/50`. It also accepts the curly apostrophe `’`, as `School` does, so `Didn’t finish` is not rejected in a note when `St. Joseph’s Institution` is accepted as a school. For any other character, `Note#getConstraintMessage` names the first one, and returns an emoji whole rather than half of its UTF-16 pair. `ParserUtil#parseNote` (used by `addnote` and `editnote`) and `JsonAdaptedNote` both use this message. `filter note/` search text is not restricted, like `n/` and `sch/` search text. A data file containing a note with any other character fails validation when loaded, so users must edit those notes in the previous version before upgrading.
+
 #### Design considerations
 
 **Aspect: Character rules for names and schools**
