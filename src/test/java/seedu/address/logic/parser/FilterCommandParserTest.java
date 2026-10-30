@@ -129,6 +129,15 @@ public class FilterCommandParserTest {
     }
 
     @Test
+    public void parse_unknownPrefix_throwsParseException() {
+        String message = FilterCommandParser.MESSAGE_UNKNOWN_FILTER_PREFIX;
+        assertParseFailure(parser, " n/chloe lv/S2", String.format(message, "lv/"));
+        assertParseFailure(parser, " sch/bedok level/S2", String.format(message, "level/"));
+        assertParseFailure(parser, " n/chloe sub/Mathematics bnd/G1", String.format(message, "bnd/"));
+        assertParseFailure(parser, " lv/S2", String.format(message, "lv/"));
+    }
+
+    @Test
     public void parse_blankName_throwsParseException() {
         assertParseFailure(parser, " n/", FilterCommandParser.MESSAGE_BLANK_NAME);
         assertParseFailure(parser, " n/   ", FilterCommandParser.MESSAGE_BLANK_NAME);
@@ -196,6 +205,8 @@ public class FilterCommandParserTest {
     public void parse_noteWithPrefixLikeText_keepsWholeText() {
         assertParseSuccess(parser, " note/revise t/f", filterCommandOf(note("revise t/f")));
         assertParseSuccess(parser, " note/score n/a", filterCommandOf(note("score n/a")));
+        assertParseSuccess(parser, " note/revise lv/S2 bnd/G1",
+                filterCommandOf(note("revise lv/S2 bnd/G1")));
         assertParseSuccess(parser, " lvl/S1 note/check p/s",
                 filterCommandOf(level(Level.S1), note("check p/s")));
     }
@@ -386,9 +397,6 @@ public class FilterCommandParserTest {
     public void parse_tagWithSpace_throwsParseException() {
         assertParseFailure(parser, " t/paid exams",
                 String.format(FilterCommandParser.MESSAGE_FILTER_TAG_HAS_SPACE, "paid exams"));
-        // lv/ is not a prefix, so it stays part of the tag
-        assertParseFailure(parser, " t/paid lv/S3",
-                String.format(FilterCommandParser.MESSAGE_FILTER_TAG_HAS_SPACE, "paid lv/S3"));
     }
 
     @Test
@@ -478,6 +486,7 @@ public class FilterCommandParserTest {
     @Test
     public void parse_addressWithOrdinarySlash_success() {
         assertParseSuccess(parser, " a/Blk 1/2", filterCommandOf(address("Blk 1/2")));
+        assertParseSuccess(parser, " a/Blk A/B", filterCommandOf(address("Blk A/B")));
     }
 
     @Test
