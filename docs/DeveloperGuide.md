@@ -1410,6 +1410,7 @@ AB3 manages one entity, `Person`, whose fields are four strings and a set of tag
 
 ### Challenges
 
+* **Fixing flaws inherited from AB3.** Before adding features, the team audited AB3 and logged 37 problems in its code, documentation, and diagrams. Several needed code changes. For example, `delete 2147483648` showed "Invalid command format!" because the index overflowed an `int`, a second `John Doe` typed with two spaces between the words was not detected as a duplicate, tags differing only in case could both be added, and a very long email caused a stack overflow.
 * **Duplicate students.** Tutors often teach students who share a name, so name equality could not be the rule. The strict key is the normalized name, school, and level, enforced in `UniquePersonList` and during JSON loading, while a name-only match asks the user to confirm. See [Student duplicate handling](#student-duplicate-handling).
 * **Confirmations.** `ConfirmationManager` and `ConfirmationCommand` add a pending-command state to `LogicManager` for `delete`, `deletenote`, `clear`, and name-match warnings in `add` and `edit`. Any input other than `CONFIRM` must cancel the request and still run as a normal command. See [Command confirmations](#command-confirmations).
 * **Filtering.** `filter` combines 11 predicate classes with AND, uses partial matching for free text and exact matching for fixed values, and gives a specific error for each kind of malformed filter. See [Filtering students](#filtering-students).
