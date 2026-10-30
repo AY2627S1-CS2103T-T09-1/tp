@@ -52,6 +52,7 @@ import seedu.address.commons.core.index.Index;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
+import seedu.address.model.person.Address;
 import seedu.address.model.person.Band;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Guardian;
@@ -273,6 +274,7 @@ public class EditCommandParserTest {
         assertParseFailure(parser, "1 sub/English", Messages.MESSAGE_SUBJECT_BAND_PAIR);
         assertParseFailure(parser, "1 sub/English band/G4", Band.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, "1 sub/Français band/G3", Subject.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1 a/Rue de l'Église 5", String.format(Address.MESSAGE_INVALID_CHARACTER, "É"));
         assertParseFailure(parser, "1 band/G2", "Missing required parameter: sub/."); // band without subject
         assertParseFailure(parser, "1" + INVALID_NAME_DESC, Name.MESSAGE_CONSTRAINTS); // invalid name
         assertParseFailure(parser, "1" + INVALID_PHONE_DESC, INVALID_PHONE_MESSAGE); // invalid phone

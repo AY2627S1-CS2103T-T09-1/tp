@@ -2,6 +2,7 @@ package seedu.address.model.person;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
+import static seedu.address.commons.util.StringUtil.findInvalidCharacter;
 
 import java.util.Optional;
 
@@ -82,11 +83,9 @@ public class Phone {
             return Optional.of(String.format(MESSAGE_EMPTY, label));
         }
 
-        String invalidCharacters = compact.replaceAll(ALLOWED_CHARACTERS_REGEX, "");
-        if (!invalidCharacters.isEmpty()) {
-            int firstLength = Character.charCount(invalidCharacters.codePointAt(0));
-            String firstInvalidCharacter = invalidCharacters.substring(0, firstLength);
-            return Optional.of(String.format(MESSAGE_INVALID_CHARACTER, label, phone, firstInvalidCharacter));
+        Optional<String> invalidCharacter = findInvalidCharacter(compact, ALLOWED_CHARACTERS_REGEX);
+        if (invalidCharacter.isPresent()) {
+            return Optional.of(String.format(MESSAGE_INVALID_CHARACTER, label, phone, invalidCharacter.get()));
         }
         if (compact.lastIndexOf(PLUS) > 0) {
             return Optional.of(String.format(MESSAGE_MISPLACED_PLUS, label, phone));

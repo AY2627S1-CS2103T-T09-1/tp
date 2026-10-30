@@ -200,6 +200,12 @@ public class AddCommandParserTest {
     }
 
     @Test
+    public void parse_nonAsciiAddress_failure() {
+        String args = NAME_DESC_BOB + SCHOOL_DESC_BOB + " a/Rue de l'Église 5" + LEVEL_DESC_BOB + SUBJECT_DESC;
+        assertParseFailure(parser, args, String.format(Address.MESSAGE_INVALID_CHARACTER, "É"));
+    }
+
+    @Test
     public void parse_emailProvided_success() {
         Person expectedPerson = new PersonBuilder(BOB).withoutPhone().withEmail(VALID_EMAIL_BOB).build();
         assertParseSuccess(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + EMAIL_DESC_BOB + LEVEL_DESC_BOB

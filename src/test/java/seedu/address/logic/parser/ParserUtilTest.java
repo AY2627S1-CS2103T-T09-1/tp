@@ -175,6 +175,12 @@ public class ParserUtilTest {
     }
 
     @Test
+    public void parseAddress_nonAsciiValue_throwsParseException() {
+        String expectedMessage = String.format(Address.MESSAGE_INVALID_CHARACTER, "É");
+        assertThrows(ParseException.class, expectedMessage, () -> ParserUtil.parseAddress("Rue de l'Église 5"));
+    }
+
+    @Test
     public void parsePhone_null_throwsNullPointerException() {
         assertThrows(NullPointerException.class, () -> ParserUtil.parsePhone((String) null));
     }
