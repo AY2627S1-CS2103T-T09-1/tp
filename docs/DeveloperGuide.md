@@ -1429,28 +1429,29 @@ Field classes in `model.person` | 4 | 10
 Search predicate classes | 1 | 13
 `JsonAdapted*` classes | 2 | 5
 
-RepoSense credits a line to a member only if they wrote it, so lines kept from AB3 are not counted. The team therefore wrote about as much functional code as AB3 contains in total. A large share of it is validation and error handling rather than new commands. For example, RepoSense credits the team with about 300 lines each in `ParserUtil` and `EditCommand`. For context only, RepoSense also credits the team with 9,012 lines of test code.
+RepoSense credits a line to a member only if they wrote it, so lines kept from AB3 are not counted. The team therefore wrote about as much functional code as AB3 contains in total. A large share of it is validation and error handling rather than new commands. For example, RepoSense credits the team with about 300 lines each in `ParserUtil` and `EditCommand`.
 
-Lines of code are not a direct measure of effort, largely because modern AI coding tools make code cheap to write. The effort in a change lies more in getting it right than in the number of lines it adds. The figures above only show that the team put in at least enough effort to produce this much code. The team's process gives a better picture of the work involved. As of 30 October 2026:
-
-* The team created 195 issues and opened 168 pull requests, of which 150 were merged.
-* During alpha testing, the team reported 45 bugs in its own product. 36 are fixed, 1 was a duplicate, and the remaining 8 are scheduled for v1.6.
-
-The team also checked the UML diagrams inherited from AB3 against the code, and fixed the ones that did not match:
-
-* AB3's delete sequence diagram passed an index to `Model#deletePerson`, which takes a `Person`.
-* AB3's parser class diagram showed `ParserUtil` depending on `Prefix`, which it does not, and left out the dependency of `ArgumentMultimap` on `Prefix`.
-* AB3 noted that, due to a limitation of PlantUML, the `DeleteCommandParser` lifeline continues to the end of the diagram instead of ending at the destroy marker (X). Rendering the same diagram with a newer PlantUML version showed that the lifeline now stops at the destroy marker, but still extends slightly past its center. The team adopted the newer rendering, and the Developer Guide notes this smaller limitation in place of the old one.
-
-The `Model`, `Storage`, `UI`, and parser diagrams were also updated for the new classes, and new diagrams were added for `view`, `filter`, subjects, and guardians.
+Lines of code are not a direct measure of effort, largely because modern AI coding tools make code cheap to write. The effort in a change lies more in getting it right than in the number of lines it adds. The figures above only show that the team put in at least enough effort to produce this much code. A better indication is how much the team found and corrected in its own code. During alpha testing, the team reported 33 bugs in the product's behavior. As of 30 October 2026, 30 are fixed, 1 was a duplicate, and the remaining 2 are scheduled for v1.6.
 
 ### Achievements
 
 * TuteeBook3 delivers its value proposition: a tutor keeps each student's school, level, subjects with bands, guardian contact, tags, and lesson notes in one record, sees all of it with `view`, and narrows the list to a lesson group with `filter`, such as `filter lvl/S3 sub/Mathematics band/G2`.
 * Field rules are shared by the parsers, the model, and JSON loading, so a value that a command rejects is also rejected in a hand-edited data file.
 * Destructive commands and likely duplicates ask for confirmation, and common typing mistakes, such as a missing space before a prefix, get an error message that names the field and the problem.
-* JUnit tests cover 95% of the code.
 
 ### Reuse
 
 This project is based on the AddressBook-Level3 project created by the [SE-EDU initiative](https://se-education.org). TuteeBook3 keeps AB3's architecture, storage format, and GUI framework. It adds no runtime libraries beyond those AB3 already uses. TestFX was added only as a test dependency for GUI tests.
+
+### Beyond implementation
+
+This section describes work outside implementation. As of 30 October 2026:
+
+* **Project management:** The team created 195 issues and opened 168 pull requests, of which 150 were merged.
+* **Testing:** RepoSense credits the team with 9,012 lines of test code, and JUnit tests cover 95% of the code. Alpha testing also found 12 bugs in the User Guide and Developer Guide, of which 6 are fixed and 6 are scheduled for v1.6.
+* **Documentation:** The team checked the UML diagrams inherited from AB3 against the code, and fixed the ones that did not match:
+  * AB3's delete sequence diagram passed an index to `Model#deletePerson`, which takes a `Person`.
+  * AB3's parser class diagram showed `ParserUtil` depending on `Prefix`, which it does not, and left out the dependency of `ArgumentMultimap` on `Prefix`.
+  * AB3 noted that, due to a limitation of PlantUML, the `DeleteCommandParser` lifeline continues to the end of the diagram instead of ending at the destroy marker (X). A newer PlantUML version stops the lifeline at the destroy marker, but it still extends slightly past its center. The team adopted the newer rendering, and the Developer Guide notes this smaller limitation in place of the old one.
+
+  The `Model`, `Storage`, `UI`, and parser diagrams were also updated for the new classes, and new diagrams were added for `view`, `filter`, subjects, and guardians.
