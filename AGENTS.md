@@ -8,6 +8,24 @@ Read [Maintaining this file](#maintaining-this-file) before you edit it.
 
 * Brownfield evolution of AddressBook-Level3 (AB3). Contact management stays the primary focus.
 * Base package: `seedu.address`. Layers: `ui`, `logic`, `model`, `storage`, `commons`. See `docs/DeveloperGuide.md` for the architecture.
+* Follow the current course website (`nus-cs2103-ay2627-s1`). Past semesters' sites, such as `nus-cs2103-ay2526s1`, describe rules that no longer apply, such as the PE dry run and `Appendix: Planned Enhancements`.
+
+### Current phase: feature freeze (v1.6)
+
+Features are frozen. The work now is fixing leftover bugs, tightening error messages, and cleaning up the UG, DG, and UML diagrams. Source: [week 12 tP tasks](https://nus-cs2103-ay2627-s1.github.io/website/schedule/week12/project.html).
+
+* Dates: the freeze started Fri 30 Oct 2026, 10:00. Final deliverables are due Tue 3 Nov 2026, 14:00 (14:00:01 is late). Push no code for 30 days after that. The PE runs Fri 6 Nov to Sat 7 Nov.
+* The UG and DG are submitted through the team repo. A commit pushed after the deadline is late, even if it was made before the deadline.
+* When drafting PE bug responses, assign each bug to the member who owns the feature. Unassigned bugs beyond a set limit, and wrong rejections, downgrades, or objections, cost marks. Source: [PE](https://nus-cs2103-ay2627-s1.github.io/website/admin/tp-pe.html).
+* Do not add commands, prefixes, parameters, or other features. If a fix seems to need one, stop and ask the user.
+* Each member may change at most 15% or 150 lines (whichever is higher) of their own `src/main` code during v1.6. Blank lines and comments count. Going over costs at least 2 marks. Tests, docs, and diagrams have no limit.
+  * Lines you edit count against your quota, even lines a teammate wrote. Refactoring counts too.
+  * Before you change `src/main`, weigh the fix against its line cost and regression risk. Make the smallest change that fixes the bug.
+  * In the handoff, report the branch's `src/main` changes from `git diff --stat $(git merge-base upstream/master HEAD) -- src/main`. Members track their running total on the tP Code Dashboard.
+* Triage each bug before you touch code:
+  1. Should have been fixed in v1.5: fix it now. If the fix costs too many lines, state the limitation in the UG instead.
+  1. Worth fixing only in a later version: leave the code, and list it under **Known issues** in the UG if users are likely to hit it. Say that it is planned for a future version, so the team can respond `NotInScope` to a PE report. This lowers the severity of a PE report but does not cancel it. Do not add an `Appendix: Planned Enhancements` to the DG; it no longer protects against PE reports.
+  1. Intended behavior: leave the code, and make sure the UG states the behavior.
 
 ### Target user
 
@@ -59,7 +77,8 @@ Never violate these. They come from the [tP constraints](https://nus-cs2103-ay26
 * Store data locally in human-editable text files (JSON, like AB3). No DBMS.
 * Object-oriented design first.
 * Must run on Windows, Linux, and macOS with only Java 25 installed. No OS-specific libraries or paths.
-* No installer, no remote server of our own, and one JAR under 100 MB.
+* No installer, no remote server of our own, and one JAR under 100 MB that runs on every OS, including macOS on ARM and Windows WSL.
+* Read and write files only in the folder that contains the JAR and its subfolders. Never change OS settings.
 * Third-party libraries must be free, open source, permissively licensed, and approved by the teaching team first. Do not add dependencies without asking the user.
 * GUI must work at 1920x1080 (100% and 125% scale) and stay usable at 1280x720 (150% scale).
 * Every commit leaves the product working. Deliver in small increments.
@@ -133,7 +152,7 @@ Code quality is graded along with the coding standard. Checkstyle does not check
 
 ## Preventing bugs and feature flaws
 
-Other teams will test this app and file bugs against it, and every accepted bug costs marks.
+Other teams will test this app and file bugs against it, and every accepted bug costs marks, including bugs inherited from AB3.
 Treat this section as correctness requirements, not polish.
 Define "correct" from the user's point of view, not from what is easy to parse or store.
 Source: [functionality bugs](https://nus-cs2103-ay2627-s1.github.io/website/schedule/week8/project.html#functionality-bugs) and [feature flaws](https://nus-cs2103-ay2627-s1.github.io/website/schedule/week8/project.html#feature-flaws).
@@ -141,10 +160,11 @@ Source: [functionality bugs](https://nus-cs2103-ay2627-s1.github.io/website/sche
 ### Handle user mistakes without harm
 
 Deliberate sabotage, such as typing a 30-digit phone number on purpose, is not a bug.
-A plausible mistake is: a missing space between parameters, a repeated prefix, an extra space, or an empty value.
+A plausible mistake is: a missing space between parameters, a repeated prefix, an extra space, an empty value, or extra parameters or text where the command expects none.
 A plausible mistake must never crash the app, corrupt the data file, or leave the app unusable.
 
-* Do: `add n/John Doep/98765432` shows an error that says the phone number is missing.
+* Do: `add n/John Doep/98765432` shows the name rule and a hint to check for a missing space before a prefix.
+* Do: `list 5` and `delete 1 2` show an error instead of ignoring the extra text.
 * Don't: let the value flow through and fail later with an uncaught exception.
 * Do: `delete 99999999999` shows an invalid index error.
 * Don't: call `Integer.parseInt` without handling overflow. Numbers from user input follow the same rule as any other mistake.
@@ -158,14 +178,11 @@ Define "valid" by what real users need to enter, not by the narrowest data type.
   * Do: when a rule is narrow on purpose, state it exactly in the UG and say why.
   * Do: pick a limit no realistic value reaches, and document it in the UG.
 * Do not reject symbols that real values contain.
-  * Don't: reject `Rajesh s/o Kumar`, `Mary-Jane O'Brien`, or `J. Tan`. AB3's `Name.VALIDATION_REGEX` rejects all three today. Treat that as a known flaw to fix, not a pattern to copy.
-  * Don't: add a prefix that collides with realistic values. A new `s/` prefix would split `s/o` inside a name.
+  * Names accept only ASCII letters, digits, and spaces (`Name.VALIDATION_REGEX`), so `Rajesh s/o Kumar`, `Mary-Jane O'Brien`, and `J. Tan` are rejected. The UG and DG document this choice, but testers may still report it as a feature flaw. Do not change the rule without asking the user.
   * Do: when a symbol is hard to parse, improve the parser before banning the symbol.
 * Warn rather than block unusual but harmless input.
   * Don't: reject `+65 9123 4567`, `9123-4567` or an overseas number. `ParserUtil.parsePhone` removes spaces, dashes, and a leading `+65` when the rest is a Singapore number.
   * Do: save a number that isn't a Singapore number and add a warning with `CommandResult.withWarning`, as `add` and `edit` do for `p/` and `gp/`.
-  * Don't: reject a date in the past. Users record past events.
-  * Do: accept the value and show a warning if it might be a mistake, such as "Note: this date is in the past."
 * Still guard against harmful input. Accepting a value that makes data ambiguous or breaks a later command is also a flaw. Block it or warn about it.
 
 ### Keep long values usable
@@ -173,12 +190,25 @@ Define "valid" by what real users need to enter, not by the narrowest data type.
 * Don't: let a 100-character name push other fields off screen, or cut it so only the first few characters show.
 * Do: wrap long text so the user can read the whole value. Check it at 1280x720.
 
-### Write specific error messages
+### Write clear, consistent error messages
 
-* Name the field, the value, and the actual reason.
+Error messages are the riskiest text in the app. Testers trigger every one, and a vague, wrong, or inconsistent message is a bug.
+
+* Name the field and the rule the value broke.
   * Don't: "Invalid input." or "Invalid command format!" for a single bad field.
-  * Don't: list every possible reason and leave the user to guess which one applies.
   * Do: "Email `john@` is missing a domain after `@`."
+* Keep messages short and plain: one or two sentences, everyday words, no exclamation marks.
+* Do not guess what the user meant. A guess that is wrong misleads the user. When a value could have failed for more than one reason, state the rule broadly and briefly instead of naming one cause.
+  * Don't: "Did you mean `S3`?" or a hint that assumes which mistake the user made.
+  * Don't: swing the other way and list every sub-rule. `Email.MESSAGE_CONSTRAINTS` is a numbered list today; treat it as a known flaw.
+  * Do: "Level must be one of S1, S2, S3, S4, S5."
+* Keep wording consistent across fields:
+  * Use one sentence pattern for every field, such as `<Field> must ...`, with the field name in the same form each time.
+  * Say the same kind of rule the same way. Don't write "1-40 characters" for one field and "at most 200 characters" for another.
+  * When several fields share a rule or a phrase, build it from one shared constant or helper instead of copying it. Keep `model` classes independent of `logic.Messages`.
+  * Share only text that means exactly the same for every field that uses it, and keep each field's own details in its own message. Don't merge messages just because they look alike. Each refactor counts against your freeze limit, so make it only where it fixes an inconsistency users can see.
+  * Before you change a message, read the messages for similar fields and match them, or change them together.
+* When you change a message, update the tests that assert it and any UG text that quotes it. In the UG, describe the rule rather than quote the whole message.
 * Tell format errors apart from invalid values. For a `YYYY-MM-DD` date, `2025-13-28` is a format error (the month must be 1 to 12), but `2025-02-30` is an invalid value (February has no 30th). Calling one the other is a bug. A combined "Invalid date or incorrect format" message is acceptable only if the team rules the distinction out of scope.
 
 ### Keep commands fast to type
@@ -190,19 +220,19 @@ Define "valid" by what real users need to enter, not by the narrowest data type.
 ### Match case sensitivity to the real world
 
 * Names and search keywords are not case-sensitive in real life, so they must not be in the app.
-* Don't: treat `find alice` and `find Alice` differently.
+* Don't: treat `filter n/alice` and `filter n/Alice` differently.
 
 ### Make search useful
 
-* Match keywords with OR, not AND, unless the use case needs AND. `find Alice Richards` returns both `Alice Davidson` and `Alison Richards`, so a user who misremembers one word still finds the person.
-* Consider partial matching. AB3's `find` matches whole words only, so `find Ali` does not find `Alice`.
+* `filter` replaces AB3's `find`. It combines different filters with AND. Text filters such as `n/` and `sch/` match any part of the value, ignoring case and extra spaces. Fields with fixed values, such as `lvl/`, `sub/`, `p/`, and `t/`, must match the whole value.
+* The UG's `filter` section is the reference for this behavior. Keep the code and that section in sync.
 
 ### Treat duplicate detection as uncertain
 
-* Don't: compare with exact string equality. AB3's `Person.isSamePerson` does this today, so `John Doe`, `john doe`, and `John  Doe` count as three different people.
-* Do: normalize before comparing (trim, collapse spaces, ignore case).
-* Do: when a match is likely but not certain, warn and let the user decide.
-* Do: state the detector's limits in the UG, such as "Duplicates are detected by name only." Never imply that all duplicates are caught.
+* Don't: compare with exact string equality.
+* Do: normalize before comparing (trim, collapse spaces, ignore case), as `Name` does for `Person.isSamePerson`.
+* Do: when a match is likely but not certain, warn and let the user decide. `add` and `edit` ask for `CONFIRM` when only the name matches, and block a student whose name, school, and level all match.
+* Do: state the detector's limits in the UG. Never imply that all duplicates are caught.
 
 ### Protect the data file
 
@@ -217,6 +247,7 @@ Support manual edits at least as well as AB3: a correctly edited file loads, and
 * A mismatch between the UG and the app is a bug, whichever side is wrong.
 * Document every limit, restriction, and default that users can observe.
 * Update the UG in the same PR as the behavior change.
+* Make every feature easy to test. Each UG example must work when run in order on the sample data. A feature that testers can't easily try is a feature flaw.
 
 ### Keep terminal output clean
 
@@ -235,7 +266,7 @@ A missing or weak feature still counts as a flaw when:
 For every new or changed command, add tests for:
 
 1. The happy path.
-1. Plausible typing mistakes: missing space, missing or repeated prefix, extra whitespace, and empty values.
+1. Plausible typing mistakes: missing space, missing or repeated prefix, extra whitespace, empty values, extra parameters, and text before the first prefix.
 1. Case variants and realistic symbols, such as `s/o`, `-`, `'`, `+`, and `.`.
 1. Boundaries: very long values, zero, negative numbers, and numbers too big for an `int`.
 1. Duplicates and near-duplicates.
@@ -265,6 +296,7 @@ Agents never change git history or the remote. The member commits and pushes, so
   1. Split the changes into commits of one logical change each. Order them so every commit builds and passes tests on its own.
   1. For each commit, give a `git add` command that lists exact paths and a `git commit` command with the full message. Never use `git add .` or `git add -A`.
   1. If one file holds two logical changes, say so and tell the member to split it with `git add -p`.
+  1. During the feature freeze, report the `src/main` line count as described in [Current phase](#current-phase-feature-freeze-v16).
   1. End with the `git push` command for the current branch.
   1. If the branch is ready for a PR, draft the PR title and description as described in [Pull requests](#pull-requests).
 
@@ -335,7 +367,9 @@ Each member sends PRs for their own work, including their own part of the docume
 * Title: when the PR fully fixes an issue, use the issue title. Otherwise, write it like a commit subject for the whole PR.
 * Description:
   * Write `Fixes #123` for a full fix or `Fixes part of #123` for a partial fix.
+  * Keep it short, non-verbose and easy to read: one or two sentences on what changed and why, then a few plain bullets only if needed. The same applies to issue descriptions.
   * Add before-and-after screenshots for UI changes.
+* When drafting an issue or PR for the member, give the title and description as text they can paste into GitHub's web form.
 * Assign the PR to the issue's milestone.
 * Open the PR as a draft. Mark it ready for review only after CI passes and you have read the full diff for unintended changes.
 
@@ -361,6 +395,49 @@ Applies to `docs/` (User Guide, Developer Guide) and all Markdown in the repo.
   * Use the serial comma and descriptive link text (never "click here").
 * When a feature changes user-visible behavior, update `docs/UserGuide.md` in the same PR.
 * When a change affects design or architecture, update `docs/DeveloperGuide.md` and its diagrams in `docs/diagrams/`.
+
+### Keep it short
+
+Graders and PE testers file bugs against text that is too long, unclear, or repeated. Source: [tP grading](https://nus-cs2103-ay2627-s1.github.io/website/admin/tp-grading.html) and [tP deliverables](https://nus-cs2103-ay2627-s1.github.io/website/admin/tp-deliverables.html).
+
+* Use short sentences and plain words. Cut filler such as "note that", "simply", "in order to", and "please".
+* Cut any sentence that does not help the reader use the app or understand the design. Cut repetition, not information: text that is too brief is also a bug.
+* Say each fact once, where readers look for it first, and link to it from elsewhere. Watch for these repeats:
+  * Parameter rules restated in every command section.
+  * Error lists that restate a parameter rule.
+  * The same warning, tip, or note in several places.
+  * The same point made in both prose and a table.
+* Keep the UG and DG consistent in terms: one name per concept, matching the glossary and the app.
+* Use terms the reader knows. Define any other term in the glossary, or replace it with plain words.
+
+### User Guide and Developer Guide
+
+* The UG must match the product exactly. Remove anything not implemented, or mark it **Coming soon**.
+* Testers and graders read the UG and DG as web pages in current Chrome and Firefox, not as PDFs. Check layout and links on the rendered site, not only in the Markdown.
+* Keep heading levels consistent so the table of contents is easy to navigate. Spell-check before you push; typos are bugs too.
+* UG: open with the target user and the value proposition.
+* UG: give each command a one-line purpose, its format, and one or two examples. Leave out detail that the error message already tells the user.
+* UG: add a screenshot where it explains something words can't, such as the detail panel. Place it next to its text, and don't repeat near-identical screenshots.
+* DG: write for a new team member learning the internal design. Keep what explains the design and cut low-level detail, such as exact message wording. Aim for comprehensible, not comprehensive. Use code snippets sparingly.
+* DG appendices:
+  * User stories: each has all three parts (`As a ...`, `I can ...`, `So that ...`), the parts match, and no important story is missing.
+  * Use cases: steps are numbered correctly, each has the extensions it needs, and none mentions UI details such as colors or panels. Merge use cases that differ only slightly.
+  * NFRs: each is truly non-functional, measurable, and met by the product. Don't leave out a highly relevant one.
+  * Glossary: include every term the DG needs, and nothing it doesn't use.
+  * Manual testing: keep to the key cases.
+  * _Appendix: Effort_: write it. PE testers read it before estimating our implementation effort, which feeds the effort marks. In about one page, list the main implementation work beyond AB3 and what made each part hard. Don't overclaim; testers are told not to inflate estimates.
+
+### UML diagrams
+
+* Edit the `.puml` source in `docs/diagrams/` and regenerate its PNG in `docs/images/` with PlantUML. Never edit only the PNG.
+* Use textbook UML notation exactly: line styles, arrowheads, multiplicities, and activation bars. A notation error is at least a `severity.Low` bug.
+* Pick the diagram type for its purpose: class diagrams for structure, sequence diagrams for interactions, and activity diagrams for workflows. Use UML wherever it works as well as another kind of diagram.
+* Keep architecture diagrams and their descriptions high level: components only, intuitive symbols, and no double-headed arrows.
+* Make each diagram match the current code. Rename AB3 classes and methods, and delete diagrams, sources, and images that no page uses.
+* A sequence diagram shows the internals of at most one component; treat other components as black boxes.
+* Be consistent within and across diagrams, such as using activation bars everywhere or nowhere.
+* If you leave out details on purpose, say so in a note.
+* Keep diagram text about the size of the body text. Split a diagram that is too big to read.
 
 ## Working agreements
 
