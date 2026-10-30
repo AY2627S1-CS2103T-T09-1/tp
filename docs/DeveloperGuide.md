@@ -1457,7 +1457,7 @@ This project is based on the AddressBook-Level3 project created by the [SE-EDU i
 
 This section describes work outside implementation.
 
-* **Project management:** The team created over 190 issues and merged at least 150 pull requests.
+* **Project management:** The team created over 190 issues and merged at least 150 pull requests. After v1.3, nearly every pull request was reviewed and approved by a teammate before merging.
 * **Testing:** RepoSense credits the team with over 9,000 lines of test code, and JUnit tests cover over 90% of the code. Alpha testing also found 12 bugs in the User Guide and Developer Guide.
 * **Documentation:** The team checked the UML diagrams inherited from AB3 against the code, and fixed the ones that did not match:
   * AB3's delete sequence diagram passed an index to `Model#deletePerson`, which takes a `Person`.
