@@ -1431,6 +1431,11 @@ Search predicate classes | 1 | 13
 
 RepoSense credits a line to a member only if they wrote it, so lines kept from AB3 are not counted. The team therefore wrote about as much functional code as AB3 contains in total. A large share of it is validation and error handling rather than new commands. For example, RepoSense credits the team with about 300 lines each in `ParserUtil` and `EditCommand`. For context only, RepoSense also credits the team with 9,012 lines of test code.
 
+Lines of code are not a direct measure of effort, largely because modern AI coding tools make code cheap to write. The effort in a change lies more in getting it right than in the number of lines it adds. The figures above only show that the team put in at least enough effort to produce this much code. The team's process gives a better picture of the work involved. As of 30 October 2026:
+
+* The team created 195 issues and opened 168 pull requests, of which 150 were merged.
+* During alpha testing, the team reported 45 bugs in its own product. 36 are fixed, 1 was a duplicate, and the remaining 8 are scheduled for v1.6.
+
 The team also checked the UML diagrams inherited from AB3 against the code, and fixed the ones that did not match:
 
 * AB3's delete sequence diagram passed an index to `Model#deletePerson`, which takes a `Person`.
