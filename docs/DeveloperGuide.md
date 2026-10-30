@@ -1430,6 +1430,9 @@ Field classes in `model.person` | 4 | 10
 Search predicate classes | 1 | 13
 `JsonAdapted*` classes | 2 | 5
 
+<div markdown="span" class="alert alert-info">:information_source: **Note:** The line counts were taken on 30 October 2026, and may not exactly match the current code. RepoSense regenerates its report as the team adds code, so the figures on the dashboard may differ slightly from those in this table.
+</div>
+
 RepoSense credits a line to a member only if they wrote it, so lines kept from AB3 are not counted. The team therefore wrote about as much functional code as AB3 contains in total. A large share of it is validation and error handling rather than new commands. For example, RepoSense credits the team with about 300 lines each in `ParserUtil` and `EditCommand`.
 
 Lines of code are not a direct measure of effort, largely because modern AI coding tools make code cheap to write. The effort in a change lies more in getting it right than in the number of lines it adds. The figures above only show that the team put in at least enough effort to produce this much code. A better indication is how much the team found and corrected in its own code. During alpha testing, the team reported 33 bugs in the product's behavior. As of 30 October 2026, 30 are fixed, 1 was a duplicate, and the remaining 2 are scheduled for v1.6.
