@@ -1399,36 +1399,32 @@ testers are expected to do more *exploratory* testing.
 
 ## **Appendix: Effort**
 
+TuteeBook3 keeps AB3's architecture, but replaces or extends most of its features to build a richer student record, two-step confirmations, and a multi-field search.
+
 ### Difficulty compared with AB3
 
-AB3 manages one entity, `Person`, with four single-value fields and a set of tags, and every command works on the whole record in one step. TuteeBook3 keeps AB3's architecture but changes almost every layer:
-
-* A student record holds several related parts: the required `School`, `Level`, and 1 to 8 `Subject` and `Band` pairs, an optional `Guardian` with its own name and phone, and an indexed list of `Note`s. Each part needed its own parser rules, model class, and UI display, and subjects, the guardian, and notes each needed their own JSON adapter.
-* Notes act as a second entity inside a student, with their own `addnote`, `editnote`, and `deletenote` commands that address a note as `INDEX nid/NOTE_INDEX`.
-* Some commands now take two steps. AB3's `Logic` runs each command and forgets it; TuteeBook3 keeps a pending command until the user confirms or cancels it.
-* AB3's whole-word name search was replaced by `filter`, which searches 11 fields.
+AB3 manages one entity, `Person`, with four single-value fields and a set of tags, and every command works on the whole record in one step. A TuteeBook3 student record holds a school, a level, 1 to 8 subject and band pairs, an optional guardian, tags, and an indexed list of notes. Notes act as a second entity inside a student, with their own `addnote`, `editnote`, and `deletenote` commands. Each part needed its own parser rules, model class, and UI display, and subjects, the guardian, and notes each needed their own JSON adapter.
 
 ### Challenges
 
-* **Fixing flaws inherited from AB3.** Before adding features, the team audited AB3 and logged 37 problems in its code, documentation, and diagrams. Several needed code changes. For example, `delete 2147483648` showed "Invalid command format!" because the index overflowed an `int`, a second `John Doe` typed with two spaces between the words was not detected as a duplicate, tags differing only in case could both be added, and a very long email caused a stack overflow.
-* **Deciding what counts as a duplicate student.** Tutors often teach students who share a name, so AB3's rule of rejecting a repeated name blocks real students. Allowing every duplicate is no better, because a repeated command then creates two records the tutor cannot tell apart. The team went through several rounds of discussion, weighing rules such as matching on phone number, comparing every field, and allowing any duplicate after confirmation. The rule it agreed on rejects a repeated normalized name, school, and level, and asks the user to confirm a name-only match. That rule then had to hold in `add`, `edit`, confirmed commands, and JSON loading. See [Student duplicate handling](#student-duplicate-handling).
-* **Agreeing on how confirmations behave.** `clear`, `delete`, and `deletenote` all needed the same protection, so the team designed one shared `ConfirmationCommand`, with `-f` to skip the prompt for a tutor who wants a single step. The team disagreed on what other input should do while a prompt is pending. One view was that only `y` or `n` should be accepted, so that cancelling is always explicit. The other was that this traps a tutor who wants to run `list` to check an index first. The final design asks for the exact word `CONFIRM`, and any other input cancels the request and runs as a normal command. See [Command confirmations](#command-confirmations).
-* **Designing `filter`.** Replacing AB3's `find` with one command that searches 11 fields raised design questions that the team debated in issues and reviews. These included which fields match partially and which exactly, whether filters combine with AND or OR, whether `filter` takes several tags, and whether note search should be a separate command. The team chose a `note/` filter over a separate command, so that a note search combines with the other filters. Each decision is recorded with its alternatives in [Filtering students](#filtering-students).
-* **Accepting realistic input without hiding mistakes.** Phone validation had to balance catching typos against blocking real numbers: accepting only Singapore numbers catches a missing digit, but blocks a guardian with an overseas number. The team chose to accept 3 to 15 digits and warn about non-Singapore numbers. That needed a new warning path in `CommandResult`, an amber style in the result box, and the same normalization when the data file loads. The same approach also covers an email with no dot in its domain. For a missing space before a prefix, the team rejected a hint that names the likely prefix, because the same typo can come from different mistakes and a wrong hint misleads. See [Phone number validation](#phone-number-validation) and [Hint for a missing space before a prefix](#hint-for-a-missing-space-before-a-prefix).
-* **Keeping indexes stable.** AB3 shows the full list after an edit, so a follow-up `edit 2` can silently change a different student. The team weighed resetting the list, keeping the filter, and keeping the filter plus the edited student. It chose the last option, so every student keeps their index and an open student record stays on the same student. See [Keeping the list after an edit](#keeping-the-list-after-an-edit).
+Most of the difficulty lay in agreeing on how each feature should behave. The Implementation section records the alternatives behind each decision.
+
+* **Fixing flaws inherited from AB3.** Before adding features, the team audited AB3 and logged 37 problems. Several needed code fixes. For example, `delete 2147483648` showed "Invalid command format!" because the index overflowed an `int`, names differing only in spacing were not detected as duplicates, and a very long email caused a stack overflow.
+* **Deciding what counts as a duplicate student.** Rejecting a repeated name blocks real students who share a name, but allowing every duplicate lets a repeated command create records the tutor cannot tell apart. After several rounds of discussion weighing rules based on phone numbers, all fields, and confirmation alone, the team chose to reject a repeated name, school, and level, and to confirm a name-only match ([#194](https://github.com/AY2627S1-CS2103T-T09-1/tp/issues/194), [#209](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/209)).
+* **Agreeing on how confirmations behave.** `clear`, `delete`, and `deletenote` share one `ConfirmationCommand`. The team disagreed on whether a pending prompt should accept only `y` or `n`, so that cancelling is always explicit, or let any other input cancel it, so that a tutor can run `list` to check an index first. It settled on the exact word `CONFIRM`, with any other input cancelling the request and running as normal ([#174](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/174), [#196](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/196)).
+* **Designing `filter`.** Replacing AB3's `find` with one command that searches 11 fields meant agreeing on which fields match partially or exactly, whether filters combine with AND or OR, whether `filter` takes several tags, and whether notes need a separate search command ([#198](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/198), [#253](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/253), [#217](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/217)).
+* **Accepting realistic input without hiding mistakes.** Accepting only Singapore phone numbers catches a missing digit, but blocks a guardian with an overseas number. The team chose to accept 3 to 15 digits and warn about non-Singapore numbers, which needed a new warning path and an amber result style ([#175](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/175)). For a missing space before a prefix, it chose a general hint over naming the likely prefix, since a wrong guess misleads ([#279](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/279)).
+* **Keeping indexes stable.** AB3 shows the full list after an edit, so a follow-up `edit 2` can change a different student. The team weighed three options and chose to keep the current filter plus the edited student ([#193](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/193)).
 
 ### Effort required
 
-The figures compare the AB3 base the team started from with the current `master`. Line counts follow the [RepoSense tP Dashboard](https://nus-cs2103-ay2627-s1.github.io/tp-dashboard/?search=AY2627S1-CS2103T-T09-1%2Ftp&sort=groupTitle&sortWithin=title&timeframe=commit&mergegroup=&groupSelect=groupByRepos&breakdown=true&checkedFileTypes=functional-code&since=2026-09-18), which counts the Java, FXML, and CSS files in `src/main` as functional code. They include comments and blank lines.
+Line counts follow the [RepoSense tP Dashboard](https://nus-cs2103-ay2627-s1.github.io/tp-dashboard/?search=AY2627S1-CS2103T-T09-1%2Ftp&sort=groupTitle&sortWithin=title&timeframe=commit&mergegroup=&groupSelect=groupByRepos&breakdown=true&checkedFileTypes=functional-code&since=2026-09-18), which counts the Java, FXML, and CSS files in `src/main` as functional code, including comments and blank lines.
 
 Measure | AB3 | TuteeBook3
 --------|-----|-----------
 Functional code in the product | 5,261 lines | 9,886 lines
 Functional code written by the team, as credited by RepoSense | Not applicable | 5,113 lines (4,545 non-blank)
 User commands | 8 | 12, plus `CONFIRM`
-Field classes in `model.person` | 4 | 10
-Search predicate classes | 1 | 13
-`JsonAdapted*` classes | 2 | 5
 
 <div markdown="span" class="alert alert-info">:information_source: **Note:** The line counts were taken on 30 October 2026, and may not exactly match the current code. RepoSense regenerates its report as the team adds code, so the figures on the dashboard may differ slightly from those in this table.
 </div>
@@ -1445,13 +1441,13 @@ A better indication might be the work behind each change:
 
 ### Achievements
 
-* TuteeBook3 delivers its value proposition: a tutor keeps each student's school, level, subjects with bands, guardian contact, tags, and lesson notes in one record, sees all of it with `view`, and narrows the list to a lesson group with `filter`, such as `filter lvl/S3 sub/Mathematics band/G2`.
-* Field rules are shared by the parsers, the model, and JSON loading, so a value that a command rejects is also rejected in a hand-edited data file.
-* Destructive commands and likely duplicates ask for confirmation, and common typing mistakes, such as a missing space before a prefix, get an error message that names the field and the problem.
+* Each student's school, level, subjects with bands, guardian, tags, and notes are kept in one record, shown together with `view`, and grouped for lessons with `filter`.
+* The parsers, the model, and JSON loading share each field's rules, so a hand-edited data file is checked like typed input.
+* Destructive commands and likely duplicates ask for confirmation, and common typing mistakes get an error message that names the field and the problem.
 
 ### Reuse
 
-This project is based on the AddressBook-Level3 project created by the [SE-EDU initiative](https://se-education.org). TuteeBook3 keeps AB3's architecture, storage format, and GUI framework. It adds no runtime libraries beyond those AB3 already uses. TestFX was added only as a test dependency for GUI tests.
+This project is based on the AddressBook-Level3 project created by the [SE-EDU initiative](https://se-education.org). TuteeBook3 keeps AB3's architecture, storage format, and GUI framework, and adds no runtime libraries. TestFX was added only for GUI tests.
 
 ### Beyond implementation
 
@@ -1459,9 +1455,7 @@ This section describes work outside implementation.
 
 * **Project management:** The team created over 190 issues and merged at least 150 pull requests. After v1.3, nearly every pull request was reviewed and approved by a teammate before merging.
 * **Testing:** RepoSense credits the team with over 9,000 lines of test code, and JUnit tests cover over 90% of the code. Alpha testing also found 12 bugs in the User Guide and Developer Guide.
-* **Documentation:** The team checked the UML diagrams inherited from AB3 against the code, and fixed the ones that did not match:
-  * AB3's delete sequence diagram passed an index to `Model#deletePerson`, which takes a `Person`.
-  * AB3's parser class diagram showed `ParserUtil` depending on `Prefix`, which it does not, and left out the dependency of `ArgumentMultimap` on `Prefix`.
-  * AB3 noted that, due to a limitation of PlantUML, the `DeleteCommandParser` lifeline continues to the end of the diagram instead of ending at the destroy marker (X). A newer PlantUML version stops the lifeline at the destroy marker, but it still extends slightly past its center. The team adopted the newer rendering, and the Developer Guide notes this smaller limitation in place of the old one.
-
-  The `Model`, `Storage`, `UI`, and parser diagrams were also updated for the new classes, and new diagrams were added for `view`, `filter`, subjects, and guardians.
+* **Documentation:** The team checked AB3's UML diagrams against the code and fixed the ones that did not match:
+  * The delete sequence diagram passed an index to `Model#deletePerson`, which takes a `Person`.
+  * The parser class diagram showed `ParserUtil` depending on `Prefix`, which it does not, and left out the dependency of `ArgumentMultimap` on `Prefix`.
+  * AB3 noted that a PlantUML limitation makes a destroyed lifeline continue to the end of the diagram. A newer PlantUML version stops it at the destroy marker, slightly past its center, so the team adopted the newer rendering and notes this smaller limitation instead.
