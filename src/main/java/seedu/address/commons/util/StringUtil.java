@@ -24,6 +24,10 @@ public class StringUtil {
      */
     private static final String INVISIBLE_CHARACTER_REGEX = "[\\p{Cf}\\p{Cc}&&[^\\u200C\\u200D]]";
 
+    /** Curly quotes, which pasted text often has in place of the ' and " typed on a keyboard. */
+    private static final String CURLY_APOSTROPHE_REGEX = "[\\u2018\\u2019]";
+    private static final String CURLY_DOUBLE_QUOTE_REGEX = "[\\u201C\\u201D]";
+
     /**
      * Returns true if the {@code sentence} contains the {@code word}.
      *   Ignores case, but a full word match is required.
@@ -51,8 +55,8 @@ public class StringUtil {
     }
 
     /**
-     * Returns true if {@code text} contains {@code searchText}, ignoring case and treating
-     * any run of whitespace in either as a single space.
+     * Returns true if {@code text} contains {@code searchText}, ignoring case, treating
+     * any run of whitespace in either as a single space, and treating curly quotes as straight ones.
      *   <br>examples:<pre>
      *       containsIgnoreCaseAndSpaces("Victoria  School", "TORIA sch") == true
      *       containsIgnoreCaseAndSpaces("Victoria School", "raffles") == false
@@ -70,7 +74,10 @@ public class StringUtil {
     }
 
     private static String normalizeForSearch(String value) {
-        return value.strip().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
+        String spacedValue = value.replaceAll(WHITESPACE_REGEX + "+", " ").strip();
+        return spacedValue.replaceAll(CURLY_APOSTROPHE_REGEX, "'")
+                .replaceAll(CURLY_DOUBLE_QUOTE_REGEX, "\"")
+                .toLowerCase(Locale.ROOT);
     }
 
     /**
