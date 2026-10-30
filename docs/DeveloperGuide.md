@@ -227,11 +227,8 @@ The third option was selected because the issue was inconsistent handling of let
 
 ### School validation and error messages
 
-School names must be 1 to 100 characters, contain at least one ASCII letter, and use only ASCII letters, digits, spaces, periods, apostrophes (`'` or `’`), ampersands, parentheses, commas, and hyphens. This keeps letters and numbers ASCII-only while preserving punctuation used in official school names. `ParserUtil#parseSchool` trims and collapses ordinary spaces before validating the value.
+`ParserUtil#parseSchool` trims and collapses repeated spaces, then calls `School#getInvalidReason`, which returns a targeted message for the first problem found, in this order: blank input, more than 100 characters, the first unsupported character, then no ASCII letter. `School#isValidSchool` uses the same checks, so `add`, `edit`, model construction, and JSON loading apply the same rules. The model and JSON adapter report the general `School.MESSAGE_CONSTRAINTS` instead of a targeted message.
 
-`School#getInvalidReason` checks invalid values in this order: blank input, length over 100 characters, the first unsupported character, then the absence of an ASCII letter. It returns a targeted message for the first reason found. `School#isValidSchool` applies the shared character and length rules to the value it receives. `ParserUtil#parseSchool` first trims surrounding whitespace and collapses repeated ordinary spaces, then uses the targeted reason for `add` and `edit`; both commands therefore apply the same rules to the normalized value. Direct model construction and JSON loading validate the supplied value without that parser normalization, using the same character and length rules. The model and JSON adapter use `School.MESSAGE_CONSTRAINTS` as the general rule when constructing or loading an invalid school.
-
-Existing records with non-ASCII letters or numbers in a school name fail validation when loaded. Users must change those records in the previous version before upgrading. The supported school punctuation remains valid.
 ### Student subjects and bands
 
 Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `G2`, or `G3`. Subject names can contain 1 to 40 Unicode letters, spaces, hyphens, parentheses, commas, and ampersands, and must contain at least one letter. Digits, slashes, and other symbols are rejected. A student cannot have the same subject name more than once, even at different bands.

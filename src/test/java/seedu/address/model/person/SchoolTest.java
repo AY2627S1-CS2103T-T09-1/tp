@@ -22,7 +22,9 @@ public class SchoolTest {
         assertFalse(School.isValidSchool("---"));
         assertFalse(School.isValidSchool("School/Name"));
         assertFalse(School.isValidSchool("School #1"));
+        assertFalse(School.isValidSchool("School_Name"));
         assertFalse(School.isValidSchool("School １２３"));
+        assertFalse(School.isValidSchool("123")); // no ASCII letter
         assertFalse(School.isValidSchool("École Française"));
         assertFalse(School.isValidSchool("李明学校"));
         assertFalse(School.isValidSchool("a".repeat(101)));
@@ -32,8 +34,8 @@ public class SchoolTest {
         assertTrue(School.isValidSchool("Anglo-Chinese School (Independent)"));
         assertTrue(School.isValidSchool("St. Joseph's Institution"));
         assertTrue(School.isValidSchool("Anglo-Chinese School"));
-        assertTrue(School.isValidSchool("Anglo-Chinese School (Independent)"));
         assertTrue(School.isValidSchool("School of Science and Technology, Singapore"));
+        assertTrue(School.isValidSchool("Cedar Girls’ Secondary School"));
         assertTrue(School.isValidSchool("School123"));
         assertTrue(School.isValidSchool("a".repeat(100)));
     }

@@ -91,6 +91,8 @@ public class AddCommandParserTest {
                 String.format(School.MESSAGE_MISSING_ASCII_LETTER, "123"));
         assertParseFailure(parser, details + " sch/École Française" + SUBJECT_DESC,
                 String.format(School.MESSAGE_INVALID_CHARACTER, "École Française", "É"));
+        assertParseFailure(parser, details + " sch/李明学校" + SUBJECT_DESC,
+                String.format(School.MESSAGE_INVALID_CHARACTER, "李明学校", "李"));
         assertParseFailure(parser, details + " sch/" + "a".repeat(101) + SUBJECT_DESC,
                 String.format(School.MESSAGE_TOO_LONG, 101));
     }
@@ -101,11 +103,28 @@ public class AddCommandParserTest {
         String[] schools = {
             "Victoria School 2",
             "Anglo-Chinese School (Independent)",
-            "St. Joseph's Institution"
+            "St. Joseph's Institution",
+            "School of Science and Technology, Singapore"
         };
         for (String school : schools) {
             Person expectedPerson = new PersonBuilder(BOB).withSchool(school).build();
             assertParseSuccess(parser, details + " sch/" + school, new AddCommand(expectedPerson));
+        }
+    }
+
+    @Test
+    public void parse_nonAsciiName_failure() {
+        String details = PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + SUBJECT_DESC;
+        assertParseFailure(parser, " n/Zoë Lim" + details, Name.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_subjectWithOfficialPunctuation_success() {
+        String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB;
+        String[] subjects = {"Science (Physics, Chemistry)", "Design & Technology", "Food & Consumer Education"};
+        for (String subject : subjects) {
+            Person expectedPerson = new PersonBuilder(BOB).withSubjects(new Subject(subject, Band.G3)).build();
+            assertParseSuccess(parser, details + " sub/" + subject + " band/G3", new AddCommand(expectedPerson));
         }
     }
 
