@@ -1409,11 +1409,11 @@ AB3 manages one entity, `Person`, with four single-value fields and a set of tag
 
 Most of the difficulty lay in agreeing on how each feature should behave. The Implementation section records the alternatives behind each decision.
 
-* **Fixing flaws inherited from AB3.** Before adding features, the team audited AB3 and logged 37 problems. Several needed code fixes. For example, `delete 2147483648` showed "Invalid command format!" because the index overflowed an `int`, names differing only in spacing were not detected as duplicates, and a very long email caused a stack overflow.
-* **Deciding what counts as a duplicate student.** Rejecting a repeated name blocks real students who share a name, but allowing every duplicate lets a repeated command create records the tutor cannot tell apart. After several rounds of discussion weighing rules based on phone numbers, all fields, and confirmation alone, the team chose to reject a repeated name, school, and level, and to confirm a name-only match ([#194](https://github.com/AY2627S1-CS2103T-T09-1/tp/issues/194), [#209](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/209)).
-* **Agreeing on how confirmations behave.** `clear`, `delete`, and `deletenote` share one `ConfirmationCommand`. The team disagreed on whether a pending prompt should accept only `y` or `n`, so that cancelling is always explicit, or let any other input cancel it, so that a tutor can run `list` to check an index first. It settled on the exact word `CONFIRM`, with any other input cancelling the request and running as normal ([#174](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/174), [#196](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/196)).
+* **Fixing flaws inherited from AB3.** Before adding features, the team audited AB3 and logged 37 problems. Several needed code fixes, such as an index overflow in `delete 2147483648` and a stack overflow on a very long email.
+* **Deciding what counts as a duplicate student.** Rejecting a repeated name blocks real students who share one, but allowing every duplicate creates records the tutor cannot tell apart. After several rounds of discussion, the team chose to reject a repeated name, school, and level, and to confirm a name-only match ([#194](https://github.com/AY2627S1-CS2103T-T09-1/tp/issues/194), [#209](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/209)).
+* **Agreeing on how confirmations behave.** The team disagreed on whether a pending prompt should accept only `y` or `n`, so that cancelling is always explicit, or let any other input cancel it, so that a tutor can run `list` first. It settled on the exact word `CONFIRM`, with any other input cancelling the request and running as normal ([#174](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/174), [#196](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/196)).
 * **Designing `filter`.** Replacing AB3's `find` with one command that searches 11 fields meant agreeing on which fields match partially or exactly, whether filters combine with AND or OR, whether `filter` takes several tags, and whether notes need a separate search command ([#198](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/198), [#253](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/253), [#217](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/217)).
-* **Accepting realistic input without hiding mistakes.** Accepting only Singapore phone numbers catches a missing digit, but blocks a guardian with an overseas number. The team chose to accept 3 to 15 digits and warn about non-Singapore numbers, which needed a new warning path and an amber result style ([#175](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/175)). For a missing space before a prefix, it chose a general hint over naming the likely prefix, since a wrong guess misleads ([#279](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/279)).
+* **Accepting realistic input without hiding mistakes.** Accepting only Singapore phone numbers catches typos but blocks overseas guardians, so the team chose to accept 3 to 15 digits with a warning ([#175](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/175)). For a missing space before a prefix, it chose a general hint over guessing the prefix, since a wrong guess misleads ([#279](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/279)).
 * **Keeping indexes stable.** AB3 shows the full list after an edit, so a follow-up `edit 2` can change a different student. The team weighed three options and chose to keep the current filter plus the edited student ([#193](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/193)).
 
 ### Effort required
@@ -1443,7 +1443,6 @@ A better indication might be the work behind each change:
 
 * Each student's school, level, subjects with bands, guardian, tags, and notes are kept in one record, shown together with `view`, and grouped for lessons with `filter`.
 * The parsers, the model, and JSON loading share each field's rules, so a hand-edited data file is checked like typed input.
-* Destructive commands and likely duplicates ask for confirmation, and common typing mistakes get an error message that names the field and the problem.
 
 ### Reuse
 
@@ -1453,9 +1452,6 @@ This project is based on the AddressBook-Level3 project created by the [SE-EDU i
 
 This section describes work outside implementation.
 
-* **Project management:** The team created over 190 issues and merged at least 150 pull requests. After v1.3, nearly every pull request was reviewed and approved by a teammate before merging.
-* **Testing:** RepoSense credits the team with over 9,000 lines of test code, and JUnit tests cover over 90% of the code. Alpha testing also found 12 bugs in the User Guide and Developer Guide.
-* **Documentation:** The team checked AB3's UML diagrams against the code and fixed the ones that did not match:
-  * The delete sequence diagram passed an index to `Model#deletePerson`, which takes a `Person`.
-  * The parser class diagram showed `ParserUtil` depending on `Prefix`, which it does not, and left out the dependency of `ArgumentMultimap` on `Prefix`.
-  * AB3 noted that a PlantUML limitation makes a destroyed lifeline continue to the end of the diagram. A newer PlantUML version stops it at the destroy marker, slightly past its center, so the team adopted the newer rendering and notes this smaller limitation instead.
+* **Project management:** The team created over 190 issues and merged at least 150 pull requests. After v1.3, nearly every pull request was approved by a teammate before merging.
+* **Testing:** The team wrote over 9,000 lines of test code, which cover over 90% of the code.
+* **Documentation:** The team checked AB3's UML diagrams against the code and fixed the ones that did not match, such as a delete sequence diagram that passed an index to `Model#deletePerson`, which takes a `Person`. It also found that a newer PlantUML version mostly fixes the lifeline limitation AB3 noted, adopted it, and notes the smaller limitation that remains.
