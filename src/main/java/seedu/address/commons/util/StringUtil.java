@@ -8,6 +8,7 @@ import java.io.StringWriter;
 import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Optional;
 
 /**
  * Helper functions for handling strings.
@@ -90,6 +91,26 @@ public class StringUtil {
         // An invisible character between a letter and its accent stops them composing, so remove it first
         String visibleInput = spacedInput.replaceAll(INVISIBLE_CHARACTER_REGEX, "");
         return Normalizer.normalize(visibleInput, Normalizer.Form.NFC);
+    }
+
+    /**
+     * Returns the first character in {@code text} that {@code allowedCharacterRegex} doesn't match,
+     * or an empty {@code Optional} if every character is allowed.
+     * A character made of two UTF-16 chars, such as an emoji, is returned whole.
+     *
+     * @param text Text to check.
+     * @param allowedCharacterRegex Regex that matches one allowed character.
+     * @return The first character that isn't allowed.
+     */
+    public static Optional<String> findInvalidCharacter(String text, String allowedCharacterRegex) {
+        requireNonNull(text);
+        requireNonNull(allowedCharacterRegex);
+        String invalidCharacters = text.replaceAll(allowedCharacterRegex, "");
+        if (invalidCharacters.isEmpty()) {
+            return Optional.empty();
+        }
+        int firstLength = Character.charCount(invalidCharacters.codePointAt(0));
+        return Optional.of(invalidCharacters.substring(0, firstLength));
     }
 
     /**

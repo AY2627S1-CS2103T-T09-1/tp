@@ -5,6 +5,8 @@ import static seedu.address.commons.util.AppUtil.checkArgument;
 
 import java.util.Optional;
 
+import seedu.address.commons.util.StringUtil;
+
 /**
  * Represents a note about a Person in the tutor book.
  * Guarantees: immutable; is valid as declared in {@link #isValidNote(String)}
@@ -55,15 +57,10 @@ public class Note {
 
     /**
      * Returns the first character of {@code test} that is not allowed, ignoring leading and trailing
-     * whitespace. A character made of two UTF-16 chars, such as an emoji, is returned whole.
+     * whitespace.
      */
     private static Optional<String> findInvalidCharacter(String test) {
-        String invalidCharacters = test.strip().replaceAll(ALLOWED_CHARACTERS_REGEX, "");
-        if (invalidCharacters.isEmpty()) {
-            return Optional.empty();
-        }
-        int firstLength = Character.charCount(invalidCharacters.codePointAt(0));
-        return Optional.of(invalidCharacters.substring(0, firstLength));
+        return StringUtil.findInvalidCharacter(test.strip(), ALLOWED_CHARACTERS_REGEX);
     }
 
     /**
