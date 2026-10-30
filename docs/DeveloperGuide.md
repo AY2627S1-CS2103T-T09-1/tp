@@ -1401,9 +1401,9 @@ testers are expected to do more *exploratory* testing.
 
 ### Difficulty compared with AB3
 
-AB3 manages one entity, `Person`, whose fields are four strings and a set of tags, and every command works on the whole record in one step. TuteeBook3 keeps AB3's architecture but changes almost every layer:
+AB3 manages one entity, `Person`, with four single-value fields and a set of tags, and every command works on the whole record in one step. TuteeBook3 keeps AB3's architecture but changes almost every layer:
 
-* A student record holds several related parts: the required `School`, `Level`, and 1 to 8 `Subject` and `Band` pairs, an optional `Guardian` with its own name and phone, and an indexed list of `Note`s. Each part needed its own parser rules, model class, JSON adapter, and UI display.
+* A student record holds several related parts: the required `School`, `Level`, and 1 to 8 `Subject` and `Band` pairs, an optional `Guardian` with its own name and phone, and an indexed list of `Note`s. Each part needed its own parser rules, model class, and UI display, and subjects, the guardian, and notes each needed their own JSON adapter.
 * Notes act as a second entity inside a student, with their own `addnote`, `editnote`, and `deletenote` commands that address a note as `INDEX nid/NOTE_INDEX`.
 * Some commands now take two steps. AB3's `Logic` runs each command and forgets it; TuteeBook3 keeps a pending command until the user confirms or cancels it.
 * AB3's whole-word name search was replaced by `filter`, which searches 11 fields.
