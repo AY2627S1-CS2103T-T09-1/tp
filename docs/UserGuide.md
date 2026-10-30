@@ -218,12 +218,12 @@ Parameter | Prefix | Used in | Rules | Example
 ----------|--------|---------|-------|--------
 `INDEX` | none, comes straight after the command word | `view`, `edit`, `delete`, `addnote`, `editnote`, `deletenote` | The number shown beside the student in the student list, or at the top of the student detail view. A positive integer no greater than the largest index in the student list. For example, if the list shows 1 to 3, you can use 1, 2, or 3. | `2`
 `NID` | `nid/` | `editnote`, `deletenote` | The number shown before the note in the student detail view. A positive integer. Use `view INDEX` to see a student's notes and their NIDs. | `1`
-`TEXT` | `note/` | `addnote`, `editnote`, `filter` | 1 to 500 characters, counting spaces between words. Use English letters without accents, digits, spaces, and the symbols on a standard keyboard, such as `/ % : ( ) - ' " ^ +`. Accented letters, emoji, and other non-ASCII characters are not allowed. Spaces before and after the text are removed. Pasted line breaks and tabs become spaces, as described in [Reading a command format](#reading-a-command-format). | `WA2 Math: 36/50`
+`TEXT` | `note/` | `addnote`, `editnote`, `filter` | 1 to 500 characters, counting spaces between words. Use English letters without accents, digits, spaces, and the symbols on a standard keyboard, such as `/ % : ( ) - ' " ^ +`. The curly apostrophe `’` is also allowed, as in school names. Other characters, such as accented letters and emoji, are not allowed. Spaces before and after the text are removed. Pasted line breaks and tabs become spaces, as described in [Reading a command format](#reading-a-command-format). | `WA2 Math: 36/50`
 
 * `INDEX` and `NID` can change. An index changes when the list changes, such as after `filter` or `delete`. After a note is deleted, the notes after it move up one number. Check the list or the student detail view before you use them.
 * After `view`, the student's `INDEX` is also shown at the top of the student detail view, so you can use it in `edit`, `delete`, `addnote`, `editnote`, and `deletenote` without looking for the student in the list.
 * Everything after `note/` is the note text, so `TEXT` can contain other prefixes, such as `t/f` or another `note/`. For example, `addnote 1 note/Revise t/f questions` adds the note `Revise t/f questions`.
-* Notes saved by an earlier version may contain accented letters, emoji, or other non-ASCII characters. Before upgrading, use the previous version to change those notes. Otherwise, those records fail validation when the data file is loaded.
+* Notes saved by an earlier version may contain accented letters, emoji, or other characters that notes no longer allow. Before upgrading, use the previous version to change those notes. Otherwise, those records fail validation when the data file is loaded.
 
 ### Managing students
 
