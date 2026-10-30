@@ -1435,7 +1435,7 @@ Search predicate classes | 1 | 13
 
 RepoSense credits a line to a member only if they wrote it, so lines kept from AB3 are not counted. The team therefore wrote about as much functional code as AB3 contains in total. A large share of it is validation and error handling rather than new commands. For example, RepoSense credits the team with about 300 lines each in `ParserUtil` and `EditCommand`.
 
-Lines of code are not a direct measure of effort, largely because modern AI coding tools make code cheap to write. The effort in a change lies more in getting it right than in the number of lines it adds. The figures above only show that the team put in at least enough effort to produce this much code. A better indication is how much the team found and corrected in its own code. During alpha testing, the team found and fixed about 30 bugs in the product's behavior.
+Lines of code may not be a direct measure of effort, especially now that modern AI coding tools make code cheaper to write. Much of the effort in a change may lie in getting it right rather than in the number of lines it adds, so the figures above are perhaps best read as a lower bound on the team's effort. How much the team found and corrected in its own code might be a better indication. During alpha testing, the team found and fixed about 30 bugs in the product's behavior.
 
 ### Achievements
 
