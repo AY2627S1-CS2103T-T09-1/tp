@@ -1394,3 +1394,56 @@ testers are expected to do more *exploratory* testing.
    1. _{Explain how to simulate missing or corrupted data files and state the expected behavior.}_
 
 1. _{ more test cases …​ }_
+
+--------------------------------------------------------------------------------------------------------------------
+
+## **Appendix: Effort**
+
+### Difficulty compared with AB3
+
+AB3 manages one entity, `Person`, whose fields are four strings and a set of tags, and every command works on the whole record in one step. TuteeBook3 keeps AB3's architecture but changes almost every layer:
+
+* A student record holds several related parts: the required `School`, `Level`, and 1 to 8 `Subject` and `Band` pairs, an optional `Guardian` with its own name and phone, and an indexed list of `Note`s. Each part needed its own parser rules, model class, JSON adapter, and UI display.
+* Notes act as a second entity inside a student, with their own `addnote`, `editnote`, and `deletenote` commands that address a note as `INDEX nid/NOTE_INDEX`.
+* Some commands now take two steps. AB3's `Logic` runs each command and forgets it; TuteeBook3 keeps a pending command until the user confirms or cancels it.
+* AB3's whole-word name search was replaced by `filter`, which searches 11 fields.
+
+### Challenges
+
+* **Duplicate students.** Tutors often teach students who share a name, so name equality could not be the rule. The strict key is the normalized name, school, and level, enforced in `UniquePersonList` and during JSON loading, while a name-only match asks the user to confirm. See [Student duplicate handling](#student-duplicate-handling).
+* **Confirmations.** `ConfirmationManager` and `ConfirmationCommand` add a pending-command state to `LogicManager` for `delete`, `deletenote`, `clear`, and name-match warnings in `add` and `edit`. Any input other than `CONFIRM` must cancel the request and still run as a normal command. See [Command confirmations](#command-confirmations).
+* **Filtering.** `filter` combines 11 predicate classes with AND, uses partial matching for free text and exact matching for fixed values, and gives a specific error for each kind of malformed filter. See [Filtering students](#filtering-students).
+* **Accepting realistic input without hiding mistakes.** Phone numbers are normalized (`+65 9123-4567` becomes `91234567`) and overseas numbers are saved with a warning instead of being rejected. Error messages name the field and the first character that isn't allowed, keeping an emoji whole. A missing space before a prefix gets a hint, and `AddressPrefixChecker` does this even for addresses, which can contain `/`. See [Phone number validation](#phone-number-validation) and [Hint for a missing space before a prefix](#hint-for-a-missing-space-before-a-prefix).
+* **Keeping indexes stable.** After an edit, `Model#keepPersonInFilteredList` keeps the edited student in the filtered list, and `StudentDetailPanel` refreshes from that list, so a follow-up command by index still targets the same student. See [Keeping the list after an edit](#keeping-the-list-after-an-edit).
+
+### Effort required
+
+The figures compare the AB3 base the team started from with the current `master`. Line counts include comments and blank lines.
+
+Measure | AB3 | TuteeBook3
+--------|-----|-----------
+Production code (`src/main/java`) | 4,692 lines | 9,215 lines (5,233 added and 608 deleted, across 90 files)
+User commands | 8 | 12, plus `CONFIRM`
+Field classes in `model.person` | 4 | 10
+Search predicate classes | 1 | 13
+`JsonAdapted*` classes | 2 | 5
+
+A large share of the added code is validation and error handling rather than new commands. For example, `ParserUtil` and `EditCommand` each grew by about 290 lines. For context only, test code grew from 4,565 to 13,099 lines.
+
+The team also checked the UML diagrams inherited from AB3 against the code, and fixed the ones that did not match:
+
+* AB3's delete sequence diagram passed an index to `Model#deletePerson`, which takes a `Person`.
+* AB3's parser class diagram left out the dependency of `ArgumentMultimap` on `Prefix`.
+* AB3 noted that, due to a limitation of PlantUML, the `DeleteCommandParser` lifeline continues to the end of the diagram instead of ending at the destroy marker (X). Rendering the same diagram with a newer PlantUML version showed that the lifeline now stops at the destroy marker, but still extends slightly past its center. The Developer Guide notes this smaller limitation instead.
+
+The `Model`, `Storage`, `UI`, and parser diagrams were also updated for the new classes, and new diagrams were added for `view`, `filter`, subjects, and guardians.
+
+### Achievements
+
+* A tutor can keep a student's school, level, subjects with bands, guardian contact, tags, and lesson notes in one record, and see all of it in one detail panel with `view`.
+* A tutor can narrow the list to a lesson group, such as `filter lvl/S3 sub/Mathematics band/G2`, or find a student from part of a guardian's name while the guardian is on the phone.
+* Destructive commands and likely duplicates ask for confirmation, and common typing mistakes get an error message that names the problem.
+
+### Reuse
+
+This project is based on the AddressBook-Level3 project created by the [SE-EDU initiative](https://se-education.org). TuteeBook3 keeps AB3's architecture, storage format, and GUI framework. It adds no runtime libraries beyond those AB3 already uses. TestFX was added only as a test dependency for GUI tests.
