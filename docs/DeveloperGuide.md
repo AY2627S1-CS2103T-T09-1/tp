@@ -1439,8 +1439,8 @@ Lines of code are not a direct measure of effort, largely because modern AI codi
 The team also checked the UML diagrams inherited from AB3 against the code, and fixed the ones that did not match:
 
 * AB3's delete sequence diagram passed an index to `Model#deletePerson`, which takes a `Person`.
-* AB3's parser class diagram left out the dependency of `ArgumentMultimap` on `Prefix`.
-* AB3 noted that, due to a limitation of PlantUML, the `DeleteCommandParser` lifeline continues to the end of the diagram instead of ending at the destroy marker (X). Rendering the same diagram with a newer PlantUML version showed that the lifeline now stops at the destroy marker, but still extends slightly past its center. The Developer Guide notes this smaller limitation instead.
+* AB3's parser class diagram showed `ParserUtil` depending on `Prefix`, which it does not, and left out the dependency of `ArgumentMultimap` on `Prefix`.
+* AB3 noted that, due to a limitation of PlantUML, the `DeleteCommandParser` lifeline continues to the end of the diagram instead of ending at the destroy marker (X). Rendering the same diagram with a newer PlantUML version showed that the lifeline now stops at the destroy marker, but still extends slightly past its center. The team adopted the newer rendering, and the Developer Guide notes this smaller limitation in place of the old one.
 
 The `Model`, `Storage`, `UI`, and parser diagrams were also updated for the new classes, and new diagrams were added for `view`, `filter`, subjects, and guardians.
 
