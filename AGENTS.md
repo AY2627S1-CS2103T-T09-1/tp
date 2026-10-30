@@ -9,6 +9,21 @@ Read [Maintaining this file](#maintaining-this-file) before you edit it.
 * Brownfield evolution of AddressBook-Level3 (AB3). Contact management stays the primary focus.
 * Base package: `seedu.address`. Layers: `ui`, `logic`, `model`, `storage`, `commons`. See `docs/DeveloperGuide.md` for the architecture.
 
+### Current phase: feature freeze (v1.6)
+
+Features are frozen. The work now is fixing leftover bugs, tightening error messages, and cleaning up the UG, DG, and UML diagrams. Source: [week 12 tP tasks](https://nus-cs2103-ay2627-s1.github.io/website/schedule/week12/project.html).
+
+* Dates: the freeze started Fri 30 Oct 2026, 10:00. Final deliverables are due Tue 3 Nov 2026, 14:00 (14:00:01 is late). Push no code for 30 days after that. The PE runs Fri 6 Nov to Sat 7 Nov.
+* Do not add commands, prefixes, parameters, or other features. If a fix seems to need one, stop and ask the user.
+* Each member may change at most 15% or 150 lines (whichever is higher) of their own `src/main` code during v1.6. Blank lines and comments count. Going over costs at least 2 marks. Tests, docs, and diagrams have no limit.
+  * Lines you edit count against your quota, even lines a teammate wrote. Refactoring counts too.
+  * Before you change `src/main`, weigh the fix against its line cost and regression risk. Make the smallest change that fixes the bug.
+  * In the handoff, report the branch's `src/main` changes from `git diff --stat $(git merge-base upstream/master HEAD) -- src/main`. Members track their running total on the tP Code Dashboard.
+* Triage each bug before you touch code:
+  1. Should have been fixed in v1.5: fix it now. If the fix costs too many lines, state the limitation in the UG instead.
+  1. Worth fixing only in a later version: leave the code, and list it under **Known issues** in the UG if users are likely to hit it. This lowers the severity of a PE report but does not cancel it.
+  1. Intended behavior: leave the code, and make sure the UG states the behavior.
+
 ### Target user
 
 A private tutor who teaches secondary school students (levels S1 to S5) in Singapore and prefers typing commands to using a mouse.
@@ -173,12 +188,24 @@ Define "valid" by what real users need to enter, not by the narrowest data type.
 * Don't: let a 100-character name push other fields off screen, or cut it so only the first few characters show.
 * Do: wrap long text so the user can read the whole value. Check it at 1280x720.
 
-### Write specific error messages
+### Write clear, consistent error messages
 
-* Name the field, the value, and the actual reason.
+Error messages are the riskiest text in the app. Testers trigger every one, and a vague, wrong, or inconsistent message is a bug.
+
+* Name the field and the rule the value broke.
   * Don't: "Invalid input." or "Invalid command format!" for a single bad field.
-  * Don't: list every possible reason and leave the user to guess which one applies.
   * Do: "Email `john@` is missing a domain after `@`."
+* Keep messages short and plain: one or two sentences, everyday words, no exclamation marks.
+* Do not guess what the user meant. A guess that is wrong misleads the user. When a value could have failed for more than one reason, state the rule broadly and briefly instead of naming one cause.
+  * Don't: "Did you mean `S3`?" or a hint that assumes which mistake the user made.
+  * Don't: swing the other way and list every sub-rule. `Email.MESSAGE_CONSTRAINTS` is a numbered list today; treat it as a known flaw.
+  * Do: "Level must be one of S1, S2, S3, S4, S5."
+* Keep wording consistent across fields:
+  * Use one sentence pattern for every field, such as `<Field> must ...`, with the field name in the same form each time.
+  * Say the same kind of rule the same way. Don't write "1-40 characters" for one field and "at most 200 characters" for another.
+  * When several fields share a rule or a phrase, build it from one shared constant or helper instead of copying it. Keep `model` classes independent of `logic.Messages`.
+  * Before you change a message, read the messages for similar fields and match them, or change them together.
+* When you change a message, update the tests that assert it and any UG text that quotes it. In the UG, describe the rule rather than quote the whole message.
 * Tell format errors apart from invalid values. For a `YYYY-MM-DD` date, `2025-13-28` is a format error (the month must be 1 to 12), but `2025-02-30` is an invalid value (February has no 30th). Calling one the other is a bug. A combined "Invalid date or incorrect format" message is acceptable only if the team rules the distinction out of scope.
 
 ### Keep commands fast to type
@@ -265,6 +292,7 @@ Agents never change git history or the remote. The member commits and pushes, so
   1. Split the changes into commits of one logical change each. Order them so every commit builds and passes tests on its own.
   1. For each commit, give a `git add` command that lists exact paths and a `git commit` command with the full message. Never use `git add .` or `git add -A`.
   1. If one file holds two logical changes, say so and tell the member to split it with `git add -p`.
+  1. During the feature freeze, report the `src/main` line count as described in [Current phase](#current-phase-feature-freeze-v16).
   1. End with the `git push` command for the current branch.
   1. If the branch is ready for a PR, draft the PR title and description as described in [Pull requests](#pull-requests).
 
@@ -361,6 +389,36 @@ Applies to `docs/` (User Guide, Developer Guide) and all Markdown in the repo.
   * Use the serial comma and descriptive link text (never "click here").
 * When a feature changes user-visible behavior, update `docs/UserGuide.md` in the same PR.
 * When a change affects design or architecture, update `docs/DeveloperGuide.md` and its diagrams in `docs/diagrams/`.
+
+### Keep it short
+
+Graders and PE testers file bugs against text that is too long, unclear, or repeated. Source: [tP grading](https://nus-cs2103-ay2627-s1.github.io/website/admin/tp-grading.html) and [tP deliverables](https://nus-cs2103-ay2627-s1.github.io/website/admin/tp-deliverables.html).
+
+* Use short sentences and plain words. Cut filler such as "note that", "simply", "in order to", and "please".
+* Cut any sentence that does not help the reader use the app or understand the design.
+* Say each fact once, where readers look for it first, and link to it from elsewhere. Watch for these repeats:
+  * Parameter rules restated in every command section.
+  * Error lists that restate a parameter rule.
+  * The same warning, tip, or note in several places.
+  * The same point made in both prose and a table.
+* Keep the UG and DG consistent in terms: one name per concept, matching the glossary and the app.
+
+### User Guide and Developer Guide
+
+* The UG must match the product exactly. Remove anything not implemented, or mark it **Coming soon**.
+* UG: give each command a one-line purpose, its format, and one or two examples. Leave out detail that the error message already tells the user.
+* DG: aim for comprehensible, not comprehensive. Use code snippets sparingly.
+* DG appendices: keep manual testing to the key cases, merge use cases that differ only slightly, and make every NFR measurable and met by the product. _Appendix: Effort_ is optional and at most about one page.
+
+### UML diagrams
+
+* Edit the `.puml` source in `docs/diagrams/` and regenerate its PNG in `docs/images/` with PlantUML. Never edit only the PNG.
+* Use textbook UML notation exactly: line styles, arrowheads, multiplicities, and activation bars. A notation error is at least a `severity.Low` bug.
+* Make each diagram match the current code. Rename AB3 classes and methods, and delete diagrams, sources, and images that no page uses.
+* A sequence diagram shows the internals of at most one component; treat other components as black boxes.
+* Be consistent within and across diagrams, such as using activation bars everywhere or nowhere.
+* If you leave out details on purpose, say so in a note.
+* Keep diagram text about the size of the body text. Split a diagram that is too big to read.
 
 ## Working agreements
 
