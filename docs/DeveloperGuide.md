@@ -1449,10 +1449,10 @@ This project is based on the AddressBook-Level3 project created by the [SE-EDU i
 
 ### Beyond implementation
 
-This section describes work outside implementation. As of 30 October 2026:
+This section describes work outside implementation.
 
-* **Project management:** The team created 195 issues and opened 168 pull requests, of which 150 were merged.
-* **Testing:** RepoSense credits the team with 9,012 lines of test code, and JUnit tests cover 95% of the code. Alpha testing also found 12 bugs in the User Guide and Developer Guide, of which 6 are fixed and 6 are scheduled for v1.6.
+* **Project management:** The team created over 190 issues and merged at least 150 pull requests.
+* **Testing:** RepoSense credits the team with over 9,000 lines of test code, and JUnit tests cover over 90% of the code. Alpha testing also found 12 bugs in the User Guide and Developer Guide.
 * **Documentation:** The team checked the UML diagrams inherited from AB3 against the code, and fixed the ones that did not match:
   * AB3's delete sequence diagram passed an index to `Model#deletePerson`, which takes a `Person`.
   * AB3's parser class diagram showed `ParserUtil` depending on `Prefix`, which it does not, and left out the dependency of `ArgumentMultimap` on `Prefix`.
