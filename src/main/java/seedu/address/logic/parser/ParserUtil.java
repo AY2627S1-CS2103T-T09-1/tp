@@ -220,7 +220,7 @@ public class ParserUtil {
         requireNonNull(address);
         String trimmedAddress = address.trim();
         if (!Address.isValidAddress(trimmedAddress)) {
-            throw new ParseException(Address.MESSAGE_CONSTRAINTS);
+            throw new ParseException(Address.getConstraintMessage(trimmedAddress));
         }
         return new Address(trimmedAddress);
     }
