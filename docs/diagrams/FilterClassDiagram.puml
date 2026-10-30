@@ -16,10 +16,14 @@ Class StudentMatchesAllPredicate MODEL_COLOR
 Class NameContainsKeywordsPredicate MODEL_COLOR
 Class SubjectMatchesPredicate MODEL_COLOR
 Class TagMatchesPredicate MODEL_COLOR
+Class "{abstract}\nContainsTextPredicate" as ContainsTextPredicate MODEL_COLOR
+Class NoteContainsTextPredicate MODEL_COLOR
 }
 
 note bottom of SubjectMatchesPredicate
-  Simplified: shows 3 of the 11 predicates.
+  Simplified: shows 4 of the 11 predicates.
+  The school, email, address, and guardian name
+  predicates also extend ContainsTextPredicate.
   The table below lists all of them.
 end note
 
@@ -33,4 +37,6 @@ StudentMatchesAllPredicate ..|> Predicate
 NameContainsKeywordsPredicate .up.|> Predicate
 SubjectMatchesPredicate .up.|> Predicate
 TagMatchesPredicate .up.|> Predicate
+ContainsTextPredicate .up.|> Predicate
+NoteContainsTextPredicate -up-|> ContainsTextPredicate
 @enduml

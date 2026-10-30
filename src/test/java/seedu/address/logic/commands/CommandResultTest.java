@@ -8,6 +8,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
@@ -47,6 +49,22 @@ public class CommandResultTest {
         // same student display values -> returns true
         assertTrue(CommandResult.showStudent("feedback", ALICE, INDEX_FIRST_PERSON)
                 .equals(CommandResult.showStudent("feedback", ALICE, INDEX_FIRST_PERSON)));
+    }
+
+    @Test
+    public void withWarnings_nonePresent_returnsSameResult() {
+        CommandResult result = CommandResult.showStudent("feedback", ALICE, INDEX_FIRST_PERSON);
+        assertEquals(result, result.withWarnings(Optional.empty(), Optional.empty()));
+        assertFalse(result.withWarnings().isWarning());
+    }
+
+    @Test
+    public void withWarnings_twoPresent_addsBothInOrder() {
+        CommandResult result = CommandResult.showStudent("feedback", ALICE, INDEX_FIRST_PERSON)
+                .withWarnings(Optional.of("first"), Optional.empty(), Optional.of("second"));
+        assertEquals("feedback\nfirst\nsecond", result.getFeedbackToUser());
+        assertTrue(result.isWarning());
+        assertEquals(CommandResult.DisplayMode.SHOW_STUDENT, result.getDisplayMode());
     }
 
     @Test

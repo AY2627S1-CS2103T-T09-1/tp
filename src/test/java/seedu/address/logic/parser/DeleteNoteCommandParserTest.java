@@ -41,6 +41,22 @@ public class DeleteNoteCommandParserTest {
     }
 
     @Test
+    public void parse_forceOptionAfterNid_throwsCommandFormatError() {
+        String expectedMessage = String.format(
+                MESSAGE_INVALID_COMMAND_FORMAT, DeleteNoteCommand.MESSAGE_USAGE);
+        assertParseFailure(parser, "1 nid/1 -f", expectedMessage);
+        assertParseFailure(parser, "  1 nid/1   -f  ", expectedMessage);
+        assertParseFailure(parser, "1 nid/-f", expectedMessage);
+        assertParseFailure(parser, "-f 1 nid/1 -f", expectedMessage);
+
+        // reported before an invalid index
+        assertParseFailure(parser, "0 nid/1 -f", expectedMessage);
+
+        // -f after an earlier nid/ is also caught when nid/ is repeated
+        assertParseFailure(parser, "1 nid/1 -f nid/2", expectedMessage);
+    }
+
+    @Test
     public void parse_maxIntNid_returnsDeleteNoteCommand() {
         assertParseSuccess(parser, "1 nid/2147483647",
                 new DeleteNoteCommand(INDEX_FIRST_PERSON, Index.fromOneBased(Integer.MAX_VALUE)));
@@ -72,8 +88,19 @@ public class DeleteNoteCommandParserTest {
     public void parse_invalidIndex_throwsParseException() {
         assertParseFailure(parser, " 0 nid/1", MESSAGE_INVALID_INDEX);
         assertParseFailure(parser, " -1 nid/1", MESSAGE_INVALID_INDEX);
-        assertParseFailure(parser, " abc nid/1", MESSAGE_INVALID_INDEX);
         assertParseFailure(parser, " 99999999999 nid/1", MESSAGE_INVALID_INDEX);
+        assertParseFailure(parser, " -f 0 nid/1", MESSAGE_INVALID_INDEX);
+    }
+
+    @Test
+    public void parse_nonIntegerIndex_throwsCommandFormatError() {
+        String expectedMessage = String.format(MESSAGE_INVALID_COMMAND_FORMAT, DeleteNoteCommand.MESSAGE_USAGE);
+
+        assertParseFailure(parser, " abc nid/1", expectedMessage);
+        assertParseFailure(parser, " -f abc nid/1", expectedMessage);
+
+        // non-integer index is reported before the empty NID
+        assertParseFailure(parser, " abc nid/", expectedMessage);
     }
 
     @Test
@@ -103,7 +130,6 @@ public class DeleteNoteCommandParserTest {
     @Test
     public void parse_invalidIndexAndInvalidNid_throwsIndexError() {
         assertParseFailure(parser, " 0 nid/0", MESSAGE_INVALID_INDEX);
-        assertParseFailure(parser, " abc nid/", MESSAGE_INVALID_INDEX);
         assertParseFailure(parser, " 0 nid/1 nid/2", MESSAGE_INVALID_INDEX);
     }
 

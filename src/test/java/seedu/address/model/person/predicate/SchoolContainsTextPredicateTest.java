@@ -49,13 +49,11 @@ public class SchoolContainsTextPredicateTest {
     }
 
     @Test
-    public void test_symbols_returnsTrue() {
-        assertTrue(new SchoolContainsTextPredicate("St. Nicholas")
+    public void test_wordsInSchoolName_returnsTrue() {
+        assertTrue(new SchoolContainsTextPredicate("Nicholas")
                 .test(studentAt("CHIJ St. Nicholas Girls’ School")));
-        assertTrue(new SchoolContainsTextPredicate("Girls’")
+        assertTrue(new SchoolContainsTextPredicate("Girls")
                 .test(studentAt("CHIJ St. Nicholas Girls’ School")));
-        assertTrue(new SchoolContainsTextPredicate("Cedar Girls'")
-                .test(studentAt("Cedar Girls' Secondary School")));
     }
 
     @Test

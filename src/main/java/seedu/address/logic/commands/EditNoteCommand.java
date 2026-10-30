@@ -29,10 +29,10 @@ public class EditNoteCommand extends Command {
             + PREFIX_NOTE + "TEXT\n"
             + "Example: " + COMMAND_WORD + " 1 " + PREFIX_NID + "2 " + PREFIX_NOTE + "Improving in algebra";
 
-    public static final String MESSAGE_SUCCESS = "Edited note %1$d of %2$s.\nOld: %3$s\nNew: %4$s";
+    public static final String MESSAGE_SUCCESS = "Edited note %1$d of %2$s at %3$s (%4$s).\nOld: %5$s\nNew: %6$s";
     public static final String MESSAGE_NO_NOTES = "%1$s at %2$s (%3$s) has no notes to edit.";
     public static final String MESSAGE_NOTE_UNCHANGED =
-            "No changes made: note %1$d of %2$s already says: %3$s";
+            "No changes made: note %1$d of %2$s at %3$s (%4$s) already says: %5$s";
 
     private final Index targetIndex;
     private final Index targetNid;
@@ -62,7 +62,7 @@ public class EditNoteCommand extends Command {
         Note oldNote = person.getNotes().get(targetNid.getZeroBased());
         if (oldNote.equals(newNote)) {
             return CommandResult.showStudentWarning(String.format(MESSAGE_NOTE_UNCHANGED, targetNid.getOneBased(),
-                    person.getName(), oldNote), person, targetIndex);
+                    person.getName(), person.getSchool(), person.getLevel(), oldNote), person, targetIndex);
         }
 
         List<Note> notes = new ArrayList<>(person.getNotes());
@@ -70,7 +70,7 @@ public class EditNoteCommand extends Command {
         Person editedPerson = person.copyWithNotes(notes);
 
         String successMessage = String.format(MESSAGE_SUCCESS, targetNid.getOneBased(),
-                editedPerson.getName(), oldNote, newNote);
+                editedPerson.getName(), editedPerson.getSchool(), editedPerson.getLevel(), oldNote, newNote);
         String feedback = NoteCommandUtil.setPersonKeepingIndex(model, person, editedPerson, successMessage);
         return CommandResult.showStudent(feedback, editedPerson, targetIndex);
     }

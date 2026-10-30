@@ -22,4 +22,10 @@ public class JsonAdaptedSubjectTest {
         JsonAdaptedSubject adapted = new JsonAdaptedSubject("Maths 2", "G1");
         assertThrows(IllegalValueException.class, Subject.MESSAGE_CONSTRAINTS, adapted::toModelType);
     }
+
+    @Test
+    public void toModelType_subjectWithUnicode_throwsIllegalValueException() {
+        JsonAdaptedSubject adapted = new JsonAdaptedSubject("Français", "G3");
+        assertThrows(IllegalValueException.class, Subject.MESSAGE_CONSTRAINTS, adapted::toModelType);
+    }
 }

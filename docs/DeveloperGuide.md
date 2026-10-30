@@ -201,9 +201,35 @@ The required subject and band are deliberately excluded from the key. A student 
 
 Every student record must include a name, school, and level. Many tutors teach students with common names. School helps distinguish students who attend different schools. Level helps distinguish students at the same school who are in different levels. These fields block many accidental repeat entries while still allowing students with the same name when their school or level differs.
 
+### Student names and schools
+
+`Name` and `School` both use ASCII letters and digits, so neither accepts Unicode letters or numbers. A name starts with an ASCII letter or digit and can contain only ASCII letters, digits, and spaces; guardian names use the same rule. A school name must be 1 to 100 characters, contain at least one ASCII letter, and can also contain spaces, periods, apostrophes (`'` or `’`), ampersands, parentheses, commas, and hyphens. Names and schools therefore share an ASCII letter/number rule while retaining different punctuation rules for their fields. The parsers trim and collapse ordinary spaces before constructing these values. Direct model construction and JSON loading use the same validators.
+
+The ASCII letter/number rule also applies to existing data files. A file containing a name or school with non-ASCII letters or numbers fails validation when loaded, with the relevant field constraint. Users must edit those records in the previous version before upgrading. Previously supported school punctuation remains valid.
+
+`Note` text uses the same ASCII-only approach, so an accented letter is rejected in a note just as it is in a name or school. A note can contain 1 to 500 printable ASCII characters (`\x20` to `\x7E`): letters, digits, spaces, and every keyboard symbol, because notes record scores and reminders such as `WA2 Math: 36/50`. It also accepts the curly apostrophe `’`, as `School` does, so `Didn’t finish` is not rejected in a note when `St. Joseph’s Institution` is accepted as a school. For any other character, `Note#getConstraintMessage` names the first one, and returns an emoji whole rather than half of its UTF-16 pair. `ParserUtil#parseNote` (used by `addnote` and `editnote`) and `JsonAdaptedNote` both use this message. `filter note/` search text is not restricted, like `n/` and `sch/` search text. A data file containing a note with any other character fails validation when loaded, so users must edit those notes in the previous version before upgrading.
+
+#### Design considerations
+
+**Aspect: Character rules for names and schools**
+
+* **Alternative 1: Allow Unicode letters and digits in both fields.**
+  * Pros: Preserves names and school names in their original writing systems and supports accented spellings.
+  * Cons: Does not match the User Guide's definition of alphanumeric as ASCII `A`–`Z` and `0`–`9`. Names and schools would also continue to accept different character sets if their punctuation rules differ.
+
+* **Alternative 2: Use the same strict ASCII letters, digits, and spaces rule for both fields.**
+  * Pros: Gives both fields exactly the same simple validation rule.
+  * Cons: Rejects common official school-name punctuation such as periods, apostrophes, ampersands, parentheses, commas, and hyphens. Existing school records using that punctuation would fail to load.
+
+* **Alternative 3 (chosen): Require ASCII letters and digits in both fields, while retaining school-specific punctuation.**
+  * Pros: Rejects non-ASCII letters consistently, preserves real school formats such as `Anglo-Chinese School (Independent)` and `St. Joseph's Institution`, and keeps parser, model, and storage validation aligned.
+  * Cons: Names and schools still have different punctuation rules, which must be documented. Accented and other non-ASCII letters in either field are rejected, so existing records with them must be changed before upgrading.
+
+The third option was selected because the issue was inconsistent handling of letters, not a need to make names and school names use identical punctuation. ASCII-only letters and digits reject the accented school case consistently with student names, while keeping the punctuation needed for realistic school names. The User Guide lists the exact rules for each field and explains the existing-data limitation.
+
 ### Student subjects and bands
 
-Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `G2`, or `G3`. Subject names can contain 1 to 40 Unicode letters, spaces, hyphens, parentheses, commas, and ampersands, and must contain at least one letter. Digits, slashes, and other symbols are rejected. A student cannot have the same subject name more than once, even at different bands.
+Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `G2`, or `G3`. Subject names can contain 1 to 40 ASCII letters, spaces, hyphens, parentheses, commas, and ampersands, and must contain at least one letter. Digits, slashes, non-ASCII letters, and other symbols are rejected. Subject names use ASCII letters for the same reason as names and schools, as explained in [Student names and schools](#student-names-and-schools), so the same accented letter is handled the same way in every student field. A data file containing a subject name with non-ASCII letters fails validation when loaded, with the subject constraint. Users must edit those subjects in the previous version before upgrading. A student cannot have the same subject name more than once, even at different bands.
 
 `Subject` is an immutable value object containing both the subject name and its required `Band`. The band is an enum, so a `Subject` cannot be constructed with an unsupported band or without one. For comparison, `Subject` trims surrounding spaces, collapses repeated ordinary spaces, and lowercases the name. The band is included in `Subject.equals`, but `Person#validateSubjects` checks names separately and rejects a repeated subject even if the bands differ.
 
@@ -242,7 +268,7 @@ The app uses the second option because the tutor needs each subject’s band to 
   * Cons: Rejects commonly used subject names such as `Science (Physics, Chemistry)` and `Design & Technology`.
 
 * **Alternative 2 (current choice):** Also allow parentheses, commas, and ampersands.
-  * Pros: Accepts the real names reported in issue 263 while retaining the existing length limit, Unicode-letter support, and at-least-one-letter rule. Digits, slashes, and other symbols remain rejected.
+  * Pros: Accepts the real names reported in issue 263 while retaining the existing length limit and at-least-one-letter rule. Digits, slashes, and other symbols remain rejected.
   * Cons: A subject can contain awkward punctuation placement because the rule checks allowed characters, not subject-name grammar.
 
 * **Alternative 3:** Allow any printable punctuation and digits.
@@ -266,6 +292,8 @@ The app uses the second option because it resolves the reported real-name cases 
 `Email.MESSAGE_CONSTRAINTS` lists every rule in one message. Separate messages for each failure, such as a missing `@`, are left for a later version.
 
 The add parser accepts optional `e/EMAIL`; the edit parser replaces an email, and a blank `e/` removes it. `JsonAdaptedPerson` leaves `email` out of the file when a student has none, and Jackson sets the field directly, so files without an email still load. Emails do not contribute to duplicate detection.
+
+A domain with no period, such as `john@gmail`, is valid (`localhost` is a real domain) but is almost always a missing `.com`. Rejecting it would block valid addresses, so `AddCommand` and `EditCommand` save it and add a warning instead, the same way as for phones (see [Phone number validation](#phone-number-validation)). `Email#hasDotInDomain` does the check, and `Messages#getEmailNoDomainDotWarning` builds the warning. `EditCommand` only checks an email typed in that command.
 
 ### Student tags
 
@@ -312,7 +340,7 @@ Students and guardians each have one phone number, stored as a `Phone`. The same
 
 1. `ParserUtil#parsePhone` calls `Phone#normalize`, which removes spaces and hyphens, then removes a leading `+65` if the rest is a Singapore number (8 digits starting with 6, 8, or 9). For example, `+65 9123-4567` becomes `91234567`, but `+65 1234 5678` becomes `+6512345678`.
 1. `ParserUtil#parsePhone` then calls `Phone#getInvalidReason`, which checks the result with `Phone#isValidPhone`: an optional `+` followed by 3 to 15 digits. If the check fails, it returns a message that names the field and the value as typed, and gives the first problem it finds: the value is empty, has a character that isn't allowed, has a `+` that isn't at the start, or has the wrong number of digits. `ParserUtil` throws a `ParseException` with that message. `ParserUtil#parseGuardianPhone` does the same, with the field named `Guardian phone`.
-1. After saving the student, `AddCommand` and `EditCommand` pass the phones given in the command to `Messages#getNonSingaporePhoneWarning`. If any of them is not a Singapore number, the command returns its usual result with `CommandResult#withWarning`, which adds the warning and displays the result in amber without changing what the main panel shows.
+1. After saving the student, `AddCommand` and `EditCommand` pass the phones given in the command to `Messages#getNonSingaporePhoneWarning`. If any of them is not a Singapore number, the command returns its usual result with `CommandResult#withWarnings`, which adds the warning on a new line and displays the result in amber without changing what the main panel shows.
 
 `EditCommand` only checks phones from its `EditPersonDescriptor`, so editing another detail of a student who already has an overseas number does not show the warning again.
 
@@ -452,7 +480,7 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 <img src="images/FilterClassDiagram.png" width="650" />
 
 1. `FilterCommandParser` splits the arguments at the filter prefixes `n/`, `sch/`, `lvl/`, `sub/`, `band/`, `p/`, `e/`, `a/`, `gn/`, `gp/`, `t/`, and `note/`. It also recognizes `nid/`, the note index prefix of `deletenote` and `editnote`, only to reject it with a message pointing to `note/`, so that it is not read as part of another value. `note/` is read with `ArgumentTokenizer#tokenizeWithTrailingText`, so everything after it is the note text, as in `addnote`.
-1. It then checks, in order, that there is no unknown prefix-shaped token, that there is no text before the first prefix, that at least one filter is given, that `t/` is not repeated, that no other prefix is repeated, and that `band/` comes with `sub/`. A repeated `t/` gets its own message, `MESSAGE_ONE_TAG`, because `add` and `edit` accept several `t/`. Address values are excluded from the unknown-prefix check because `/` can be ordinary address text, while `note/` consumes all trailing text before this check.
+1. It then checks, in order, that there is no unknown prefix-shaped token, that there is no text before the first prefix, that at least one filter is given, that `t/` is not repeated, that no other prefix is repeated, and that `band/` comes with `sub/`. A repeated `t/` gets its own message, `MESSAGE_ONE_TAG`, because `add` and `edit` accept several `t/`. Any other repeated prefix gets `MESSAGE_REPEATED_FILTER`, which lists the repeated prefixes and suggests running `filter` once for each value, instead of the general duplicate-prefix message that `add` and `edit` use. If `t/` is also repeated, the `t/` message is shown first. Address values are excluded from the unknown-prefix check because `/` can be ordinary address text, while `note/` consumes all trailing text before this check.
 1. It creates one `Predicate<Person>` for each filter given:
 
    Prefix | Predicate | Matches when the student's…
@@ -472,7 +500,14 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 1. It wraps the predicates in a `StudentMatchesAllPredicate`, which returns `true` only if every predicate does, and returns a `FilterCommand` holding it.
 1. `FilterCommand#execute` passes the predicate to `Model#updateFilteredPersonList` and returns `CommandResult.showList(...)` with the number of students found, or a no-match message.
 
-The partial-match predicates (`n/`, `sch/`, `e/`, `a/`, `gn/`, `note/`) use `StringUtil#containsIgnoreCaseAndSpaces`, which lowercases both strings and squeezes runs of whitespace before comparing. The exact-match filters are parsed first with the same `ParserUtil` methods as `add`, into a `Level`, `Band`, `Phone`, or `Tag`. So `lvl/s3` becomes `S3` and `p/+65 9123 4567` becomes `91234567`, the form in which they are stored, and the predicates can compare values directly. `TagMatchesPredicate` relies on `Tag#equals`, which ignores case. `parseTagFilter` checks for a space before calling `ParserUtil#parseTag`, so a tag with a space gets `MESSAGE_FILTER_TAG_HAS_SPACE`, which quotes the value and says `filter` takes one tag, in place of `parseTag`'s advice to put `t/` before each tag. `SubjectMatchesPredicate` compares names with `Subject#hasName`, the same rule `add` uses to detect a repeated subject, and requires the band to belong to that same subject.
+The partial-match predicates (`n/`, `sch/`, `e/`, `a/`, `gn/`, `note/`) use `StringUtil#containsIgnoreCaseAndSpaces`, which ignores case and runs of whitespace.
+
+Apart from `NameContainsKeywordsPredicate`, these predicates extend the abstract `ContainsTextPredicate`. It holds the text, rejects blank text, and defines `containsText`, `equals`, and `toString`, so each subclass only picks the field to search in `test`. `equals` compares classes, so `sch/bedok` and `a/bedok` are different filters.
+
+The exact-match filters are parsed first with the same `ParserUtil` methods as `add`, into a `Level`, `Band`, `Phone`, or `Tag`, the form in which they are stored. So `lvl/s3` becomes `S3` and `p/+65 9123 4567` becomes `91234567`, and the predicates can compare values directly. Two need more:
+
+* `TagMatchesPredicate` relies on `Tag#equals`, which ignores case. `parseTagFilter` checks for a space before calling `ParserUtil#parseTag`, so a tag with a space gets `filter`'s own message, `MESSAGE_FILTER_TAG_HAS_SPACE`, in place of `parseTag`'s advice to put `t/` before each tag.
+* `SubjectMatchesPredicate` compares names with `Subject#hasName`, the same rule `add` uses to detect a repeated subject, and requires the band to belong to that same subject.
 
 #### Design considerations
 
@@ -1057,15 +1092,15 @@ Use case ends.
 **MSS**
 
 1. Tutor requests help.
-1. TuteeBook3 shows the User Guide URL as selectable plain text, followed by each available command as a summary and a minimal example on the next line, with blank lines between commands.
+1. TuteeBook3 shows the User Guide URL as selectable plain text, followed by each available command as a summary and a minimal example on the next line, with blank lines between commands. TuteeBook3 does not copy the URL automatically.
 
     Use case ends.
 
 **Extensions**
 
-* 1a. Help is already shown in the feedback box.
+* 1a. Help is already shown in the result display.
 
-    * 1a1. TuteeBook3 reuses the feedback box and returns the help content to the top.
+    * 1a1. TuteeBook3 reuses the result display and returns the help content to the top.
 
       Use case resumes at step 2.
 
@@ -1339,7 +1374,7 @@ testers are expected to do more *exploratory* testing.
    1. Prerequisites: Start with the sample data. Enter `filter n/an`, which lists `SAMPLE Chloe Tan`, `SAMPLE Aisha Rahman`, `SAMPLE Daniel Lee`, and `SAMPLE Ethan Kumar`, then `view 1`. Run the test cases in order.
 
    1. Test case: `edit 1 n/Chloe Lim`<br>
-      Expected: The student record stays open and shows the name Chloe Lim. The status message says `Chloe Lim no longer matches your last search, but stays in the list until you enter list or filter.`
+      Expected: The student record stays open and shows the name Chloe Lim. The status message says `Chloe Lim at Bedok Green Secondary School (S2) no longer matches your last search, but stays in the list until you enter list or filter.`
 
    1. Test case: `edit 2 lvl/S4`<br>
       Expected: The student record still shows Chloe Lim, so she is still first in the list even though another student was edited. The status message says `SAMPLE Aisha Rahman` was edited, with no line about the search. Enter `list`, then `filter n/an`: the list shows Aisha Rahman (now `S4`), Daniel Lee, and Ethan Kumar, and Chloe Lim is no longer in the results.
