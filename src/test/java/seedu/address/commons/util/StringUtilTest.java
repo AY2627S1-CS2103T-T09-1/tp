@@ -145,6 +145,12 @@ public class StringUtilTest {
     }
 
     @Test
+    public void containsIgnoreCaseAndSpaces_curlyDoubleQuote_matchesStraight() {
+        assertTrue(StringUtil.containsIgnoreCaseAndSpaces("revise \"quadratic\" formula", "“quadratic”"));
+        assertTrue(StringUtil.containsIgnoreCaseAndSpaces("Blk 5 “Sunrise” Court", "\"sunrise\""));
+    }
+
+    @Test
     public void containsIgnoreCaseAndSpaces_nonBreakingSpaceInText_returnsTrue() {
         assertTrue(StringUtil.containsIgnoreCaseAndSpaces("Bedok\u00A0North", "bedok north"));
     }
