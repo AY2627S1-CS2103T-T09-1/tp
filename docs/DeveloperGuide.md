@@ -209,6 +209,10 @@ The ASCII letter/number rule also applies to existing data files. A file contain
 
 `Note` text uses the same ASCII-only approach, so an accented letter is rejected in a note just as it is in a name or school. A note can contain 1 to 500 printable ASCII characters (`\x20` to `\x7E`): letters, digits, spaces, and every keyboard symbol, because notes record scores and reminders such as `WA2 Math: 36/50`. It also accepts the curly apostrophe `’`, as `School` does, so `Didn’t finish` is not rejected in a note when `St. Joseph’s Institution` is accepted as a school. For any other character, `Note#getConstraintMessage` names the first one, and returns an emoji whole rather than half of its UTF-16 pair. `ParserUtil#parseNote` (used by `addnote` and `editnote`) and `JsonAdaptedNote` both use this message. `filter note/` search text is not restricted, like `n/` and `sch/` search text. A data file containing a note with any other character fails validation when loaded, so users must edit those notes in the previous version before upgrading.
 
+`Address` accepts the same characters as `Note`, because addresses also need keyboard symbols such as `#`, `/`, and `,`, as in `Blk 123 Bedok North Ave 2, #04-111`. It declares its own copy of the allowed-character regex, as every field class owns its rules. `Address#getConstraintMessage` names the first character that isn't allowed, like `Note#getConstraintMessage`, and is used by the `Address` constructor, `ParserUtil#parseAddress` (used by `add` and `edit`), and `JsonAdaptedPerson`. Blank and too-long addresses keep the existing `Address.MESSAGE_CONSTRAINTS`. `filter a/` search text is not restricted. A data file containing an address with any other character fails validation when loaded, so users must edit those addresses in the previous version before upgrading.
+
+`Address`, `Note`, `Phone`, and `Email` find the first character that isn't allowed with `StringUtil#findInvalidCharacter`, passing their own allowed-character regex. It returns an emoji whole rather than half of its UTF-16 pair.
+
 #### Design considerations
 
 **Aspect: Character rules for names and schools**
