@@ -1404,8 +1404,25 @@ testers are expected to do more *exploratory* testing.
 
 ### Saving data
 
-1. Dealing with missing/corrupted data files
+1. Starting without a data file
 
-   1. _{Explain how to simulate missing or corrupted data files and state the expected behavior.}_
+   1. Prerequisites: Delete the `data` folder next to the JAR file, if there is one.
 
-1. _{ more test cases …​ }_
+   1. Test case: Launch the app.<br>
+      Expected: The list shows the sample students, whose names start with `SAMPLE`. The status message is empty.
+
+   1. Test case: Enter `list`, then close the window.<br>
+      Expected: `data/addressbook.json` now exists and holds the sample students.
+
+1. Starting with an invalid data file
+
+   1. Prerequisites: `data/addressbook.json` exists, as after the test above. Back it up, then change one student's `"phone"` value to `"abc"`. Run the test cases in order.
+
+   1. Test case: Launch the app.<br>
+      Expected: The list is empty. The status message is shown in red. It says the data file could not be loaded, and tells you to close the window without using the `exit` command, then fix or restore the file.
+
+   1. Test case: Close the window, then open `data/addressbook.json`.<br>
+      Expected: The file is unchanged, and the phone is still `"abc"`.
+
+   1. Test case: Launch the app again, enter `list`, then close the window and open `data/addressbook.json`.<br>
+      Expected: The file now holds no students, because the successful command replaced it. Restore your backup.
