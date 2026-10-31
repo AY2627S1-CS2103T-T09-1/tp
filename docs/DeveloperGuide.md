@@ -163,7 +163,7 @@ This section describes some noteworthy details on how certain features are imple
 
 ### Viewing student details
 
-The `view INDEX` command passes the selected student from `Logic` to the detail panel without storing UI state in the `Model`.
+The `view INDEX` command passes the selected student from `Logic` to the student detail view without storing UI state in the `Model`.
 
 <img src="images/ViewStudentDetailSequenceDiagram.png" width="1000" />
 
@@ -173,11 +173,11 @@ The `view INDEX` command passes the selected student from `Logic` to the detail 
 The diagram omits the routine `Storage#saveAddressBook` call that `LogicManager` makes after command execution. The `view` command does not change the data being saved.
 
 1. `AddressBookParser` delegates the index argument to `ViewCommandParser`, which creates a `ViewCommand`.
-1. `ViewCommand#execute` reads the current filtered student list from the `Model`. It validates the displayed index and obtains the student at that position. An out-of-range index throws a `CommandException`, so `MainWindow` does not replace the current detail panel.
+1. `ViewCommand#execute` reads the current filtered student list from the `Model`. It validates the displayed index and obtains the student at that position. An out-of-range index throws a `CommandException`, so `MainWindow` does not replace the current student detail view.
 1. For a valid index, `ViewCommand` returns a `CommandResult` containing `DisplayMode.SHOW_STUDENT`, the selected `Person`, and the displayed index. The command does not modify the `Model`.
 1. `MainWindow#updateMainContent` handles `SHOW_STUDENT` by creating a `StudentDetailPanel` with the selected student, index, and current filtered list. It replaces the content of the detail placeholder with the new panel and asks `PersonListPanel` to highlight and scroll to the same student.
 
-The `StudentDetailPanel` places the student's details and notes in one vertical scroll pane. It listens to the filtered list and refreshes the record at the displayed index when that list changes. This allows edits to update an open detail panel while keeping the command's displayed index consistent with the list.
+The `StudentDetailPanel` places the student's details and notes in one vertical scroll pane. It listens to the filtered list and refreshes the record at the displayed index when that list changes. This allows edits to update an open student detail view while keeping the command's displayed index consistent with the list.
 
 ### Student duplicate handling
 
@@ -200,7 +200,7 @@ The model enforces the strict key through `UniquePersonList` for adds, replaceme
   * Cons: A repeated command can silently create indistinguishable records. Tutors can select or edit the wrong student, and the app offers no protection against accidental duplicate records.
 
 * **Alternative 3 (chosen): Allow same-name records only when school or level differs; reject a repeated normalized name, school, and level.**
-  * Pros: Supports real students who share a name while blocking the most likely accidental repeat. An amber prompt handles uncertain same-name matches, and the hard model rule prevents an exact key duplicate through add, edit, or data loading. The three fields are required for every student and together distinguish a student's current school-level record better than name alone.
+  * Pros: Supports real students who share a name while blocking the most likely accidental repeat. A confirmation prompt handles uncertain same-name matches, and the hard model rule prevents an exact key duplicate through add, edit, or data loading. The three fields are required for every student and together distinguish a student's current school-level record better than name alone.
   * Cons: Two different students with the same name at the same school and level cannot both be entered under identical details, because TuteeBook would display them as indistinguishable records and the tutor could select or change the wrong one. The red add/edit error recommends assigning one a distinguishing saved name, such as `Chloe Tan 2`. A student moving to another school or level can be represented by an updated record, but the app does not retain two concurrent records with the same key. Name-only matching can also prompt for unrelated students.
 
 The required subject and band are deliberately excluded from the key. A student can take several subjects and bands, and that list changes as lessons and courses change; using it would allow the same student to be added again merely by changing a subject or band. Subject-band details describe the student's studies, not who the student is. The phone is also excluded because it is optional, can change, and may be shared or unavailable.
@@ -255,7 +255,7 @@ Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `
 1. `ParserUtil#parseSubjects` checks that the subject-name and band lists have the same number of values and that there are no more than eight pairs. It creates each `Subject` from the name and band at the same position, then calls `Person#validateSubjects` to reject repeated names.
 1. `Band#fromString` converts the supplied value to the matching enum, ignoring case and surrounding spaces. `Subject` validates its name and requires a non-null band. These checks also apply when a subject is constructed outside the command parsers.
 1. `JsonAdaptedSubject` stores a subject as a JSON object with `name` and `band` fields. During loading, it validates both fields and converts the band back to the enum. `Person` then validates the full subject list, so missing, invalid, or repeated subject data is rejected.
-1. The detail panel and command result display each subject with its band, such as `Mathematics (G1)`. `filter sub/Mathematics band/G1` matches a student only when that student has Mathematics at G1; omitting `band/` matches the subject at any band.
+1. The student detail view and the result display show each subject with its band, such as `Mathematics (G1)`. `filter sub/Mathematics band/G1` matches a student only when that student has Mathematics at G1; omitting `band/` matches the subject at any band.
 
 #### Design considerations
 
@@ -293,7 +293,7 @@ The app uses the second option because it resolves the reported real-name cases 
 
 ### Student addresses
 
-`Address` is an optional value object. It accepts any nonblank value up to 200 characters and collapses repeated ordinary spaces. The add parser accepts optional `a/ADDRESS`; the edit parser replaces an address, and a blank `a/` removes it. `JsonAdaptedPerson` saves supplied addresses and accepts older JSON records without an address. The student list card shows an address when one is present; the detail panel and command result show `Not provided` when it is absent. Addresses do not contribute to duplicate detection.
+`Address` is an optional value object. It accepts any nonblank value up to 200 characters and collapses repeated ordinary spaces. The add parser accepts optional `a/ADDRESS`; the edit parser replaces an address, and a blank `a/` removes it. `JsonAdaptedPerson` saves supplied addresses and accepts older JSON records without an address. The student list card shows an address when one is present; the student detail view and the result display show `Not provided` when it is absent. Addresses do not contribute to duplicate detection.
 
 ### Student emails
 
@@ -483,7 +483,7 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 
 * **Alternative 3 (current choice):** Keep the filter, plus the edited student.
   * Pros: Every student keeps their index number, and an open student record stays on the same student.
-  * Cons: A student who no longer matches the search stays in the list until the next `filter` or `list`. The result box and the User Guide both say so, so the tutor is not left wondering why they are there.
+  * Cons: A student who no longer matches the search stays in the list until the next `filter` or `list`. The result display and the User Guide both say so, so the tutor is not left wondering why they are there.
 
 ### Filtering students
 
@@ -757,7 +757,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 * 2f. Another student has the same normalized name, but a different school or level.
 
-    * 2f1. TuteeBook3 shows an amber prompt with the existing student's school and level.
+    * 2f1. TuteeBook3 shows a confirmation prompt with the existing student's school and level.
 
     * 2f2. Tutor confirms the addition by entering `CONFIRM`.
 
@@ -817,7 +817,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 * 3d. The edited name matches another student, but the school or level is different.
 
-    * 3d1. TuteeBook3 shows an amber prompt with the matching student's school and level.
+    * 3d1. TuteeBook3 shows a confirmation prompt with the matching student's school and level.
 
     * 3d2. Tutor confirms the edit by entering `CONFIRM`.
 
@@ -1191,11 +1191,12 @@ Term | Meaning
 -----|--------
 **AB3** | AddressBook-Level3, the sample project that TuteeBook3 is built on.
 **CLI** | Command-line interface. A way of using an app by typing commands instead of clicking.
+**Data file** | The file `data/addressbook.json`, where TuteeBook3 saves all students and notes as JSON after every change.
 **DBMS** | Database management system. Software, such as MySQL, that stores data in a database. TuteeBook3 does not use one.
 **GUI** | Graphical user interface. The windows, lists, and boxes that you see and click.
 **JAR** | Java Archive. The single file that contains the whole app, which you run with Java.
 **JSON** | JavaScript Object Notation. The text format that TuteeBook3 uses to save data in a file that can be read and edited by hand.
-**Mainstream OS** | Windows, Linux, Unix, macOS.
+**Mainstream OS** | Windows, Linux, and macOS.
 
 #### Tutoring terms
 
@@ -1216,9 +1217,9 @@ Term | Meaning
 **Confirmation prompt** | An amber message that asks you to confirm a command before it runs. `delete`, `deletenote`, and `clear` show one before they delete anything, and `add` and `edit` show one when another student already has the same name. Type `CONFIRM` in uppercase to go ahead. Any other input, including `confirm`, cancels the command and runs as a normal command.
 **Exact matching** | The way the `lvl/`, `sub/`, `band/`, `p/`, `gp/`, and `t/` filters of `filter` compare values. The whole value must match, ignoring case and extra spaces. For example, `lvl/S3` matches only students in S3, and `sub/math` does not match `Mathematics`.
 **Filter** | A prefix and value given to the `filter` command, such as `n/Tan`, that narrows down the student list.
-**Force flag** | The `-f` option of `delete`, `deletenote`, and `clear`, such as `delete -f 1`. It skips the confirmation prompt, so the command runs immediately. `add` and `edit` have no force flag.
 **Index** | The number shown next to a student in the list currently on screen. Commands such as `view`, `edit`, and `delete` use it to pick a student. It is not permanent: it can change when the list changes, such as after `add`, `delete`, `filter`, or `list`.
 **NID** | The number shown before a note in the student detail view. Notes are numbered 1, 2, 3 in the order they were added. After a note is deleted, the notes after it move up one number, so an NID is not permanent.
+**Normalized** | Compared after removing spaces at the start and end, treating repeated spaces as one, and ignoring capitalization. For example, `John  Doe` and `john doe` have the same normalized name.
 **Partial matching** | The way the `n/`, `sch/`, `e/`, `a/`, `gn/`, and `note/` filters of `filter` compare values. The value only needs to contain what you typed, even part of a word, ignoring case. For example, `sch/vic` matches `Victoria School`.
 **Prefix** | A short marker ending in `/`, such as `n/` or `sch/`, that labels the value after it in a command.
 **Warning** | An amber message that flags something that might be a mistake, without stopping the command. For example, TuteeBook3 saves a phone number that doesn't look like a Singapore number, but shows a warning so that you can check it.
@@ -1227,10 +1228,8 @@ Term | Meaning
 
 Term | Meaning
 -----|--------
-**Command box** | The text field at the top of the window where you type commands.
-**Detail view** | The panel on the right of the window that shows everything about one student, including all their notes. It is also called the "detail panel" or "student detail view". `view` shows a student there, and `list` and `filter` clear it.
-**Result display** | The area below the command box that tells you whether your last command worked, and why not if it failed. It is also called the "feedback box" or "result box".
-**Student card** | One student's entry in the student list.
+**Result display** | The area below the command box that tells you whether your last command worked, and why not if it failed.
+**Student detail view** | The panel on the right of the window that shows everything about one student, including all their notes. `view` shows a student there, and `list` and `filter` clear it.
 **Student list** | The panel on the left of the window that lists students with their main details. It shows all students, or the results of your last `filter`.
 
 #### Code
@@ -1412,7 +1411,7 @@ Prerequisites: Start with the sample data. Enter `filter n/Marcus` so that `SAMP
 1. Deleting a note
 
    1. Test case: `deletenote 1 nid/1`<br>
-      Expected: No note is deleted yet. An amber prompt names note 1 of Marcus Lim and asks you to type `CONFIRM`.
+      Expected: No note is deleted yet. A confirmation prompt names note 1 of Marcus Lim and asks you to type `CONFIRM`.
 
    1. Test case: `CONFIRM`, right after the previous test case<br>
       Expected: Note 1 is deleted. `WA2 Math: 42/50` moves up to become note 1.
@@ -1471,7 +1470,7 @@ RepoSense does not count lines kept from AB3, so the team wrote about as much fu
 * 5 commands with their parsers: `view`, `filter`, `addnote`, `editnote`, and `deletenote`.
 * 6 field classes (`School`, `Level`, `Subject`, `Band`, `Guardian`, and `Note`) and 3 JSON adapters.
 * 12 search predicate classes for `filter`.
-* A student detail panel beside the list.
+* A student detail view beside the list.
 
 ### Achievements
 
