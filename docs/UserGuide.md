@@ -722,10 +722,11 @@ A student's tags are stored in a `tags` array, for example `"tags" : [ "exams", 
 Phone numbers in the data file, for both students and guardians, follow the same rules as `PHONE`. They are cleaned up the same way when the app loads the file, so `+65 9123-4567` is loaded as `91234567`. The cleaned number is written back to the file the next time TuteeBook3 saves.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
-If any part of the data file is invalid, such as one wrong value or a missing comma, TuteeBook3 cannot load any of it and starts with no students. The next command that runs successfully, even `list` or `exit`, replaces the file with the app's current data, so every student in the old file is lost for good. If the app starts with no students after you edit the file, close the window without running any command, then fix the file or restore your backup.<br>
-TuteeBook3 treats a field name it does not recognize, such as `"phnoe"`, as a missing field.<br>
+If any part of the data file is invalid, such as one wrong value or a missing comma, TuteeBook3 cannot load any of it and starts with no students. The next command that runs successfully, even `list` or `exit`, replaces the file with the app's current data, so every student in the old file is lost for good.<br>
+If the app starts with no students after you edit the file, close the window without running any command, then fix the file or restore your backup.<br>
+TuteeBook3 treats a field name it does not recognize, such as `"phnoe"`, as missing, and the next save deletes it from the file.<br>
 A missing required field (`name`, `school`, `level`, `subjects`, or any field inside a `guardian` or subject-band object) makes the file invalid.<br>
-A missing optional field (`phone`, `email`, `address`, `guardian`, `tags`, or `notes`) leaves the student without that value, and the next save deletes the unrecognized field from the file.<br>
+A missing optional field (`phone`, `email`, `address`, `guardian`, `tags`, or `notes`) only leaves the student without that value.<br>
 Back up the file before you edit it, and edit it only if you are confident you can update it correctly.
 </div>
 
