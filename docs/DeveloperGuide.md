@@ -209,11 +209,11 @@ Every student record must include a name, school, and level. Many tutors teach s
 
 ### Student names and schools
 
-`Name` and `School` both use ASCII letters and digits, so neither accepts Unicode letters or numbers. A name starts with an ASCII letter or digit and can contain only ASCII letters, digits, and spaces; guardian names use the same rule. A school name must be 1 to 100 characters, contain at least one ASCII letter, and can also contain spaces, periods, apostrophes (`'` or `’`), ampersands, parentheses, commas, and hyphens. Names and schools therefore share an ASCII letter/number rule while retaining different punctuation rules for their fields. The parsers trim and collapse ordinary spaces before constructing these values. Direct model construction and JSON loading use the same validators.
+`Name` and `School` both use English letters and digits, so neither accepts other Unicode letters or numbers. A name starts with an English letter or digit and can contain only English letters, digits, and spaces; guardian names use the same rule. A school name must be 1 to 100 characters, contain at least one English letter, and can also contain spaces, periods, apostrophes (`'` or `’`), ampersands, parentheses, commas, and hyphens. Names and schools therefore share a letter and digit rule while retaining different punctuation rules for their fields. The parsers trim and collapse ordinary spaces before constructing these values. Direct model construction and JSON loading use the same validators.
 
-The ASCII letter/number rule also applies to existing data files. A file containing a name or school with non-ASCII letters or numbers fails validation when loaded, with the relevant field constraint. Users must edit those records in the previous version before upgrading. Previously supported school punctuation remains valid.
+The letter and digit rule also applies to existing data files. A file containing a name or school with any other letters or numbers fails validation when loaded, with the relevant field constraint. Users must edit those records in the previous version before upgrading. Previously supported school punctuation remains valid.
 
-`Note` text uses the same ASCII-only approach, so an accented letter is rejected in a note just as it is in a name or school. A note can contain 1 to 500 printable ASCII characters (`\x20` to `\x7E`): letters, digits, spaces, and every keyboard symbol, because notes record scores and reminders such as `WA2 Math: 36/50`. It also accepts the curly apostrophe `’`, as `School` does, so `Didn’t finish` is not rejected in a note when `St. Joseph’s Institution` is accepted as a school. For any other character, `Note#getConstraintMessage` names the first one, and returns an emoji whole rather than half of its UTF-16 pair. `ParserUtil#parseNote` (used by `addnote` and `editnote`) and `JsonAdaptedNote` both use this message. `filter note/` search text is not restricted, like `n/` and `sch/` search text. A data file containing a note with any other character fails validation when loaded, so users must edit those notes in the previous version before upgrading.
+`Note` text uses the same English-letter approach, so an accented letter is rejected in a note just as it is in a name or school. A note can contain 1 to 500 English letters, digits, spaces, and keyboard symbols (together, the printable ASCII range `\x20` to `\x7E`), because notes record scores and reminders such as `WA2 Math: 36/50`. It also accepts the curly apostrophe `’`, as `School` does, so `Didn’t finish` is not rejected in a note when `St. Joseph’s Institution` is accepted as a school. For any other character, `Note#getConstraintMessage` names the first one, and returns an emoji whole rather than half of its UTF-16 pair. `ParserUtil#parseNote` (used by `addnote` and `editnote`) and `JsonAdaptedNote` both use this message. `filter note/` search text is not restricted, like `n/` and `sch/` search text. A data file containing a note with any other character fails validation when loaded, so users must edit those notes in the previous version before upgrading.
 
 `Address` accepts the same characters as `Note`, because addresses also need keyboard symbols such as `#`, `/`, and `,`, as in `Blk 123 Bedok North Ave 2, #04-111`. It declares its own copy of the allowed-character regex, as every field class owns its rules. `Address#getConstraintMessage` names the first character that isn't allowed, like `Note#getConstraintMessage`, and is used by the `Address` constructor, `ParserUtil#parseAddress` (used by `add` and `edit`), and `JsonAdaptedPerson`. Blank and too-long addresses keep the existing `Address.MESSAGE_CONSTRAINTS`. `filter a/` search text is not restricted. A data file containing an address with any other character fails validation when loaded, so users must edit those addresses in the previous version before upgrading.
 
@@ -225,25 +225,25 @@ The ASCII letter/number rule also applies to existing data files. A file contain
 
 * **Alternative 1: Allow Unicode letters and digits in both fields.**
   * Pros: Preserves names and school names in their original writing systems and supports accented spellings.
-  * Cons: Does not match the User Guide's definition of alphanumeric as ASCII `A`–`Z` and `0`–`9`. Names and schools would also continue to accept different character sets if their punctuation rules differ.
+  * Cons: Does not match the User Guide's definitions of English letters (`A`–`Z`, `a`–`z`) and digits (`0`–`9`). Names and schools would also continue to accept different character sets if their punctuation rules differ.
 
-* **Alternative 2: Use the same strict ASCII letters, digits, and spaces rule for both fields.**
+* **Alternative 2: Use the same strict English letters, digits, and spaces rule for both fields.**
   * Pros: Gives both fields exactly the same simple validation rule.
   * Cons: Rejects common official school-name punctuation such as periods, apostrophes, ampersands, parentheses, commas, and hyphens. Existing school records using that punctuation would fail to load.
 
-* **Alternative 3 (chosen): Require ASCII letters and digits in both fields, while retaining school-specific punctuation.**
-  * Pros: Rejects non-ASCII letters consistently, preserves real school formats such as `Anglo-Chinese School (Independent)` and `St. Joseph's Institution`, and keeps parser, model, and storage validation aligned.
-  * Cons: Names and schools still have different punctuation rules, which must be documented. Accented and other non-ASCII letters in either field are rejected, so existing records with them must be changed before upgrading.
+* **Alternative 3 (chosen): Require English letters and digits in both fields, while retaining school-specific punctuation.**
+  * Pros: Rejects other letters consistently, preserves real school formats such as `Anglo-Chinese School (Independent)` and `St. Joseph's Institution`, and keeps parser, model, and storage validation aligned.
+  * Cons: Names and schools still have different punctuation rules, which must be documented. Accented letters and letters from other alphabets are rejected in either field, so existing records with them must be changed before upgrading.
 
-The third option was selected because the issue was inconsistent handling of letters, not a need to make names and school names use identical punctuation. ASCII-only letters and digits reject the accented school case consistently with student names, while keeping the punctuation needed for realistic school names. The User Guide lists the exact rules for each field and explains the existing-data limitation.
+The third option was selected because the issue was inconsistent handling of letters, not a need to make names and school names use identical punctuation. Allowing only English letters and digits rejects the accented school case consistently with student names, while keeping the punctuation needed for realistic school names. The User Guide lists the exact rules for each field and explains the existing-data limitation.
 
 ### School validation and error messages
 
-`ParserUtil#parseSchool` trims and collapses repeated spaces, then calls `School#getInvalidReason`, which returns a targeted message for the first problem found, in this order: blank input, more than 100 characters, the first unsupported character, then no ASCII letter. `School#isValidSchool` uses the same checks, so `add`, `edit`, model construction, and JSON loading apply the same rules. The model and JSON adapter report the general `School.MESSAGE_CONSTRAINTS` instead of a targeted message.
+`ParserUtil#parseSchool` trims and collapses repeated spaces, then calls `School#getInvalidReason`, which returns a targeted message for the first problem found, in this order: blank input, more than 100 characters, the first unsupported character, then no English letter. `School#isValidSchool` uses the same checks, so `add`, `edit`, model construction, and JSON loading apply the same rules. The model and JSON adapter report the general `School.MESSAGE_CONSTRAINTS` instead of a targeted message.
 
 ### Student subjects and bands
 
-Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `G2`, or `G3`. Subject names can contain 1 to 40 ASCII letters, spaces, hyphens, parentheses, commas, and ampersands, and must contain at least one letter. Digits, slashes, non-ASCII letters, and other symbols are rejected. Subject names use ASCII letters for the same reason as names and schools, as explained in [Student names and schools](#student-names-and-schools), so the same accented letter is handled the same way in every student field. A data file containing a subject name with non-ASCII letters fails validation when loaded, with the subject constraint. Users must edit those subjects in the previous version before upgrading. A student cannot have the same subject name more than once, even at different bands.
+Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `G2`, or `G3`. Subject names can contain 1 to 40 English letters, spaces, hyphens, parentheses, commas, and ampersands, and must contain at least one letter. Digits, slashes, other letters, and other symbols are rejected. Subject names use English letters for the same reason as names and schools, as explained in [Student names and schools](#student-names-and-schools), so the same accented letter is handled the same way in every student field. A data file containing a subject name with any other letters fails validation when loaded, with the subject constraint. Users must edit those subjects in the previous version before upgrading. A student cannot have the same subject name more than once, even at different bands.
 
 `Subject` is an immutable value object containing both the subject name and its required `Band`. The band is an enum, so a `Subject` cannot be constructed with an unsupported band or without one. For comparison, `Subject` trims surrounding spaces, collapses repeated ordinary spaces, and lowercases the name. The band is included in `Subject.equals`, but `Person#validateSubjects` checks names separately and rejects a repeated subject even if the bands differ.
 
@@ -299,7 +299,7 @@ The app uses the second option because it resolves the reported real-name cases 
 
 `Email` is an optional value object that follows the same pattern as `Address`. `Email#isValidEmail` accepts a value of the form `local-part@domain` that is at most 254 characters, the longest address that SMTP allows (RFC 5321):
 
-* The local part is groups of ASCII letters and digits joined by single `+`, `_`, `.`, or `-` characters, so it cannot start or end with a symbol or contain two symbols in a row.
+* The local part is groups of English letters and digits joined by single `+`, `_`, `.`, or `-` characters, so it cannot start or end with a symbol or contain two symbols in a row.
 * The domain is labels joined by single periods. Each label is groups of letters and digits joined by single hyphens, and the last label has at least 2 characters.
 * `ParserUtil#parseEmail` trims the value before validating it, so only a space inside the email is rejected.
 
@@ -313,7 +313,7 @@ A domain with no period, such as `john@gmail`, is valid (`localhost` is a real d
 
 A student has a set of `Tag`s, which may be empty but is never null. `Person#getTags()` returns an unmodifiable view that keeps the order the tags were typed in.
 
-* A tag is one word of ASCII letters and digits, where single hyphens may join parts of the word, such as `O-level`. `Tag` compares tags ignoring case, so `Exams` equals `exams`, and the display keeps the user's capitalization.
+* A tag is one word of English letters and digits, where single hyphens may join parts of the word, such as `O-level`. `Tag` compares tags ignoring case, so `Exams` equals `exams`, and the display keeps the user's capitalization.
 * `ParserUtil#parseTag` trims the value, then rejects a value containing a space with its own message, `Messages.MESSAGE_TAG_HAS_SPACE`, which tells the user to put `t/` before each tag (`filter` uses its own message, since it takes one tag). Other invalid values get `Tag.MESSAGE_CONSTRAINTS`. The space message lives in `Messages` because it names the `t/` prefix, which the model should not know about.
 * `ParserUtil#parseTags` rejects a tag given twice with `Tag "X" is given more than once.`, instead of letting the set drop it silently. It takes plain strings, so the prefix handling stays in the parsers.
 * In `add`, `t/` may repeat. In `edit`, the given tags replace all existing tags, and a single blank `t/` clears them. `EditCommandParser#parseTagsForEdit` handles both cases.
@@ -1192,9 +1192,12 @@ Term | Meaning
 **AB3** | AddressBook-Level3, the sample project that TuteeBook3 is built on.
 **CLI** | Command-line interface. A way of using an app by typing commands instead of clicking.
 **DBMS** | Database management system. Software, such as MySQL, that stores data in a database. TuteeBook3 does not use one.
+**Digit** | One of the ASCII digits `0` to `9`. Digits from other writing systems, such as the full-width `１`, are not digits.
+**English letter** | One of the ASCII letters `A` to `Z` or `a` to `z`. Accented letters, such as `é`, and letters from other alphabets are not English letters.
 **GUI** | Graphical user interface. The windows, lists, and boxes that you see and click.
 **JAR** | Java Archive. The single file that contains the whole app, which you run with Java.
 **JSON** | JavaScript Object Notation. The text format that TuteeBook3 uses to save data in a file that can be read and edited by hand.
+**Keyboard symbol** | One of the 32 printable ASCII symbols, which are the characters in `\x21` to `\x7E` other than English letters and digits: `` ! " # $ % & ' ( ) * + , - . / : ; < = > ? @ [ \ ] ^ _ ` { | } ~ ``. Other symbols, such as `£` and `°`, curly quotes, such as `“` and `’`, long dashes, such as `–`, and emoji are not keyboard symbols.
 **Mainstream OS** | Windows, Linux, Unix, macOS.
 
 #### Tutoring terms
