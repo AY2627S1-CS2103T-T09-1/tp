@@ -1404,7 +1404,7 @@ testers are expected to do more *exploratory* testing.
 
 ### Adding, editing, and deleting notes
 
-The rules for `INDEX`, `NID`, and `TEXT` are in the User Guide's [Managing notes](UserGuide.html#managing-notes) section.
+The rules for `INDEX`, `NID`, and `TEXT` are in the User Guide's [Managing notes](UserGuide.md#managing-notes) section.
 
 Prerequisites: Start with the sample data. Enter `filter n/Marcus` so that `SAMPLE Marcus Lim` is first in the list, then `view 1`. Marcus Lim has one note. Run the test cases in order.
 
