@@ -329,7 +329,7 @@ A `Person` holds its notes as an ordered `List<Note>`, and a `Note` holds only i
 
 The note commands work like `edit`. Each command takes the student at the given index in the filtered list and copies their notes. It changes the copy, builds an edited student with `Person#copyWithNotes`, and replaces the student with `Model#setPerson`. The sequence diagram below shows `deletenote -f 1 nid/2`.
 
-<img src="images/DeleteNoteSequenceDiagram.png" width="627" />
+<img src="images/DeleteNoteSequenceDiagram.png" width="691" />
 
 The diagram starts when `LogicManager` calls `execute`. It leaves out parsing, which works as in the [Logic component](#logic-component) diagram, the confirmation check (see [Command confirmations](#command-confirmations)), finding the student in the filtered list, and the save to storage.
 
