@@ -95,6 +95,9 @@ The sequence diagram below illustrates the interactions within the `Logic` compo
 
 ![Interactions Inside the Logic Component for the `delete -f 1` Command](images/DeleteSequenceDiagram.png)
 
+<div markdown="span" class="alert alert-info">:information_source: **Note:** The lifeline for `DeleteCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, it extends slightly past the center of the marker.
+</div>
+
 How the `Logic` component works:
 
 1. When `Logic` is called upon to execute a command, the command is passed to an `AddressBookParser` object, which in turn creates a parser that matches the command (e.g., `DeleteCommandParser`) and uses it to parse the command.
@@ -509,6 +512,8 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 1. `FilterCommand#execute` passes the predicate to `Model#updateFilteredPersonList` and returns `CommandResult.showList(...)` with the number of students found, or a no-match message.
 
 The partial-match predicates (`n/`, `sch/`, `e/`, `a/`, `gn/`, `note/`) use `StringUtil#containsIgnoreCaseAndSpaces`, which ignores case and runs of whitespace.
+
+Names, schools, emails, and guardian names can't contain `/`, so a search for one with `/` in it can never match. `FilterCommandParser` rejects such a search with `MESSAGE_SEARCH_CANNOT_MATCH`. Addresses can contain `/`, so `a/` is checked by `AddressPrefixChecker` instead. See [Hint for a missing space before a prefix](#hint-for-a-missing-space-before-a-prefix).
 
 Apart from `NameContainsKeywordsPredicate`, these predicates extend the abstract `ContainsTextPredicate`. It holds the text, rejects blank text, and defines `containsText`, `equals`, and `toString`, so each subclass only picks the field to search in `test`. `equals` compares classes, so `sch/bedok` and `a/bedok` are different filters.
 
