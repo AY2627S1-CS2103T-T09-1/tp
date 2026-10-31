@@ -167,6 +167,9 @@ The `view INDEX` command passes the selected student from `Logic` to the detail 
 
 <img src="images/ViewStudentDetailSequenceDiagram.png" width="1000" />
 
+<div markdown="span" class="alert alert-info">:information_source: **Note:** The lifeline for `ViewCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, it extends slightly past the center of the marker.
+</div>
+
 The diagram omits the routine `Storage#saveAddressBook` call that `LogicManager` makes after command execution. The `view` command does not change the data being saved.
 
 1. `AddressBookParser` delegates the index argument to `ViewCommandParser`, which creates a `ViewCommand`.
@@ -1127,29 +1130,7 @@ Use case ends.
 
 ---
 
-**Use case: UC11 - Undo the last command**
-
-**MSS**
-
-1.  Tutor enters a command that changes data, such as deleting a student
-2.  TuteeBook3 executes the command
-3.  Tutor realizes the command was a mistake and requests to undo
-4.  TuteeBook3 reverts the most recent data-changing command
-5.  TuteeBook3 shows the restored data
-
-    Use case ends.
-
-**Extensions**
-
-* 3a. There is no data-changing command to undo.
-
-    * 3a1. TuteeBook3 informs Tutor that there is nothing to undo.
-
-      Use case ends.
-
----
-
-**Use case: UC12 - Clear all students**
+**Use case: UC11 - Clear all students**
 
 **MSS**
 
@@ -1276,38 +1257,42 @@ testers are expected to do more *exploratory* testing.
 
 ### Launch and shutdown
 
-1. Initial launch
+1. First launch and relaunch
 
-   1. Download the JAR file and copy it into an empty folder.
+   1. Prerequisites: Download `TuteeBook3.jar` and copy it into an empty folder. Open a terminal in that folder.
 
-   1. Double-click the JAR file.<br>
-      Expected: The GUI opens with a set of sample contacts. The window size may not be optimal.
+   1. Run `java -jar TuteeBook3.jar`.<br>
+      Expected: The GUI opens with a set of sample students. The folder now contains `preferences.json`.
+
+   1. Enter `add n/Manual Test Student sch/Victoria School lvl/S2 sub/Mathematics band/G1`.<br>
+      Expected: Manual Test Student is added, and `data/addressbook.json` is created.
+
+   1. Close the window, and run `java -jar TuteeBook3.jar` again. Enter `filter n/Manual Test Student`.<br>
+      Expected: Manual Test Student appears in the student list, showing that the saved data was loaded after relaunch.
 
 1. Saving window preferences
 
-   1. Resize the window to an optimal size. Move the window to a different location. Close the window.
+   1. Prerequisites: Launch TuteeBook3 as described in the previous test.
 
-   1. Relaunch the app by double-clicking the JAR file.<br>
-       Expected: The most recent window size and location are retained.
+   1. Resize the window, move it to a different location, and close it.
 
-1. _{ more test cases …​ }_
+   1. Run `java -jar TuteeBook3.jar` again.<br>
+      Expected: The window opens at the most recently saved size and location.
 
-### Deleting a person
+### Deleting a student
 
-1. Deleting a person while all persons are being shown
+1. Deleting a student while all students are shown
 
-   1. Prerequisites: List all persons using the `list` command, with multiple persons in the list.
+   1. Prerequisites: Use the `list` command to show multiple students.
 
-   1. Test case: `delete 1`<br>
-      Expected: The first contact is deleted from the list. The status message shows the deleted contact's details.
+   1. Test case: Enter `delete 1`, then enter `CONFIRM`.<br>
+      Expected: The first student is deleted. The status message shows the deleted student's details.
+
+   1. Test case: `delete -f 1`<br>
+      Expected: The first student is deleted without a confirmation prompt. The status message shows the deleted student's details.
 
    1. Test case: `delete 0`<br>
-      Expected: No person is deleted. The status message shows error details.
-
-   1. Other incorrect delete commands to try: `delete`, `delete x`, `...` (where x is larger than the list size)<br>
-      Expected: Similar to previous.
-
-1. _{ more test cases …​ }_
+      Expected: No student is deleted. The status message shows an invalid index error.
 
 ### Adding and editing a guardian
 
@@ -1317,7 +1302,7 @@ testers are expected to do more *exploratory* testing.
       Expected: Tim Tan is added. Viewing his student details shows guardian Mary Tan with phone number `91234567`.
 
    1. Test case: `add n/Ken Lim sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Lim`<br>
-      Expected: No student is added. The status message shows `Guardian name (gn/) and guardian phone (gp/) must be given together.`
+      Expected: No student is added. The status message says that guardian name and guardian phone must be given together.
 
    1. Test case: `add n/Ken Lim sch/Victoria School lvl/S2 sub/Mathematics band/G1`<br>
       Expected: Ken Lim is added. Viewing his student details shows `Not provided` for both guardian fields.
@@ -1330,7 +1315,7 @@ testers are expected to do more *exploratory* testing.
       Expected: Only the guardian's phone changes. Viewing Tim Tan's student details shows guardian Mary Tan with phone number `98765432`.
 
    1. Test case: `edit 1 gn/Peter Lim` on Ken Lim<br>
-      Expected: Ken Lim is unchanged. The status message shows `This student has no guardian yet. Give both gn/ and gp/ to add one.`
+      Expected: Ken Lim is unchanged. The status message says to give both guardian fields when adding a guardian.
 
    1. Test case: `edit 1 gn/ gp/91234567` on Tim Tan<br>
       Expected: Tim Tan is unchanged. The status message says that guardian name and guardian phone cannot be empty.
@@ -1339,7 +1324,7 @@ testers are expected to do more *exploratory* testing.
       Expected: The guardian is removed, and viewing the student's details shows `Not provided` for both guardian name and guardian phone.
 
    1. Test case: `edit 1 gn/ gp/` on Ken Lim<br>
-      Expected: Ken Lim is unchanged. The status message shows `This student has no guardian to remove.`
+      Expected: Ken Lim is unchanged. The status message says that the student has no guardian to remove.
 
 ### Adding and editing tags
 
@@ -1349,16 +1334,16 @@ testers are expected to do more *exploratory* testing.
       Expected: Mei Lin is added. Her list card shows the tags `exams` and `Paid`, in that order.
 
    1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/Paid t/paid`<br>
-      Expected: No student is added. The status message shows `Tag "paid" is given more than once.`
+      Expected: No student is added. The status message reports the duplicate tag.
 
    1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/exam_prep`<br>
-      Expected: No student is added. The status message shows `Tags must be one word of 1-30 English letters or digits. Single hyphens may join parts of the word, such as O-level, but spaces and other symbols are not allowed. For longer details, use a note instead.`
+      Expected: No student is added. The status message explains that a tag can contain only letters, digits, and single hyphens.
 
    1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/O-level`<br>
       Expected: Ken Ong is added with the tag `O-level`.
 
    1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/exam prep`<br>
-      Expected: No student is added. The status message shows `Tag "exam prep" contains a space. Each tag is one word; to give more than one tag, put t/ before each, such as t/paid t/exams.`
+      Expected: No student is added. The status message explains that each tag is one word and needs its own `t/` prefix.
 
 1. Editing tags
 
@@ -1388,7 +1373,7 @@ testers are expected to do more *exploratory* testing.
       Expected: The school changes. The status message shows no warning about the phone number.
 
    1. Test case: `edit 1 p/12`<br>
-      Expected: Ravi Kumar is unchanged. The status message says `Phone 12 needs 3 to 15 digits, counting the country code, but has 2.`
+      Expected: Ravi Kumar is unchanged. The status message says that a phone number must have 3 to 15 digits.
 
 ### Editing a student in search results
 
@@ -1397,10 +1382,43 @@ testers are expected to do more *exploratory* testing.
    1. Prerequisites: Start with the sample data. Enter `filter n/an`, which lists `SAMPLE Chloe Tan`, `SAMPLE Aisha Rahman`, `SAMPLE Daniel Lee`, and `SAMPLE Ethan Kumar`, then `view 1`. Run the test cases in order.
 
    1. Test case: `edit 1 n/Chloe Lim`<br>
-      Expected: The student record stays open and shows the name Chloe Lim. The status message says `Chloe Lim at Bedok Green Secondary School (S2) no longer matches your last search, but stays in the list until you enter list or filter.`
+      Expected: The student record stays open and shows Chloe Lim. The status message says that she no longer matches the last search but remains in the list until the next `list` or `filter` command.
 
    1. Test case: `edit 2 lvl/S4`<br>
-      Expected: The student record still shows Chloe Lim, so she is still first in the list even though another student was edited. The status message says `SAMPLE Aisha Rahman` was edited, with no line about the search. Enter `list`, then `filter n/an`: the list shows Aisha Rahman (now `S4`), Daniel Lee, and Ethan Kumar, and Chloe Lim is no longer in the results.
+      Expected: The student record still shows Chloe Lim, so she is still first in the list even though another student was edited. The status message reports that Aisha Rahman was edited without a search warning. Enter `list`, then `filter n/an`: the list shows Aisha Rahman (now `S4`), Daniel Lee, and Ethan Kumar, and Chloe Lim is no longer in the results.
+
+### Adding, editing, and deleting notes
+
+The rules for `INDEX`, `NID`, and `TEXT` are in the User Guide's [Managing notes](UserGuide.md#managing-notes) section.
+
+Prerequisites: Start with the sample data. Enter `filter n/Marcus` so that `SAMPLE Marcus Lim` is first in the list, then `view 1`. Marcus Lim has one note. Run the test cases in order.
+
+1. Adding a note
+
+   1. Test case: `addnote 1 note/WA2 Math: 36/50`<br>
+      Expected: Marcus Lim's record shows `WA2 Math: 36/50` as note 2, after his existing note.
+
+   1. Test case: `addnote 0 note/Weak in algebra`<br>
+      Expected: No note is added. The status message says that the index must be a positive integer shown in the student list.
+
+1. Editing a note
+
+   1. Test case: `editnote 1 nid/2 note/WA2 Math: 42/50`<br>
+      Expected: Note 2 now reads `WA2 Math: 42/50`, and note 1 is unchanged. The status message shows the old and new text.
+
+   1. Test case: `editnote 1 nid/5 note/Weak in algebra`<br>
+      Expected: No note is changed. The status message says that NID 5 does not exist and that Marcus Lim has only 2 notes.
+
+1. Deleting a note
+
+   1. Test case: `deletenote 1 nid/1`<br>
+      Expected: No note is deleted yet. An amber prompt names note 1 of Marcus Lim and asks you to type `CONFIRM`.
+
+   1. Test case: `CONFIRM`, right after the previous test case<br>
+      Expected: Note 1 is deleted. `WA2 Math: 42/50` moves up to become note 1.
+
+   1. Test case: `deletenote -f 1 nid/1`<br>
+      Expected: Note 1 is deleted without a prompt. Marcus Lim's record shows `No notes recorded.`
 
 ### Saving data
 
@@ -1426,3 +1444,64 @@ testers are expected to do more *exploratory* testing.
 
    1. Test case: Launch the app again, enter `list`, then close the window and open `data/addressbook.json`.<br>
       Expected: The file now holds no students, because the successful command replaced it. Restore your backup.
+
+--------------------------------------------------------------------------------------------------------------------
+
+## **Appendix: Effort**
+
+TuteeBook3 keeps AB3's architecture, but replaces or extends most of its features to build a richer student record, two-step confirmations, and a multi-field search.
+
+### Difficulty compared with AB3
+
+AB3 manages one entity, `Person`, with four single-value fields and a set of tags, and every command works on the whole record in one step. A TuteeBook3 student record holds a school, a level, 1 to 8 subject and band pairs, an optional guardian, tags, and an indexed list of notes. Notes act as a second entity inside a student, with their own `addnote`, `editnote`, and `deletenote` commands. Each part needed its own parser rules, model class, and UI display, and subjects, the guardian, and notes each needed their own JSON adapter.
+
+### Challenges
+
+Each part below needed changes across the parser, model, storage, and UI, and the Implementation section explains the design behind it.
+
+* **Fixing flaws inherited from AB3.** Before adding features, the team audited AB3 and logged 37 problems. Several needed code fixes, such as an index overflow in `delete 2147483648` and a stack overflow on a very long email.
+* **Duplicate detection.** A normalized name, school, and level key had to hold in `add`, `edit`, confirmed commands, `UniquePersonList`, and JSON loading, while a name-only match asks for confirmation instead of failing. This blocks records the tutor cannot tell apart without blocking real students who share a name ([#194](https://github.com/AY2627S1-CS2103T-T09-1/tp/issues/194), [#209](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/209)).
+* **Two-step commands.** AB3's `Logic` runs each command and forgets it. TuteeBook3 adds a pending-command state, shared through `ConfirmationManager` and `ConfirmationCommand` by `clear`, `delete`, `deletenote`, and name-match warnings in `add` and `edit`. Any input other than `CONFIRM` must cancel the request and still run as a normal command ([#174](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/174), [#196](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/196)).
+* **Multi-field search.** `filter` replaces AB3's `find` with 11 filters, each its own predicate class combined by `StudentMatchesAllPredicate`. The parser mixes partial matching for free text with exact matching for fixed values, rejects text that only looks like a prefix, and gives a specific error for each malformed filter ([#198](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/198), [#253](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/253), [#217](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/217)).
+* **Warning instead of blocking.** To accept an overseas phone number while still catching typos, the team accepts 3 to 15 digits and warns when a number is not a Singapore number. This needed a warning path in `CommandResult`, an amber result style, and the same normalization when the data file loads ([#175](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/175)). A missing space before a prefix gets a hint, which `AddressPrefixChecker` extends to addresses, where `/` can be ordinary text ([#279](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/279)).
+* **Stable indexes after an edit.** AB3 shows the full list after an edit, so a follow-up `edit 2` can change a different student. `Model#keepPersonInFilteredList` keeps the current filter plus the edited student ([#193](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/193)).
+
+### Effort required
+
+Line counts follow the [RepoSense tP Dashboard](https://nus-cs2103-ay2627-s1.github.io/tp-dashboard/?search=AY2627S1-CS2103T-T09-1%2Ftp&sort=groupTitle&sortWithin=title&timeframe=commit&mergegroup=&groupSelect=groupByRepos&breakdown=true&checkedFileTypes=functional-code&since=2026-09-18), which counts the Java, FXML, and CSS files in `src/main` as functional code, including comments and blank lines.
+
+Measure | AB3 | TuteeBook3
+--------|-----|-----------
+Functional code in the product | 5,261 lines | 9,886 lines
+Functional code written by the team, as credited by RepoSense | Not applicable | 5,113 lines (4,545 non-blank)
+User commands | 8 | 12, plus `CONFIRM`
+
+<div markdown="span" class="alert alert-info">:information_source: **Note:** The line counts were taken on 30 October 2026, and may not exactly match the current code. RepoSense regenerates its report as the team adds code, so the figures on the dashboard may differ slightly from those in this table.
+</div>
+
+RepoSense does not count lines kept from AB3, so the team wrote about as much functional code as AB3 contains in total. Much of it is validation and error handling, such as about 300 lines each in `ParserUtil` and `EditCommand`. The team also added:
+
+* 5 commands with their parsers: `view`, `filter`, `addnote`, `editnote`, and `deletenote`.
+* 6 field classes (`School`, `Level`, `Subject`, `Band`, `Guardian`, and `Note`) and 3 JSON adapters.
+* 12 search predicate classes for `filter`.
+* A student detail panel beside the list.
+
+### Achievements
+
+* Each student's school, level, subjects with bands, guardian, tags, and notes are kept in one record, shown together with `view`, and grouped for lessons with `filter`.
+* The parsers, the model, and JSON loading share each field's rules, so a hand-edited data file is checked like typed input.
+* Destructive commands ask for `CONFIRM`, and `-f` runs them in one step for a tutor who is sure.
+* Unusual but valid input, such as an overseas phone number or an email with no dot in its domain, is saved with a warning instead of being rejected.
+* After an edit, every student in the filtered list keeps their index, even one who may no longer match the search, so a follow-up command by index still targets the student the tutor expects.
+
+### Reuse
+
+This project is based on the AddressBook-Level3 project created by the [SE-EDU initiative](https://se-education.org). TuteeBook3 keeps AB3's architecture and GUI framework, still stores data as JSON, and adds no runtime libraries. TestFX was added only for GUI tests.
+
+### Beyond implementation
+
+This section describes work outside implementation.
+
+* **Project management:** The team created over 190 issues and merged at least 150 pull requests. After v1.3, nearly every pull request was approved by a teammate before merging.
+* **Testing:** The team wrote over 9,000 lines of test code, which cover over 90% of the code.
+* **UML diagrams:** The team checked AB3's UML diagrams against the code and fixed the ones that did not match, such as a delete sequence diagram that passed an index to `Model#deletePerson`, which takes a `Person`. It also found that a newer PlantUML version mostly fixes the lifeline limitation AB3 noted, adopted it, and notes the smaller limitation that remains.
