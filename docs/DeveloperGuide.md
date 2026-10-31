@@ -1387,6 +1387,39 @@ testers are expected to do more *exploratory* testing.
    1. Test case: `edit 2 lvl/S4`<br>
       Expected: The student record still shows Chloe Lim, so she is still first in the list even though another student was edited. The status message reports that Aisha Rahman was edited without a search warning. Enter `list`, then `filter n/an`: the list shows Aisha Rahman (now `S4`), Daniel Lee, and Ethan Kumar, and Chloe Lim is no longer in the results.
 
+### Adding, editing, and deleting notes
+
+The rules for `INDEX`, `NID`, and `TEXT` are in the User Guide's [Managing notes](UserGuide.md#managing-notes) section.
+
+Prerequisites: Start with the sample data. Enter `filter n/Marcus` so that `SAMPLE Marcus Lim` is first in the list, then `view 1`. Marcus Lim has one note. Run the test cases in order.
+
+1. Adding a note
+
+   1. Test case: `addnote 1 note/WA2 Math: 36/50`<br>
+      Expected: Marcus Lim's record shows `WA2 Math: 36/50` as note 2, after his existing note.
+
+   1. Test case: `addnote 0 note/Weak in algebra`<br>
+      Expected: No note is added. The status message says that the index must be a positive integer shown in the student list.
+
+1. Editing a note
+
+   1. Test case: `editnote 1 nid/2 note/WA2 Math: 42/50`<br>
+      Expected: Note 2 now reads `WA2 Math: 42/50`, and note 1 is unchanged. The status message shows the old and new text.
+
+   1. Test case: `editnote 1 nid/5 note/Weak in algebra`<br>
+      Expected: No note is changed. The status message says that NID 5 does not exist and that Marcus Lim has only 2 notes.
+
+1. Deleting a note
+
+   1. Test case: `deletenote 1 nid/1`<br>
+      Expected: No note is deleted yet. An amber prompt names note 1 of Marcus Lim and asks you to type `CONFIRM`.
+
+   1. Test case: `CONFIRM`, right after the previous test case<br>
+      Expected: Note 1 is deleted. `WA2 Math: 42/50` moves up to become note 1.
+
+   1. Test case: `deletenote -f 1 nid/1`<br>
+      Expected: Note 1 is deleted without a prompt. Marcus Lim's record shows `No notes recorded.`
+
 ### Saving data
 
 1. Starting with an invalid field in otherwise valid JSON
