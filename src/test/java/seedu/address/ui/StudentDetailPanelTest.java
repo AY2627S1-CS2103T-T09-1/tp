@@ -74,8 +74,8 @@ public class StudentDetailPanelTest {
             assertLabelText("#level", ALICE.getLevel().toString());
             assertLabelText("#subjects", "Mathematics (G1)");
             assertLabelText("#phone", ALICE.getPhone().orElseThrow().value);
-            assertLabelText("#guardianName", "Not provided");
-            assertLabelText("#guardianPhone", "Not provided");
+            assertLabelText("#guardianName", "—");
+            assertLabelText("#guardianPhone", "—");
             assertGridRow("#name", 0);
             assertGridRow("#phone", 1);
             assertGridRow("#school", 2);
@@ -170,7 +170,7 @@ public class StudentDetailPanelTest {
             container.applyCss();
 
             assertLabelText("#emptyNotes", "No notes recorded.");
-            assertLabelText("#tags", "Not provided");
+            assertLabelText("#tags", "—");
         });
     }
 
