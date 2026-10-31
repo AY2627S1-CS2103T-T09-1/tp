@@ -1285,6 +1285,20 @@ testers are expected to do more *exploratory* testing.
    1. Relaunch the app by double-clicking the JAR file.<br>
        Expected: The most recent window size and location are retained.
 
+1. Minimum window size
+
+   1. Resize the window to 600 pixels wide and 400 pixels tall.
+
+   1. Confirm that the menu bar, command box, result display, student list, student record, and status bar remain visible and usable.<br>
+      Expected: The window stays at 600 × 400 pixels. The student list and student record can be scrolled without clipping the other interface areas.
+
+1. Restoring a window on a smaller screen
+
+   1. Close TuteeBook3 on a large screen after maximizing or moving it away from the top-left corner. Reopen it on a smaller screen.
+
+   1. Check every edge of the window.<br>
+      Expected: The restored window is fully inside the smaller screen's usable area, excluding its taskbar, dock, or menu bar.
+
 1. _{ more test cases …​ }_
 
 ### Deleting a person
