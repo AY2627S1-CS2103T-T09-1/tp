@@ -43,10 +43,13 @@ public class Messages {
     public static final String MESSAGE_PREFIX_WITHOUT_SPACE_HINT =
             "If \"/\" was meant to start a new parameter, "
             + "check that each prefix is one this command accepts and has a space before it.";
+    public static final String MESSAGE_ADDRESS_SLASH_HINT =
+            " If \"/\" is part of the address, put a space before the \"/\" instead.";
     public static final String MESSAGE_PREFIX_CASE_SENSITIVE =
-            "The \"%1$s\" prefix is case-sensitive. Use \"%2$s\" with a space before it.";
+            "The \"%1$s\" prefix is case-sensitive. Use \"%2$s\" with a space before it."
+            + MESSAGE_ADDRESS_SLASH_HINT;
     public static final String MESSAGE_MISSING_SPACE_BEFORE_PREFIX =
-            "Put a space before the \"%1$s\" prefix.";
+            "Put a space before the \"%1$s\" prefix." + MESSAGE_ADDRESS_SLASH_HINT;
     public static final String MESSAGE_NOT_SINGAPORE_PHONE = "Warning: %1$s doesn't look like a Singapore number "
             + "(8 digits starting with 6, 8, or 9, with or without +65). Use edit to fix it if it's wrong.";
     public static final String MESSAGE_NOT_SINGAPORE_PHONES = "Warning: %1$s don't look like Singapore numbers "

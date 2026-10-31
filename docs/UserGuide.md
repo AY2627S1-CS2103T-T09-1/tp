@@ -85,8 +85,7 @@ For example, `a/Blk 1/2` remains a valid address. But `a/Blk 1/2P/91234567` prod
 error asking for a space before `p/`. Write `a/Blk 1/2 p/91234567` to give both values correctly. The same check
 applies to `add`, `edit`, and `filter a/...`.
 
-This check uses the text after the candidate prefix to avoid rejecting ordinary address slashes. An address whose
-text after a slash happens to be a valid value for a known field prefix may still be treated as a joined prefix.
+This check uses the text after the candidate prefix to avoid rejecting ordinary address slashes. It can still mistake a slash for a joined prefix when the word before the slash ends in a prefix's letters and the text after it is a valid value for that field. For example, `a/Ang Mo Kio Town/Central` is read as `Tow` followed by `n/Central`, and `a/Jurong East/West` as `Eas` followed by `t/West`. To keep such a slash in the address, put a space before it, as in `a/Ang Mo Kio Town /Central`. The error message suggests this too.
 
 ### Confirming a command
 
