@@ -1414,7 +1414,7 @@ Each part below needed changes across the parser, model, storage, and UI, and th
 * **Two-step commands.** AB3's `Logic` runs each command and forgets it. TuteeBook3 adds a pending-command state, shared through `ConfirmationManager` and `ConfirmationCommand` by `clear`, `delete`, `deletenote`, and name-match warnings in `add` and `edit`. Any input other than `CONFIRM` must cancel the request and still run as a normal command ([#174](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/174), [#196](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/196)).
 * **Multi-field search.** `filter` replaces AB3's `find` with 11 filters, each its own predicate class combined by `StudentMatchesAllPredicate`. The parser mixes partial matching for free text with exact matching for fixed values, rejects text that only looks like a prefix, and gives a specific error for each malformed filter ([#198](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/198), [#253](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/253), [#217](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/217)).
 * **Warning instead of blocking.** To accept an overseas phone number while still catching typos, the team accepts 3 to 15 digits and warns when a number is not a Singapore number. This needed a warning path in `CommandResult`, an amber result style, and the same normalization when the data file loads ([#175](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/175)). A missing space before a prefix gets a hint, which `AddressPrefixChecker` extends to addresses, where `/` can be ordinary text ([#279](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/279)).
-* **Stable indexes after an edit.** AB3 shows the full list after an edit, so a follow-up `edit 2` can change a different student. `Model#keepPersonInFilteredList` keeps the current filter plus the edited student, and the open student record refreshes from that list ([#193](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/193)).
+* **Stable indexes after an edit.** AB3 shows the full list after an edit, so a follow-up `edit 2` can change a different student. `Model#keepPersonInFilteredList` keeps the current filter plus the edited student ([#193](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/193)).
 
 ### Effort required
 
@@ -1442,7 +1442,7 @@ RepoSense does not count lines kept from AB3, so the team wrote about as much fu
 * The parsers, the model, and JSON loading share each field's rules, so a hand-edited data file is checked like typed input.
 * Destructive commands ask for `CONFIRM`, and `-f` runs them in one step for a tutor who is sure.
 * Unusual but valid input, such as an overseas phone number or an email with no dot in its domain, is saved with a warning instead of being rejected.
-* After an edit, the list and any open student record stay as they were, so a follow-up command by index still targets the same student.
+* After an edit, every student in the filtered list keeps their index, even one who may no longer match the search, so a follow-up command by index still targets the student the tutor expects.
 
 ### Reuse
 
