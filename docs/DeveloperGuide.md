@@ -335,7 +335,7 @@ The diagram starts when `LogicManager` calls `execute`. It leaves out parsing, w
 
 1. `DeleteNoteCommand` gets the filtered list from the `Model` and takes the student `p` at index 1. `NoteCommandUtil#verifyNoteExists` rejects an NID larger than the number of notes `p` has.
 1. It builds `ep`, a copy of `p` without note 2. The notes after note 2 move up one place, so their NIDs go down by one.
-1. `NoteCommandUtil#setPersonKeepingIndex` calls `Model#keepPersonInFilteredList`, then `Model#setPerson`, so `ep` stays at index 1 even if they no longer match the last `filter`. See [Keeping the list after an edit](#keeping-the-list-after-an-edit).
+1. `NoteCommandUtil#setPersonKeepingIndex` calls `Model#keepPersonInFilteredList`, then `Model#setPerson`, so `ep` stays at index 1 even if they no longer match the last `filter`. It returns `feedback`: the success message, plus a line saying the student no longer matches the search if that is the case. See [Keeping the list after an edit](#keeping-the-list-after-an-edit).
 1. `DeleteNoteCommand` returns `CommandResult.showStudent`, which opens `ep`'s record in the detail panel.
 
 `addnote` and `editnote` follow the same steps, with these differences:
