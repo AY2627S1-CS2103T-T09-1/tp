@@ -51,7 +51,8 @@ public class CommandBox extends UiPart<Region> {
     @FXML
     private void handleCommandEntered() {
         String commandText = commandTextField.getText();
-        if (commandText.equals("")) {
+        if (commandText.isBlank()) {
+            commandTextField.setText("");
             return;
         }
 
