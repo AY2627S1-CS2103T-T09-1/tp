@@ -1293,35 +1293,25 @@ testers are expected to do more *exploratory* testing.
 
    1. Prerequisites: Launch TuteeBook3 as described in the previous test.
 
-   1. Resize the window, move it to a different location, and close it.<br>
-      Expected: `preferences.json` remains in the folder containing `TuteeBook3.jar`.
+   1. Resize the window, move it to a different location, and close it.
 
    1. Run `java -jar TuteeBook3.jar` again.<br>
       Expected: The window opens at the most recently saved size and location.
 
-### Deleting a person
+### Deleting a student
 
-1. Deleting a person while all persons are being shown
+1. Deleting a student while all students are shown
 
-   1. Prerequisites: List all persons using the `list` command, with multiple persons in the list.
+   1. Prerequisites: Use the `list` command to show multiple students.
 
-   1. Test case: `delete 1`<br>
-      Expected: The first contact is deleted from the list. The status message shows the deleted contact's details.
+   1. Test case: Enter `delete 1`, then enter `CONFIRM`.<br>
+      Expected: The first student is deleted. The status message shows the deleted student's details.
+
+   1. Test case: `delete -f 1`<br>
+      Expected: The first student is deleted without a confirmation prompt. The status message shows the deleted student's details.
 
    1. Test case: `delete 0`<br>
-      Expected: No person is deleted. The status message shows error details.
-
-   1. Test case: `delete`<br>
-      Expected: No person is deleted. The status message shows `Invalid format. Usage: delete [-f] INDEX`.
-
-   1. Test case: `delete x`<br>
-      Expected: No person is deleted. The status message shows `Invalid format. Usage: delete [-f] INDEX`.
-
-   1. Test case: `delete 99999999999`<br>
-      Expected: No person is deleted. The status message shows `The student index provided is invalid.`
-
-   1. Test case: `delete 999`, when the list contains fewer than 999 persons<br>
-      Expected: No person is deleted. The status message shows `The student index provided is invalid.`
+      Expected: No student is deleted. The status message shows an invalid index error.
 
 ### Adding and editing a guardian
 
@@ -1331,7 +1321,7 @@ testers are expected to do more *exploratory* testing.
       Expected: Tim Tan is added. Viewing his student details shows guardian Mary Tan with phone number `91234567`.
 
    1. Test case: `add n/Ken Lim sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Lim`<br>
-      Expected: No student is added. The status message shows `Guardian name (gn/) and guardian phone (gp/) must be given together.`
+      Expected: No student is added. The status message says that guardian name and guardian phone must be given together.
 
    1. Test case: `add n/Ken Lim sch/Victoria School lvl/S2 sub/Mathematics band/G1`<br>
       Expected: Ken Lim is added. Viewing his student details shows `Not provided` for both guardian fields.
@@ -1344,7 +1334,7 @@ testers are expected to do more *exploratory* testing.
       Expected: Only the guardian's phone changes. Viewing Tim Tan's student details shows guardian Mary Tan with phone number `98765432`.
 
    1. Test case: `edit 1 gn/Peter Lim` on Ken Lim<br>
-      Expected: Ken Lim is unchanged. The status message shows `This student has no guardian yet. Give both gn/ and gp/ to add one.`
+      Expected: Ken Lim is unchanged. The status message says to give both guardian fields when adding a guardian.
 
    1. Test case: `edit 1 gn/ gp/91234567` on Tim Tan<br>
       Expected: Tim Tan is unchanged. The status message says that guardian name and guardian phone cannot be empty.
@@ -1353,7 +1343,7 @@ testers are expected to do more *exploratory* testing.
       Expected: The guardian is removed, and viewing the student's details shows `Not provided` for both guardian name and guardian phone.
 
    1. Test case: `edit 1 gn/ gp/` on Ken Lim<br>
-      Expected: Ken Lim is unchanged. The status message shows `This student has no guardian to remove.`
+      Expected: Ken Lim is unchanged. The status message says that the student has no guardian to remove.
 
 ### Adding and editing tags
 
@@ -1363,16 +1353,16 @@ testers are expected to do more *exploratory* testing.
       Expected: Mei Lin is added. Her list card shows the tags `exams` and `Paid`, in that order.
 
    1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/Paid t/paid`<br>
-      Expected: No student is added. The status message shows `Tag "paid" is given more than once.`
+      Expected: No student is added. The status message reports the duplicate tag.
 
    1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/exam_prep`<br>
-      Expected: No student is added. The status message shows `Tags must be one word of 1-30 English letters or digits. Single hyphens may join parts of the word, such as O-level, but spaces and other symbols are not allowed. For longer details, use a note instead.`
+      Expected: No student is added. The status message explains that a tag can contain only letters, digits, and single hyphens.
 
    1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/O-level`<br>
       Expected: Ken Ong is added with the tag `O-level`.
 
    1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/exam prep`<br>
-      Expected: No student is added. The status message shows `Tag "exam prep" contains a space. Each tag is one word; to give more than one tag, put t/ before each, such as t/paid t/exams.`
+      Expected: No student is added. The status message explains that each tag is one word and needs its own `t/` prefix.
 
 1. Editing tags
 
@@ -1402,7 +1392,7 @@ testers are expected to do more *exploratory* testing.
       Expected: The school changes. The status message shows no warning about the phone number.
 
    1. Test case: `edit 1 p/12`<br>
-      Expected: Ravi Kumar is unchanged. The status message says `Phone 12 needs 3 to 15 digits, counting the country code, but has 2.`
+      Expected: Ravi Kumar is unchanged. The status message says that a phone number must have 3 to 15 digits.
 
 ### Editing a student in search results
 
@@ -1411,66 +1401,19 @@ testers are expected to do more *exploratory* testing.
    1. Prerequisites: Start with the sample data. Enter `filter n/an`, which lists `SAMPLE Chloe Tan`, `SAMPLE Aisha Rahman`, `SAMPLE Daniel Lee`, and `SAMPLE Ethan Kumar`, then `view 1`. Run the test cases in order.
 
    1. Test case: `edit 1 n/Chloe Lim`<br>
-      Expected: The student record stays open and shows the name Chloe Lim. The status message says `Chloe Lim at Bedok Green Secondary School (S2) no longer matches your last search, but stays in the list until you enter list or filter.`
+      Expected: The student record stays open and shows Chloe Lim. The status message says that she no longer matches the last search but remains in the list until the next `list` or `filter` command.
 
    1. Test case: `edit 2 lvl/S4`<br>
-      Expected: The student record still shows Chloe Lim, so she is still first in the list even though another student was edited. The status message says `SAMPLE Aisha Rahman` was edited, with no line about the search. Enter `list`, then `filter n/an`: the list shows Aisha Rahman (now `S4`), Daniel Lee, and Ethan Kumar, and Chloe Lim is no longer in the results.
+      Expected: The student record still shows Chloe Lim, so she is still first in the list even though another student was edited. The status message reports that Aisha Rahman was edited without a search warning. Enter `list`, then `filter n/an`: the list shows Aisha Rahman (now `S4`), Daniel Lee, and Ethan Kumar, and Chloe Lim is no longer in the results.
 
 ### Saving data
 
-The following tests intentionally change the data file. Use test data only, close TuteeBook3 before editing a file unless a step says otherwise, and keep a backup outside the `data` folder.
-
-1. Starting with a missing data file
-
-   1. Prerequisites: Complete the first launch test so that `data/addressbook.json` contains Manual Test Student. Close TuteeBook3, and move `data/addressbook.json` to a backup outside the `data` folder.
-
-   1. Run `java -jar TuteeBook3.jar` without entering any command.<br>
-      Expected: TuteeBook3 starts with the sample students because `data/addressbook.json` is missing. Merely launching the app does not create a replacement `data/addressbook.json`.
-
-   1. Close the window using its close button.<br>
-      Expected: The backup remains unchanged, and `data/addressbook.json` is still missing.
-
-1. Starting with malformed JSON
-
-   1. Prerequisites: Restore a valid `data/addressbook.json`, copy it to a backup outside the `data` folder, and close TuteeBook3. Replace the entire contents of `data/addressbook.json` with `{`.
-
-   1. Run `java -jar TuteeBook3.jar` without entering any command.<br>
-      Expected: TuteeBook3 opens with an empty student list because the JSON cannot be read.
-
-   1. Close the window using its close button, and open `data/addressbook.json` in a text editor.<br>
-      Expected: The file still contains `{`; TuteeBook3 did not overwrite the malformed file during launch or shutdown.
-
 1. Starting with an invalid field in otherwise valid JSON
 
-   1. Prerequisites: Restore a valid `data/addressbook.json`, copy it to a backup outside the `data` folder, and close TuteeBook3. In the first student object, change the value of `"level"` to `"S6"` without changing any other JSON.
+   1. Prerequisites: Close TuteeBook3, copy `data/addressbook.json` to a backup outside the `data` folder, and change the first student's `"level"` to `"S6"`.
 
    1. Run `java -jar TuteeBook3.jar` without entering any command.<br>
       Expected: TuteeBook3 opens with an empty student list because `S6` is not a valid secondary school level.
 
-   1. Close the window using its close button, and inspect `data/addressbook.json`.<br>
-      Expected: The first student's level is still `S6`; TuteeBook3 did not overwrite the invalid file during launch or shutdown.
-
-1. Handling a save-permission failure
-
-   1. Prerequisites: Restore a valid `data/addressbook.json` that does not contain Permission Test Student, and launch TuteeBook3.
-
-   1. While TuteeBook3 is open, remove write permission from `data/addressbook.json`. On macOS or Linux, run `chmod u-w data/addressbook.json`. On Windows, open the file's **Properties**, use the **Security** tab to deny your account **Write** permission, and apply the change.
-
-   1. Enter `add n/Permission Test Student sch/Victoria School lvl/S2 sub/Mathematics band/G1`.<br>
-      Expected: Permission Test Student appears in the current student list, but the result display reports that TuteeBook3 could not save `data/addressbook.json` because it lacks permission to write to the file or folder. The file on disk remains unchanged.
-
-   1. Restore write permission. On macOS or Linux, run `chmod u+w data/addressbook.json`. On Windows, remove the **Deny** setting added in the previous step. Close the window using its close button, relaunch TuteeBook3, and enter `filter n/Permission Test Student`.<br>
-      Expected: No student matches because the failed change was not saved.
-
-1. Recovering without overwriting the original data
-
-   1. Prerequisites: Restore a valid `data/addressbook.json`, copy it to a backup outside the `data` folder, and close TuteeBook3. Replace the entire contents of `data/addressbook.json` with `{`.
-
-   1. Run `java -jar TuteeBook3.jar`.<br>
-      Expected: TuteeBook3 opens with an empty student list.
-
-   1. Do not enter any command, including `exit`. Close the window using its close button.<br>
-      Expected: The malformed `data/addressbook.json` still contains `{`.
-
-   1. Rename the malformed file to `data/addressbook.invalid.json`, copy the backup to `data/addressbook.json`, and run `java -jar TuteeBook3.jar` again.<br>
-      Expected: The students from the backup appear. The malformed original remains available as `data/addressbook.invalid.json` for inspection.
+   1. Close TuteeBook3, replace `data/addressbook.json` with the backup, and relaunch it.<br>
+      Expected: The students from the backup appear.
