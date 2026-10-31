@@ -1276,38 +1276,42 @@ testers are expected to do more *exploratory* testing.
 
 ### Launch and shutdown
 
-1. Initial launch
+1. First launch and relaunch
 
-   1. Download the JAR file and copy it into an empty folder.
+   1. Prerequisites: Download `TuteeBook3.jar` and copy it into an empty folder. Open a terminal in that folder.
 
-   1. Double-click the JAR file.<br>
-      Expected: The GUI opens with a set of sample contacts. The window size may not be optimal.
+   1. Run `java -jar TuteeBook3.jar`.<br>
+      Expected: The GUI opens with a set of sample students. The folder now contains `preferences.json`.
+
+   1. Enter `add n/Manual Test Student sch/Victoria School lvl/S2 sub/Mathematics band/G1`.<br>
+      Expected: Manual Test Student is added, and `data/addressbook.json` is created.
+
+   1. Close the window, and run `java -jar TuteeBook3.jar` again. Enter `filter n/Manual Test Student`.<br>
+      Expected: Manual Test Student appears in the student list, showing that the saved data was loaded after relaunch.
 
 1. Saving window preferences
 
-   1. Resize the window to an optimal size. Move the window to a different location. Close the window.
+   1. Prerequisites: Launch TuteeBook3 as described in the previous test.
 
-   1. Relaunch the app by double-clicking the JAR file.<br>
-       Expected: The most recent window size and location are retained.
+   1. Resize the window, move it to a different location, and close it.
 
-1. _{ more test cases …​ }_
+   1. Run `java -jar TuteeBook3.jar` again.<br>
+      Expected: The window opens at the most recently saved size and location.
 
-### Deleting a person
+### Deleting a student
 
-1. Deleting a person while all persons are being shown
+1. Deleting a student while all students are shown
 
-   1. Prerequisites: List all persons using the `list` command, with multiple persons in the list.
+   1. Prerequisites: Use the `list` command to show multiple students.
 
-   1. Test case: `delete 1`<br>
-      Expected: The first contact is deleted from the list. The status message shows the deleted contact's details.
+   1. Test case: Enter `delete 1`, then enter `CONFIRM`.<br>
+      Expected: The first student is deleted. The status message shows the deleted student's details.
+
+   1. Test case: `delete -f 1`<br>
+      Expected: The first student is deleted without a confirmation prompt. The status message shows the deleted student's details.
 
    1. Test case: `delete 0`<br>
-      Expected: No person is deleted. The status message shows error details.
-
-   1. Other incorrect delete commands to try: `delete`, `delete x`, `...` (where x is larger than the list size)<br>
-      Expected: Similar to previous.
-
-1. _{ more test cases …​ }_
+      Expected: No student is deleted. The status message shows an invalid index error.
 
 ### Adding and editing a guardian
 
@@ -1317,7 +1321,7 @@ testers are expected to do more *exploratory* testing.
       Expected: Tim Tan is added. Viewing his student details shows guardian Mary Tan with phone number `91234567`.
 
    1. Test case: `add n/Ken Lim sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Lim`<br>
-      Expected: No student is added. The status message shows `Guardian name (gn/) and guardian phone (gp/) must be given together.`
+      Expected: No student is added. The status message says that guardian name and guardian phone must be given together.
 
    1. Test case: `add n/Ken Lim sch/Victoria School lvl/S2 sub/Mathematics band/G1`<br>
       Expected: Ken Lim is added. Viewing his student details shows `Not provided` for both guardian fields.
@@ -1330,7 +1334,7 @@ testers are expected to do more *exploratory* testing.
       Expected: Only the guardian's phone changes. Viewing Tim Tan's student details shows guardian Mary Tan with phone number `98765432`.
 
    1. Test case: `edit 1 gn/Peter Lim` on Ken Lim<br>
-      Expected: Ken Lim is unchanged. The status message shows `This student has no guardian yet. Give both gn/ and gp/ to add one.`
+      Expected: Ken Lim is unchanged. The status message says to give both guardian fields when adding a guardian.
 
    1. Test case: `edit 1 gn/ gp/91234567` on Tim Tan<br>
       Expected: Tim Tan is unchanged. The status message says that guardian name and guardian phone cannot be empty.
@@ -1339,7 +1343,7 @@ testers are expected to do more *exploratory* testing.
       Expected: The guardian is removed, and viewing the student's details shows `Not provided` for both guardian name and guardian phone.
 
    1. Test case: `edit 1 gn/ gp/` on Ken Lim<br>
-      Expected: Ken Lim is unchanged. The status message shows `This student has no guardian to remove.`
+      Expected: Ken Lim is unchanged. The status message says that the student has no guardian to remove.
 
 ### Adding and editing tags
 
@@ -1349,16 +1353,16 @@ testers are expected to do more *exploratory* testing.
       Expected: Mei Lin is added. Her list card shows the tags `exams` and `Paid`, in that order.
 
    1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/Paid t/paid`<br>
-      Expected: No student is added. The status message shows `Tag "paid" is given more than once.`
+      Expected: No student is added. The status message reports the duplicate tag.
 
    1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/exam_prep`<br>
-      Expected: No student is added. The status message shows `Tags must be one word of 1-30 English letters or digits. Single hyphens may join parts of the word, such as O-level, but spaces and other symbols are not allowed. For longer details, use a note instead.`
+      Expected: No student is added. The status message explains that a tag can contain only letters, digits, and single hyphens.
 
    1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/O-level`<br>
       Expected: Ken Ong is added with the tag `O-level`.
 
    1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/exam prep`<br>
-      Expected: No student is added. The status message shows `Tag "exam prep" contains a space. Each tag is one word; to give more than one tag, put t/ before each, such as t/paid t/exams.`
+      Expected: No student is added. The status message explains that each tag is one word and needs its own `t/` prefix.
 
 1. Editing tags
 
@@ -1388,7 +1392,7 @@ testers are expected to do more *exploratory* testing.
       Expected: The school changes. The status message shows no warning about the phone number.
 
    1. Test case: `edit 1 p/12`<br>
-      Expected: Ravi Kumar is unchanged. The status message says `Phone 12 needs 3 to 15 digits, counting the country code, but has 2.`
+      Expected: Ravi Kumar is unchanged. The status message says that a phone number must have 3 to 15 digits.
 
 ### Editing a student in search results
 
@@ -1397,15 +1401,19 @@ testers are expected to do more *exploratory* testing.
    1. Prerequisites: Start with the sample data. Enter `filter n/an`, which lists `SAMPLE Chloe Tan`, `SAMPLE Aisha Rahman`, `SAMPLE Daniel Lee`, and `SAMPLE Ethan Kumar`, then `view 1`. Run the test cases in order.
 
    1. Test case: `edit 1 n/Chloe Lim`<br>
-      Expected: The student record stays open and shows the name Chloe Lim. The status message says `Chloe Lim at Bedok Green Secondary School (S2) no longer matches your last search, but stays in the list until you enter list or filter.`
+      Expected: The student record stays open and shows Chloe Lim. The status message says that she no longer matches the last search but remains in the list until the next `list` or `filter` command.
 
    1. Test case: `edit 2 lvl/S4`<br>
-      Expected: The student record still shows Chloe Lim, so she is still first in the list even though another student was edited. The status message says `SAMPLE Aisha Rahman` was edited, with no line about the search. Enter `list`, then `filter n/an`: the list shows Aisha Rahman (now `S4`), Daniel Lee, and Ethan Kumar, and Chloe Lim is no longer in the results.
+      Expected: The student record still shows Chloe Lim, so she is still first in the list even though another student was edited. The status message reports that Aisha Rahman was edited without a search warning. Enter `list`, then `filter n/an`: the list shows Aisha Rahman (now `S4`), Daniel Lee, and Ethan Kumar, and Chloe Lim is no longer in the results.
 
 ### Saving data
 
-1. Dealing with missing/corrupted data files
+1. Starting with an invalid field in otherwise valid JSON
 
-   1. _{Explain how to simulate missing or corrupted data files and state the expected behavior.}_
+   1. Prerequisites: Close TuteeBook3, copy `data/addressbook.json` to a backup outside the `data` folder, and change the first student's `"level"` to `"S6"`.
 
-1. _{ more test cases …​ }_
+   1. Run `java -jar TuteeBook3.jar` without entering any command.<br>
+      Expected: TuteeBook3 opens with an empty student list because `S6` is not a valid secondary school level.
+
+   1. Close TuteeBook3, replace `data/addressbook.json` with the backup, and relaunch it.<br>
+      Expected: The students from the backup appear.
