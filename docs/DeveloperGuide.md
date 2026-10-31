@@ -510,7 +510,7 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 
 The partial-match predicates (`n/`, `sch/`, `e/`, `a/`, `gn/`, `note/`) use `StringUtil#containsIgnoreCaseAndSpaces`, which ignores case and runs of whitespace.
 
-Before creating these predicates, `FilterCommandParser` rejects a `/` in `n/`, `sch/`, `e/`, and `gn/` with `MESSAGE_SEARCH_CANNOT_MATCH`, since those values cannot contain `/`, so the search could never match. It checks `a/` with `AddressPrefixChecker` instead, since addresses can contain `/`. See [Hint for a missing space before a prefix](#hint-for-a-missing-space-before-a-prefix).
+Names, schools, emails, and guardian names can't contain `/`, so a search for one with `/` in it can never match. `FilterCommandParser` rejects such a search with `MESSAGE_SEARCH_CANNOT_MATCH`. Addresses can contain `/`, so `a/` is checked by `AddressPrefixChecker` instead. See [Hint for a missing space before a prefix](#hint-for-a-missing-space-before-a-prefix).
 
 Apart from `NameContainsKeywordsPredicate`, these predicates extend the abstract `ContainsTextPredicate`. It holds the text, rejects blank text, and defines `containsText`, `equals`, and `toString`, so each subclass only picks the field to search in `test`. `equals` compares classes, so `sch/bedok` and `a/bedok` are different filters.
 
