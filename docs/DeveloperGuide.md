@@ -1301,6 +1301,21 @@ testers are expected to do more *exploratory* testing.
    1. Run `java -jar TuteeBook3.jar` again.<br>
       Expected: The window opens at the most recently saved size and location.
 
+### Viewing a student
+
+1. Viewing a student from the full or filtered list
+
+   1. Prerequisites: Start with the sample data.
+
+   1. Test case: Enter `list`, then enter `view 2`.<br>
+      Expected: The full record of `SAMPLE Marcus Lim`, the second student in the full list, is shown.
+
+   1. Test case: Enter `filter lvl/S2`, then enter `view 2`.<br>
+      Expected: The filtered list shows `SAMPLE Chloe Tan` followed by `SAMPLE Ethan Kumar`, and the full record of `SAMPLE Ethan Kumar` is shown.
+
+   1. Test case: `view 99`<br>
+      Expected: The displayed student record does not change. The status message reports that the index is invalid.
+
 ### Deleting a student
 
 1. Deleting a student while all students are shown
