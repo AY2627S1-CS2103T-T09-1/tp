@@ -1174,7 +1174,7 @@ Use case ends.
 5. Should save successful changes in local, human-editable JSON files, without a DBMS, and retain them after restarting.
 6. Should reject invalid commands without crashing or changing records, and explain errors and corrections.
 7. Should work well at resolutions of 1920 × 1080 or higher at 100% and 125% scaling, and remain usable at 1280 × 720 or higher at 150% scaling.
-8. Should keep student and guardian data local and omit personal details from diagnostic logs.
+8. Should keep student and guardian data, including the log file, only in the folder that contains the JAR, and never send it over the network.
 9. Should report save failures and preserve previously saved records.
 10. A first-time tutor should be able to add, find, and view a student and add a note within ten minutes using the supplied help.
 11. Should serve one tutor, without shared-computer accounts or shared data files between users.
