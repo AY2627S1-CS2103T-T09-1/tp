@@ -199,9 +199,13 @@ public class MainWindowStudentDetailTest {
     @Test
     public void startup_manyStudents_scrollsToLastStudent(FxRobot robot) {
         robot.interact(() -> {
+            mainWindow.getRoot().setWidth(600);
+            mainWindow.getRoot().setHeight(400);
             logicStub.addStudents(1000);
             int lastIndex = getPersonListView().getItems().size() - 1;
             getPersonListView().scrollTo(lastIndex);
+            mainWindow.getRoot().getScene().getRoot().applyCss();
+            mainWindow.getRoot().getScene().getRoot().layout();
             getPersonListView().applyCss();
             getPersonListView().layout();
 

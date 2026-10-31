@@ -29,8 +29,11 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import seedu.address.model.person.Band;
 import seedu.address.model.person.Person;
+import seedu.address.model.person.Subject;
 import seedu.address.testutil.PersonBuilder;
 
 /**
@@ -38,6 +41,13 @@ import seedu.address.testutil.PersonBuilder;
  */
 @ExtendWith(ApplicationExtension.class)
 public class StudentDetailPanelTest {
+
+    private static final double[][] SUPPORTED_DETAIL_SIZES = {
+        {950, 1080},
+        {758, 864},
+        {416, 480},
+        {290, 400}
+    };
 
     private StackPane container;
     private ObservableList<Person> persons;
@@ -227,6 +237,51 @@ public class StudentDetailPanelTest {
     }
 
     @Test
+    public void constructor_fieldNamesAtMinimumWidth_wrapCompleteText(FxRobot robot) {
+        robot.interact(() -> {
+            container.getScene().getWindow().setWidth(300);
+            container.getScene().getWindow().setHeight(400);
+            StudentDetailPanel panel = new StudentDetailPanel(ALICE, INDEX_FIRST_PERSON, persons);
+            container.getChildren().setAll(panel.getRoot());
+            container.applyCss();
+            container.layout();
+
+            assertFieldNameWraps("Subjects and bands");
+            assertFieldNameWraps("Guardian phone");
+        });
+    }
+
+    @Test
+    public void constructor_supportedSizesAndRecordVariants_renderCompleteText(FxRobot robot) {
+        Person missingOptionalValues = new PersonBuilder(ALICE)
+                .withoutPhone()
+                .withoutAddress()
+                .withoutEmail()
+                .withoutGuardian()
+                .build();
+        Person maximumContentPerson = createMaximumContentPerson();
+        List<Person> recordVariants = List.of(ALICE, missingOptionalValues, maximumContentPerson);
+
+        robot.interact(() -> {
+            for (double[] size : SUPPORTED_DETAIL_SIZES) {
+                container.getScene().getWindow().setWidth(size[0]);
+                container.getScene().getWindow().setHeight(size[1]);
+                for (Person person : recordVariants) {
+                    StudentDetailPanel panel = new StudentDetailPanel(person, INDEX_FIRST_PERSON, persons);
+                    container.getChildren().setAll(panel.getRoot());
+                    container.applyCss();
+                    container.layout();
+
+                    assertRecordTextIsComplete();
+                    if (person == maximumContentPerson) {
+                        assertLastNoteCanBeScrolledIntoView();
+                    }
+                }
+            }
+        });
+    }
+
+    @Test
     public void sourceList_studentReplaced_refreshesDisplayedRecord(FxRobot robot) {
         robot.interact(() -> {
             StudentDetailPanel panel = new StudentDetailPanel(ALICE, INDEX_FIRST_PERSON, persons);
@@ -248,8 +303,78 @@ public class StudentDetailPanelTest {
         assertTrue(((Label) container.lookup(query)).isWrapText());
     }
 
+    private void assertFieldNameWraps(String text) {
+        Label fieldName = container.lookupAll(".student-detail-field-name").stream()
+                .map(Label.class::cast)
+                .filter(label -> label.getText().equals(text))
+                .findFirst()
+                .orElseThrow();
+        assertTrue(fieldName.isWrapText());
+        assertTrue(fieldName.getHeight() > fieldName.getFont().getSize() * 1.5);
+        assertContentFitsViewport(fieldName);
+    }
+
+    private void assertRecordTextIsComplete() {
+        VBox content = (VBox) container.lookup("#studentDetailContent");
+        ScrollPane detailScrollPane = (ScrollPane) container.lookup("#detailScrollPane");
+        Bounds viewportBounds = container.lookup(".student-detail-scroll-pane > .viewport")
+                .localToScene(container.lookup(".student-detail-scroll-pane > .viewport").getBoundsInLocal());
+
+        assertEquals(ScrollBarPolicy.NEVER, detailScrollPane.getHbarPolicy());
+        for (Node node : content.lookupAll(".label")) {
+            Label label = (Label) node;
+            Text renderedText = (Text) label.lookup(".text");
+            Bounds labelBounds = label.localToScene(label.getBoundsInLocal());
+            assertEquals(label.getText(), renderedText.getText());
+            assertTrue(labelBounds.getMinX() >= viewportBounds.getMinX());
+            assertTrue(labelBounds.getMaxX() <= viewportBounds.getMaxX());
+        }
+    }
+
+    private void assertLastNoteCanBeScrolledIntoView() {
+        ScrollPane detailScrollPane = (ScrollPane) container.lookup("#detailScrollPane");
+        Region viewport = (Region) container.lookup(".student-detail-scroll-pane > .viewport");
+        List<Label> noteCards = container.lookupAll(".student-detail-note-card").stream()
+                .map(Label.class::cast)
+                .toList();
+        Label lastNote = noteCards.get(noteCards.size() - 1);
+
+        detailScrollPane.setVvalue(detailScrollPane.getVmax());
+        detailScrollPane.layout();
+        Bounds viewportBounds = viewport.localToScene(viewport.getBoundsInLocal());
+        Bounds lastNoteBounds = lastNote.localToScene(lastNote.getBoundsInLocal());
+        assertTrue(lastNoteBounds.intersects(viewportBounds));
+    }
+
+    private Person createMaximumContentPerson() {
+        String longEmail = "a".repeat(64) + "@" + "b".repeat(63) + "."
+                + "c".repeat(63) + "." + "d".repeat(60);
+        return new PersonBuilder(ALICE)
+                .withName("Alexandra ".repeat(20).trim())
+                .withPhone("+123456789012345")
+                .withSchool("S".repeat(100))
+                .withAddress("A".repeat(200))
+                .withEmail(longEmail)
+                .withSubjects(
+                        new Subject("Advanced Mathematics and Calculus A", Band.G1),
+                        new Subject("Advanced Mathematics and Calculus B", Band.G2),
+                        new Subject("Advanced Mathematics and Calculus C", Band.G3),
+                        new Subject("Advanced Mathematics and Calculus D", Band.G1),
+                        new Subject("Advanced Mathematics and Calculus E", Band.G2),
+                        new Subject("Advanced Mathematics and Calculus F", Band.G3),
+                        new Subject("Advanced Mathematics and Calculus G", Band.G1),
+                        new Subject("Advanced Mathematics and Calculus H", Band.G2))
+                .withGuardian("Guardian ".repeat(20).trim(), "+123456789012345")
+                .withTags("A".repeat(30), "B".repeat(30), "C".repeat(30), "D".repeat(30))
+                .withNotes("N".repeat(500), "O".repeat(500), "P".repeat(500))
+                .build();
+    }
+
     private void assertContentFitsViewport(String query) {
-        Node content = container.lookup(query);
+        assertContentFitsViewport(container.lookup(query));
+    }
+
+    private void assertContentFitsViewport(Node content) {
         ScrollPane detailScrollPane = (ScrollPane) container.lookup("#detailScrollPane");
         assertTrue(content.getBoundsInParent().getWidth() <= detailScrollPane.getViewportBounds().getWidth());
     }

@@ -35,6 +35,12 @@ public class MainWindowTest {
 
     private static final double MINIMUM_WINDOW_WIDTH = 600;
     private static final double MINIMUM_WINDOW_HEIGHT = 400;
+    private static final double[][] SUPPORTED_WINDOW_SIZES = {
+        {1920, 1080},
+        {1536, 864},
+        {853, 480},
+        {MINIMUM_WINDOW_WIDTH, MINIMUM_WINDOW_HEIGHT}
+    };
 
     private MainWindow mainWindow;
 
@@ -73,21 +79,23 @@ public class MainWindowTest {
     }
 
     @Test
-    public void windowMinimumSize_supportedLayout_keepsAllRegionsVisible(FxRobot robot) {
+    public void windowSupportedSizes_layoutKeepsAllRegionsVisible(FxRobot robot) {
         robot.interact(() -> {
-            mainWindow.getRoot().setWidth(MINIMUM_WINDOW_WIDTH);
-            mainWindow.getRoot().setHeight(MINIMUM_WINDOW_HEIGHT);
-            mainWindow.getRoot().getScene().getRoot().applyCss();
-            mainWindow.getRoot().getScene().getRoot().layout();
-
             assertEquals(MINIMUM_WINDOW_WIDTH, mainWindow.getRoot().getMinWidth());
             assertEquals(MINIMUM_WINDOW_HEIGHT, mainWindow.getRoot().getMinHeight());
-            assertVisible("#menuBar");
-            assertVisible("#commandBoxPlaceholder");
-            assertVisible("#resultDisplayPlaceholder");
-            assertVisible("#personListPanelPlaceholder");
-            assertVisible("#studentDetailPanelPlaceholder");
-            assertVisible("#statusbarPlaceholder");
+            for (double[] size : SUPPORTED_WINDOW_SIZES) {
+                mainWindow.getRoot().setWidth(size[0]);
+                mainWindow.getRoot().setHeight(size[1]);
+                mainWindow.getRoot().getScene().getRoot().applyCss();
+                mainWindow.getRoot().getScene().getRoot().layout();
+
+                assertVisible("#menuBar");
+                assertVisible("#commandBoxPlaceholder");
+                assertVisible("#resultDisplayPlaceholder");
+                assertVisible("#personListPanelPlaceholder");
+                assertVisible("#studentDetailPanelPlaceholder");
+                assertVisible("#statusbarPlaceholder");
+            }
         });
     }
 
