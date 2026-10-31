@@ -135,7 +135,7 @@ Each `Person` is one student. The classes that make up a `Person` are shown belo
 The diagram does not show these rules, which the classes check when an object is created:
 
 * A student has 1 to 8 subjects, and no two of them have the same name, ignoring case. `Person#validateSubjects` checks both, so the same subject cannot be taken at two bands.
-* A note's NID is its position in the student's list of notes. A new note goes at the end, and deleting a note renumbers the notes after it.
+* A note's NID is its position in the student's list of notes. A new note goes at the end, and deleting a note renumbers the notes after it. See [Student notes](#student-notes).
 * A `Guardian` always has both a name and a phone. A student has a complete guardian or none. See [Guardian details](#guardian-details).
 * `Guardian` reuses `Name` and `Phone`, so a guardian's name and phone follow the same rules as a student's.
 
@@ -319,6 +319,57 @@ A student has a set of `Tag`s, which may be empty but is never null. `Person#get
 
 Tags are one word, so that they are quick to type and to filter by. Hyphens are allowed because realistic tags such as `O-level` and `N-level` contain them. This means `exam-prep` and `examprep` are different tags, which the User Guide states. Spaces are not allowed, because they would add a third spelling, `exam prep`, and because rejecting a space catches a common mistake: `t/paid urgent`, where the user forgot the second `t/`, is rejected with a message that explains how to give two tags, instead of being saved as one tag.
 
+### Student notes
+
+The tutor keeps notes on each student with `addnote`, `editnote`, and `deletenote`.
+
+#### Implementation
+
+A `Person` holds its notes as an ordered `List<Note>`, and a `Note` holds only its text. A note's NID is its position in that list, so no ID is stored (see [Model component](#model-component)).
+
+The note commands work like `edit`. Each command takes the student at the given index in the filtered list and copies their notes. It changes the copy, builds an edited student with `Person#copyWithNotes`, and replaces the student with `Model#setPerson`. The sequence diagram below shows `deletenote -f 1 nid/2`.
+
+<img src="images/DeleteNoteSequenceDiagram.png" width="691" />
+
+The diagram starts when `LogicManager` calls `execute`. It leaves out parsing, which works as in the [Logic component](#logic-component) diagram, the confirmation check (see [Command confirmations](#command-confirmations)), finding the student in the filtered list, and the save to storage.
+
+1. `DeleteNoteCommand` gets the filtered list from the `Model` and takes the student `p` at index 1. `NoteCommandUtil#verifyNoteExists` rejects an NID larger than the number of notes `p` has.
+1. It builds `ep`, a copy of `p` without note 2. The notes after note 2 move up one place, so their NIDs go down by one.
+1. `NoteCommandUtil#setPersonKeepingIndex` calls `Model#keepPersonInFilteredList`, then `Model#setPerson`, so `ep` stays at index 1 even if they no longer match the last `filter`. It returns `feedback`: the success message, plus a line saying the student no longer matches the search if that is the case. See [Keeping the list after an edit](#keeping-the-list-after-an-edit).
+1. `DeleteNoteCommand` returns `CommandResult.showStudent`, which opens `ep`'s record in the detail panel.
+
+`addnote` and `editnote` follow the same steps, with these differences:
+
+* `addnote` adds the note at the end of the list and calls `Model#setPerson` directly. Adding a note cannot make a student stop matching a filter, so the list does not need to keep them.
+* `editnote` replaces the note at the NID. If the new text is the same as the old text, it shows a warning and leaves the model unchanged, as `edit` does when nothing changes.
+* Only `deletenote` asks for `CONFIRM`, which `-f` skips, as `delete` does. Unlike `delete`, it opens the student's record afterwards, because the student still exists.
+
+In the data file, `JsonAdaptedPerson` stores a student's notes as a list of strings, one `JsonAdaptedNote` each, in NID order. Jackson sets the list directly, so a file without `notes` loads with no notes. A `notes` value of `null`, or a `null` note in the list, is rejected.
+
+The rules for note text are in [Student names and schools](#student-names-and-schools). `filter note/` searches notes, as described in [Filtering students](#filtering-students).
+
+#### Design considerations
+
+**Aspect: Where to store notes**
+
+* **Alternative 1 (current choice):** A list of notes inside each `Person`.
+  * Pros: Deleting a student also deletes their notes, so a note can never belong to a missing student. The data file keeps each student's notes under that student, which is easy to edit by hand.
+  * Cons: Changing one note replaces the whole `Person` in the model.
+
+* **Alternative 2:** One list of all notes in `AddressBook`, where each note refers to its student.
+  * Pros: Changing a note does not replace the student.
+  * Cons: Each note must store a reference to its student, such as the student's name, school, and level. Editing or deleting a student must also update their notes, and a wrong edit to the data file can leave a note that refers to no student.
+
+**Aspect: How to identify a note**
+
+* **Alternative 1 (current choice):** By its position in the student's list of notes (NID).
+  * Pros: NIDs are small numbers with no gaps, and they match the numbers in the detail panel. The data file stores no extra field.
+  * Cons: Deleting a note renumbers the notes after it, so an NID the tutor remembers may now point to a different note. Each note command opens the student's record afterwards, so the tutor sees the new numbers.
+
+* **Alternative 2:** By a fixed ID stored with each note.
+  * Pros: A note keeps its ID when other notes are deleted.
+  * Cons: IDs leave gaps after deletions and grow over time, so they are longer to type. The data file needs an extra field that must stay unique when the file is edited by hand.
+
 ### Command confirmations
 
 `ClearCommand`, `DeleteCommand`, and `DeleteNoteCommand` implement `ConfirmationCommand`. Before running one of these commands, `LogicManager` asks it whether a prompt is needed. `ConfirmationManager` stores the command and returns a warning `CommandResult`, which the UI displays in amber. The prompt states that the action is pending, puts the action-specific confirmation instruction on a new line, and displays shared cancellation guidance on another line. The next input confirms the stored command only when trimming leading and trailing spaces produces the exact uppercase word `CONFIRM`. Every other input first clears the pending command, then follows normal command parsing and execution. A red cancellation notice is displayed above the new command's unchanged output; if parsing or execution fails, the cancellation notice and error are both red. If the new command needs confirmation, it replaces the old request. When no command is pending, `LogicManager` rejects the exact word `CONFIRM` before parsing, with `MESSAGE_NOTHING_TO_CONFIRM`, so a user who confirms after a request was cancelled learns that nothing changed instead of seeing `Unknown command.` These destructive commands accept `-f` to execute without prompting.
@@ -464,7 +515,7 @@ The filter matches the edited student by the normalized name, school, and level 
 
 Each edit wraps the current filter, so after several edits in a row, every edited student stays in the list, not just the last one. The next `filter` or `list` replaces the whole filter, so the extra rules never build up across searches.
 
-`editnote` and `deletenote` keep the list the same way. Both call `NoteCommandUtil#setPersonKeepingIndex`, which calls `keepPersonInFilteredList` before `setPerson` and adds the same line to the result. While `filter` matches only name and school, changing a note never makes a student stop matching, so this matters once the list can be filtered by note text.
+`editnote` and `deletenote` keep the list the same way. Both call `NoteCommandUtil#setPersonKeepingIndex`, which calls `keepPersonInFilteredList` before `setPerson` and adds the same line to the result. After `filter note/...`, changing or deleting the note that matched can make a student stop matching, and this keeps them at the same index.
 
 #### Design considerations
 
