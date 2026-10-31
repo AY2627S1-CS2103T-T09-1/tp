@@ -1292,17 +1292,26 @@ testers are expected to do more *exploratory* testing.
 
 1. _{ more test cases …​ }_
 
-### Deleting a person
+### Deleting a student
 
-1. Deleting a person while all persons are being shown
+1. Deleting a student while all students are being shown
 
-   1. Prerequisites: List all persons using the `list` command, with multiple persons in the list.
+   1. Prerequisites: List all students using the `list` command, with multiple students in the list.
 
    1. Test case: `delete 1`<br>
-      Expected: The first contact is deleted from the list. The status message shows the deleted contact's details.
+      Expected: No student is deleted yet. An amber prompt names the first student, with their school and level, and asks you to type `CONFIRM`.
+
+   1. Test case: `CONFIRM`, right after `delete 1`<br>
+      Expected: The first student and their notes are deleted. The status message shows the deleted student's name, school, and level.
+
+   1. Test case: `delete 1`, then `list`<br>
+      Expected: No student is deleted. A red notice says that the `delete` command has been cancelled, and `list` runs as usual.
+
+   1. Test case: `delete -f 1`<br>
+      Expected: The first student is deleted without a prompt. The status message shows the deleted student's name, school, and level.
 
    1. Test case: `delete 0`<br>
-      Expected: No person is deleted. The status message shows error details.
+      Expected: No student is deleted, and no prompt appears. The status message shows error details.
 
    1. Other incorrect delete commands to try: `delete`, `delete x`, `...` (where x is larger than the list size)<br>
       Expected: Similar to previous.
