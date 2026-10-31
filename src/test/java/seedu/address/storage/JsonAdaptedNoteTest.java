@@ -36,6 +36,13 @@ public class JsonAdaptedNoteTest {
     }
 
     @Test
+    public void toModelType_nonAsciiText_throwsIllegalValueException() {
+        JsonAdaptedNote note = new JsonAdaptedNote("Français oral 18/20");
+        assertThrows(IllegalValueException.class, String.format(Note.MESSAGE_INVALID_CHARACTER, "ç"),
+                note::toModelType);
+    }
+
+    @Test
     public void toJson_note_savesPlainString() throws Exception {
         Note note = new Note("Weak in algebra");
         String json = JsonUtil.toJsonString(new JsonAdaptedNote(note));

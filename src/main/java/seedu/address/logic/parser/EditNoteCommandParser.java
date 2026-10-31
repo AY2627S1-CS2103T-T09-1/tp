@@ -37,7 +37,7 @@ public class EditNoteCommandParser implements Parser<EditNoteCommand> {
                     String.format(MESSAGE_INVALID_COMMAND_FORMAT, EditNoteCommand.MESSAGE_USAGE));
         }
 
-        Index index = ParserUtil.parseIndex(argMultimap.getPreamble());
+        Index index = ParserUtil.parseIndex(argMultimap.getPreamble(), EditNoteCommand.MESSAGE_USAGE);
         argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NID);
         Index nid = ParserUtil.parseNid(argMultimap.getValue(PREFIX_NID).get());
         Note note = ParserUtil.parseNote(argMultimap.getValue(PREFIX_NOTE).get());

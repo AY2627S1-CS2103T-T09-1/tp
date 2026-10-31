@@ -207,6 +207,12 @@ Every student record must include a name, school, and level. Many tutors teach s
 
 The ASCII letter/number rule also applies to existing data files. A file containing a name or school with non-ASCII letters or numbers fails validation when loaded, with the relevant field constraint. Users must edit those records in the previous version before upgrading. Previously supported school punctuation remains valid.
 
+`Note` text uses the same ASCII-only approach, so an accented letter is rejected in a note just as it is in a name or school. A note can contain 1 to 500 printable ASCII characters (`\x20` to `\x7E`): letters, digits, spaces, and every keyboard symbol, because notes record scores and reminders such as `WA2 Math: 36/50`. It also accepts the curly apostrophe `’`, as `School` does, so `Didn’t finish` is not rejected in a note when `St. Joseph’s Institution` is accepted as a school. For any other character, `Note#getConstraintMessage` names the first one, and returns an emoji whole rather than half of its UTF-16 pair. `ParserUtil#parseNote` (used by `addnote` and `editnote`) and `JsonAdaptedNote` both use this message. `filter note/` search text is not restricted, like `n/` and `sch/` search text. A data file containing a note with any other character fails validation when loaded, so users must edit those notes in the previous version before upgrading.
+
+`Address` accepts the same characters as `Note`, because addresses also need keyboard symbols such as `#`, `/`, and `,`, as in `Blk 123 Bedok North Ave 2, #04-111`. It declares its own copy of the allowed-character regex, as every field class owns its rules. `Address#getConstraintMessage` names the first character that isn't allowed, like `Note#getConstraintMessage`, and is used by the `Address` constructor, `ParserUtil#parseAddress` (used by `add` and `edit`), and `JsonAdaptedPerson`. Blank and too-long addresses keep the existing `Address.MESSAGE_CONSTRAINTS`. `filter a/` search text is not restricted. A data file containing an address with any other character fails validation when loaded, so users must edit those addresses in the previous version before upgrading.
+
+`Address`, `Note`, `Phone`, and `Email` find the first character that isn't allowed with `StringUtil#findInvalidCharacter`, passing their own allowed-character regex. It returns an emoji whole rather than half of its UTF-16 pair.
+
 #### Design considerations
 
 **Aspect: Character rules for names and schools**
@@ -225,9 +231,13 @@ The ASCII letter/number rule also applies to existing data files. A file contain
 
 The third option was selected because the issue was inconsistent handling of letters, not a need to make names and school names use identical punctuation. ASCII-only letters and digits reject the accented school case consistently with student names, while keeping the punctuation needed for realistic school names. The User Guide lists the exact rules for each field and explains the existing-data limitation.
 
+### School validation and error messages
+
+`ParserUtil#parseSchool` trims and collapses repeated spaces, then calls `School#getInvalidReason`, which returns a targeted message for the first problem found, in this order: blank input, more than 100 characters, the first unsupported character, then no ASCII letter. `School#isValidSchool` uses the same checks, so `add`, `edit`, model construction, and JSON loading apply the same rules. The model and JSON adapter report the general `School.MESSAGE_CONSTRAINTS` instead of a targeted message.
+
 ### Student subjects and bands
 
-Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `G2`, or `G3`. Subject names can contain 1 to 40 Unicode letters, spaces, hyphens, parentheses, commas, and ampersands, and must contain at least one letter. Digits, slashes, and other symbols are rejected. A student cannot have the same subject name more than once, even at different bands.
+Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `G2`, or `G3`. Subject names can contain 1 to 40 ASCII letters, spaces, hyphens, parentheses, commas, and ampersands, and must contain at least one letter. Digits, slashes, non-ASCII letters, and other symbols are rejected. Subject names use ASCII letters for the same reason as names and schools, as explained in [Student names and schools](#student-names-and-schools), so the same accented letter is handled the same way in every student field. A data file containing a subject name with non-ASCII letters fails validation when loaded, with the subject constraint. Users must edit those subjects in the previous version before upgrading. A student cannot have the same subject name more than once, even at different bands.
 
 `Subject` is an immutable value object containing both the subject name and its required `Band`. The band is an enum, so a `Subject` cannot be constructed with an unsupported band or without one. For comparison, `Subject` trims surrounding spaces, collapses repeated ordinary spaces, and lowercases the name. The band is included in `Subject.equals`, but `Person#validateSubjects` checks names separately and rejects a repeated subject even if the bands differ.
 
@@ -266,7 +276,7 @@ The app uses the second option because the tutor needs each subject’s band to 
   * Cons: Rejects commonly used subject names such as `Science (Physics, Chemistry)` and `Design & Technology`.
 
 * **Alternative 2 (current choice):** Also allow parentheses, commas, and ampersands.
-  * Pros: Accepts the real names reported in issue 263 while retaining the existing length limit, Unicode-letter support, and at-least-one-letter rule. Digits, slashes, and other symbols remain rejected.
+  * Pros: Accepts the real names reported in issue 263 while retaining the existing length limit and at-least-one-letter rule. Digits, slashes, and other symbols remain rejected.
   * Cons: A subject can contain awkward punctuation placement because the rule checks allowed characters, not subject-name grammar.
 
 * **Alternative 3:** Allow any printable punctuation and digits.
@@ -478,7 +488,7 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 <img src="images/FilterClassDiagram.png" width="650" />
 
 1. `FilterCommandParser` splits the arguments at the filter prefixes `n/`, `sch/`, `lvl/`, `sub/`, `band/`, `p/`, `e/`, `a/`, `gn/`, `gp/`, `t/`, and `note/`. It also recognizes `nid/`, the note index prefix of `deletenote` and `editnote`, only to reject it with a message pointing to `note/`, so that it is not read as part of another value. `note/` is read with `ArgumentTokenizer#tokenizeWithTrailingText`, so everything after it is the note text, as in `addnote`.
-1. It then checks, in order, that there is no text before the first prefix, that at least one filter is given, that `t/` is not repeated, that no other prefix is repeated, and that `band/` comes with `sub/`. A repeated `t/` gets its own message, `MESSAGE_ONE_TAG`, because `add` and `edit` accept several `t/`. Any other repeated prefix gets `MESSAGE_REPEATED_FILTER`, which lists the repeated prefixes and suggests running `filter` once for each value, instead of the general duplicate-prefix message that `add` and `edit` use. If `t/` is also repeated, the `t/` message is shown first.
+1. It then checks, in order, that there is no unknown prefix-shaped token, that there is no text before the first prefix, that at least one filter is given, that `t/` is not repeated, that no other prefix is repeated, and that `band/` comes with `sub/`. A repeated `t/` gets its own message, `MESSAGE_ONE_TAG`, because `add` and `edit` accept several `t/`. Any other repeated prefix gets `MESSAGE_REPEATED_FILTER`, which lists the repeated prefixes and suggests running `filter` once for each value, instead of the general duplicate-prefix message that `add` and `edit` use. If `t/` is also repeated, the `t/` message is shown first. Address values are excluded from the unknown-prefix check because `/` can be ordinary address text, while `note/` consumes all trailing text before this check.
 1. It creates one `Predicate<Person>` for each filter given:
 
    Prefix | Predicate | Matches when the student's…
@@ -1193,52 +1203,62 @@ Use case ends.
 
 #### General
 
-* **AB3**: AddressBook-Level3, the sample project that TuteeBook3 is built on.
-* **CLI**: Command-line interface. A way of using an app by typing commands instead of clicking.
-* **DBMS**: Database management system. Software, such as MySQL, that stores data in a database. TuteeBook3 does not use one.
-* **GUI**: Graphical user interface. The windows, lists, and boxes that you see and click.
-* **JAR**: Java Archive. The single file that contains the whole app, which you run with Java.
-* **JSON**: JavaScript Object Notation. The text format that TuteeBook3 uses to save data in a file that can be read and edited by hand.
-* **Mainstream OS**: Windows, Linux, Unix, macOS.
+Term | Meaning
+-----|--------
+**AB3** | AddressBook-Level3, the sample project that TuteeBook3 is built on.
+**CLI** | Command-line interface. A way of using an app by typing commands instead of clicking.
+**DBMS** | Database management system. Software, such as MySQL, that stores data in a database. TuteeBook3 does not use one.
+**GUI** | Graphical user interface. The windows, lists, and boxes that you see and click.
+**JAR** | Java Archive. The single file that contains the whole app, which you run with Java.
+**JSON** | JavaScript Object Notation. The text format that TuteeBook3 uses to save data in a file that can be read and edited by hand.
+**Mainstream OS** | Windows, Linux, Unix, macOS.
 
 #### Tutoring terms
 
-* **Band**: The standard at which a student takes a subject: G1, G2, or G3. These come from Singapore's Full Subject-Based Banding, where G3 is the most demanding. Each subject has its own band, so a student may take Mathematics at G3 and Science at G2.
-* **Guardian**: A parent or other adult responsible for a student, whom the tutor contacts about the student's progress. A student has at most one guardian, recorded with both a name and a phone number.
-* **Level**: A student's year of secondary school, from S1 (Secondary 1) to S5 (Secondary 5).
-* **Note**: A short piece of text that the tutor attaches to a student, such as "Weak in Geometry" or "WA2 Math: 36/50".
-* **Student**: A secondary school student whom the tutor teaches.
-* **Subject**: A school subject that the tutor teaches the student, such as "Mathematics" or "Chemistry".
-* **Tag**: A short label that the tutor attaches to a student to group or flag them at a glance, such as "paid" or "O-level". A tag is one word, which may contain hyphens. A student can have any number of tags.
+Term | Meaning
+-----|--------
+**Band** | The standard at which a student takes a subject: G1, G2, or G3. These come from Singapore's Full Subject-Based Banding, where G3 is the most demanding. Each subject has its own band, so a student may take Mathematics at G3 and Science at G2.
+**Guardian** | A parent or other adult responsible for a student, whom the tutor contacts about the student's progress. A student has at most one guardian, recorded with both a name and a phone number.
+**Level** | A student's year of secondary school, from S1 (Secondary 1) to S5 (Secondary 5).
+**Note** | A short piece of text that the tutor attaches to a student, such as "Weak in Geometry" or "WA2 Math: 36/50".
+**Student** | A secondary school student whom the tutor teaches.
+**Subject** | A school subject that the tutor teaches the student, such as "Mathematics" or "Chemistry".
+**Tag** | A short label that the tutor attaches to a student to group or flag them at a glance, such as "paid" or "O-level". A tag is one word, which may contain hyphens. A student can have any number of tags.
 
 #### Commands
 
-* **Confirmation prompt**: An amber message that asks you to confirm a command before it runs. `delete`, `deletenote`, and `clear` show one before they delete anything, and `add` and `edit` show one when another student already has the same name. Type `CONFIRM` in uppercase to go ahead. Any other input, including `confirm`, cancels the command and runs as a normal command.
-* **Exact matching**: The way the `lvl/`, `sub/`, `band/`, `p/`, `gp/`, and `t/` filters of `filter` compare values. The whole value must match, ignoring case and extra spaces. For example, `lvl/S3` matches only students in S3, and `sub/math` does not match `Mathematics`.
-* **Filter**: A prefix and value given to the `filter` command, such as `n/Tan`, that narrows down the student list.
-* **Force flag**: The `-f` option of `delete`, `deletenote`, and `clear`, such as `delete -f 1`. It skips the confirmation prompt, so the command runs immediately. `add` and `edit` have no force flag.
-* **Index**: The number shown next to a student in the list currently on screen. Commands such as `view`, `edit`, and `delete` use it to pick a student. It is not permanent: it can change when the list changes, such as after `add`, `delete`, `filter`, or `list`.
-* **NID**: The number shown before a note in the student detail view. Notes are numbered 1, 2, 3 in the order they were added. After a note is deleted, the notes after it move up one number, so an NID is not permanent.
-* **Partial matching**: The way the `n/`, `sch/`, `e/`, `a/`, `gn/`, and `note/` filters of `filter` compare values. The value only needs to contain what you typed, even part of a word, ignoring case. For example, `sch/vic` matches `Victoria School`.
-* **Prefix**: A short marker ending in `/`, such as `n/` or `sch/`, that labels the value after it in a command.
-* **Warning**: An amber message that flags something that might be a mistake, without stopping the command. For example, TuteeBook3 saves a phone number that doesn't look like a Singapore number, but shows a warning so that you can check it.
+Term | Meaning
+-----|--------
+**Confirmation prompt** | An amber message that asks you to confirm a command before it runs. `delete`, `deletenote`, and `clear` show one before they delete anything, and `add` and `edit` show one when another student already has the same name. Type `CONFIRM` in uppercase to go ahead. Any other input, including `confirm`, cancels the command and runs as a normal command.
+**Exact matching** | The way the `lvl/`, `sub/`, `band/`, `p/`, `gp/`, and `t/` filters of `filter` compare values. The whole value must match, ignoring case and extra spaces. For example, `lvl/S3` matches only students in S3, and `sub/math` does not match `Mathematics`.
+**Filter** | A prefix and value given to the `filter` command, such as `n/Tan`, that narrows down the student list.
+**Force flag** | The `-f` option of `delete`, `deletenote`, and `clear`, such as `delete -f 1`. It skips the confirmation prompt, so the command runs immediately. `add` and `edit` have no force flag.
+**Index** | The number shown next to a student in the list currently on screen. Commands such as `view`, `edit`, and `delete` use it to pick a student. It is not permanent: it can change when the list changes, such as after `add`, `delete`, `filter`, or `list`.
+**NID** | The number shown before a note in the student detail view. Notes are numbered 1, 2, 3 in the order they were added. After a note is deleted, the notes after it move up one number, so an NID is not permanent.
+**Partial matching** | The way the `n/`, `sch/`, `e/`, `a/`, `gn/`, and `note/` filters of `filter` compare values. The value only needs to contain what you typed, even part of a word, ignoring case. For example, `sch/vic` matches `Victoria School`.
+**Prefix** | A short marker ending in `/`, such as `n/` or `sch/`, that labels the value after it in a command.
+**Warning** | An amber message that flags something that might be a mistake, without stopping the command. For example, TuteeBook3 saves a phone number that doesn't look like a Singapore number, but shows a warning so that you can check it.
 
 #### Screen layout
 
-* **Command box**: The text field at the top of the window where you type commands.
-* **Detail view**: The panel on the right of the window that shows everything about one student, including all their notes. It is also called the "detail panel" or "student detail view". `view` shows a student there, and `list` and `filter` clear it.
-* **Result display**: The area below the command box that tells you whether your last command worked, and why not if it failed. It is also called the "feedback box" or "result box".
-* **Student card**: One student's entry in the student list.
-* **Student list**: The panel on the left of the window that lists students with their main details. It shows all students, or the results of your last `filter`.
+Term | Meaning
+-----|--------
+**Command box** | The text field at the top of the window where you type commands.
+**Detail view** | The panel on the right of the window that shows everything about one student, including all their notes. It is also called the "detail panel" or "student detail view". `view` shows a student there, and `list` and `filter` clear it.
+**Result display** | The area below the command box that tells you whether your last command worked, and why not if it failed. It is also called the "feedback box" or "result box".
+**Student card** | One student's entry in the student list.
+**Student list** | The panel on the left of the window that lists students with their main details. It shows all students, or the results of your last `filter`.
 
 #### Code
 
-* **AddressBook**: The class that holds every `Person` in the app.
-* **Logic**: The component that turns what the user typed into a command and runs it.
-* **Model**: The component that holds the app's data while it runs and applies every change to it.
-* **Parser**: A class that checks what the user typed and turns it into a `Command` object, for example `AddCommandParser` for the `add` command.
-* **Person**: The class that stores one student's details. The name is kept from AB3.
-* **Storage**: The component that loads the data file when the app starts and saves every change back to it.
+Term | Meaning
+-----|--------
+**AddressBook** | The class that holds every `Person` in the app.
+**Logic** | The component that turns what the user typed into a command and runs it.
+**Model** | The component that holds the app's data while it runs and applies every change to it.
+**Parser** | A class that checks what the user typed and turns it into a `Command` object, for example `AddCommandParser` for the `add` command.
+**Person** | The class that stores one student's details. The name is kept from AB3.
+**Storage** | The component that loads the data file when the app starts and saves every change back to it.
 
 --------------------------------------------------------------------------------------------------------------------
 

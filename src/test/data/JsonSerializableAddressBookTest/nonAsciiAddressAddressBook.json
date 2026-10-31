@@ -1,0 +1,10 @@
+{
+  "persons" : [ {
+    "name" : "Alice Pauline",
+    "phone" : "94351253",
+    "school" : "Maplewood Secondary School",
+    "address" : "Rue de l'Église 5",
+    "level" : "S1",
+    "subjects" : [{ "name" : "Mathematics", "band" : "G1" }]
+  } ]
+}

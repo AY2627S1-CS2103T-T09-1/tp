@@ -175,6 +175,12 @@ public class ParserUtilTest {
     }
 
     @Test
+    public void parseAddress_nonAsciiValue_throwsParseException() {
+        String expectedMessage = String.format(Address.MESSAGE_INVALID_CHARACTER, "É");
+        assertThrows(ParseException.class, expectedMessage, () -> ParserUtil.parseAddress("Rue de l'Église 5"));
+    }
+
+    @Test
     public void parsePhone_null_throwsNullPointerException() {
         assertThrows(NullPointerException.class, () -> ParserUtil.parsePhone((String) null));
     }
@@ -370,6 +376,12 @@ public class ParserUtilTest {
     }
 
     @Test
+    public void parseNote_nonAsciiValue_throwsParseException() {
+        String expectedMessage = String.format(Note.MESSAGE_INVALID_CHARACTER, "ç");
+        assertThrows(ParseException.class, expectedMessage, () -> ParserUtil.parseNote("Français oral"));
+    }
+
+    @Test
     public void parseNote_validValueWithWhitespace_returnsTrimmedNote() throws Exception {
         String noteWithWhitespace = WHITESPACE + VALID_NOTE + WHITESPACE;
         assertEquals(VALID_NOTE, ParserUtil.parseNote(noteWithWhitespace).value);
@@ -478,7 +490,9 @@ public class ParserUtilTest {
                 "91234567gp/92345678", "g");
         assertThrows(ParseException.class, joinedPhoneMessage + "\n" + HINT, () ->
                 ParserUtil.parsePhone("91234567gp/92345678"));
-        assertThrows(ParseException.class, School.MESSAGE_CONSTRAINTS + "\n" + HINT, () ->
+        String invalidSchool = String.format(School.MESSAGE_INVALID_CHARACTER,
+                "Victoria Schoole/a@b.com", "/");
+        assertThrows(ParseException.class, invalidSchool + "\n" + HINT, () ->
                 ParserUtil.parseSchool("Victoria Schoole/a@b.com"));
         assertThrows(ParseException.class, Level.MESSAGE_CONSTRAINTS + "\n" + HINT, () ->
                 ParserUtil.parseLevel("S2p/91234567"));

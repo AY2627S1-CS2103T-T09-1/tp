@@ -3,6 +3,10 @@ package seedu.address.model.person;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
 
+import java.util.Optional;
+
+import seedu.address.commons.util.StringUtil;
+
 /**
  * Represents a note about a Person in the tutor book.
  * Guarantees: immutable; is valid as declared in {@link #isValidNote(String)}
@@ -12,6 +16,10 @@ public class Note {
     public static final int MAX_LENGTH = 500;
     public static final String MESSAGE_BLANK = "Note text cannot be blank.";
     public static final String MESSAGE_TOO_LONG = "Note text must be at most " + MAX_LENGTH + " characters.";
+    public static final String MESSAGE_INVALID_CHARACTER = "Note text contains \"%1$s\", which isn't "
+            + "allowed. Use only English letters, digits, spaces, and keyboard symbols.";
+    /** Printable ASCII, plus the curly apostrophe that school names also accept. */
+    private static final String ALLOWED_CHARACTERS_REGEX = "[\\x20-\\x7E’]";
 
     public final String value;
 
@@ -27,11 +35,11 @@ public class Note {
     }
 
     /**
-     * Returns true if {@code test} has 1 to {@value #MAX_LENGTH} characters,
-     * ignoring leading and trailing whitespace.
+     * Returns true if {@code test} has 1 to {@value #MAX_LENGTH} characters, ignoring leading and trailing
+     * whitespace, and contains only printable ASCII characters or ’.
      */
     public static boolean isValidNote(String test) {
-        return !test.isBlank() && !isTooLong(test);
+        return !test.isBlank() && findInvalidCharacter(test).isEmpty() && !isTooLong(test);
     }
 
     /**
@@ -39,7 +47,20 @@ public class Note {
      * The result is only meaningful if {@code invalidText} fails {@link #isValidNote(String)}.
      */
     public static String getConstraintMessage(String invalidText) {
-        return invalidText.isBlank() ? MESSAGE_BLANK : MESSAGE_TOO_LONG;
+        if (invalidText.isBlank()) {
+            return MESSAGE_BLANK;
+        }
+        return findInvalidCharacter(invalidText)
+                .map(character -> String.format(MESSAGE_INVALID_CHARACTER, character))
+                .orElse(MESSAGE_TOO_LONG);
+    }
+
+    /**
+     * Returns the first character of {@code test} that is not allowed, ignoring leading and trailing
+     * whitespace.
+     */
+    private static Optional<String> findInvalidCharacter(String test) {
+        return StringUtil.findInvalidCharacter(test.strip(), ALLOWED_CHARACTERS_REGEX);
     }
 
     /**

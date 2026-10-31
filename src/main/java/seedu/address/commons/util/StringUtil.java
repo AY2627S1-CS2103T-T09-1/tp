@@ -8,6 +8,7 @@ import java.io.StringWriter;
 import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Optional;
 
 /**
  * Helper functions for handling strings.
@@ -22,6 +23,10 @@ public class StringUtil {
      * The zero-width joiner and non-joiner are kept, because emoji and some scripts need them.
      */
     private static final String INVISIBLE_CHARACTER_REGEX = "[\\p{Cf}\\p{Cc}&&[^\\u200C\\u200D]]";
+
+    /** Curly quotes, which pasted text often has in place of the ' and " typed on a keyboard. */
+    private static final String CURLY_APOSTROPHE_REGEX = "[\\u2018\\u2019]";
+    private static final String CURLY_DOUBLE_QUOTE_REGEX = "[\\u201C\\u201D]";
 
     /**
      * Returns true if the {@code sentence} contains the {@code word}.
@@ -50,8 +55,8 @@ public class StringUtil {
     }
 
     /**
-     * Returns true if {@code text} contains {@code searchText}, ignoring case and treating
-     * any run of whitespace in either as a single space.
+     * Returns true if {@code text} contains {@code searchText}, ignoring case, treating
+     * any run of whitespace in either as a single space, and treating curly quotes as straight ones.
      *   <br>examples:<pre>
      *       containsIgnoreCaseAndSpaces("Victoria  School", "TORIA sch") == true
      *       containsIgnoreCaseAndSpaces("Victoria School", "raffles") == false
@@ -69,7 +74,10 @@ public class StringUtil {
     }
 
     private static String normalizeForSearch(String value) {
-        return value.strip().replaceAll("\\s+", " ").toLowerCase(Locale.ROOT);
+        String spacedValue = value.replaceAll(WHITESPACE_REGEX + "+", " ").strip();
+        return spacedValue.replaceAll(CURLY_APOSTROPHE_REGEX, "'")
+                .replaceAll(CURLY_DOUBLE_QUOTE_REGEX, "\"")
+                .toLowerCase(Locale.ROOT);
     }
 
     /**
@@ -90,6 +98,26 @@ public class StringUtil {
         // An invisible character between a letter and its accent stops them composing, so remove it first
         String visibleInput = spacedInput.replaceAll(INVISIBLE_CHARACTER_REGEX, "");
         return Normalizer.normalize(visibleInput, Normalizer.Form.NFC);
+    }
+
+    /**
+     * Returns the first character in {@code text} that {@code allowedCharacterRegex} doesn't match,
+     * or an empty {@code Optional} if every character is allowed.
+     * A character made of two UTF-16 chars, such as an emoji, is returned whole.
+     *
+     * @param text Text to check.
+     * @param allowedCharacterRegex Regex that matches one allowed character.
+     * @return The first character that isn't allowed.
+     */
+    public static Optional<String> findInvalidCharacter(String text, String allowedCharacterRegex) {
+        requireNonNull(text);
+        requireNonNull(allowedCharacterRegex);
+        String invalidCharacters = text.replaceAll(allowedCharacterRegex, "");
+        if (invalidCharacters.isEmpty()) {
+            return Optional.empty();
+        }
+        int firstLength = Character.charCount(invalidCharacters.codePointAt(0));
+        return Optional.of(invalidCharacters.substring(0, firstLength));
     }
 
     /**

@@ -1,0 +1,11 @@
+{
+  "persons": [ {
+    "name": "John Doe",
+    "school": "Victoria School",
+    "level": "S1",
+    "subjects": [ {
+      "name": "Français",
+      "band": "G3"
+    } ]
+  } ]
+}

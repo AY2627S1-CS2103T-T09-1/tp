@@ -12,7 +12,8 @@ import java.util.Locale;
 public class Name {
 
     public static final String MESSAGE_CONSTRAINTS =
-            "Names must start with an ASCII letter or digit and contain only ASCII letters, digits, and spaces.";
+            "Names must start with an English letter (A-Z) or digit (0-9) and use only English letters, "
+                    + "digits, and spaces.";
 
     /*
      * Names use ASCII letters and digits so their accepted character set matches School.
