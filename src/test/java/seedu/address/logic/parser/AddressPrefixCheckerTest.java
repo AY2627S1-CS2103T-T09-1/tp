@@ -57,8 +57,9 @@ public class AddressPrefixCheckerTest {
     public void verifyNoJoinedPrefix_slashAfterWordEndingInPrefix_throwsWithAddressHint() {
         ParseException exception = assertThrows(ParseException.class, () ->
                 AddressPrefixChecker.verifyNoJoinedPrefix("Blk 5 Ang Mo Kio Town/Central", PREFIX_NAME));
-        assertEquals("Put a space before the \"n/\" prefix. If \"/\" is part of the address, "
-                + "put a space before the \"/\" instead.", exception.getMessage());
+        assertEquals("If you meant to start the \"n/\" parameter, put a space before it. "
+                + "If \"/\" is part of the address, put a space before the \"/\" instead.",
+                exception.getMessage());
     }
 
     @Test
@@ -73,7 +74,8 @@ public class AddressPrefixCheckerTest {
     public void verifyNoJoinedPrefix_capitalizedPrefixAfterWord_throwsCaseSensitiveWithHint() {
         ParseException exception = assertThrows(ParseException.class, () ->
                 AddressPrefixChecker.verifyNoJoinedPrefix("Blk 5 Ang Mo Kio TOWN/Central", PREFIX_NAME));
-        assertEquals("The \"N/\" prefix is case-sensitive. Use \"n/\" with a space before it. "
+        assertEquals("The \"N/\" prefix is case-sensitive. If you meant to start the \"n/\" parameter, "
+                + "write \"n/\" with a space before it. "
                 + "If \"/\" is part of the address, put a space before the \"/\" instead.",
                 exception.getMessage());
     }
