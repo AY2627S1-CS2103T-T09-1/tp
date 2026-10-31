@@ -2,6 +2,8 @@ package seedu.address.model.person;
 
 import static java.util.Objects.requireNonNull;
 
+import java.util.Locale;
+
 /**
  * Represents the band at which a student takes a subject.
  */
@@ -16,7 +18,7 @@ public enum Band {
     public static Band fromString(String value) {
         requireNonNull(value);
         try {
-            return valueOf(value.trim().toUpperCase());
+            return valueOf(value.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(MESSAGE_CONSTRAINTS, e);
         }

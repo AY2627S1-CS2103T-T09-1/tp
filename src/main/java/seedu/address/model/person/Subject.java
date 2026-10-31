@@ -3,6 +3,7 @@ package seedu.address.model.person;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
 
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -11,9 +12,10 @@ import java.util.Objects;
 public final class Subject {
 
     public static final String MESSAGE_CONSTRAINTS =
-            "Subjects must be 1-40 characters using only letters, spaces and hyphens, with at least one letter.";
+            "Subjects must be 1-40 characters, contain at least one English letter (A-Z), and use only "
+                    + "English letters, spaces, hyphens (-), parentheses, commas, and ampersands (&).";
     public static final int MAX_LENGTH = 40;
-    public static final String VALIDATION_REGEX = "(?=.*\\p{L})[\\p{L} -]+";
+    public static final String VALIDATION_REGEX = "(?=.*[A-Za-z])[A-Za-z (),&-]+";
 
     private final String name;
     private final Band band;
@@ -62,7 +64,7 @@ public final class Subject {
     }
 
     private static String toComparisonName(String name) {
-        return name.trim().replaceAll(" +", " ").toLowerCase();
+        return name.trim().replaceAll(" +", " ").toLowerCase(Locale.ROOT);
     }
 
     @Override

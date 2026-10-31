@@ -33,7 +33,8 @@ public class AddNoteCommandTest {
     public void execute_validIndex_addsNote() {
         Person person = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
         Person editedPerson = new PersonBuilder(person).withNotes(NOTE_TEXT).build();
-        String expectedMessage = String.format(AddNoteCommand.MESSAGE_SUCCESS, person.getName(), NOTE);
+        String expectedMessage = String.format(AddNoteCommand.MESSAGE_SUCCESS, person.getName(), person.getSchool(),
+                person.getLevel(), NOTE);
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.setPerson(person, editedPerson);
@@ -48,7 +49,8 @@ public class AddNoteCommandTest {
         Person person = new PersonBuilder(original).withGuardian("Mary Tan", "91234567").build();
         model.setPerson(original, person);
         Person editedPerson = new PersonBuilder(person).withNotes(NOTE_TEXT).build();
-        String expectedMessage = String.format(AddNoteCommand.MESSAGE_SUCCESS, person.getName(), NOTE);
+        String expectedMessage = String.format(AddNoteCommand.MESSAGE_SUCCESS, person.getName(), person.getSchool(),
+                person.getLevel(), NOTE);
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.setPerson(person, editedPerson);
@@ -61,7 +63,8 @@ public class AddNoteCommandTest {
     public void execute_existingNotes_appendsNoteAtEnd() {
         Person person = addNotesToFirstPerson(NOTE_TEXT);
         Person editedPerson = new PersonBuilder(person).withNotes(NOTE_TEXT, OTHER_NOTE_TEXT).build();
-        String expectedMessage = String.format(AddNoteCommand.MESSAGE_SUCCESS, person.getName(), OTHER_NOTE);
+        String expectedMessage = String.format(AddNoteCommand.MESSAGE_SUCCESS, person.getName(), person.getSchool(),
+                person.getLevel(), OTHER_NOTE);
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.setPerson(person, editedPerson);
@@ -74,7 +77,8 @@ public class AddNoteCommandTest {
     public void execute_duplicateNote_keepsBothNotes() {
         Person person = addNotesToFirstPerson(NOTE_TEXT);
         Person editedPerson = new PersonBuilder(person).withNotes(NOTE_TEXT, NOTE_TEXT).build();
-        String expectedMessage = String.format(AddNoteCommand.MESSAGE_SUCCESS, person.getName(), NOTE);
+        String expectedMessage = String.format(AddNoteCommand.MESSAGE_SUCCESS, person.getName(), person.getSchool(),
+                person.getLevel(), NOTE);
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.setPerson(person, editedPerson);
@@ -88,7 +92,8 @@ public class AddNoteCommandTest {
         showPersonAtIndex(model, INDEX_SECOND_PERSON);
         Person person = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
         Person editedPerson = new PersonBuilder(person).withNotes(NOTE_TEXT).build();
-        String expectedMessage = String.format(AddNoteCommand.MESSAGE_SUCCESS, person.getName(), NOTE);
+        String expectedMessage = String.format(AddNoteCommand.MESSAGE_SUCCESS, person.getName(), person.getSchool(),
+                person.getLevel(), NOTE);
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.setPerson(person, editedPerson);
@@ -96,6 +101,22 @@ public class AddNoteCommandTest {
 
         assertCommandSuccess(new AddNoteCommand(INDEX_FIRST_PERSON, NOTE), model,
                 CommandResult.showStudent(expectedMessage, editedPerson, INDEX_FIRST_PERSON), expectedModel);
+    }
+
+    @Test
+    public void execute_sameNameStudents_messageNamesSchoolAndLevel() {
+        Person first = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Person sameName = new PersonBuilder(first).withSchool("Victoria School").withLevel("S3").build();
+        model.addPerson(sameName);
+        Index sameNameIndex = Index.fromOneBased(model.getFilteredPersonList().size());
+        Person editedPerson = new PersonBuilder(sameName).withNotes(NOTE_TEXT).build();
+        String expectedMessage = "Added note to Alice Pauline at Victoria School (S3): Weak in algebra";
+
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        expectedModel.setPerson(sameName, editedPerson);
+
+        assertCommandSuccess(new AddNoteCommand(sameNameIndex, NOTE), model,
+                CommandResult.showStudent(expectedMessage, editedPerson, sameNameIndex), expectedModel);
     }
 
     @Test

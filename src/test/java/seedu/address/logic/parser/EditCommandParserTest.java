@@ -39,9 +39,12 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SCHOOL;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailure;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSuccess;
+import static seedu.address.logic.parser.ParserUtil.MESSAGE_INVALID_INDEX;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_THIRD_PERSON;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -49,6 +52,7 @@ import seedu.address.commons.core.index.Index;
 import seedu.address.logic.Messages;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
+import seedu.address.model.person.Address;
 import seedu.address.model.person.Band;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Guardian;
@@ -70,19 +74,39 @@ public class EditCommandParserTest {
     @Test
     public void parse_schoolOnly_success() {
         EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
-                .withSchool("St. John's Secondary School").build();
-        assertParseSuccess(parser, "1 sch/  St. John's Secondary School  ",
+                .withSchool("St Josephs Secondary School").build();
+        assertParseSuccess(parser, "1 sch/  St Josephs Secondary School  ",
                 new EditCommand(INDEX_FIRST_PERSON, descriptor));
     }
 
     @Test
-    public void parse_schoolWithBracketsAndComma_success() {
-        String[] schools = {"Anglo-Chinese School (Independent)", "School of Science and Technology, Singapore"};
-        for (String school : schools) {
-            EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withSchool(school).build();
+    public void parse_schoolWithUnicode_failure() {
+        assertParseFailure(parser, "1 sch/École Française",
+                String.format(School.MESSAGE_INVALID_CHARACTER, "École Française", "É"));
+        assertParseFailure(parser, "1 sch/李明学校",
+                String.format(School.MESSAGE_INVALID_CHARACTER, "李明学校", "李"));
+    }
 
+    @Test
+    public void parse_schoolWithOfficialPunctuation_success() {
+        for (String school : List.of("Anglo-Chinese School (Independent)", "St. Joseph's Institution",
+                "School of Science and Technology, Singapore")) {
+            EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withSchool(school).build();
             assertParseSuccess(parser, "1 sch/" + school, new EditCommand(INDEX_FIRST_PERSON, descriptor));
         }
+    }
+
+    @Test
+    public void parse_nonAsciiName_failure() {
+        assertParseFailure(parser, "1 n/Zoë Lim", Name.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_subjectWithOfficialPunctuation_success() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withSubjects(new Subject("Science (Physics, Chemistry)", Band.G3)).build();
+        assertParseSuccess(parser, "1 sub/Science (Physics, Chemistry) band/G3",
+                new EditCommand(INDEX_FIRST_PERSON, descriptor));
     }
 
     @Test
@@ -92,6 +116,34 @@ public class EditCommandParserTest {
 
         descriptor = new EditPersonDescriptorBuilder().withAddressRemoved().build();
         assertParseSuccess(parser, "1 a/", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
+    public void parse_addressWithJoinedPrefix_reportsCaseSensitivePrefix() {
+        assertParseFailure(parser, "1 a/Blk 1/2P/91234567",
+                String.format(Messages.MESSAGE_PREFIX_CASE_SENSITIVE, "P/", "p/"));
+    }
+
+    @Test
+    public void parse_addressWithOrdinarySlashAndSeparatedPrefix_success() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withAddress("Blk 1/2").withPhone(VALID_PHONE_AMY).build();
+        assertParseSuccess(parser, "1 a/Blk 1/2 p/" + VALID_PHONE_AMY,
+                new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
+    public void parse_addressWithSpaceBeforeSlash_success() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withAddress("Blk 5 Ang Mo Kio Town /Central").build();
+        assertParseSuccess(parser, "1 a/Blk 5 Ang Mo Kio Town /Central",
+                new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
+    public void parse_addressWithJoinedLowercasePrefix_reportsMissingSpace() {
+        assertParseFailure(parser, "1 a/Blk 1/2p/91234567",
+                String.format(Messages.MESSAGE_MISSING_SPACE_BEFORE_PREFIX, "p/"));
     }
 
     @Test
@@ -141,9 +193,32 @@ public class EditCommandParserTest {
 
     @Test
     public void parse_invalidSchool_failure() {
-        assertParseFailure(parser, "1 sch/  ", School.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1 sch/  ", School.MESSAGE_BLANK);
         assertParseFailure(parser, "1 sch/School sch/Other School",
                 Messages.getErrorMessageForDuplicatePrefixes(PREFIX_SCHOOL));
+    }
+
+    @Test
+    public void parse_invalidSchoolValues_failure() {
+        assertParseFailure(parser, "1 sch/School#1",
+                String.format(School.MESSAGE_INVALID_CHARACTER, "School#1", "#"));
+        assertParseFailure(parser, "1 sch/123", String.format(School.MESSAGE_MISSING_ASCII_LETTER, "123"));
+        assertParseFailure(parser, "1 sch/École Française",
+                String.format(School.MESSAGE_INVALID_CHARACTER, "École Française", "É"));
+        assertParseFailure(parser, "1 sch/" + "a".repeat(101), String.format(School.MESSAGE_TOO_LONG, 101));
+    }
+
+    @Test
+    public void parse_schoolWithSupportedDigitsAndPunctuation_success() {
+        String[] schools = {
+            "Victoria School 2",
+            "Anglo-Chinese School (Independent)",
+            "St. Joseph's Institution"
+        };
+        for (String school : schools) {
+            EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withSchool(school).build();
+            assertParseSuccess(parser, "1 sch/" + school, new EditCommand(INDEX_FIRST_PERSON, descriptor));
+        }
     }
 
     @Test
@@ -161,10 +236,10 @@ public class EditCommandParserTest {
     @Test
     public void parse_invalidPreamble_failure() {
         // negative index
-        assertParseFailure(parser, "-5" + NAME_DESC_AMY, MESSAGE_INVALID_FORMAT);
+        assertParseFailure(parser, "-5" + NAME_DESC_AMY, MESSAGE_INVALID_INDEX);
 
         // zero index
-        assertParseFailure(parser, "0" + NAME_DESC_AMY, MESSAGE_INVALID_FORMAT);
+        assertParseFailure(parser, "0" + NAME_DESC_AMY, MESSAGE_INVALID_INDEX);
 
         // invalid arguments being parsed as preamble
         assertParseFailure(parser, "1 some random string", MESSAGE_INVALID_FORMAT);
@@ -174,6 +249,11 @@ public class EditCommandParserTest {
 
         // removed prefixes being parsed as preamble
         assertParseFailure(parser, "1 x/Clementi Road", MESSAGE_INVALID_FORMAT);
+    }
+
+    @Test
+    public void parse_integerTooBigForInt_throwsIndexError() {
+        assertParseFailure(parser, "99999999999" + NAME_DESC_AMY, MESSAGE_INVALID_INDEX);
     }
 
     @Test
@@ -201,10 +281,12 @@ public class EditCommandParserTest {
     public void parse_invalidValue_failure() {
         assertParseFailure(parser, "1 sub/English", Messages.MESSAGE_SUBJECT_BAND_PAIR);
         assertParseFailure(parser, "1 sub/English band/G4", Band.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1 sub/Français band/G3", Subject.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1 a/Rue de l'Église 5", String.format(Address.MESSAGE_INVALID_CHARACTER, "É"));
         assertParseFailure(parser, "1 band/G2", "Missing required parameter: sub/."); // band without subject
         assertParseFailure(parser, "1" + INVALID_NAME_DESC, Name.MESSAGE_CONSTRAINTS); // invalid name
         assertParseFailure(parser, "1" + INVALID_PHONE_DESC, INVALID_PHONE_MESSAGE); // invalid phone
-        assertParseFailure(parser, "1" + INVALID_SCHOOL_DESC, School.MESSAGE_CONSTRAINTS); // invalid school
+        assertParseFailure(parser, "1" + INVALID_SCHOOL_DESC, School.MESSAGE_BLANK); // invalid school
 
         // invalid phone followed by valid school
         assertParseFailure(parser, "1" + INVALID_PHONE_DESC + SCHOOL_DESC_AMY, INVALID_PHONE_MESSAGE);

@@ -12,13 +12,13 @@ import java.util.Locale;
 public class Name {
 
     public static final String MESSAGE_CONSTRAINTS =
-            "Names should only contain alphanumeric characters and spaces, and should not be blank";
+            "Names must start with an English letter (A-Z) or digit (0-9) and use only English letters, "
+                    + "digits, and spaces.";
 
     /*
-     * The first character of the name must not be a whitespace,
-     * otherwise " " (a blank string) becomes a valid input.
+     * Names use ASCII letters and digits so their accepted character set matches School.
      */
-    public static final String VALIDATION_REGEX = "[\\p{Alnum}][\\p{Alnum} ]*";
+    public static final String VALIDATION_REGEX = "[A-Za-z0-9][A-Za-z0-9 ]*";
 
     public final String fullName;
     private final String comparisonValue;

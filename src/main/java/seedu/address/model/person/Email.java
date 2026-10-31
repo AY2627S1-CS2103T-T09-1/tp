@@ -2,6 +2,7 @@ package seedu.address.model.person;
 
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
+import static seedu.address.commons.util.StringUtil.findInvalidCharacter;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -37,16 +38,18 @@ public class Email {
     public static final String MESSAGE_CONSTRAINTS = "Emails must be at most " + MAX_LENGTH + " characters, "
             + "be of the format local-part@domain "
             + "and adhere to the following constraints:\n"
-            + "1. The local-part should only contain alphanumeric characters and these special characters, excluding "
-            + "the parentheses, (" + SPECIAL_CHARACTERS + "). The local-part may not start or end with any special "
-            + "characters.\n"
+            + "1. The local-part should only contain English letters, digits, and these special characters, "
+            + "excluding the parentheses, (" + SPECIAL_CHARACTERS + "). The local-part may not start "
+            + "or end with any special characters.\n"
             + "2. The local-part is followed by an '@' and then a domain name. The domain name is made up of domain "
             + "labels separated by periods.\n"
             + "The domain name must:\n"
             + "    - end with a domain label at least 2 characters long\n"
-            + "    - have each domain label start and end with alphanumeric characters\n"
-            + "    - have each domain label consist of alphanumeric characters, separated only by hyphens, if any.";
+            + "    - have each domain label start and end with an English letter or digit\n"
+            + "    - have each domain label consist of English letters and digits, separated only by "
+            + "hyphens, if any.";
     private static final String AT = "@";
+    private static final String DOMAIN_LABEL_SEPARATOR = ".";
     private static final String DOMAIN_LABEL_SEPARATOR_REGEX = "\\.";
     // alphanumeric and special characters
     private static final String ALPHANUMERIC_NO_UNDERSCORE = "[^\\W_]+"; // alphanumeric characters except underscore
@@ -78,6 +81,16 @@ public class Email {
      */
     public static boolean isValidEmail(String test) {
         return test.codePointCount(0, test.length()) <= MAX_LENGTH && test.matches(VALIDATION_REGEX);
+    }
+
+    /**
+     * Returns true if the domain, the part after the "@", contains a period.
+     * A domain without one, such as {@code gmail}, is valid but is often missing an ending such as {@code .com}.
+     */
+    public boolean hasDotInDomain() {
+        int atIndex = value.indexOf(AT);
+        assert atIndex > 0 && atIndex == value.lastIndexOf(AT) : "A valid email has exactly one @";
+        return value.substring(atIndex + 1).contains(DOMAIN_LABEL_SEPARATOR);
     }
 
     /**
@@ -150,19 +163,6 @@ public class Email {
         String lastLabel = labels[labels.length - 1];
         assert !lastLabel.matches(DOMAIN_LAST_PART_REGEX);
         return String.format(MESSAGE_SHORT_LAST_DOMAIN_LABEL, email);
-    }
-
-    /**
-     * Returns the first character in {@code text} that {@code allowedCharacterRegex} doesn't match,
-     * or an empty {@code Optional} if every character is allowed.
-     */
-    private static Optional<String> findInvalidCharacter(String text, String allowedCharacterRegex) {
-        String invalidCharacters = text.replaceAll(allowedCharacterRegex, "");
-        if (invalidCharacters.isEmpty()) {
-            return Optional.empty();
-        }
-        int firstLength = Character.charCount(invalidCharacters.codePointAt(0));
-        return Optional.of(invalidCharacters.substring(0, firstLength));
     }
 
     @Override

@@ -1,6 +1,7 @@
 package seedu.address.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,7 +16,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
 /**
- * Tests that {@link ResultDisplay} cannot be edited from the keyboard.
+ * Tests that {@link ResultDisplay} cannot be edited from the keyboard, and that it wraps long feedback.
  */
 @ExtendWith(ApplicationExtension.class)
 public class ResultDisplayTest {
@@ -92,6 +93,15 @@ public class ResultDisplayTest {
             textArea.fireEvent(new KeyEvent(KeyEvent.KEY_PRESSED, "", "", KeyCode.A,
                     false, !isMac, false, isMac));
             assertEquals(FEEDBACK, textArea.getSelectedText());
+        });
+    }
+
+    @Test
+    public void setFeedbackToUser_longFeedback_wrapsText(FxRobot robot) {
+        robot.interact(() -> {
+            // usage messages are long, so they must wrap instead of scrolling sideways
+            resultDisplay.setFeedbackToUser("word ".repeat(100));
+            assertTrue(getTextArea().isWrapText());
         });
     }
 

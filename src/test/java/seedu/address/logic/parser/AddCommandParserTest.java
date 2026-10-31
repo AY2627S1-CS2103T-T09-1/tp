@@ -77,19 +77,54 @@ public class AddCommandParserTest {
         String missingSchoolMessage = "Missing required parameter: sch/.";
         assertParseFailure(parser, person + SUBJECT_DESC, missingSchoolMessage);
         assertParseFailure(parser, person + "sch/Victoria School" + SUBJECT_DESC, missingSchoolMessage);
-        assertParseFailure(parser, person + " sch/  " + SUBJECT_DESC, School.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, person + " sch/  " + SUBJECT_DESC, School.MESSAGE_BLANK);
         assertParseFailure(parser, person + SCHOOL_DESC_BOB + " sch/Other School" + SUBJECT_DESC,
                 Messages.getErrorMessageForDuplicatePrefixes(PREFIX_SCHOOL));
     }
 
     @Test
-    public void parse_schoolWithBracketsAndComma_success() {
-        String[] schools = {"Anglo-Chinese School (Independent)", "School of Science and Technology, Singapore"};
+    public void parse_invalidSchoolValues_failure() {
+        String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB;
+        assertParseFailure(parser, details + " sch/School#1" + SUBJECT_DESC,
+                String.format(School.MESSAGE_INVALID_CHARACTER, "School#1", "#"));
+        assertParseFailure(parser, details + " sch/123" + SUBJECT_DESC,
+                String.format(School.MESSAGE_MISSING_ASCII_LETTER, "123"));
+        assertParseFailure(parser, details + " sch/École Française" + SUBJECT_DESC,
+                String.format(School.MESSAGE_INVALID_CHARACTER, "École Française", "É"));
+        assertParseFailure(parser, details + " sch/李明学校" + SUBJECT_DESC,
+                String.format(School.MESSAGE_INVALID_CHARACTER, "李明学校", "李"));
+        assertParseFailure(parser, details + " sch/" + "a".repeat(101) + SUBJECT_DESC,
+                String.format(School.MESSAGE_TOO_LONG, 101));
+    }
+
+    @Test
+    public void parse_schoolWithSupportedDigitsAndPunctuation_success() {
+        String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SUBJECT_DESC;
+        String[] schools = {
+            "Victoria School 2",
+            "Anglo-Chinese School (Independent)",
+            "St. Joseph's Institution",
+            "School of Science and Technology, Singapore"
+        };
         for (String school : schools) {
             Person expectedPerson = new PersonBuilder(BOB).withSchool(school).build();
-            String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + " sch/" + school + SUBJECT_DESC;
+            assertParseSuccess(parser, details + " sch/" + school, new AddCommand(expectedPerson));
+        }
+    }
 
-            assertParseSuccess(parser, details, new AddCommand(expectedPerson));
+    @Test
+    public void parse_nonAsciiName_failure() {
+        String details = PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB + SUBJECT_DESC;
+        assertParseFailure(parser, " n/Zoë Lim" + details, Name.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_subjectWithOfficialPunctuation_success() {
+        String details = NAME_DESC_BOB + PHONE_DESC_BOB + LEVEL_DESC_BOB + SCHOOL_DESC_BOB;
+        String[] subjects = {"Science (Physics, Chemistry)", "Design & Technology", "Food & Consumer Education"};
+        for (String subject : subjects) {
+            Person expectedPerson = new PersonBuilder(BOB).withSubjects(new Subject(subject, Band.G3)).build();
+            assertParseSuccess(parser, details + " sub/" + subject + " band/G3", new AddCommand(expectedPerson));
         }
     }
 
@@ -140,15 +175,47 @@ public class AddCommandParserTest {
     }
 
     @Test
+    public void parse_addressWithJoinedPrefix_reportsCaseSensitivePrefix() {
+        String args = NAME_DESC_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB + " a/Blk 1/2P/91234567" + SUBJECT_DESC;
+        assertParseFailure(parser, args, String.format(Messages.MESSAGE_PREFIX_CASE_SENSITIVE, "P/", "p/"));
+    }
+
+    @Test
+    public void parse_addressWithOrdinarySlashAndSeparatedPrefix_success() {
+        Person expectedPerson = new PersonBuilder(BOB).withAddress("Blk 1/2").build();
+        assertParseSuccess(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB
+                + " a/Blk 1/2" + PHONE_DESC_BOB + SUBJECT_DESC, new AddCommand(expectedPerson));
+    }
+
+    @Test
+    public void parse_addressWithJoinedLowercasePrefix_reportsMissingSpace() {
+        String args = NAME_DESC_BOB + SCHOOL_DESC_BOB + LEVEL_DESC_BOB + " a/Blk 1/2p/91234567" + SUBJECT_DESC;
+        assertParseFailure(parser, args, String.format(Messages.MESSAGE_MISSING_SPACE_BEFORE_PREFIX, "p/"));
+    }
+
+    @Test
     public void parse_blankAddress_failure() {
         assertParseFailure(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + " a/ " + LEVEL_DESC_BOB + SUBJECT_DESC,
                 Address.MESSAGE_CONSTRAINTS);
     }
 
     @Test
+    public void parse_nonAsciiAddress_failure() {
+        String args = NAME_DESC_BOB + SCHOOL_DESC_BOB + " a/Rue de l'Église 5" + LEVEL_DESC_BOB + SUBJECT_DESC;
+        assertParseFailure(parser, args, String.format(Address.MESSAGE_INVALID_CHARACTER, "É"));
+    }
+
+    @Test
     public void parse_emailProvided_success() {
         Person expectedPerson = new PersonBuilder(BOB).withoutPhone().withEmail(VALID_EMAIL_BOB).build();
         assertParseSuccess(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + EMAIL_DESC_BOB + LEVEL_DESC_BOB
+                + SUBJECT_DESC, new AddCommand(expectedPerson));
+    }
+
+    @Test
+    public void parse_emailWithoutDomainDot_success() {
+        Person expectedPerson = new PersonBuilder(BOB).withoutPhone().withEmail("bob@gmail").build();
+        assertParseSuccess(parser, NAME_DESC_BOB + SCHOOL_DESC_BOB + " e/bob@gmail" + LEVEL_DESC_BOB
                 + SUBJECT_DESC, new AddCommand(expectedPerson));
     }
 
@@ -449,7 +516,7 @@ public class AddCommandParserTest {
                 " sub/English p/91234567 band/G1")) {
             assertParseFailure(parser, details + pairs, Messages.MESSAGE_SUBJECT_BAND_PAIR);
         }
-        for (String name : List.of("", "---", "Maths2", "A".repeat(41))) {
+        for (String name : List.of("", "---", "Maths2", "A".repeat(41), "Français", "华文")) {
             assertParseFailure(parser, details + " sub/" + name + " band/G1", Subject.MESSAGE_CONSTRAINTS);
         }
         assertParseFailure(parser, details + " sub/English band/", Band.MESSAGE_CONSTRAINTS);

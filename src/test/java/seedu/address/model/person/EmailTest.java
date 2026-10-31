@@ -121,6 +121,19 @@ public class EmailTest {
     }
 
     @Test
+    public void hasDotInDomain_dotInDomain_returnsTrue() {
+        assertTrue(new Email("a@example.com").hasDotInDomain());
+        assertTrue(new Email("a@sub.example.sg").hasDotInDomain());
+    }
+
+    @Test
+    public void hasDotInDomain_noDotInDomain_returnsFalse() {
+        assertFalse(new Email("a@gmail").hasDotInDomain());
+        // a period before the "@" is not in the domain
+        assertFalse(new Email("a.b@gmail").hasDotInDomain());
+    }
+
+    @Test
     public void equals() {
         Email email = new Email("valid@email");
 

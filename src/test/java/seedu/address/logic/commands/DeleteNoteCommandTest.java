@@ -119,7 +119,8 @@ public class DeleteNoteCommandTest {
         Person editedFirst = new PersonBuilder(first).withNotes(NOTE_TEST_SCORE).build();
         String expectedMessage = String.format(DeleteNoteCommand.MESSAGE_SUCCESS, 1, first.getName(),
                 first.getSchool(), first.getLevel(), NOTE_ALGEBRA)
-                + "\n" + String.format(EditCommand.MESSAGE_NO_LONGER_MATCHES, first.getName());
+                + "\n" + String.format(EditCommand.MESSAGE_NO_LONGER_MATCHES, first.getName(),
+                        first.getSchool(), first.getLevel());
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.setPerson(first, editedFirst);

@@ -1,6 +1,7 @@
 package seedu.address.logic.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.Messages.MESSAGE_SUBJECT_BAND_PAIR;
@@ -89,6 +90,24 @@ public class ParserUtilTest {
     }
 
     @Test
+    public void isInteger_integer_returnsTrue() {
+        assertTrue(ParserUtil.isInteger("1"));
+        assertTrue(ParserUtil.isInteger("0"));
+        assertTrue(ParserUtil.isInteger("-1"));
+        assertTrue(ParserUtil.isInteger("  99999999999  "));
+        assertTrue(ParserUtil.isInteger("  -99999999999  "));
+    }
+
+    @Test
+    public void isInteger_notInteger_returnsFalse() {
+        assertFalse(ParserUtil.isInteger(""));
+        assertFalse(ParserUtil.isInteger(WHITESPACE));
+        assertFalse(ParserUtil.isInteger("3.5"));
+        assertFalse(ParserUtil.isInteger("abc"));
+        assertFalse(ParserUtil.isInteger("1 2"));
+    }
+
+    @Test
     public void parseNid_validInput_returnsIndex() throws Exception {
         assertEquals(Index.fromOneBased(1), ParserUtil.parseNid("1"));
         assertEquals(Index.fromOneBased(2), ParserUtil.parseNid("  2  "));
@@ -153,6 +172,12 @@ public class ParserUtilTest {
     public void parseAddress_overMaximumLength_throwsParseException() {
         String longAddress = "A".repeat(Address.MAX_LENGTH + 1);
         assertThrows(ParseException.class, Address.MESSAGE_CONSTRAINTS, () -> ParserUtil.parseAddress(longAddress));
+    }
+
+    @Test
+    public void parseAddress_nonAsciiValue_throwsParseException() {
+        String expectedMessage = String.format(Address.MESSAGE_INVALID_CHARACTER, "É");
+        assertThrows(ParseException.class, expectedMessage, () -> ParserUtil.parseAddress("Rue de l'Église 5"));
     }
 
     @Test
@@ -351,6 +376,12 @@ public class ParserUtilTest {
     }
 
     @Test
+    public void parseNote_nonAsciiValue_throwsParseException() {
+        String expectedMessage = String.format(Note.MESSAGE_INVALID_CHARACTER, "ç");
+        assertThrows(ParseException.class, expectedMessage, () -> ParserUtil.parseNote("Français oral"));
+    }
+
+    @Test
     public void parseNote_validValueWithWhitespace_returnsTrimmedNote() throws Exception {
         String noteWithWhitespace = WHITESPACE + VALID_NOTE + WHITESPACE;
         assertEquals(VALID_NOTE, ParserUtil.parseNote(noteWithWhitespace).value);
@@ -459,7 +490,9 @@ public class ParserUtilTest {
                 "91234567gp/92345678", "g");
         assertThrows(ParseException.class, joinedPhoneMessage + "\n" + HINT, () ->
                 ParserUtil.parsePhone("91234567gp/92345678"));
-        assertThrows(ParseException.class, School.MESSAGE_CONSTRAINTS + "\n" + HINT, () ->
+        String invalidSchool = String.format(School.MESSAGE_INVALID_CHARACTER,
+                "Victoria Schoole/a@b.com", "/");
+        assertThrows(ParseException.class, invalidSchool + "\n" + HINT, () ->
                 ParserUtil.parseSchool("Victoria Schoole/a@b.com"));
         assertThrows(ParseException.class, Level.MESSAGE_CONSTRAINTS + "\n" + HINT, () ->
                 ParserUtil.parseLevel("S2p/91234567"));

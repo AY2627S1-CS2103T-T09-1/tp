@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import seedu.address.logic.parser.Prefix;
+import seedu.address.model.person.Email;
 import seedu.address.model.person.Person;
 import seedu.address.model.person.Phone;
 import seedu.address.model.person.Subject;
@@ -23,7 +24,8 @@ public class Messages {
 
     public static final String MESSAGE_UNKNOWN_COMMAND = "Unknown command.";
     public static final String MESSAGE_INVALID_COMMAND_FORMAT = "Invalid command format!\n%1$s";
-    public static final String MESSAGE_INVALID_PERSON_DISPLAYED_INDEX = "The student index provided is invalid.";
+    public static final String MESSAGE_INVALID_PERSON_DISPLAYED_INDEX =
+            "Index must be a positive integer shown in the displayed student list.";
     public static final String MESSAGE_PERSONS_LISTED_OVERVIEW = "%1$d student(s) listed!";
     public static final String MESSAGE_NOT_PROVIDED = "Not provided";
     public static final String MESSAGE_DUPLICATE_FIELDS =
@@ -41,10 +43,20 @@ public class Messages {
     public static final String MESSAGE_PREFIX_WITHOUT_SPACE_HINT =
             "If \"/\" was meant to start a new parameter, "
             + "check that each prefix is one this command accepts and has a space before it.";
+    public static final String MESSAGE_ADDRESS_SLASH_HINT =
+            " If \"/\" is part of the address, put a space before the \"/\" instead.";
+    public static final String MESSAGE_PREFIX_CASE_SENSITIVE =
+            "The \"%1$s\" prefix is case-sensitive. If you meant to start the \"%2$s\" parameter, "
+            + "write \"%2$s\" with a space before it." + MESSAGE_ADDRESS_SLASH_HINT;
+    public static final String MESSAGE_MISSING_SPACE_BEFORE_PREFIX =
+            "If you meant to start the \"%1$s\" parameter, put a space before it."
+            + MESSAGE_ADDRESS_SLASH_HINT;
     public static final String MESSAGE_NOT_SINGAPORE_PHONE = "Warning: %1$s doesn't look like a Singapore number "
             + "(8 digits starting with 6, 8, or 9, with or without +65). Use edit to fix it if it's wrong.";
     public static final String MESSAGE_NOT_SINGAPORE_PHONES = "Warning: %1$s don't look like Singapore numbers "
             + "(8 digits starting with 6, 8, or 9, with or without +65). Use edit to fix them if they're wrong.";
+    public static final String MESSAGE_EMAIL_NO_DOMAIN_DOT = "Warning: email %1$s has no \".\" after the \"@\", "
+            + "so an ending such as \".com\" may be missing. Use edit to fix it if it's wrong.";
     public static final String WARNING_LABEL_PHONE = "phone ";
     public static final String WARNING_LABEL_GUARDIAN_PHONE = "guardian phone ";
 
@@ -92,6 +104,17 @@ public class Messages {
             return Optional.of(String.format(MESSAGE_NOT_SINGAPORE_PHONE, nonSingaporePhones.get(0)));
         }
         return Optional.of(String.format(MESSAGE_NOT_SINGAPORE_PHONES, String.join(" and ", nonSingaporePhones)));
+    }
+
+    /**
+     * Returns a warning that {@code email} may be missing an ending such as ".com",
+     * or an empty {@code Optional} if no email was given or its domain has a period.
+     *
+     * @param email The student's email, if one was given.
+     */
+    public static Optional<String> getEmailNoDomainDotWarning(Optional<Email> email) {
+        return email.filter(e -> !e.hasDotInDomain())
+                .map(e -> String.format(MESSAGE_EMAIL_NO_DOMAIN_DOT, e));
     }
 
     private static Optional<String> labelIfNotSingapore(String label, Optional<Phone> phone) {

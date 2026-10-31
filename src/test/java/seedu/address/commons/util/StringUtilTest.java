@@ -1,10 +1,12 @@
 package seedu.address.commons.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.Assert.assertThrows;
 
 import java.io.FileNotFoundException;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -138,6 +140,23 @@ public class StringUtilTest {
     }
 
     @Test
+    public void containsIgnoreCaseAndSpaces_curlyApostrophe_matchesStraight() {
+        assertTrue(StringUtil.containsIgnoreCaseAndSpaces("St. Joseph’s Institution", "joseph's"));
+        assertTrue(StringUtil.containsIgnoreCaseAndSpaces("Cedar Girls' School", "girls’"));
+    }
+
+    @Test
+    public void containsIgnoreCaseAndSpaces_curlyDoubleQuote_matchesStraight() {
+        assertTrue(StringUtil.containsIgnoreCaseAndSpaces("revise \"quadratic\" formula", "“quadratic”"));
+        assertTrue(StringUtil.containsIgnoreCaseAndSpaces("Blk 5 “Sunrise” Court", "\"sunrise\""));
+    }
+
+    @Test
+    public void containsIgnoreCaseAndSpaces_nonBreakingSpaceInText_returnsTrue() {
+        assertTrue(StringUtil.containsIgnoreCaseAndSpaces("Bedok\u00A0North", "bedok north"));
+    }
+
+    @Test
     public void containsIgnoreCaseAndSpaces_textNotPresent_returnsFalse() {
         assertFalse(StringUtil.containsIgnoreCaseAndSpaces("Victoria School", "raffles"));
         assertFalse(StringUtil.containsIgnoreCaseAndSpaces("Victoria School", "school victoria"));
@@ -153,6 +172,82 @@ public class StringUtilTest {
     public void containsIgnoreCaseAndSpaces_blankSearchText_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class, () -> StringUtil.containsIgnoreCaseAndSpaces("a", ""));
         assertThrows(IllegalArgumentException.class, () -> StringUtil.containsIgnoreCaseAndSpaces("a", "  "));
+    }
+
+    //---------------- Tests for normalizeInput --------------------------------------
+
+    @Test
+    public void normalizeInput_plainText_returnsSameText() {
+        assertEquals("add n/Rajesh Kumar p/91234567", StringUtil.normalizeInput("add n/Rajesh Kumar p/91234567"));
+        assertEquals("", StringUtil.normalizeInput(""));
+    }
+
+    @Test
+    public void normalizeInput_unicodeSpaces_returnsNormalSpaces() {
+        // non-breaking, full-width, figure, and narrow non-breaking spaces
+        assertEquals("a b c d e", StringUtil.normalizeInput("a b　c d e"));
+    }
+
+    @Test
+    public void normalizeInput_tabsAndLineBreaks_returnNormalSpaces() {
+        // tab, line feed, carriage return, next line, and line separator
+        assertEquals("a b c d e f", StringUtil.normalizeInput("a\tb\nc\rd\u0085e f"));
+    }
+
+    @Test
+    public void normalizeInput_invisibleCharacters_removed() {
+        // zero-width space, byte-order mark, left-to-right and right-to-left marks, soft hyphen, word joiner
+        assertEquals("Bedok", StringUtil.normalizeInput("﻿Be​d‎‏o­k⁠"));
+    }
+
+    @Test
+    public void normalizeInput_controlCharacters_removed() {
+        assertEquals("abcd", StringUtil.normalizeInput("a\u0000b\u007Fc\u009Fd"));
+    }
+
+    @Test
+    public void normalizeInput_joiners_kept() {
+        String familyEmoji = "👨‍👩‍👧";
+        assertEquals(familyEmoji, StringUtil.normalizeInput(familyEmoji));
+        assertEquals("a‌b", StringUtil.normalizeInput("a‌b"));
+    }
+
+    @Test
+    public void normalizeInput_decomposedAccent_composed() {
+        assertEquals("école", StringUtil.normalizeInput("école"));
+
+        // a zero-width space between the letter and its accent
+        assertEquals("école", StringUtil.normalizeInput("e​́cole"));
+    }
+
+    @Test
+    public void normalizeInput_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> StringUtil.normalizeInput(null));
+    }
+
+    //---------------- Tests for findInvalidCharacter --------------------------------------
+
+    @Test
+    public void findInvalidCharacter_allAllowed_returnsEmpty() {
+        assertEquals(Optional.empty(), StringUtil.findInvalidCharacter("Cafe", "[A-Za-z]"));
+        assertEquals(Optional.empty(), StringUtil.findInvalidCharacter("", "[A-Za-z]"));
+    }
+
+    @Test
+    public void findInvalidCharacter_severalInvalid_returnsFirst() {
+        assertEquals(Optional.of("é"), StringUtil.findInvalidCharacter("Café 中文", "[A-Za-z ]"));
+    }
+
+    @Test
+    public void findInvalidCharacter_emoji_returnsWholeEmoji() {
+        String emoji = "😀";
+        assertEquals(Optional.of(emoji), StringUtil.findInvalidCharacter("Good " + emoji, "[A-Za-z ]"));
+    }
+
+    @Test
+    public void findInvalidCharacter_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> StringUtil.findInvalidCharacter(null, "[A-Za-z]"));
+        assertThrows(NullPointerException.class, () -> StringUtil.findInvalidCharacter("Cafe", null));
     }
 
     //---------------- Tests for getDetails --------------------------------------

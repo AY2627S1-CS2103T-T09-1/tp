@@ -48,6 +48,21 @@ public class JsonAdaptedPersonTest {
     }
 
     @Test
+    public void toModelType_schoolWithUnicode_throwsIllegalValueException() {
+        JsonAdaptedPerson unicodeSchool = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE,
+                "École Française", null, VALID_LEVEL, VALID_SUBJECTS);
+        assertThrows(IllegalValueException.class, School.MESSAGE_CONSTRAINTS, unicodeSchool::toModelType);
+    }
+
+    @Test
+    public void toModelType_punctuatedSchool_returnsPerson() throws Exception {
+        String school = "St. Joseph's Institution";
+        JsonAdaptedPerson punctuatedSchool = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, school, null,
+                VALID_LEVEL, VALID_SUBJECTS);
+        assertEquals(new PersonBuilder(BENSON).withSchool(school).build(), punctuatedSchool.toModelType());
+    }
+
+    @Test
     public void toModelType_missingSchool_defaultsToUnknown() throws Exception {
         JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, null, null, VALID_LEVEL,
                 VALID_SUBJECTS);
@@ -139,6 +154,14 @@ public class JsonAdaptedPersonTest {
     }
 
     @Test
+    public void toModelType_nonAsciiAddress_throwsIllegalValueException() {
+        JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, VALID_SCHOOL, "Rue de l'Église 5",
+                VALID_LEVEL, VALID_SUBJECTS);
+        assertThrows(IllegalValueException.class, String.format(Address.MESSAGE_INVALID_CHARACTER, "É"),
+                person::toModelType);
+    }
+
+    @Test
     public void toModelType_personWithNotes_roundTripsThroughJson() throws Exception {
         Person bensonWithNotes = new PersonBuilder(BENSON)
                 .withNotes("Weak in algebra", "WA2 Math: 36/50").build();
@@ -170,6 +193,13 @@ public class JsonAdaptedPersonTest {
                 new JsonAdaptedPerson(INVALID_NAME, VALID_PHONE, VALID_SCHOOL, null, VALID_LEVEL, VALID_SUBJECTS);
         String expectedMessage = Name.MESSAGE_CONSTRAINTS;
         assertThrows(IllegalValueException.class, expectedMessage, person::toModelType);
+    }
+
+    @Test
+    public void toModelType_nameWithUnicode_throwsIllegalValueException() {
+        JsonAdaptedPerson person = new JsonAdaptedPerson("Zoë Lim", VALID_PHONE, VALID_SCHOOL, null, VALID_LEVEL,
+                VALID_SUBJECTS);
+        assertThrows(IllegalValueException.class, Name.MESSAGE_CONSTRAINTS, person::toModelType);
     }
 
     @Test

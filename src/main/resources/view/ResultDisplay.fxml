@@ -6,6 +6,7 @@
 
 <VBox fx:id="placeHolder" styleClass="pane-with-border" spacing="2" xmlns="http://javafx.com/javafx/17"
     xmlns:fx="http://javafx.com/fxml/1">
-  <Label fx:id="cancellationDisplay" visible="false" managed="false" styleClass="error" />
-  <TextArea fx:id="resultDisplay" editable="false" styleClass="result-display" VBox.vgrow="ALWAYS"/>
+  <Label fx:id="cancellationDisplay" visible="false" managed="false" styleClass="error" wrapText="true" />
+  <TextArea fx:id="resultDisplay" editable="false" wrapText="true" styleClass="result-display"
+      VBox.vgrow="ALWAYS"/>
 </VBox>

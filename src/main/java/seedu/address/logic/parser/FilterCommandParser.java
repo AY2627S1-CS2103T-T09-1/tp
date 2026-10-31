@@ -19,6 +19,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import seedu.address.logic.commands.FilterCommand;
@@ -59,6 +62,8 @@ public class FilterCommandParser implements Parser<FilterCommand> {
             + ", such as: filter " + PREFIX_NOTE + "algebra";
     public static final String MESSAGE_ONE_TAG = "filter takes one tag, so give " + PREFIX_TAG
             + " only once, such as: filter " + PREFIX_TAG + "paid";
+    public static final String MESSAGE_REPEATED_FILTER = "Each filter can be given only once, but you repeated: "
+            + "%1$s. To see students who match either value, run filter once for each value.";
     public static final String MESSAGE_FILTER_TAG_HAS_SPACE = "Tag \"%1$s\" contains a space. filter takes one "
             + "tag of one word, such as: filter " + PREFIX_TAG + "paid";
     public static final String MESSAGE_BLANK_NOTE = "The note text to search for cannot be blank.";
@@ -66,6 +71,8 @@ public class FilterCommandParser implements Parser<FilterCommand> {
             + Note.MAX_LENGTH + " characters.";
     public static final String MESSAGE_SEARCH_CANNOT_MATCH =
             "No student's %1$s can contain \"/\", so \"%2$s\" matches no one.";
+    public static final String MESSAGE_UNKNOWN_FILTER_PREFIX = "%s is not a filter prefix. Use n/, sch/, lvl/, "
+            + "sub/, band/, p/, e/, a/, gn/, gp/, t/, or note/.";
 
     private static final Prefix[] FILTER_PREFIXES = {
         PREFIX_NAME, PREFIX_SCHOOL, PREFIX_LEVEL, PREFIX_SUBJECT, PREFIX_BAND,
@@ -76,6 +83,8 @@ public class FilterCommandParser implements Parser<FilterCommand> {
     private static final String FIELD_SCHOOL = "school";
     private static final String FIELD_EMAIL = "email";
     private static final String FIELD_GUARDIAN_NAME = "guardian name";
+    private static final Pattern PREFIX_SHAPED_TOKEN = Pattern.compile("\\s([A-Za-z]+/)(\\S*)");
+    private static final Pattern PREFIX_SHAPED_PREAMBLE = Pattern.compile("^([A-Za-z]+/)(\\S*)");
 
     /**
      * Parses the given {@code String} of arguments in the context of the FilterCommand
@@ -91,14 +100,16 @@ public class FilterCommandParser implements Parser<FilterCommand> {
     }
 
     /**
-     * Throws a {@code ParseException} if {@code argMultimap} has {@code nid/}, text before the first prefix,
-     * no filters, a repeated prefix, or {@code band/} anywhere except right after {@code sub/}.
+     * Throws a {@code ParseException} if {@code argMultimap} has {@code nid/}, an unknown filter prefix,
+     * text before the first prefix, no filters, a repeated prefix, or {@code band/} anywhere except right after
+     * {@code sub/}.
      */
     private static void verifyFilterFormat(ArgumentMultimap argMultimap) throws ParseException {
         // nid/ is deletenote's and editnote's note index, recognized only to point the user to note/
         if (hasAny(argMultimap, PREFIX_NID)) {
             throw new ParseException(MESSAGE_USE_NOTE_FILTER);
         }
+        verifyNoUnknownFilterPrefixes(argMultimap);
         if (!argMultimap.getPreamble().isEmpty()) {
             throw new ParseException(String.format(MESSAGE_INVALID_COMMAND_FORMAT, FilterCommand.MESSAGE_USAGE));
         }
@@ -109,8 +120,60 @@ public class FilterCommandParser implements Parser<FilterCommand> {
         if (argMultimap.getAllValues(PREFIX_TAG).size() > 1) {
             throw new ParseException(MESSAGE_ONE_TAG);
         }
-        argMultimap.verifyNoDuplicatePrefixesFor(FILTER_PREFIXES);
+        verifyNoRepeatedFilter(argMultimap);
         verifyBandFollowsSubject(argMultimap.getPrefixes());
+    }
+
+    /**
+     * Throws a {@code ParseException} if a value contains a separate prefix-shaped token that is not recognized.
+     * Address values are excluded because slashes can form legitimate address text, and {@code note/} consumes all
+     * trailing text by design.
+     */
+    private static void verifyNoUnknownFilterPrefixes(ArgumentMultimap argMultimap) throws ParseException {
+        verifyPreambleDoesNotStartWithUnknownPrefix(argMultimap.getPreamble());
+        verifyNoUnknownFilterPrefix(argMultimap.getPreamble(), false);
+        for (Prefix prefix : FILTER_PREFIXES) {
+            if (PREFIX_ADDRESS.equals(prefix) || PREFIX_NOTE.equals(prefix)) {
+                continue;
+            }
+            boolean isName = PREFIX_NAME.equals(prefix) || PREFIX_GUARDIAN_NAME.equals(prefix);
+            for (String value : argMultimap.getAllValues(prefix)) {
+                verifyNoUnknownFilterPrefix(value, isName);
+            }
+        }
+    }
+
+    private static void verifyPreambleDoesNotStartWithUnknownPrefix(String preamble) throws ParseException {
+        Matcher matcher = PREFIX_SHAPED_PREAMBLE.matcher(preamble);
+        if (matcher.find()) {
+            throw new ParseException(String.format(MESSAGE_UNKNOWN_FILTER_PREFIX, matcher.group(1)));
+        }
+    }
+
+    /**
+     * Throws a {@code ParseException} if {@code text} contains an unknown prefix-shaped token.
+     */
+    private static void verifyNoUnknownFilterPrefix(String text, boolean isName) throws ParseException {
+        Matcher matcher = PREFIX_SHAPED_TOKEN.matcher(text);
+        while (matcher.find()) {
+            String prefix = matcher.group(1);
+            String value = matcher.group(2);
+            if (hasKnownPrefixSuffix(prefix) || (isName && isNameRelationship(prefix, value))) {
+                continue;
+            }
+            throw new ParseException(String.format(MESSAGE_UNKNOWN_FILTER_PREFIX, prefix));
+        }
+    }
+
+    private static boolean hasKnownPrefixSuffix(String candidate) {
+        return Stream.of(allPrefixes())
+                .map(Prefix::getPrefix)
+                .anyMatch(prefix -> candidate.length() > prefix.length() && candidate.endsWith(prefix));
+    }
+
+    private static boolean isNameRelationship(String prefix, String value) {
+        return ("s/".equalsIgnoreCase(prefix) || "d/".equalsIgnoreCase(prefix))
+                && "o".equalsIgnoreCase(value);
     }
 
     /**
@@ -133,8 +196,10 @@ public class FilterCommandParser implements Parser<FilterCommand> {
                 new PhoneMatchesPredicate(ParserUtil.parsePhone(value)));
         addFilter(filters, argMultimap, PREFIX_EMAIL, value -> new EmailContainsTextPredicate(
                 parseSlashFreeSearchText(value, MESSAGE_BLANK_EMAIL, FIELD_EMAIL)));
-        addFilter(filters, argMultimap, PREFIX_ADDRESS, value ->
-                new AddressContainsTextPredicate(parseSearchText(value, MESSAGE_BLANK_ADDRESS)));
+        addFilter(filters, argMultimap, PREFIX_ADDRESS, value -> {
+            AddressPrefixChecker.verifyNoJoinedPrefix(value, FILTER_PREFIXES);
+            return new AddressContainsTextPredicate(parseSearchText(value, MESSAGE_BLANK_ADDRESS));
+        });
         addFilter(filters, argMultimap, PREFIX_GUARDIAN_NAME, value -> new GuardianNameContainsTextPredicate(
                 parseSlashFreeSearchText(value, MESSAGE_BLANK_GUARDIAN_NAME, FIELD_GUARDIAN_NAME)));
         addFilter(filters, argMultimap, PREFIX_GUARDIAN_PHONE, value ->
@@ -157,6 +222,19 @@ public class FilterCommandParser implements Parser<FilterCommand> {
 
     private static Prefix[] allPrefixes() {
         return Stream.concat(Stream.of(FILTER_PREFIXES), Stream.of(PREFIX_NID)).toArray(Prefix[]::new);
+    }
+
+    /**
+     * Throws a {@code ParseException} naming every filter prefix given more than once.
+     */
+    private static void verifyNoRepeatedFilter(ArgumentMultimap argMultimap) throws ParseException {
+        String repeatedPrefixes = Stream.of(FILTER_PREFIXES)
+                .filter(prefix -> argMultimap.getAllValues(prefix).size() > 1)
+                .map(Prefix::toString)
+                .collect(Collectors.joining(" "));
+        if (!repeatedPrefixes.isEmpty()) {
+            throw new ParseException(String.format(MESSAGE_REPEATED_FILTER, repeatedPrefixes));
+        }
     }
 
     /**
