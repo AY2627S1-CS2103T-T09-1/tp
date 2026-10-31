@@ -95,6 +95,9 @@ The sequence diagram below illustrates the interactions within the `Logic` compo
 
 ![Interactions Inside the Logic Component for the `delete -f 1` Command](images/DeleteSequenceDiagram.png)
 
+<div markdown="span" class="alert alert-info">:information_source: **Note:** The lifeline for `DeleteCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, it extends slightly past the center of the marker.
+</div>
+
 How the `Logic` component works:
 
 1. When `Logic` is called upon to execute a command, the command is passed to an `AddressBookParser` object, which in turn creates a parser that matches the command (e.g., `DeleteCommandParser`) and uses it to parse the command.
@@ -509,6 +512,8 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 1. `FilterCommand#execute` passes the predicate to `Model#updateFilteredPersonList` and returns `CommandResult.showList(...)` with the number of students found, or a no-match message.
 
 The partial-match predicates (`n/`, `sch/`, `e/`, `a/`, `gn/`, `note/`) use `StringUtil#containsIgnoreCaseAndSpaces`, which ignores case and runs of whitespace.
+
+Names, schools, emails, and guardian names can't contain `/`, so a search for one with `/` in it can never match. `FilterCommandParser` rejects such a search with `MESSAGE_SEARCH_CANNOT_MATCH`. Addresses can contain `/`, so `a/` is checked by `AddressPrefixChecker` instead. See [Hint for a missing space before a prefix](#hint-for-a-missing-space-before-a-prefix).
 
 Apart from `NameContainsKeywordsPredicate`, these predicates extend the abstract `ContainsTextPredicate`. It holds the text, rejects blank text, and defines `containsText`, `equals`, and `toString`, so each subclass only picks the field to search in `test`. `equals` compares classes, so `sch/bedok` and `a/bedok` are different filters.
 
@@ -1201,52 +1206,62 @@ Use case ends.
 
 #### General
 
-* **AB3**: AddressBook-Level3, the sample project that TuteeBook3 is built on.
-* **CLI**: Command-line interface. A way of using an app by typing commands instead of clicking.
-* **DBMS**: Database management system. Software, such as MySQL, that stores data in a database. TuteeBook3 does not use one.
-* **GUI**: Graphical user interface. The windows, lists, and boxes that you see and click.
-* **JAR**: Java Archive. The single file that contains the whole app, which you run with Java.
-* **JSON**: JavaScript Object Notation. The text format that TuteeBook3 uses to save data in a file that can be read and edited by hand.
-* **Mainstream OS**: Windows, Linux, Unix, macOS.
+Term | Meaning
+-----|--------
+**AB3** | AddressBook-Level3, the sample project that TuteeBook3 is built on.
+**CLI** | Command-line interface. A way of using an app by typing commands instead of clicking.
+**DBMS** | Database management system. Software, such as MySQL, that stores data in a database. TuteeBook3 does not use one.
+**GUI** | Graphical user interface. The windows, lists, and boxes that you see and click.
+**JAR** | Java Archive. The single file that contains the whole app, which you run with Java.
+**JSON** | JavaScript Object Notation. The text format that TuteeBook3 uses to save data in a file that can be read and edited by hand.
+**Mainstream OS** | Windows, Linux, Unix, macOS.
 
 #### Tutoring terms
 
-* **Band**: The standard at which a student takes a subject: G1, G2, or G3. These come from Singapore's Full Subject-Based Banding, where G3 is the most demanding. Each subject has its own band, so a student may take Mathematics at G3 and Science at G2.
-* **Guardian**: A parent or other adult responsible for a student, whom the tutor contacts about the student's progress. A student has at most one guardian, recorded with both a name and a phone number.
-* **Level**: A student's year of secondary school, from S1 (Secondary 1) to S5 (Secondary 5).
-* **Note**: A short piece of text that the tutor attaches to a student, such as "Weak in Geometry" or "WA2 Math: 36/50".
-* **Student**: A secondary school student whom the tutor teaches.
-* **Subject**: A school subject that the tutor teaches the student, such as "Mathematics" or "Chemistry".
-* **Tag**: A short label that the tutor attaches to a student to group or flag them at a glance, such as "paid" or "O-level". A tag is one word, which may contain hyphens. A student can have any number of tags.
+Term | Meaning
+-----|--------
+**Band** | The standard at which a student takes a subject: G1, G2, or G3. These come from Singapore's Full Subject-Based Banding, where G3 is the most demanding. Each subject has its own band, so a student may take Mathematics at G3 and Science at G2.
+**Guardian** | A parent or other adult responsible for a student, whom the tutor contacts about the student's progress. A student has at most one guardian, recorded with both a name and a phone number.
+**Level** | A student's year of secondary school, from S1 (Secondary 1) to S5 (Secondary 5).
+**Note** | A short piece of text that the tutor attaches to a student, such as "Weak in Geometry" or "WA2 Math: 36/50".
+**Student** | A secondary school student whom the tutor teaches.
+**Subject** | A school subject that the tutor teaches the student, such as "Mathematics" or "Chemistry".
+**Tag** | A short label that the tutor attaches to a student to group or flag them at a glance, such as "paid" or "O-level". A tag is one word, which may contain hyphens. A student can have any number of tags.
 
 #### Commands
 
-* **Confirmation prompt**: An amber message that asks you to confirm a command before it runs. `delete`, `deletenote`, and `clear` show one before they delete anything, and `add` and `edit` show one when another student already has the same name. Type `CONFIRM` in uppercase to go ahead. Any other input, including `confirm`, cancels the command and runs as a normal command.
-* **Exact matching**: The way the `lvl/`, `sub/`, `band/`, `p/`, `gp/`, and `t/` filters of `filter` compare values. The whole value must match, ignoring case and extra spaces. For example, `lvl/S3` matches only students in S3, and `sub/math` does not match `Mathematics`.
-* **Filter**: A prefix and value given to the `filter` command, such as `n/Tan`, that narrows down the student list.
-* **Force flag**: The `-f` option of `delete`, `deletenote`, and `clear`, such as `delete -f 1`. It skips the confirmation prompt, so the command runs immediately. `add` and `edit` have no force flag.
-* **Index**: The number shown next to a student in the list currently on screen. Commands such as `view`, `edit`, and `delete` use it to pick a student. It is not permanent: it can change when the list changes, such as after `add`, `delete`, `filter`, or `list`.
-* **NID**: The number shown before a note in the student detail view. Notes are numbered 1, 2, 3 in the order they were added. After a note is deleted, the notes after it move up one number, so an NID is not permanent.
-* **Partial matching**: The way the `n/`, `sch/`, `e/`, `a/`, `gn/`, and `note/` filters of `filter` compare values. The value only needs to contain what you typed, even part of a word, ignoring case. For example, `sch/vic` matches `Victoria School`.
-* **Prefix**: A short marker ending in `/`, such as `n/` or `sch/`, that labels the value after it in a command.
-* **Warning**: An amber message that flags something that might be a mistake, without stopping the command. For example, TuteeBook3 saves a phone number that doesn't look like a Singapore number, but shows a warning so that you can check it.
+Term | Meaning
+-----|--------
+**Confirmation prompt** | An amber message that asks you to confirm a command before it runs. `delete`, `deletenote`, and `clear` show one before they delete anything, and `add` and `edit` show one when another student already has the same name. Type `CONFIRM` in uppercase to go ahead. Any other input, including `confirm`, cancels the command and runs as a normal command.
+**Exact matching** | The way the `lvl/`, `sub/`, `band/`, `p/`, `gp/`, and `t/` filters of `filter` compare values. The whole value must match, ignoring case and extra spaces. For example, `lvl/S3` matches only students in S3, and `sub/math` does not match `Mathematics`.
+**Filter** | A prefix and value given to the `filter` command, such as `n/Tan`, that narrows down the student list.
+**Force flag** | The `-f` option of `delete`, `deletenote`, and `clear`, such as `delete -f 1`. It skips the confirmation prompt, so the command runs immediately. `add` and `edit` have no force flag.
+**Index** | The number shown next to a student in the list currently on screen. Commands such as `view`, `edit`, and `delete` use it to pick a student. It is not permanent: it can change when the list changes, such as after `add`, `delete`, `filter`, or `list`.
+**NID** | The number shown before a note in the student detail view. Notes are numbered 1, 2, 3 in the order they were added. After a note is deleted, the notes after it move up one number, so an NID is not permanent.
+**Partial matching** | The way the `n/`, `sch/`, `e/`, `a/`, `gn/`, and `note/` filters of `filter` compare values. The value only needs to contain what you typed, even part of a word, ignoring case. For example, `sch/vic` matches `Victoria School`.
+**Prefix** | A short marker ending in `/`, such as `n/` or `sch/`, that labels the value after it in a command.
+**Warning** | An amber message that flags something that might be a mistake, without stopping the command. For example, TuteeBook3 saves a phone number that doesn't look like a Singapore number, but shows a warning so that you can check it.
 
 #### Screen layout
 
-* **Command box**: The text field at the top of the window where you type commands.
-* **Detail view**: The panel on the right of the window that shows everything about one student, including all their notes. It is also called the "detail panel" or "student detail view". `view` shows a student there, and `list` and `filter` clear it.
-* **Result display**: The area below the command box that tells you whether your last command worked, and why not if it failed. It is also called the "feedback box" or "result box".
-* **Student card**: One student's entry in the student list.
-* **Student list**: The panel on the left of the window that lists students with their main details. It shows all students, or the results of your last `filter`.
+Term | Meaning
+-----|--------
+**Command box** | The text field at the top of the window where you type commands.
+**Detail view** | The panel on the right of the window that shows everything about one student, including all their notes. It is also called the "detail panel" or "student detail view". `view` shows a student there, and `list` and `filter` clear it.
+**Result display** | The area below the command box that tells you whether your last command worked, and why not if it failed. It is also called the "feedback box" or "result box".
+**Student card** | One student's entry in the student list.
+**Student list** | The panel on the left of the window that lists students with their main details. It shows all students, or the results of your last `filter`.
 
 #### Code
 
-* **AddressBook**: The class that holds every `Person` in the app.
-* **Logic**: The component that turns what the user typed into a command and runs it.
-* **Model**: The component that holds the app's data while it runs and applies every change to it.
-* **Parser**: A class that checks what the user typed and turns it into a `Command` object, for example `AddCommandParser` for the `add` command.
-* **Person**: The class that stores one student's details. The name is kept from AB3.
-* **Storage**: The component that loads the data file when the app starts and saves every change back to it.
+Term | Meaning
+-----|--------
+**AddressBook** | The class that holds every `Person` in the app.
+**Logic** | The component that turns what the user typed into a command and runs it.
+**Model** | The component that holds the app's data while it runs and applies every change to it.
+**Parser** | A class that checks what the user typed and turns it into a `Command` object, for example `AddCommandParser` for the `add` command.
+**Person** | The class that stores one student's details. The name is kept from AB3.
+**Storage** | The component that loads the data file when the app starts and saves every change back to it.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -1261,38 +1276,42 @@ testers are expected to do more *exploratory* testing.
 
 ### Launch and shutdown
 
-1. Initial launch
+1. First launch and relaunch
 
-   1. Download the JAR file and copy it into an empty folder.
+   1. Prerequisites: Download `TuteeBook3.jar` and copy it into an empty folder. Open a terminal in that folder.
 
-   1. Double-click the JAR file.<br>
-      Expected: The GUI opens with a set of sample contacts. The window size may not be optimal.
+   1. Run `java -jar TuteeBook3.jar`.<br>
+      Expected: The GUI opens with a set of sample students. The folder now contains `preferences.json`.
+
+   1. Enter `add n/Manual Test Student sch/Victoria School lvl/S2 sub/Mathematics band/G1`.<br>
+      Expected: Manual Test Student is added, and `data/addressbook.json` is created.
+
+   1. Close the window, and run `java -jar TuteeBook3.jar` again. Enter `filter n/Manual Test Student`.<br>
+      Expected: Manual Test Student appears in the student list, showing that the saved data was loaded after relaunch.
 
 1. Saving window preferences
 
-   1. Resize the window to an optimal size. Move the window to a different location. Close the window.
+   1. Prerequisites: Launch TuteeBook3 as described in the previous test.
 
-   1. Relaunch the app by double-clicking the JAR file.<br>
-       Expected: The most recent window size and location are retained.
+   1. Resize the window, move it to a different location, and close it.
 
-1. _{ more test cases …​ }_
+   1. Run `java -jar TuteeBook3.jar` again.<br>
+      Expected: The window opens at the most recently saved size and location.
 
-### Deleting a person
+### Deleting a student
 
-1. Deleting a person while all persons are being shown
+1. Deleting a student while all students are shown
 
-   1. Prerequisites: List all persons using the `list` command, with multiple persons in the list.
+   1. Prerequisites: Use the `list` command to show multiple students.
 
-   1. Test case: `delete 1`<br>
-      Expected: The first contact is deleted from the list. The status message shows the deleted contact's details.
+   1. Test case: Enter `delete 1`, then enter `CONFIRM`.<br>
+      Expected: The first student is deleted. The status message shows the deleted student's details.
+
+   1. Test case: `delete -f 1`<br>
+      Expected: The first student is deleted without a confirmation prompt. The status message shows the deleted student's details.
 
    1. Test case: `delete 0`<br>
-      Expected: No person is deleted. The status message shows error details.
-
-   1. Other incorrect delete commands to try: `delete`, `delete x`, `...` (where x is larger than the list size)<br>
-      Expected: Similar to previous.
-
-1. _{ more test cases …​ }_
+      Expected: No student is deleted. The status message shows an invalid index error.
 
 ### Adding and editing a guardian
 
@@ -1302,7 +1321,7 @@ testers are expected to do more *exploratory* testing.
       Expected: Tim Tan is added. Viewing his student details shows guardian Mary Tan with phone number `91234567`.
 
    1. Test case: `add n/Ken Lim sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Lim`<br>
-      Expected: No student is added. The status message shows `Guardian name (gn/) and guardian phone (gp/) must be given together.`
+      Expected: No student is added. The status message says that guardian name and guardian phone must be given together.
 
    1. Test case: `add n/Ken Lim sch/Victoria School lvl/S2 sub/Mathematics band/G1`<br>
       Expected: Ken Lim is added. Viewing his student details shows `Not provided` for both guardian fields.
@@ -1315,7 +1334,7 @@ testers are expected to do more *exploratory* testing.
       Expected: Only the guardian's phone changes. Viewing Tim Tan's student details shows guardian Mary Tan with phone number `98765432`.
 
    1. Test case: `edit 1 gn/Peter Lim` on Ken Lim<br>
-      Expected: Ken Lim is unchanged. The status message shows `This student has no guardian yet. Give both gn/ and gp/ to add one.`
+      Expected: Ken Lim is unchanged. The status message says to give both guardian fields when adding a guardian.
 
    1. Test case: `edit 1 gn/ gp/91234567` on Tim Tan<br>
       Expected: Tim Tan is unchanged. The status message says that guardian name and guardian phone cannot be empty.
@@ -1324,7 +1343,7 @@ testers are expected to do more *exploratory* testing.
       Expected: The guardian is removed, and viewing the student's details shows `Not provided` for both guardian name and guardian phone.
 
    1. Test case: `edit 1 gn/ gp/` on Ken Lim<br>
-      Expected: Ken Lim is unchanged. The status message shows `This student has no guardian to remove.`
+      Expected: Ken Lim is unchanged. The status message says that the student has no guardian to remove.
 
 ### Adding and editing tags
 
@@ -1334,16 +1353,16 @@ testers are expected to do more *exploratory* testing.
       Expected: Mei Lin is added. Her list card shows the tags `exams` and `Paid`, in that order.
 
    1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/Paid t/paid`<br>
-      Expected: No student is added. The status message shows `Tag "paid" is given more than once.`
+      Expected: No student is added. The status message reports the duplicate tag.
 
    1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/exam_prep`<br>
-      Expected: No student is added. The status message shows `Tags must be one word of 1-30 English letters or digits. Single hyphens may join parts of the word, such as O-level, but spaces and other symbols are not allowed. For longer details, use a note instead.`
+      Expected: No student is added. The status message explains that a tag can contain only letters, digits, and single hyphens.
 
    1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/O-level`<br>
       Expected: Ken Ong is added with the tag `O-level`.
 
    1. Test case: `add n/Ken Ong sch/Victoria School lvl/S2 sub/Mathematics band/G1 t/exam prep`<br>
-      Expected: No student is added. The status message shows `Tag "exam prep" contains a space. Each tag is one word; to give more than one tag, put t/ before each, such as t/paid t/exams.`
+      Expected: No student is added. The status message explains that each tag is one word and needs its own `t/` prefix.
 
 1. Editing tags
 
@@ -1373,7 +1392,7 @@ testers are expected to do more *exploratory* testing.
       Expected: The school changes. The status message shows no warning about the phone number.
 
    1. Test case: `edit 1 p/12`<br>
-      Expected: Ravi Kumar is unchanged. The status message says `Phone 12 needs 3 to 15 digits, counting the country code, but has 2.`
+      Expected: Ravi Kumar is unchanged. The status message says that a phone number must have 3 to 15 digits.
 
 ### Editing a student in search results
 
@@ -1382,18 +1401,22 @@ testers are expected to do more *exploratory* testing.
    1. Prerequisites: Start with the sample data. Enter `filter n/an`, which lists `SAMPLE Chloe Tan`, `SAMPLE Aisha Rahman`, `SAMPLE Daniel Lee`, and `SAMPLE Ethan Kumar`, then `view 1`. Run the test cases in order.
 
    1. Test case: `edit 1 n/Chloe Lim`<br>
-      Expected: The student record stays open and shows the name Chloe Lim. The status message says `Chloe Lim at Bedok Green Secondary School (S2) no longer matches your last search, but stays in the list until you enter list or filter.`
+      Expected: The student record stays open and shows Chloe Lim. The status message says that she no longer matches the last search but remains in the list until the next `list` or `filter` command.
 
    1. Test case: `edit 2 lvl/S4`<br>
-      Expected: The student record still shows Chloe Lim, so she is still first in the list even though another student was edited. The status message says `SAMPLE Aisha Rahman` was edited, with no line about the search. Enter `list`, then `filter n/an`: the list shows Aisha Rahman (now `S4`), Daniel Lee, and Ethan Kumar, and Chloe Lim is no longer in the results.
+      Expected: The student record still shows Chloe Lim, so she is still first in the list even though another student was edited. The status message reports that Aisha Rahman was edited without a search warning. Enter `list`, then `filter n/an`: the list shows Aisha Rahman (now `S4`), Daniel Lee, and Ethan Kumar, and Chloe Lim is no longer in the results.
 
 ### Saving data
 
-1. Dealing with missing/corrupted data files
+1. Starting with an invalid field in otherwise valid JSON
 
-   1. _{Explain how to simulate missing or corrupted data files and state the expected behavior.}_
+   1. Prerequisites: Close TuteeBook3, copy `data/addressbook.json` to a backup outside the `data` folder, and change the first student's `"level"` to `"S6"`.
 
-1. _{ more test cases …​ }_
+   1. Run `java -jar TuteeBook3.jar` without entering any command.<br>
+      Expected: TuteeBook3 opens with an empty student list because `S6` is not a valid secondary school level.
+
+   1. Close TuteeBook3, replace `data/addressbook.json` with the backup, and relaunch it.<br>
+      Expected: The students from the backup appear.
 
 --------------------------------------------------------------------------------------------------------------------
 
