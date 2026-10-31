@@ -81,12 +81,11 @@ instead say that the parameter is missing. In `edit`, a joined `sub/` may produc
 `band/` is present.
 
 For example, `a/Blk 1/2` remains a valid address. But `a/Blk 1/2P/91234567` produces a red error explaining that
-`P/` is case-sensitive and must be written as `p/` with a space before it. `a/Blk 1/2p/91234567` produces a red
-error asking for a space before `p/`. Write `a/Blk 1/2 p/91234567` to give both values correctly. The same check
+`P/` is case-sensitive, and that to start the `p/` parameter you write `p/` with a space before it.
+`a/Blk 1/2p/91234567` produces a red error explaining that to start the `p/` parameter you put a space before it. Write `a/Blk 1/2 p/91234567` to give both values correctly. The same check
 applies to `add`, `edit`, and `filter a/...`.
 
-This check uses the text after the candidate prefix to avoid rejecting ordinary address slashes. An address whose
-text after a slash happens to be a valid value for a known field prefix may still be treated as a joined prefix.
+This check uses the text after the candidate prefix to avoid rejecting ordinary address slashes. It can still mistake a slash for a joined prefix when the word before the slash ends in a prefix's letters and the text after it is a valid value for that field. For example, `a/Ang Mo Kio Town/Central` is read as `Tow` followed by `n/Central`, and `a/Jurong East/West` as `Eas` followed by `t/West`. To keep such a slash in the address, put a space before it, as in `a/Ang Mo Kio Town /Central`. The error message suggests this too.
 
 ### Confirming a command
 
@@ -723,8 +722,12 @@ A student's tags are stored in a `tags` array, for example `"tags" : [ "exams", 
 Phone numbers in the data file, for both students and guardians, follow the same rules as `PHONE`. They are cleaned up the same way when the app loads the file, so `+65 9123-4567` is loaded as `91234567`. The cleaned number is written back to the file the next time TuteeBook3 saves.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
-If your changes make the data file invalid, TuteeBook3 starts with an empty book at the next run. The invalid file remains on disk until you successfully run a command that reaches the save step. Still, we recommend backing up the file before editing it.<br>
-Furthermore, certain edits can cause TuteeBook3 to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
+If any part of the data file is invalid, such as one wrong value or a missing comma, TuteeBook3 cannot load any of it and starts with no students. The next command that runs successfully, even `list` or `exit`, replaces the file with the app's current data, so every student in the old file is lost for good. If the app starts with no students after you edit the file, close the window without running any command, then fix the file or restore your backup.<br>
+TuteeBook3 skips any field name it does not recognize, such as `"phnoe"`.<br>
+If the skipped field is `name`, `level`, or `subjects`, or is inside a `guardian` object or a subject-band object, the file is invalid.<br>
+If the skipped field is `school`, the school becomes `Unknown`, and the next save deletes the old school from the file.<br>
+If the skipped field is any other field, the student loads without that value, and the next save deletes the value from the file.<br>
+Back up the file before you edit it. Furthermore, certain edits can cause TuteeBook3 to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
 </div>
 
 --------------------------------------------------------------------------------------------------------------------
