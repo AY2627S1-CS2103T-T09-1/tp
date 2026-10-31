@@ -146,6 +146,16 @@ public class CommandBoxTest {
     }
 
     @Test
+    public void handleCommandEntered_nonBreakingSpace_notExecuted(FxRobot robot) {
+        assertCommandIgnored(robot, " ");
+    }
+
+    @Test
+    public void handleCommandEntered_zeroWidthSpace_notExecuted(FxRobot robot) {
+        assertCommandIgnored(robot, "​");
+    }
+
+    @Test
     public void handleCommandEntered_commandWithSurroundingSpaces_executed(FxRobot robot) {
         robot.interact(() -> {
             TextField textField = getTextField();
