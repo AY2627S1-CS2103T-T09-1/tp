@@ -1426,7 +1426,7 @@ Prerequisites: Start with the sample data. Enter `filter n/Marcus` so that `SAMP
 
 1. Deleting a note
 
-   1. Test case: `C`<br>
+   1. Test case: `deletenote 1 nid/1`<br>
       Expected: No note is deleted yet. An amber prompt names note 1 of Marcus Lim and asks you to type `CONFIRM`.
 
    1. Test case: `CONFIRM`, right after the previous test case<br>
