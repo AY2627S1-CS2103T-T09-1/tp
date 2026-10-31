@@ -157,6 +157,13 @@ public class MainWindow extends UiPart<Stage> {
         resultDisplay.setFeedbackToUser(HelpCommand.SHOWING_HELP_MESSAGE);
     }
 
+    /**
+     * Shows {@code message} in the result display with error styling.
+     */
+    void showError(String message) {
+        resultDisplay.setFeedbackToUser(message, false, null, true);
+    }
+
     void show() {
         primaryStage.show();
     }
