@@ -1130,29 +1130,7 @@ Use case ends.
 
 ---
 
-**Use case: UC11 - Undo the last command**
-
-**MSS**
-
-1.  Tutor enters a command that changes data, such as deleting a student
-2.  TuteeBook3 executes the command
-3.  Tutor realizes the command was a mistake and requests to undo
-4.  TuteeBook3 reverts the most recent data-changing command
-5.  TuteeBook3 shows the restored data
-
-    Use case ends.
-
-**Extensions**
-
-* 3a. There is no data-changing command to undo.
-
-    * 3a1. TuteeBook3 informs Tutor that there is nothing to undo.
-
-      Use case ends.
-
----
-
-**Use case: UC12 - Clear all students**
+**Use case: UC11 - Clear all students**
 
 **MSS**
 
