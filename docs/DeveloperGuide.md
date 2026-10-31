@@ -1420,3 +1420,64 @@ testers are expected to do more *exploratory* testing.
 
    1. Close TuteeBook3, replace `data/addressbook.json` with the backup, and relaunch it.<br>
       Expected: The students from the backup appear.
+
+--------------------------------------------------------------------------------------------------------------------
+
+## **Appendix: Effort**
+
+TuteeBook3 keeps AB3's architecture, but replaces or extends most of its features to build a richer student record, two-step confirmations, and a multi-field search.
+
+### Difficulty compared with AB3
+
+AB3 manages one entity, `Person`, with four single-value fields and a set of tags, and every command works on the whole record in one step. A TuteeBook3 student record holds a school, a level, 1 to 8 subject and band pairs, an optional guardian, tags, and an indexed list of notes. Notes act as a second entity inside a student, with their own `addnote`, `editnote`, and `deletenote` commands. Each part needed its own parser rules, model class, and UI display, and subjects, the guardian, and notes each needed their own JSON adapter.
+
+### Challenges
+
+Each part below needed changes across the parser, model, storage, and UI, and the Implementation section explains the design behind it.
+
+* **Fixing flaws inherited from AB3.** Before adding features, the team audited AB3 and logged 37 problems. Several needed code fixes, such as an index overflow in `delete 2147483648` and a stack overflow on a very long email.
+* **Duplicate detection.** A normalized name, school, and level key had to hold in `add`, `edit`, confirmed commands, `UniquePersonList`, and JSON loading, while a name-only match asks for confirmation instead of failing. This blocks records the tutor cannot tell apart without blocking real students who share a name ([#194](https://github.com/AY2627S1-CS2103T-T09-1/tp/issues/194), [#209](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/209)).
+* **Two-step commands.** AB3's `Logic` runs each command and forgets it. TuteeBook3 adds a pending-command state, shared through `ConfirmationManager` and `ConfirmationCommand` by `clear`, `delete`, `deletenote`, and name-match warnings in `add` and `edit`. Any input other than `CONFIRM` must cancel the request and still run as a normal command ([#174](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/174), [#196](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/196)).
+* **Multi-field search.** `filter` replaces AB3's `find` with 11 filters, each its own predicate class combined by `StudentMatchesAllPredicate`. The parser mixes partial matching for free text with exact matching for fixed values, rejects text that only looks like a prefix, and gives a specific error for each malformed filter ([#198](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/198), [#253](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/253), [#217](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/217)).
+* **Warning instead of blocking.** To accept an overseas phone number while still catching typos, the team accepts 3 to 15 digits and warns when a number is not a Singapore number. This needed a warning path in `CommandResult`, an amber result style, and the same normalization when the data file loads ([#175](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/175)). A missing space before a prefix gets a hint, which `AddressPrefixChecker` extends to addresses, where `/` can be ordinary text ([#279](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/279)).
+* **Stable indexes after an edit.** AB3 shows the full list after an edit, so a follow-up `edit 2` can change a different student. `Model#keepPersonInFilteredList` keeps the current filter plus the edited student ([#193](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/193)).
+
+### Effort required
+
+Line counts follow the [RepoSense tP Dashboard](https://nus-cs2103-ay2627-s1.github.io/tp-dashboard/?search=AY2627S1-CS2103T-T09-1%2Ftp&sort=groupTitle&sortWithin=title&timeframe=commit&mergegroup=&groupSelect=groupByRepos&breakdown=true&checkedFileTypes=functional-code&since=2026-09-18), which counts the Java, FXML, and CSS files in `src/main` as functional code, including comments and blank lines.
+
+Measure | AB3 | TuteeBook3
+--------|-----|-----------
+Functional code in the product | 5,261 lines | 9,886 lines
+Functional code written by the team, as credited by RepoSense | Not applicable | 5,113 lines (4,545 non-blank)
+User commands | 8 | 12, plus `CONFIRM`
+
+<div markdown="span" class="alert alert-info">:information_source: **Note:** The line counts were taken on 30 October 2026, and may not exactly match the current code. RepoSense regenerates its report as the team adds code, so the figures on the dashboard may differ slightly from those in this table.
+</div>
+
+RepoSense does not count lines kept from AB3, so the team wrote about as much functional code as AB3 contains in total. Much of it is validation and error handling, such as about 300 lines each in `ParserUtil` and `EditCommand`. The team also added:
+
+* 5 commands with their parsers: `view`, `filter`, `addnote`, `editnote`, and `deletenote`.
+* 6 field classes (`School`, `Level`, `Subject`, `Band`, `Guardian`, and `Note`) and 3 JSON adapters.
+* 12 search predicate classes for `filter`.
+* A student detail panel beside the list.
+
+### Achievements
+
+* Each student's school, level, subjects with bands, guardian, tags, and notes are kept in one record, shown together with `view`, and grouped for lessons with `filter`.
+* The parsers, the model, and JSON loading share each field's rules, so a hand-edited data file is checked like typed input.
+* Destructive commands ask for `CONFIRM`, and `-f` runs them in one step for a tutor who is sure.
+* Unusual but valid input, such as an overseas phone number or an email with no dot in its domain, is saved with a warning instead of being rejected.
+* After an edit, every student in the filtered list keeps their index, even one who may no longer match the search, so a follow-up command by index still targets the student the tutor expects.
+
+### Reuse
+
+This project is based on the AddressBook-Level3 project created by the [SE-EDU initiative](https://se-education.org). TuteeBook3 keeps AB3's architecture and GUI framework, still stores data as JSON, and adds no runtime libraries. TestFX was added only for GUI tests.
+
+### Beyond implementation
+
+This section describes work outside implementation.
+
+* **Project management:** The team created over 190 issues and merged at least 150 pull requests. After v1.3, nearly every pull request was approved by a teammate before merging.
+* **Testing:** The team wrote over 9,000 lines of test code, which cover over 90% of the code.
+* **UML diagrams:** The team checked AB3's UML diagrams against the code and fixed the ones that did not match, such as a delete sequence diagram that passed an index to `Model#deletePerson`, which takes a `Person`. It also found that a newer PlantUML version mostly fixes the lifeline limitation AB3 noted, adopted it, and notes the smaller limitation that remains.
