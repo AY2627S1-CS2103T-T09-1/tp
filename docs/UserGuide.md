@@ -594,11 +594,10 @@ Filter | Matches students whose… | Match
 
 * A filter with partial matching can match any part of the value, even part of a word. For example, `sch/vic` matches `Victoria School`.
 * The `n/`, `sch/`, and `a/` filters take search text, not new student details. Search text can contain accents and punctuation. Accented letters cannot match saved names, schools, or addresses; punctuation can match a school when it is one of the supported school-name characters.
-* A filter with exact matching must match the whole value. For example, `lvl/S3` matches only students in S3, `sub/math` does not match `Mathematics`, and `p/9123` does not match `91234567`.
+* A filter with exact matching must match the whole value. For example, `lvl/S3` matches only students in S3, `sub/math` does not match `Mathematics`, `p/9123` does not match `91234567`, and `t/paid` does not match `unpaid`.
 * `band/` must come right after `sub/`, and the band must belong to that subject. For example, a student taking Mathematics at G1 and Science at G2 does not match `sub/Mathematics band/G2`.
 * Phone numbers are compared the way they are saved: spaces, hyphens, and a leading `+65` are removed. For example, `p/9123 4567` and `p/+65 9123-4567` both match `91234567`. An overseas number must include its `+` and country code.
 * A student without a phone never matches `p/`, a student without an email never matches `e/`, a student without an address never matches `a/`, and a student without a guardian never matches `gn/` or `gp/`.
-* Give one tag per `filter`. `t/paid` does not match `unpaid`.
 * `note/` searches all of a student's notes. `TEXT` can be up to 500 characters, the same as a note. Like `n/` and `sch/` search text, it can contain any characters, but accented letters and emoji cannot match a saved note.
 * Everything after `note/` is the note text, so put `note/` last. For example, `filter note/revise t/f` finds notes containing `revise t/f`. In `filter note/algebra lvl/S3`, `lvl/S3` is read as part of the note text, so write `filter lvl/S3 note/algebra` instead.
 * A separate prefix-shaped word that `filter` does not recognize is rejected. For example, `filter n/chloe lv/S2` reports that `lv/` is not a filter prefix instead of searching for the name `chloe lv/S2`. This check does not apply inside `a/ADDRESS` or after `note/`, because addresses and notes can contain `/` as ordinary text.
