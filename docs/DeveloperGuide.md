@@ -167,6 +167,9 @@ The `view INDEX` command passes the selected student from `Logic` to the detail 
 
 <img src="images/ViewStudentDetailSequenceDiagram.png" width="1000" />
 
+<div markdown="span" class="alert alert-info">:information_source: **Note:** The lifeline for `ViewCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, it extends slightly past the center of the marker.
+</div>
+
 The diagram omits the routine `Storage#saveAddressBook` call that `LogicManager` makes after command execution. The `view` command does not change the data being saved.
 
 1. `AddressBookParser` delegates the index argument to `ViewCommandParser`, which creates a `ViewCommand`.
