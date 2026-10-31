@@ -192,13 +192,24 @@ public class StudentDetailPanelTest {
     }
 
     @Test
-    public void constructor_longValues_enablesTextWrapping(FxRobot robot) {
+    public void constructor_longValuesAtMinimumWidth_wrapWithoutHorizontalClipping(FxRobot robot) {
+        String longName = "Alexandra Catherine Elizabeth Tan ".repeat(3).trim();
+        String longSchool = "Singapore International Secondary School ".repeat(2).trim();
+        String longNote = "Review algebra, geometry, and statistics before the next lesson. ".repeat(4).trim();
+
         robot.interact(() -> {
-            Person personWithLongNote = new PersonBuilder(ALICE).withNotes("A long note").build();
+            container.getScene().getWindow().setWidth(300);
+            container.getScene().getWindow().setHeight(400);
+            Person personWithLongValues = new PersonBuilder(ALICE)
+                    .withName(longName)
+                    .withSchool(longSchool)
+                    .withNotes(longNote)
+                    .build();
             StudentDetailPanel panel =
-                    new StudentDetailPanel(personWithLongNote, INDEX_FIRST_PERSON, persons);
+                    new StudentDetailPanel(personWithLongValues, INDEX_FIRST_PERSON, persons);
             container.getChildren().setAll(panel.getRoot());
             container.applyCss();
+            container.layout();
 
             assertLabelWraps("#name");
             assertLabelWraps("#school");
@@ -208,6 +219,9 @@ public class StudentDetailPanelTest {
             assertLabelWraps("#guardianName");
             assertLabelWraps("#guardianPhone");
             assertLabelWraps(".student-detail-note-card");
+            assertContentFitsViewport("#name");
+            assertContentFitsViewport("#school");
+            assertContentFitsViewport(".student-detail-note-card");
             assertViewportMatchesPanelBackground();
         });
     }
@@ -232,6 +246,12 @@ public class StudentDetailPanelTest {
 
     private void assertLabelWraps(String query) {
         assertTrue(((Label) container.lookup(query)).isWrapText());
+    }
+
+    private void assertContentFitsViewport(String query) {
+        Node content = container.lookup(query);
+        ScrollPane detailScrollPane = (ScrollPane) container.lookup("#detailScrollPane");
+        assertTrue(content.getBoundsInParent().getWidth() <= detailScrollPane.getViewportBounds().getWidth());
     }
 
     private void assertGridRow(String query, int expectedRow) {
