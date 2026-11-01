@@ -94,7 +94,7 @@ Some commands ask you to confirm before they go ahead:
 * `delete`, `deletenote`, and `clear`, before they delete anything.
 * `add` and `edit`, when another student already has the same name. See [Duplicate students](#duplicate-students).
 
-The command shows an amber prompt that says what will happen. The next line tells you how to go ahead, such as `Type CONFIRM (uppercase) to delete this student and all their notes.`
+The command shows a confirmation prompt that says what will happen. The next line tells you how to go ahead, such as `Type CONFIRM (uppercase) to delete this student and all their notes.`
 
 * To go ahead, type `CONFIRM` in uppercase and press Enter. Spaces before or after it are ignored.
 * Anything else, including `confirm`, cancels the request. TuteeBook3 then runs what you typed as a normal command, with the red notice `The 'delete' command has been cancelled.` (or the name of the command you cancelled) above its result.
@@ -153,7 +153,7 @@ Parameter | Prefix | Required in `add` | Rules | Examples
 :bulb: **Tip:**
 
 * When you add or edit a student, spaces at the start and end of each value are removed, and repeated ordinary spaces are collapsed to one. Capitalization is kept as you typed it. For example, `n/John  Doe` is saved as `John Doe`.
-* If you leave out an optional field, the student list hides it and the detail view shows an em dash (`—`).
+* If you leave out an optional field, the student list hides it and the student detail view shows an em dash (`—`).
 
 </div>
 
@@ -295,7 +295,7 @@ After all the input is valid, `add` checks whether the new student might already
 
 Another student has… | What happens
 ---------------------|-------------
-The same name, but a different school or level | An amber prompt, such as `Student not added yet: NAME is also recorded at SCHOOL (LEVEL).` If several students match, their school and level details are separated by `; `. Type `CONFIRM` to add the student anyway. See [Confirming a command](#confirming-a-command).
+The same name, but a different school or level | A confirmation prompt, such as `Student not added yet: NAME is also recorded at SCHOOL (LEVEL).` If several students match, their school and level details are separated by `; `. Type `CONFIRM` to add the student anyway. See [Confirming a command](#confirming-a-command).
 The same name, school, and level | A red error: `A student named NAME at SCHOOL, level LEVEL already exists. If this is a different student, enter a distinguishing name, for example Chloe Tan 2.` The student is not added.
 
 * Names and schools are compared ignoring capitalization and extra spaces. Levels are compared directly.
@@ -370,11 +370,11 @@ Every value given is the same as the student's current value, such as `edit 1 n/
 
 ##### Duplicate students in `edit`
 
-`edit` checks the student's new details against the other students, the same way as [`add`](#duplicate-students). The student being edited is not compared with themselves, and the amber prompt only appears when you change the name, school, or level.
+`edit` checks the student's new details against the other students, the same way as [`add`](#duplicate-students). The student being edited is not compared with themselves, and the confirmation prompt only appears when you change the name, school, or level.
 
 Another student has… | What happens
 ---------------------|-------------
-The same name, but a different school or level | An amber prompt, such as `Edit not saved yet: NAME is also recorded at SCHOOL (LEVEL).` If several students match, their school and level details are separated by `; `. Type `CONFIRM` to save the edit anyway. See [Confirming a command](#confirming-a-command).
+The same name, but a different school or level | A confirmation prompt, such as `Edit not saved yet: NAME is also recorded at SCHOOL (LEVEL).` If several students match, their school and level details are separated by `; `. Type `CONFIRM` to save the edit anyway. See [Confirming a command](#confirming-a-command).
 The same name, school, and level | A red error: `Another student named NAME at SCHOOL, level LEVEL already exists. If these are different students, edit the name to include an identifier, for example Chloe Tan 2.` The student is not changed.
 
 #### Deleting a student: `delete`
@@ -387,7 +387,7 @@ Format: `delete [-f] INDEX`
 * `delete` asks you to confirm first, with the prompt `This will delete NAME at SCHOOL (LEVEL) and all their notes.` See [Confirming a command](#confirming-a-command). Use `delete -f INDEX` to delete immediately.
 * After a student is deleted, the current filter remains active while it still has matches. The index numbers of the remaining matching students may change, so check the list before you run another command that uses an index.
 * If you delete the filter's last matching student while other students remain, TuteeBook3 shows the full list and adds `The filtered list is now empty, so all remaining students are shown.` to the result.
-* After deletion, the right panel returns to `View a student to see details.`
+* After deletion, the student detail view returns to `View a student to see details.`
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
 You cannot undo `delete`. Check `INDEX` in the student list before you confirm.
@@ -532,7 +532,7 @@ These commands choose which students are shown, and which student's full record 
 
 #### Listing all students: `list`
 
-Shows a list of all students in TuteeBook3. Each entry shows the student's index, name, phone number (if provided), school, address (if provided), email (if provided), level, and tags (if any). The right panel returns to `View a student to see details.` Use `view INDEX` to see the remaining details.
+Shows a list of all students in TuteeBook3. Each entry shows the student's index, name, phone number (if provided), school, address (if provided), email (if provided), level, and tags (if any). The student detail view returns to `View a student to see details.` Use `view INDEX` to see the remaining details.
 
 Format: `list`
 
@@ -540,19 +540,19 @@ The command does not accept additional arguments.
 
 #### Viewing a student: `view`
 
-TuteeBook3 always shows a fixed, equal-width student list on the left and student record panel on the right. Both panels fill the available height down to the status bar, and you cannot move the divider. If the student record is taller than the right panel, the entire record scrolls, including the student details and notes. The list cards are not clickable. The card for the student shown on the right is highlighted. When no student is selected, the right panel says `View a student to see details.`
+TuteeBook3 shows the student list on the left and the student detail view on the right. The two halves are the same width, and you cannot resize them. The card of the student you are viewing is highlighted in the list. Cards cannot be clicked. When no student is selected, the student detail view shows `View a student to see details.` If a student's record is too long to fit, it scrolls as a whole, including the notes.
 
 You can resize the window down to 600 pixels wide and 400 pixels tall. TuteeBook3 keeps a restored window inside the current screen if the saved size or position no longer fits. The student list and record remain usable at the minimum size by scrolling their contents.
 
 `view` shows the full record of the student at the specified index on the right.
 
-The detail panel contains the student's name, school, level, subject-band pairs, address, email, tags, student phone number, guardian name, and guardian phone number, followed by the student's notes. Optional fields without a recorded value, such as the address, email, tags, student phone number, or guardian details, are shown as an em dash (`—`).
+The student detail view contains the student's name, school, level, subject-band pairs, address, email, tags, student phone number, guardian name, and guardian phone number, followed by the student's notes. Optional fields without a recorded value, such as the address, email, tags, student phone number, or guardian details, are shown as an em dash (`—`).
 
 Format: `view INDEX`
 
 * `INDEX` follows the rules in [Indexes and notes](#indexes-and-notes).
 * The current search results remain visible on the left while you view the student.
-* Entering `view` again replaces the student record on the right instead of opening another panel.
+* Entering `view` again shows the new student in the student detail view, replacing the previous one.
 * Enter `list` to return to the full student list, or `filter` to display new search results. Both commands clear the selected record and show the empty-state message on the right.
 * A successful `add`, `edit`, `addnote`, `editnote`, or `deletenote` shows the affected student's record on the right. A successful `delete` or `clear` shows the empty-state message.
 * Help and invalid commands leave the student record visible.
@@ -762,7 +762,6 @@ Term | Meaning
 **Filter** | A prefix and value given to the `filter` command, such as `n/Tan`, that narrows down the student list.
 **Index** | The number shown next to a student in the list currently on screen. Commands such as `view`, `edit`, and `delete` use it to pick a student. It is not permanent: it can change when the list changes, such as after `add`, `delete`, `filter`, or `list`.
 **NID** | The number shown before a note in the student detail view. Notes are numbered 1, 2, 3 in the order they were added. After a note is deleted, the notes after it move up one number, so an NID is not permanent.
-**Normalized** | Compared after removing spaces at the start and end, treating repeated spaces as one, and ignoring capitalization. For example, `John  Doe` and `john doe` have the same normalized name.
 **Parameter** | A value that you supply in a command, shown in `UPPER_CASE` in this guide, such as `NAME` in `n/NAME`.
 **Partial matching** | The way the `n/`, `sch/`, `e/`, `a/`, `gn/`, and `note/` filters of `filter` compare values. The value only needs to contain what you typed, even part of a word, ignoring case. For example, `sch/vic` matches `Victoria School`.
 **Prefix** | A short marker ending in `/`, such as `n/` or `sch/`, that labels the value after it in a command.
@@ -773,9 +772,9 @@ Term | Meaning
 Term | Meaning
 -----|--------
 **Command box** | The text field at the top of the window where you type commands.
-**Detail view** | The panel on the right of the window that shows everything about one student, including all their notes. It is also called the "detail panel" or "student detail view". `view` shows a student there, and `list` and `filter` clear it.
-**Empty-state message** | The message `View a student to see details.`, shown in the detail view when no student is selected.
+**Empty-state message** | The message `View a student to see details.`, shown in the student detail view when no student is selected.
 **Result display** | The area below the command box that tells you whether your last command worked, and why not if it failed.
+**Student detail view** | The panel on the right of the window that shows everything about one student, including all their notes. `view` shows a student there, and `list` and `filter` clear it.
 **Student list** | The panel on the left of the window that lists students with their main details. It shows all students, or the results of your last `filter`.
 
 #### General
@@ -804,7 +803,9 @@ Term | Meaning
 
 ## Known issues
 
-1. **When using multiple screens**, if you move the application to a secondary screen, and later switch to using only the primary screen, the GUI will open off-screen. The remedy is to delete the `preferences.json` file created by the application before running the application again.
+1. **The window opens off-screen after you stop using a second screen.** If you move TuteeBook3 to a second screen and later use only your main screen, the window opens where the second screen was. The remedy is to delete `preferences.json` from the [home folder](#glossary) before you start TuteeBook3 again.
+1. **Names can't contain punctuation.** Student and guardian names accept only English letters, digits, and spaces, so `Rajesh s/o Kumar`, `Mary-Jane O'Brien`, and `J. Tan` are rejected. Leave out the punctuation, such as `Rajesh so Kumar`, and type the name the same way each time so that `filter n/` and the duplicate check find it. Support for hyphens, apostrophes, and periods is coming in a future version. Slashes will stay unsupported, because `s/o` and `a/l` look like prefixes.
+1. **Names, school names, and subjects can't contain accented or non-English letters.** Values such as `Zoë Lim`, `École Française`, and `Français` are rejected. Type the closest English spelling, such as `Zoe Lim`. Support for other languages in these fields is coming in a future version.
 
 --------------------------------------------------------------------------------------------------------------------
 
