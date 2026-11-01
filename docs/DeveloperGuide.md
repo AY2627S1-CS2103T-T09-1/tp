@@ -610,8 +610,8 @@ The exact-match filters are parsed first with the same `ParserUtil` methods as `
 **Aspect: Whether a filter can be given more than once**
 
 * **Alternative 1:** A repeated filter must match every value (AND).
-  * Pros: `filter sub/Mathematics sub/Science` finds students taking both subjects, and `filter n/tan n/chloe` finds names containing both words in any order.
-  * Cons: Most fields hold one value, so repeating them finds no one. `filter lvl/S2 lvl/S3` returns an empty list that looks like a correct search, though the tutor most likely meant S2 or S3.
+  * Pros: Matches `add` and `edit`, which accept several `sub/` and `t/`. `filter sub/Mathematics sub/Science` finds students taking both subjects, and `filter n/tan n/chloe` finds names containing both words in any order.
+  * Cons: Most fields hold one value, so repeating them finds no one. `filter lvl/S2 lvl/S3` returns an empty list that looks like a correct search, though the tutor most likely meant S2 or S3. Tags such as `paid` and `unpaid` rarely appear together, so most tag combinations find no one too.
 
 * **Alternative 2:** A repeated filter needs to match any one of its values (OR).
   * Pros: `filter lvl/S2 lvl/S3` finds students in either level in one command.
@@ -622,22 +622,8 @@ The exact-match filters are parsed first with the same `ParserUtil` methods as `
   * Cons: The most rules to learn, and the tutor can't tell from the command which rule applies.
 
 * **Alternative 4 (current choice):** Each filter can be given at most once.
-  * Pros: One rule for every filter, and it fits "a student must match every filter". A repeated filter is reported as a mistake, with a message suggesting to run `filter` once for each value, instead of quietly returning no one or more students than expected.
-  * Cons: A tutor can't find students taking two given subjects in one command, or search for name words in a different order. To see students matching either of two values, the tutor runs `filter` twice and compares the lists.
-
-**Aspect: Whether `filter` takes one tag or several**
-
-* **Alternative 1:** Several `t/`, and a student must have every tag (AND).
-  * Pros: Matches `add` and `edit`, which accept several `t/`.
-  * Cons: `t/` would be the only filter that can repeat. Tags such as `paid` and `unpaid` rarely appear together, so most combinations find no one.
-
-* **Alternative 2:** Several `t/`, and a student needs any one of them (OR).
-  * Pros: Finds students with either tag in one command.
-  * Cons: `t/` would be the only filter combined with OR, which contradicts "a student must match every filter".
-
-* **Alternative 3 (current choice):** One `t/` per `filter`.
-  * Pros: Follows the same rule as every other filter (see "Whether a filter can be given more than once"), so there is no question of AND or OR. A repeated `t/` gets a message saying `filter` takes one tag.
-  * Cons: To see two tags, the tutor runs `filter` twice.
+  * Pros: One rule for every filter, so there is no question of AND or OR, and it fits "a student must match every filter". A repeated filter is reported as a mistake, instead of quietly returning no one or more students than expected.
+  * Cons: A tutor can't find students taking two given subjects, or with two given tags, in one command, or search for name words in a different order. To see students matching either of two values, the tutor runs `filter` twice and compares the lists.
 
 **Aspect: Whether to search notes with a separate command or with `filter`**
 
