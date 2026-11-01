@@ -398,6 +398,19 @@ public class LogicManagerTest {
     }
 
     @Test
+    public void execute_forcedDeleteWhileClearPending_deletesWithNotice() throws Exception {
+        model.addPerson(AMY);
+        model.addPerson(new PersonBuilder(AMY).withName("Other Student").build());
+        Person secondPerson = model.getFilteredPersonList().get(1);
+        logic.execute(ClearCommand.COMMAND_WORD);
+
+        CommandResult result = logic.execute("delete -f 1");
+        assertEquals(CLEAR_CANCELLED, result.getCancellationNotice().orElseThrow());
+        assertEquals(List.of(secondPerson), model.getAddressBook().getPersonList());
+        assertParseException("CONFIRM", ConfirmationManager.MESSAGE_NOTHING_TO_CONFIRM);
+    }
+
+    @Test
     public void execute_repeatedDuplicateAdd_promptsAgainAndAddsOnce() throws Exception {
         model.addPerson(TypicalPersons.ALICE);
         String addInput = "add n/Alice Pauline sch/Victoria School lvl/S2 sub/Mathematics band/G1";
