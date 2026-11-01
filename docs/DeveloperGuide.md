@@ -1312,6 +1312,23 @@ testers are expected to do more *exploratory* testing.
    1. Test case: `delete 0`<br>
       Expected: No student is deleted. The status message shows an invalid index error.
 
+### Clearing all students
+
+1. Clearing with confirmation, cancellation, and the force flag
+
+   1. Prerequisites: Close TuteeBook3 and copy `data/addressbook.json` to a backup outside the `data` folder. Before each test case, restore the backup and relaunch TuteeBook3 so that the student list is not empty.
+
+   1. Test case: Enter `clear`, then enter `CONFIRM`.<br>
+      Expected: The students remain after the first input and are all deleted after the confirmation.
+
+   1. Test case: Enter `clear`, then enter `list`. Repeat with `clear`, then lowercase `confirm`.<br>
+      Expected: Each second input cancels the pending clear operation, and no students are deleted.
+
+   1. Test case: `clear -f`<br>
+      Expected: All students are deleted without a confirmation prompt.
+
+   1. After testing, close TuteeBook3 and restore `data/addressbook.json` from the backup.
+
 ### Adding and editing a guardian
 
 1. Adding a student with a guardian
