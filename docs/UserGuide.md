@@ -136,7 +136,7 @@ Parameter | Prefix | Required in `add` | Rules | Examples
 ----------|--------|-------------------|-------|--------
 `NAME` | `n/` | Yes | ASCII English letters (`A`–`Z`, `a`–`z`), digits (`0`–`9`), and spaces only. Accented letters and punctuation aren't supported. | ✓ `Rajesh so Kumar`<br>✗ `Zoë Lim`<br>✗ `Rajesh s/o Kumar`
 `PHONE` | `p/` | No | 3 to 15 digits, with an optional `+` at the start. See [Phone numbers](#phone-numbers). | ✓ `9123 4567`<br>✗ `12`
-`SCHOOL` | `sch/` | Yes | 1 to 100 characters, with at least one ASCII English letter (`A`–`Z`, `a`–`z`). Also allows digits (`0`–`9`), spaces, periods (`.`), apostrophes (`'` or `’`), ampersands (`&`), parentheses, commas, and hyphens (`-`). Accented letters and other punctuation aren't supported. | ✓ `Victoria School`<br>✓ `St. Joseph's Institution`<br>✓ `Anglo-Chinese School (Independent)`<br>✓ `School of Science and Technology, Singapore`<br>✗ `École Française`<br>✗ `School/Name`
+`SCHOOL` | `sch/` | Yes | 1 to 100 characters, with at least one ASCII English letter (`A`–`Z`, `a`–`z`). Also allows digits (`0`–`9`), spaces, periods (`.`), apostrophes (`'`), ampersands (`&`), parentheses, commas, and hyphens (`-`). Accented letters and other punctuation aren't supported. | ✓ `Victoria School`<br>✓ `St. Joseph's Institution`<br>✓ `Anglo-Chinese School (Independent)`<br>✓ `School of Science and Technology, Singapore`<br>✗ `École Française`<br>✗ `School/Name`
 `ADDRESS` | `a/` | No | Up to 200 characters, using the same characters as a note's `TEXT`: English letters without accents, digits, spaces, the symbols on a standard keyboard, such as `# / , - ( ) '`. | ✓ `Blk 123 Bedok North Avenue 2, #04-111`<br>✗ `Rue de l'Église 5`<br>✗ more than 200 characters
 `EMAIL` | `e/` | No | Up to 254 characters, in the form `local-part@domain`. See [Emails](#emails). | ✓ `chloe.tan@example.com`<br>✗ `chloe.tan@`
 `LEVEL` | `lvl/` | Yes | `S1` to `S5`. Uppercase or lowercase both work. | ✓ `S3`, `s3`<br>✗ `S6`
@@ -163,7 +163,7 @@ Addresses accept the same characters as notes. Before upgrading, use the previou
 
 The phone number is optional, since younger students may not have their own phone. `PHONE` and `GUARDIAN_PHONE` follow the same rules.
 
-* You can type spaces or hyphens (`-`), such as `9123 4567` or `9123-4567`. They are removed when the number is saved. En and em dashes (`–` and `—`) are read as hyphens.
+* You can type spaces or hyphens (`-`), such as `9123 4567` or `9123-4567`. They are removed when the number is saved. En and em dashes (`–` and `—`) are read as hyphens. Other dashes, such as the minus sign (`−`), are not allowed.
 * A Singapore number (8 digits starting with 6, 8, or 9) is saved as those 8 digits. A leading `+65` is removed, so `+65 9123 4567` is saved as `91234567`. If what follows `+65` isn't a Singapore number, the `+65` is kept.
 * For an overseas number, type `+` and the country code, such as `+60 12-345 6789`. For Singapore, type `+65`, not `65`.
 * If a number doesn't look like a Singapore number, TuteeBook3 still saves it but shows a warning that names the field, such as `Warning: guardian phone +60123456789 doesn't look like a Singapore number (8 digits starting with 6, 8, or 9, with or without +65). Use edit to fix it if it's wrong.`
@@ -275,8 +275,8 @@ There are no parameters, or there is text before the first one, such as `add Joh
 `PHONE` or `GUARDIAN_PHONE` is invalid | A message saying why. See [Phone numbers](#phone-numbers).
 `sch/` has no value or only spaces | `School name cannot be blank.`
 `SCHOOL` is longer than 100 characters | `School name must be at most 100 characters; this value has 101.`, with the actual character count
-`SCHOOL` contains an unsupported character | A message naming the school and first unsupported character, and listing the allowed characters. For example, `School name "School#1" contains "#", which isn't allowed. Use ASCII letters (A-Z, a-z), digits (0-9), spaces, periods (.), apostrophes (' or ’), ampersands (&), parentheses, commas, and hyphens (-).`
-`SCHOOL` contains only digits and allowed punctuation | `School name "123" must contain at least one ASCII letter.`
+`SCHOOL` contains an unsupported character | A message naming the school and first unsupported character, and listing the allowed characters. For example, `School name "School#1" contains "#", which isn't allowed. Use English letters, digits, spaces, periods (.), apostrophes ('), ampersands (&), parentheses, commas, and hyphens (-).`
+`SCHOOL` contains only digits and allowed punctuation | `School name "123" must contain at least one English letter (A-Z).`
 `ADDRESS` is blank or longer than 200 characters | `Addresses must not be blank and must be at most 200 characters.`
 `ADDRESS` contains a character that isn't allowed, such as `É` or an emoji | `Address contains "É", which isn't allowed. Use only English letters, digits, spaces, and keyboard symbols.`, with the first such character in `ADDRESS`
 `EMAIL` is invalid or longer than 254 characters | A message saying what is wrong, such as `Email "john@" has no domain after the "@", such as example.com.`
