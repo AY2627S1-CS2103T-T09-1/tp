@@ -153,7 +153,7 @@ Parameter | Prefix | Required in `add` | Rules | Examples
 :bulb: **Tip:**
 
 * When you add or edit a student, spaces at the start and end of each value are removed, and repeated ordinary spaces are collapsed to one. Capitalization is kept as you typed it. For example, `n/John  Doe` is saved as `John Doe`.
-* If you leave out an optional field, the student list hides it and the detail view shows `Not provided`.
+* If you leave out an optional field, the student list hides it and the detail view shows an em dash (`—`).
 
 </div>
 
@@ -544,7 +544,7 @@ TuteeBook3 always shows a fixed, equal-width student list on the left and studen
 
 `view` shows the full record of the student at the specified index on the right.
 
-The detail panel contains the student's name, school, level, subject-band pairs, address, email, tags, student phone number, guardian name, and guardian phone number, followed by the student's notes. Optional fields without a recorded value, such as the address, email, tags, student phone number, or guardian details, are shown as `Not provided`.
+The detail panel contains the student's name, school, level, subject-band pairs, address, email, tags, student phone number, guardian name, and guardian phone number, followed by the student's notes. Optional fields without a recorded value, such as the address, email, tags, student phone number, or guardian details, are shown as an em dash (`—`).
 
 Format: `view INDEX`
 

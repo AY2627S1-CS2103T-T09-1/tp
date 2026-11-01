@@ -293,7 +293,7 @@ The app uses the second option because it resolves the reported real-name cases 
 
 ### Student addresses
 
-`Address` is an optional value object. It accepts any nonblank value up to 200 characters and collapses repeated ordinary spaces. The add parser accepts optional `a/ADDRESS`; the edit parser replaces an address, and a blank `a/` removes it. `JsonAdaptedPerson` saves supplied addresses and accepts older JSON records without an address. The student list card shows an address when one is present; the detail panel and command result show `Not provided` when it is absent. Addresses do not contribute to duplicate detection.
+`Address` is an optional value object. It accepts any nonblank value up to 200 characters and collapses repeated ordinary spaces. The add parser accepts optional `a/ADDRESS`; the edit parser replaces an address, and a blank `a/` removes it. `JsonAdaptedPerson` saves supplied addresses and accepts older JSON records without an address. The student list card shows an address when one is present; the detail panel and command result show an em dash (`—`) when it is absent. Addresses do not contribute to duplicate detection.
 
 ### Student emails
 
@@ -1340,7 +1340,7 @@ testers are expected to do more *exploratory* testing.
       Expected: No student is added. The status message says that guardian name and guardian phone must be given together.
 
    1. Test case: `add n/Ken Lim sch/Victoria School lvl/S2 sub/Mathematics band/G1`<br>
-      Expected: Ken Lim is added. Viewing his student details shows `Not provided` for both guardian fields.
+      Expected: Ken Lim is added. Viewing his student details shows `—` for both guardian fields.
 
 1. Editing a guardian
 
@@ -1356,7 +1356,7 @@ testers are expected to do more *exploratory* testing.
       Expected: Tim Tan is unchanged. The status message says that guardian name and guardian phone cannot be empty.
 
    1. Test case: `edit 1 gn/ gp/` on Tim Tan<br>
-      Expected: The guardian is removed, and viewing the student's details shows `Not provided` for both guardian name and guardian phone.
+      Expected: The guardian is removed, and viewing the student's details shows `—` for both guardian name and guardian phone.
 
    1. Test case: `edit 1 gn/ gp/` on Ken Lim<br>
       Expected: Ken Lim is unchanged. The status message says that the student has no guardian to remove.
@@ -1388,7 +1388,7 @@ testers are expected to do more *exploratory* testing.
       Expected: Mei Lin's only tag is now `online`.
 
    1. Test case: `edit 1 t/`<br>
-      Expected: Mei Lin has no tags. Her list card shows no tags, and viewing her details shows `Not provided` for tags.
+      Expected: Mei Lin has no tags. Her list card shows no tags, and viewing her details shows `—` for tags.
 
 ### Entering phone numbers
 
