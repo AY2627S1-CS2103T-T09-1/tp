@@ -605,18 +605,9 @@ Examples, using the sample students:
 You type | TuteeBook3 shows
 ---------|-----------------
 `filter n/c` | `Chloe Tan` and `Marcus Lim`
-`filter sch/victoria` | `Daniel Lee`
 `filter n/lim sch/secondary` | `Marcus Lim`
 `filter lvl/s2` | `Chloe Tan` and `Ethan Kumar`
-`filter sch/bedok lvl/S2` | `Chloe Tan`
 `filter sub/mathematics band/G2` | `Marcus Lim` and `Daniel Lee`
-`filter sub/chemistry` | `Aisha Rahman` and `Natalie Goh`
-`filter p/9123 4567` | `Chloe Tan`
-`filter e/example.com` | `Chloe Tan`, `Marcus Lim`, and `Natalie Goh`
-`filter a/tampines` | `Marcus Lim` and `Ethan Kumar`
-`filter gp/98765432` | `Marcus Lim`, whose guardian is Grace Lim
-`filter gn/goh` | `Natalie Goh`, whose guardian is Michelle Goh
-`filter t/unpaid` | `Marcus Lim`
 `filter t/sample` | All six sample students
 `filter note/algebra` | `Chloe Tan`
 `filter lvl/S1 note/next lesson` | `Daniel Lee`
