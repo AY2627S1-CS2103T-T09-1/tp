@@ -214,7 +214,7 @@ public class MainWindowStudentDetailTest {
         TextArea resultDisplay = getResultDisplay();
         robot.interact(() -> mainWindow.getRoot().getScene().getRoot().applyCss());
 
-        assertEquals("The 'clear' command has been cancelled.", cancellationDisplay.getText());
+        assertEquals("The earlier 'clear' command has been cancelled.", cancellationDisplay.getText());
         assertTrue(cancellationDisplay.getStyleClass().contains(ResultDisplay.ERROR_STYLE_CLASS));
         assertEquals("Listed students", resultDisplay.getText());
         assertFalse(resultDisplay.getStyleClass().contains(ResultDisplay.WARNING_STYLE_CLASS));
@@ -345,7 +345,7 @@ public class MainWindowStudentDetailTest {
                         .withCancellationNotice(String.format(ConfirmationManager.MESSAGE_CANCELLED_FORMAT,
                                 "clear"));
                 case "cancelled-fail" -> throw new CommandException(
-                        "The 'clear' command has been cancelled."
+                        "The earlier 'clear' command has been cancelled."
                                 + System.lineSeparator() + "Invalid command");
                 case "fail" -> throw new CommandException("Invalid command");
                 default -> throw new AssertionError("Unexpected command: " + commandText);
