@@ -12,10 +12,10 @@ TuteeBook3 is a **desktop app for private tutors who teach secondary school stud
 
 ## Quick start
 
-1. Ensure that Java `25` or later is installed on your computer.<br>
-   **Mac users:** Ensure you have the precise JDK version prescribed [here](https://se-education.org/guides/tutorials/javaInstallationMac.html).
+1. Make sure Java `25` is installed. To check, open a terminal and run `java -version`. The version shown should start with `25`, such as `openjdk version "25.0.1"`. If it doesn't, install Java 25 using the [Java installation guide](https://se-education.org/guides/tutorials/javaInstallation.html) for your operating system.<br>
+   **Mac users:** install the exact JDK named in the [Java installation guide for Mac](https://se-education.org/guides/tutorials/javaInstallationMac.html).
 
-1. Download the latest `.jar` file from [here](https://github.com/AY2627S1-CS2103T-T09-1/tp/releases).
+1. Download the latest `.jar` file from the [TuteeBook3 releases page](https://github.com/AY2627S1-CS2103T-T09-1/tp/releases).
 
 1. Copy the file to the folder you want to use as the _home folder_ for TuteeBook3.
 
