@@ -27,7 +27,7 @@ public class Messages {
     public static final String MESSAGE_INVALID_PERSON_DISPLAYED_INDEX =
             "Index must be a positive integer shown in the displayed student list.";
     public static final String MESSAGE_PERSONS_LISTED_OVERVIEW = "%1$d student(s) listed!";
-    public static final String MESSAGE_NOT_PROVIDED = "Not provided";
+    public static final String MESSAGE_NOT_PROVIDED = "—";
     public static final String MESSAGE_DUPLICATE_FIELDS =
                 "Multiple values specified for the following single-valued field(s): ";
     public static final String MESSAGE_MISSING_PREFIX = "Missing required parameter: %1$s.";

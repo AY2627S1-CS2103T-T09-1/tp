@@ -135,7 +135,7 @@ Each `Person` is one student. The classes that make up a `Person` are shown belo
 The diagram does not show these rules, which the classes check when an object is created:
 
 * A student has 1 to 8 subjects, and no two of them have the same name, ignoring case. `Person#validateSubjects` checks both, so the same subject cannot be taken at two bands.
-* A note's NID is its position in the student's list of notes. A new note goes at the end, and deleting a note renumbers the notes after it.
+* A note's NID is its position in the student's list of notes. A new note goes at the end, and deleting a note renumbers the notes after it. See [Student notes](#student-notes).
 * A `Guardian` always has both a name and a phone. A student has a complete guardian or none. See [Guardian details](#guardian-details).
 * `Guardian` reuses `Name` and `Phone`, so a guardian's name and phone follow the same rules as a student's.
 
@@ -209,11 +209,11 @@ Every student record must include a name, school, and level. Many tutors teach s
 
 ### Student names and schools
 
-`Name` and `School` both use ASCII letters and digits, so neither accepts Unicode letters or numbers. A name starts with an ASCII letter or digit and can contain only ASCII letters, digits, and spaces; guardian names use the same rule. A school name must be 1 to 100 characters, contain at least one ASCII letter, and can also contain spaces, periods, apostrophes (`'` or `’`), ampersands, parentheses, commas, and hyphens. Names and schools therefore share an ASCII letter/number rule while retaining different punctuation rules for their fields. The parsers trim and collapse ordinary spaces before constructing these values. Direct model construction and JSON loading use the same validators.
+`Name` and `School` both use English letters and digits, so neither accepts other Unicode letters or numbers. A name starts with an English letter or digit and can contain only English letters, digits, and spaces; guardian names use the same rule. A school name must be 1 to 100 characters, contain at least one English letter, and can also contain spaces, periods, apostrophes (`'` or `’`), ampersands, parentheses, commas, and hyphens. Names and schools therefore share a letter and digit rule while retaining different punctuation rules for their fields. The parsers trim and collapse ordinary spaces before constructing these values. Direct model construction and JSON loading use the same validators.
 
-The ASCII letter/number rule also applies to existing data files. A file containing a name or school with non-ASCII letters or numbers fails validation when loaded, with the relevant field constraint. Users must edit those records in the previous version before upgrading. Previously supported school punctuation remains valid.
+The letter and digit rule also applies to existing data files. A file containing a name or school with any other letters or numbers fails validation when loaded, with the relevant field constraint. Users must edit those records in the previous version before upgrading. Previously supported school punctuation remains valid.
 
-`Note` text uses the same ASCII-only approach, so an accented letter is rejected in a note just as it is in a name or school. A note can contain 1 to 500 printable ASCII characters (`\x20` to `\x7E`): letters, digits, spaces, and every keyboard symbol, because notes record scores and reminders such as `WA2 Math: 36/50`. It also accepts the curly apostrophe `’`, as `School` does, so `Didn’t finish` is not rejected in a note when `St. Joseph’s Institution` is accepted as a school. For any other character, `Note#getConstraintMessage` names the first one, and returns an emoji whole rather than half of its UTF-16 pair. `ParserUtil#parseNote` (used by `addnote` and `editnote`) and `JsonAdaptedNote` both use this message. `filter note/` search text is not restricted, like `n/` and `sch/` search text. A data file containing a note with any other character fails validation when loaded, so users must edit those notes in the previous version before upgrading.
+`Note` text uses the same English-letter approach, so an accented letter is rejected in a note just as it is in a name or school. A note can contain 1 to 500 English letters, digits, spaces, and keyboard symbols (together, the printable ASCII range `\x20` to `\x7E`), because notes record scores and reminders such as `WA2 Math: 36/50`. It also accepts the curly apostrophe `’`, as `School` does, so `Didn’t finish` is not rejected in a note when `St. Joseph’s Institution` is accepted as a school. For any other character, `Note#getConstraintMessage` names the first one, and returns an emoji whole rather than half of its UTF-16 pair. `ParserUtil#parseNote` (used by `addnote` and `editnote`) and `JsonAdaptedNote` both use this message. `filter note/` search text is not restricted, like `n/` and `sch/` search text. A data file containing a note with any other character fails validation when loaded, so users must edit those notes in the previous version before upgrading.
 
 `Address` accepts the same characters as `Note`, because addresses also need keyboard symbols such as `#`, `/`, and `,`, as in `Blk 123 Bedok North Ave 2, #04-111`. It declares its own copy of the allowed-character regex, as every field class owns its rules. `Address#getConstraintMessage` names the first character that isn't allowed, like `Note#getConstraintMessage`, and is used by the `Address` constructor, `ParserUtil#parseAddress` (used by `add` and `edit`), and `JsonAdaptedPerson`. Blank and too-long addresses keep the existing `Address.MESSAGE_CONSTRAINTS`. `filter a/` search text is not restricted. A data file containing an address with any other character fails validation when loaded, so users must edit those addresses in the previous version before upgrading.
 
@@ -225,25 +225,25 @@ The ASCII letter/number rule also applies to existing data files. A file contain
 
 * **Alternative 1: Allow Unicode letters and digits in both fields.**
   * Pros: Preserves names and school names in their original writing systems and supports accented spellings.
-  * Cons: Does not match the User Guide's definition of alphanumeric as ASCII `A`–`Z` and `0`–`9`. Names and schools would also continue to accept different character sets if their punctuation rules differ.
+  * Cons: Does not match the User Guide's definitions of English letters (`A`–`Z`, `a`–`z`) and digits (`0`–`9`). Names and schools would also continue to accept different character sets if their punctuation rules differ.
 
-* **Alternative 2: Use the same strict ASCII letters, digits, and spaces rule for both fields.**
+* **Alternative 2: Use the same strict English letters, digits, and spaces rule for both fields.**
   * Pros: Gives both fields exactly the same simple validation rule.
   * Cons: Rejects common official school-name punctuation such as periods, apostrophes, ampersands, parentheses, commas, and hyphens. Existing school records using that punctuation would fail to load.
 
-* **Alternative 3 (chosen): Require ASCII letters and digits in both fields, while retaining school-specific punctuation.**
-  * Pros: Rejects non-ASCII letters consistently, preserves real school formats such as `Anglo-Chinese School (Independent)` and `St. Joseph's Institution`, and keeps parser, model, and storage validation aligned.
-  * Cons: Names and schools still have different punctuation rules, which must be documented. Accented and other non-ASCII letters in either field are rejected, so existing records with them must be changed before upgrading.
+* **Alternative 3 (chosen): Require English letters and digits in both fields, while retaining school-specific punctuation.**
+  * Pros: Rejects other letters consistently, preserves real school formats such as `Anglo-Chinese School (Independent)` and `St. Joseph's Institution`, and keeps parser, model, and storage validation aligned.
+  * Cons: Names and schools still have different punctuation rules, which must be documented. Accented letters and letters from other alphabets are rejected in either field, so existing records with them must be changed before upgrading.
 
-The third option was selected because the issue was inconsistent handling of letters, not a need to make names and school names use identical punctuation. ASCII-only letters and digits reject the accented school case consistently with student names, while keeping the punctuation needed for realistic school names. The User Guide lists the exact rules for each field and explains the existing-data limitation.
+The third option was selected because the issue was inconsistent handling of letters, not a need to make names and school names use identical punctuation. Allowing only English letters and digits rejects the accented school case consistently with student names, while keeping the punctuation needed for realistic school names. The User Guide lists the exact rules for each field and explains the existing-data limitation.
 
 ### School validation and error messages
 
-`ParserUtil#parseSchool` trims and collapses repeated spaces, then calls `School#getInvalidReason`, which returns a targeted message for the first problem found, in this order: blank input, more than 100 characters, the first unsupported character, then no ASCII letter. `School#isValidSchool` uses the same checks, so `add`, `edit`, model construction, and JSON loading apply the same rules. The model and JSON adapter report the general `School.MESSAGE_CONSTRAINTS` instead of a targeted message.
+`ParserUtil#parseSchool` trims and collapses repeated spaces, then calls `School#getInvalidReason`, which returns a targeted message for the first problem found, in this order: blank input, more than 100 characters, the first unsupported character, then no English letter. `School#isValidSchool` uses the same checks, so `add`, `edit`, model construction, and JSON loading apply the same rules. The model and JSON adapter report the general `School.MESSAGE_CONSTRAINTS` instead of a targeted message.
 
 ### Student subjects and bands
 
-Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `G2`, or `G3`. Subject names can contain 1 to 40 ASCII letters, spaces, hyphens, parentheses, commas, and ampersands, and must contain at least one letter. Digits, slashes, non-ASCII letters, and other symbols are rejected. Subject names use ASCII letters for the same reason as names and schools, as explained in [Student names and schools](#student-names-and-schools), so the same accented letter is handled the same way in every student field. A data file containing a subject name with non-ASCII letters fails validation when loaded, with the subject constraint. Users must edit those subjects in the previous version before upgrading. A student cannot have the same subject name more than once, even at different bands.
+Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `G2`, or `G3`. Subject names can contain 1 to 40 English letters, spaces, hyphens, parentheses, commas, and ampersands, and must contain at least one letter. Digits, slashes, other letters, and other symbols are rejected. Subject names use English letters for the same reason as names and schools, as explained in [Student names and schools](#student-names-and-schools), so the same accented letter is handled the same way in every student field. A data file containing a subject name with any other letters fails validation when loaded, with the subject constraint. Users must edit those subjects in the previous version before upgrading. A student cannot have the same subject name more than once, even at different bands.
 
 `Subject` is an immutable value object containing both the subject name and its required `Band`. The band is an enum, so a `Subject` cannot be constructed with an unsupported band or without one. For comparison, `Subject` trims surrounding spaces, collapses repeated ordinary spaces, and lowercases the name. The band is included in `Subject.equals`, but `Person#validateSubjects` checks names separately and rejects a repeated subject even if the bands differ.
 
@@ -293,13 +293,13 @@ The app uses the second option because it resolves the reported real-name cases 
 
 ### Student addresses
 
-`Address` is an optional value object. It accepts any nonblank value up to 200 characters and collapses repeated ordinary spaces. The add parser accepts optional `a/ADDRESS`; the edit parser replaces an address, and a blank `a/` removes it. `JsonAdaptedPerson` saves supplied addresses and accepts older JSON records without an address. The student list card shows an address when one is present; the detail panel and command result show `Not provided` when it is absent. Addresses do not contribute to duplicate detection.
+`Address` is an optional value object. It accepts any nonblank value up to 200 characters and collapses repeated ordinary spaces. The add parser accepts optional `a/ADDRESS`; the edit parser replaces an address, and a blank `a/` removes it. `JsonAdaptedPerson` saves supplied addresses and accepts older JSON records without an address. The student list card shows an address when one is present; the detail panel and command result show an em dash (`—`) when it is absent. Addresses do not contribute to duplicate detection.
 
 ### Student emails
 
 `Email` is an optional value object that follows the same pattern as `Address`. `Email#isValidEmail` accepts a value of the form `local-part@domain` that is at most 254 characters, the longest address that SMTP allows (RFC 5321):
 
-* The local part is groups of ASCII letters and digits joined by single `+`, `_`, `.`, or `-` characters, so it cannot start or end with a symbol or contain two symbols in a row.
+* The local part is groups of English letters and digits joined by single `+`, `_`, `.`, or `-` characters, so it cannot start or end with a symbol or contain two symbols in a row.
 * The domain is labels joined by single periods. Each label is groups of letters and digits joined by single hyphens, and the last label has at least 2 characters.
 * `ParserUtil#parseEmail` trims the value before validating it, so only a space inside the email is rejected.
 
@@ -313,7 +313,7 @@ A domain with no period, such as `john@gmail`, is valid (`localhost` is a real d
 
 A student has a set of `Tag`s, which may be empty but is never null. `Person#getTags()` returns an unmodifiable view that keeps the order the tags were typed in.
 
-* A tag is one word of ASCII letters and digits, where single hyphens may join parts of the word, such as `O-level`. `Tag` compares tags ignoring case, so `Exams` equals `exams`, and the display keeps the user's capitalization.
+* A tag is one word of English letters and digits, where single hyphens may join parts of the word, such as `O-level`. `Tag` compares tags ignoring case, so `Exams` equals `exams`, and the display keeps the user's capitalization.
 * `ParserUtil#parseTag` trims the value, then rejects a value containing a space with its own message, `Messages.MESSAGE_TAG_HAS_SPACE`, which tells the user to put `t/` before each tag (`filter` uses its own message, since it takes one tag). Other invalid values get `Tag.MESSAGE_CONSTRAINTS`. The space message lives in `Messages` because it names the `t/` prefix, which the model should not know about.
 * `ParserUtil#parseTags` rejects a tag given twice with `Tag "X" is given more than once.`, instead of letting the set drop it silently. It takes plain strings, so the prefix handling stays in the parsers.
 * In `add`, `t/` may repeat. In `edit`, the given tags replace all existing tags, and a single blank `t/` clears them. `EditCommandParser#parseTagsForEdit` handles both cases.
@@ -321,6 +321,56 @@ A student has a set of `Tag`s, which may be empty but is never null. `Person#get
 * Tags do not contribute to duplicate detection.
 
 Tags are one word, so that they are quick to type and to filter by. Hyphens are allowed because realistic tags such as `O-level` and `N-level` contain them. This means `exam-prep` and `examprep` are different tags, which the User Guide states. Spaces are not allowed, because they would add a third spelling, `exam prep`, and because rejecting a space catches a common mistake: `t/paid urgent`, where the user forgot the second `t/`, is rejected with a message that explains how to give two tags, instead of being saved as one tag.
+
+### Student notes
+
+The tutor keeps notes on each student with `addnote`, `editnote`, and `deletenote`.
+
+#### Implementation
+
+A `Person` holds its notes as an ordered `List<Note>`, and a `Note` holds only its text. A note's NID is its position in that list, so no ID is stored (see [Model component](#model-component)).
+
+The note commands work like `edit`. Each command takes the student at the given index in the filtered list and copies their notes. It changes the copy, builds an edited student with `Person#copyWithNotes`, and replaces the student with `Model#setPerson`. The sequence diagram below shows `deletenote -f 1 nid/2`.
+
+<img src="images/DeleteNoteSequenceDiagram.png" width="691" />
+
+The diagram starts when `LogicManager` calls `execute`. It leaves out parsing, which works as in the [Logic component](#logic-component) diagram, the confirmation check (see [Command confirmations](#command-confirmations)), and the save to storage. It also leaves out how `DeleteNoteCommand` finds the student: it takes the student `p` at index 1 of the filtered list, and `NoteCommandUtil#verifyNoteExists` rejects an NID larger than the number of notes `p` has.
+
+1. `DeleteNoteCommand` builds `ep`, a copy of `p` without note 2. The notes after note 2 move up one place, so their NIDs go down by one.
+1. `NoteCommandUtil#setPersonKeepingIndex` calls `Model#keepPersonInFilteredList`, then `Model#setPerson`, so `ep` stays at index 1 even if they no longer match the last `filter`. It returns `feedback`: the success message, plus a line saying the student no longer matches the search if that is the case. See [Keeping the list after an edit](#keeping-the-list-after-an-edit).
+1. `DeleteNoteCommand` returns `CommandResult.showStudent`, which opens `ep`'s record in the student detail view.
+
+`addnote` and `editnote` follow the same steps, with these differences:
+
+* `addnote` adds the note at the end of the list and calls `Model#setPerson` directly. Adding a note cannot make a student stop matching a filter, so the list does not need to keep them.
+* `editnote` replaces the note at the NID. If the new text is the same as the old text, it shows a warning and leaves the model unchanged, as `edit` does when nothing changes.
+* Only `deletenote` asks for `CONFIRM`, which `-f` skips, as `delete` does. Unlike `delete`, it opens the student's record afterwards, because the student still exists.
+
+In the data file, `JsonAdaptedPerson` stores a student's notes as a list of strings, one `JsonAdaptedNote` each, in NID order. Jackson sets the list directly, so a file without `notes` loads with no notes. A `notes` value of `null`, or a `null` note in the list, is rejected.
+
+The rules for note text are in [Student names and schools](#student-names-and-schools). `filter note/` searches notes, as described in [Filtering students](#filtering-students).
+
+#### Design considerations
+
+**Aspect: Where to store notes**
+
+* **Alternative 1 (current choice):** A list of notes inside each `Person`.
+  * Pros: Deleting a student also deletes their notes, so a note can never belong to a missing student. The data file keeps each student's notes under that student, which is easy to edit by hand.
+  * Cons: Changing one note replaces the whole `Person` in the model.
+
+* **Alternative 2:** One list of all notes in `AddressBook`, where each note refers to its student.
+  * Pros: Changing a note does not replace the student.
+  * Cons: Each note must store a reference to its student, such as the student's name, school, and level. Editing or deleting a student must also update their notes, and a wrong edit to the data file can leave a note that refers to no student.
+
+**Aspect: How to identify a note**
+
+* **Alternative 1 (current choice):** By its position in the student's list of notes (NID).
+  * Pros: NIDs are small numbers with no gaps, and they match the numbers in the student detail view. The data file stores no extra field.
+  * Cons: Deleting a note renumbers the notes after it, so an NID the tutor remembers may now point to a different note. Each note command opens the student's record afterwards, so the tutor sees the new numbers.
+
+* **Alternative 2:** By a fixed ID stored with each note.
+  * Pros: A note keeps its ID when other notes are deleted.
+  * Cons: IDs leave gaps after deletions and grow over time, so they are longer to type. The data file needs an extra field that must stay unique when the file is edited by hand.
 
 ### Command confirmations
 
@@ -467,7 +517,7 @@ The filter matches the edited student by the normalized name, school, and level 
 
 Each edit wraps the current filter, so after several edits in a row, every edited student stays in the list, not just the last one. The next `filter` or `list` replaces the whole filter, so the extra rules never build up across searches.
 
-`editnote` and `deletenote` keep the list the same way. Both call `NoteCommandUtil#setPersonKeepingIndex`, which calls `keepPersonInFilteredList` before `setPerson` and adds the same line to the result. While `filter` matches only name and school, changing a note never makes a student stop matching, so this matters once the list can be filtered by note text.
+`editnote` and `deletenote` keep the list the same way. Both call `NoteCommandUtil#setPersonKeepingIndex`, which calls `keepPersonInFilteredList` before `setPerson` and adds the same line to the result. After `filter note/...`, changing or deleting the note that matched can make a student stop matching, and this keeps them at the same index.
 
 #### Design considerations
 
@@ -1174,7 +1224,7 @@ Use case ends.
 5. Should save successful changes in local, human-editable JSON files, without a DBMS, and retain them after restarting.
 6. Should reject invalid commands without crashing or changing records, and explain errors and corrections.
 7. Should work well at resolutions of 1920 × 1080 or higher at 100% and 125% scaling, and remain usable at 1280 × 720 or higher at 150% scaling.
-8. Should keep student and guardian data local and omit personal details from diagnostic logs.
+8. Should keep student and guardian data, including the log file, only in the home folder (the folder TuteeBook3 is run from) and its subfolders, and never send it over the network.
 9. Should report save failures and preserve previously saved records.
 10. A first-time tutor should be able to add, find, and view a student and add a note within ten minutes using the supplied help.
 11. Should serve one tutor, without shared-computer accounts or shared data files between users.
@@ -1192,9 +1242,12 @@ Term | Meaning
 **AB3** | AddressBook-Level3, the sample project that TuteeBook3 is built on.
 **CLI** | Command-line interface. A way of using an app by typing commands instead of clicking.
 **DBMS** | Database management system. Software, such as MySQL, that stores data in a database. TuteeBook3 does not use one.
+**Digit** | One of the ASCII digits `0` to `9`. Digits from other writing systems, such as the full-width `１`, are not digits.
+**English letter** | One of the ASCII letters `A` to `Z` or `a` to `z`. Accented letters, such as `é`, and letters from other alphabets are not English letters.
 **GUI** | Graphical user interface. The windows, lists, and boxes that you see and click.
 **JAR** | Java Archive. The single file that contains the whole app, which you run with Java.
 **JSON** | JavaScript Object Notation. The text format that TuteeBook3 uses to save data in a file that can be read and edited by hand.
+**Keyboard symbol** | One of the 32 printable ASCII symbols, which are the characters in `\x21` to `\x7E` other than English letters and digits: `` ! " # $ % & ' ( ) * + , - . / : ; < = > ? @ [ \ ] ^ _ ` { | } ~ ``. Other symbols, such as `£` and `°`, curly quotes, such as `“` and `’`, long dashes, such as `–`, and emoji are not keyboard symbols.
 **Mainstream OS** | Windows, Linux, Unix, macOS.
 
 #### Tutoring terms
@@ -1279,6 +1332,35 @@ testers are expected to do more *exploratory* testing.
    1. Run `java -jar TuteeBook3.jar` again.<br>
       Expected: The window opens at the most recently saved size and location.
 
+1. Minimum window size
+
+   1. Resize the window to 600 pixels wide and 400 pixels tall.
+
+   1. Confirm that the menu bar, command box, result display, student list, student record, and status bar remain visible and usable.<br>
+      Expected: The window stays at 600 × 400 pixels. The student list and student record can be scrolled without clipping the other interface areas.
+
+1. Restoring a window on a smaller screen
+
+   1. Close TuteeBook3 on a large screen after maximizing or moving it away from the top-left corner. Reopen it on a smaller screen.
+
+   1. Check every edge of the window.<br>
+      Expected: The restored window is fully inside the smaller screen's usable area, excluding its taskbar, dock, or menu bar.
+
+### Viewing a student
+
+1. Viewing a student from the full or filtered list
+
+   1. Prerequisites: Start with the sample data.
+
+   1. Test case: Enter `list`, then enter `view 2`.<br>
+      Expected: The full record of `SAMPLE Marcus Lim`, the second student in the full list, is shown.
+
+   1. Test case: Enter `filter lvl/S2`, then enter `view 2`.<br>
+      Expected: The filtered list shows `SAMPLE Chloe Tan` followed by `SAMPLE Ethan Kumar`, and the full record of `SAMPLE Ethan Kumar` is shown.
+
+   1. Test case: `view 99`<br>
+      Expected: The displayed student record does not change. The status message reports that the index is invalid.
+
 ### Deleting a student
 
 1. Deleting a student while all students are shown
@@ -1294,6 +1376,23 @@ testers are expected to do more *exploratory* testing.
    1. Test case: `delete 0`<br>
       Expected: No student is deleted. The status message shows an invalid index error.
 
+### Clearing all students
+
+1. Clearing with confirmation, cancellation, and the force flag
+
+   1. Prerequisites: Close TuteeBook3 and copy `data/addressbook.json` to a backup outside the `data` folder. Before each test case, restore the backup and relaunch TuteeBook3 so that the student list is not empty.
+
+   1. Test case: Enter `clear`, then enter `CONFIRM`.<br>
+      Expected: The students remain after the first input and are all deleted after the confirmation.
+
+   1. Test case: Enter `clear`, then enter `list`. Repeat with `clear`, then lowercase `confirm`.<br>
+      Expected: Each second input cancels the pending clear operation, and no students are deleted.
+
+   1. Test case: `clear -f`<br>
+      Expected: All students are deleted without a confirmation prompt.
+
+   1. After testing, close TuteeBook3 and restore `data/addressbook.json` from the backup.
+
 ### Adding and editing a guardian
 
 1. Adding a student with a guardian
@@ -1305,7 +1404,7 @@ testers are expected to do more *exploratory* testing.
       Expected: No student is added. The status message says that guardian name and guardian phone must be given together.
 
    1. Test case: `add n/Ken Lim sch/Victoria School lvl/S2 sub/Mathematics band/G1`<br>
-      Expected: Ken Lim is added. Viewing his student details shows `Not provided` for both guardian fields.
+      Expected: Ken Lim is added. Viewing his student details shows `—` for both guardian fields.
 
 1. Editing a guardian
 
@@ -1321,7 +1420,7 @@ testers are expected to do more *exploratory* testing.
       Expected: Tim Tan is unchanged. The status message says that guardian name and guardian phone cannot be empty.
 
    1. Test case: `edit 1 gn/ gp/` on Tim Tan<br>
-      Expected: The guardian is removed, and viewing the student's details shows `Not provided` for both guardian name and guardian phone.
+      Expected: The guardian is removed, and viewing the student's details shows `—` for both guardian name and guardian phone.
 
    1. Test case: `edit 1 gn/ gp/` on Ken Lim<br>
       Expected: Ken Lim is unchanged. The status message says that the student has no guardian to remove.
@@ -1353,7 +1452,7 @@ testers are expected to do more *exploratory* testing.
       Expected: Mei Lin's only tag is now `online`.
 
    1. Test case: `edit 1 t/`<br>
-      Expected: Mei Lin has no tags. Her list card shows no tags, and viewing her details shows `Not provided` for tags.
+      Expected: Mei Lin has no tags. Her list card shows no tags, and viewing her details shows `—` for tags.
 
 ### Entering phone numbers
 
@@ -1379,7 +1478,7 @@ testers are expected to do more *exploratory* testing.
 
 1. Editing a student so they no longer match the search
 
-   1. Prerequisites: Start with the sample data. Enter `filter n/an`, which lists `SAMPLE Chloe Tan`, `SAMPLE Aisha Rahman`, `SAMPLE Daniel Lee`, and `SAMPLE Ethan Kumar`, then `view 1`. Run the test cases in order.
+   1. Prerequisites: Start with the sample data. Enter `filter n/an`, which lists `Chloe Tan`, `Aisha Rahman`, `Daniel Lee`, and `Ethan Kumar`, then `view 1`. Run the test cases in order.
 
    1. Test case: `edit 1 n/Chloe Lim`<br>
       Expected: The student record stays open and shows Chloe Lim. The status message says that she no longer matches the last search but remains in the list until the next `list` or `filter` command.
@@ -1391,7 +1490,7 @@ testers are expected to do more *exploratory* testing.
 
 The rules for `INDEX`, `NID`, and `TEXT` are in the User Guide's [Managing notes](UserGuide.md#managing-notes) section.
 
-Prerequisites: Start with the sample data. Enter `filter n/Marcus` so that `SAMPLE Marcus Lim` is first in the list, then `view 1`. Marcus Lim has one note. Run the test cases in order.
+Prerequisites: Start with the sample data. Enter `filter n/Marcus` so that `Marcus Lim` is first in the list, then `view 1`. Marcus Lim has one note. Run the test cases in order.
 
 1. Adding a note
 
