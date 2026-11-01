@@ -142,17 +142,17 @@ public class CommandBoxTest {
 
     @Test
     public void handleCommandEntered_fullWidthSpace_notExecuted(FxRobot robot) {
-        assertCommandIgnored(robot, "　");
+        assertCommandIgnored(robot, "\u3000");
     }
 
     @Test
     public void handleCommandEntered_nonBreakingSpace_notExecuted(FxRobot robot) {
-        assertCommandIgnored(robot, " ");
+        assertCommandIgnored(robot, "\u00A0");
     }
 
     @Test
     public void handleCommandEntered_zeroWidthSpace_notExecuted(FxRobot robot) {
-        assertCommandIgnored(robot, "​");
+        assertCommandIgnored(robot, "\u200B");
     }
 
     @Test
@@ -194,6 +194,8 @@ public class CommandBoxTest {
      * and shows no error.
      */
     private void assertCommandIgnored(FxRobot robot, String commandText) {
+        // Executing the text would fail and show the error style, so the style check catches it.
+        isExecutionFailing = true;
         robot.interact(() -> {
             TextField textField = getTextField();
             textField.setText(commandText);
