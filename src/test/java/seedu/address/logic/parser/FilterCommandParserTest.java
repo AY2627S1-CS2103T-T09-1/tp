@@ -478,6 +478,12 @@ public class FilterCommandParserTest {
     }
 
     @Test
+    public void parse_nonAsciiAddress_returnsFilterCommand() {
+        // search text is not restricted to the characters an address can contain
+        assertParseSuccess(parser, " a/Église", filterCommandOf(address("Église")));
+    }
+
+    @Test
     public void parse_addressWithJoinedPrefix_reportsCaseSensitivePrefix() {
         assertParseFailure(parser, " a/Blk 1/2P/91234567",
                 String.format(Messages.MESSAGE_PREFIX_CASE_SENSITIVE, "P/", "p/"));

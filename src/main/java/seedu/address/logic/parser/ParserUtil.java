@@ -205,8 +205,9 @@ public class ParserUtil {
     public static School parseSchool(String school) throws ParseException {
         requireNonNull(school);
         String trimmedSchool = trimAndCollapseSpaces(school);
-        if (!School.isValidSchool(trimmedSchool)) {
-            throw new ParseException(withSlashHint(School.MESSAGE_CONSTRAINTS, trimmedSchool));
+        Optional<String> invalidReason = School.getInvalidReason(trimmedSchool);
+        if (invalidReason.isPresent()) {
+            throw new ParseException(withSlashHint(invalidReason.get(), trimmedSchool));
         }
         return new School(trimmedSchool);
     }
@@ -220,7 +221,7 @@ public class ParserUtil {
         requireNonNull(address);
         String trimmedAddress = address.trim();
         if (!Address.isValidAddress(trimmedAddress)) {
-            throw new ParseException(Address.MESSAGE_CONSTRAINTS);
+            throw new ParseException(Address.getConstraintMessage(trimmedAddress));
         }
         return new Address(trimmedAddress);
     }

@@ -54,6 +54,39 @@ public class AddressPrefixCheckerTest {
     }
 
     @Test
+    public void verifyNoJoinedPrefix_slashAfterWordEndingInPrefix_throwsWithAddressHint() {
+        ParseException exception = assertThrows(ParseException.class, () ->
+                AddressPrefixChecker.verifyNoJoinedPrefix("Blk 5 Ang Mo Kio Town/Central", PREFIX_NAME));
+        assertEquals("If you meant to start the \"n/\" parameter, put a space before it. "
+                + "If \"/\" is part of the address, put a space before the \"/\" instead.",
+                exception.getMessage());
+    }
+
+    @Test
+    public void verifyNoJoinedPrefix_slashAfterWordEndingInTagPrefix_throwsWithAddressHint() {
+        ParseException exception = assertThrows(ParseException.class, () ->
+                AddressPrefixChecker.verifyNoJoinedPrefix("12 Jurong East/West", PREFIX_TAG));
+        assertEquals(String.format(Messages.MESSAGE_MISSING_SPACE_BEFORE_PREFIX, PREFIX_TAG),
+                exception.getMessage());
+    }
+
+    @Test
+    public void verifyNoJoinedPrefix_capitalizedPrefixAfterWord_throwsCaseSensitiveWithHint() {
+        ParseException exception = assertThrows(ParseException.class, () ->
+                AddressPrefixChecker.verifyNoJoinedPrefix("Blk 5 Ang Mo Kio TOWN/Central", PREFIX_NAME));
+        assertEquals("The \"N/\" prefix is case-sensitive. If you meant to start the \"n/\" parameter, "
+                + "write \"n/\" with a space before it. "
+                + "If \"/\" is part of the address, put a space before the \"/\" instead.",
+                exception.getMessage());
+    }
+
+    @Test
+    public void verifyNoJoinedPrefix_spaceBeforeSlash_allowsAddress() throws ParseException {
+        AddressPrefixChecker.verifyNoJoinedPrefix("Blk 5 Ang Mo Kio Town /Central", PREFIX_NAME, PREFIX_TAG);
+        AddressPrefixChecker.verifyNoJoinedPrefix("12 Jurong East /West", PREFIX_NAME, PREFIX_TAG);
+    }
+
+    @Test
     public void verifyNoJoinedPrefix_nullArguments_throwsNullPointerException() {
         assertThrows(NullPointerException.class, () -> AddressPrefixChecker.verifyNoJoinedPrefix(null, PREFIX_PHONE));
         assertThrows(NullPointerException.class, () ->

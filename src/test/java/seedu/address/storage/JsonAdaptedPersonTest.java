@@ -63,10 +63,11 @@ public class JsonAdaptedPersonTest {
     }
 
     @Test
-    public void toModelType_missingSchool_defaultsToUnknown() throws Exception {
+    public void toModelType_nullSchool_throwsIllegalValueException() {
         JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, null, null, VALID_LEVEL,
                 VALID_SUBJECTS);
-        assertEquals(new PersonBuilder(BENSON).withSchool(School.DEFAULT_VALUE).build(), person.toModelType());
+        String expectedMessage = String.format(MISSING_FIELD_MESSAGE_FORMAT, School.class.getSimpleName());
+        assertThrows(IllegalValueException.class, expectedMessage, person::toModelType);
     }
 
     @Test
@@ -151,6 +152,14 @@ public class JsonAdaptedPersonTest {
         JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, VALID_SCHOOL, "  ", VALID_LEVEL,
                 VALID_SUBJECTS);
         assertThrows(IllegalValueException.class, Address.MESSAGE_CONSTRAINTS, person::toModelType);
+    }
+
+    @Test
+    public void toModelType_nonAsciiAddress_throwsIllegalValueException() {
+        JsonAdaptedPerson person = new JsonAdaptedPerson(VALID_NAME, VALID_PHONE, VALID_SCHOOL, "Rue de l'Église 5",
+                VALID_LEVEL, VALID_SUBJECTS);
+        assertThrows(IllegalValueException.class, String.format(Address.MESSAGE_INVALID_CHARACTER, "É"),
+                person::toModelType);
     }
 
     @Test
