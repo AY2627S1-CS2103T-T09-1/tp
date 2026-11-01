@@ -631,7 +631,7 @@ You type | TuteeBook3 shows
 
 The result of `filter n/c`:
 
-![Results for filter c](images/findChloeMarcusResult.png)
+![Results for filter c](images/filterChloeMarcusResult.png)
 
 ##### Errors in `filter`
 
