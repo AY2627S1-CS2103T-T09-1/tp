@@ -38,7 +38,7 @@ TuteeBook3 is a **desktop app for private tutors who teach secondary school stud
 
    * `exit` : Exits the app.
 
-1. When you finish trying the commands and before you enter your own student records, type `clear`, then enter `CONFIRM` to remove all sample students. Alternatively, type `clear -f` to remove them immediately without confirmation. Both methods remove every student and note currently stored.
+1. When you finish trying the commands and before you enter your own student records, type `clear`, then enter `CONFIRM` to remove all sample students. Each sample student has the tag `sample`, so `filter t/sample` lists them. Alternatively, type `clear -f` to remove them immediately without confirmation. Both methods remove every student and note currently stored.
 
 1. Refer to [How commands are written](#how-commands-are-written) to learn how to type commands, then the [Features](#features) section for details of each command.
 
@@ -250,13 +250,13 @@ To add a student with… | Type
 Only the required details | `add n/Tim Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1`
 A phone number | `add n/John Doe p/98765432 sch/Victoria School lvl/S3 sub/Mathematics band/G1`
 Parameters in a different order | `add n/Betsy Crowe lvl/S1 sch/Bedok Green Secondary School p/81234567 sub/Mathematics band/G1`
-Two subjects at different bands | `add n/Chloe Tan sch/Bedok Green Secondary School lvl/S2 sub/Mathematics band/G1 sub/English band/G3`
+Two subjects at different bands | `add n/Sarah Wong sch/Bedok Green Secondary School lvl/S2 sub/Mathematics band/G1 sub/English band/G3`
 An address | `add n/Mei Lin sch/Bedok Green Secondary School a/Blk 123 Bedok North Avenue 2, #04-111 lvl/S2 sub/Mathematics band/G1`
 An email | `add n/Priya Nair sch/Bedok Green Secondary School e/priya.nair@example.com lvl/S2 sub/Mathematics band/G1`
 An email with no period in its domain (saved, with a warning that an ending such as `.com` may be missing) | `add n/John Tan sch/Victoria School lvl/S3 sub/Mathematics band/G3 e/john@gmail`
 Tags | `add n/Ryan Ong sch/Bedok Green Secondary School lvl/S2 sub/Mathematics band/G1 t/exams t/paid`
 A guardian (use `view INDEX` to see the guardian's details) | `add n/Jun Wei Lim sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Mary Lim gp/91234567`
-A guardian with an overseas number (saved as `+60123456789`, with a warning that it doesn't look like a Singapore number) | `add n/Aisha Rahman sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Farah Rahman gp/+60 12-345 6789`
+A guardian with an overseas number (saved as `+60123456789`, with a warning that it doesn't look like a Singapore number) | `add n/Nurul Rahman sch/Victoria School lvl/S2 sub/Mathematics band/G1 gn/Farah Rahman gp/+60 12-345 6789`
 Every detail | `add n/James Ho p/62224444 sch/Victoria School a/Blk 123 Bedok North Avenue 2, #04-111 e/james.ho@example.com lvl/S2 sub/Mathematics band/G1 sub/English band/G2 gn/Mary Ho gp/91234567 t/paid`
 
 ##### Errors in `add`
@@ -614,25 +614,26 @@ Examples, using the sample students:
 
 You type | TuteeBook3 shows
 ---------|-----------------
-`filter n/c` | `SAMPLE Chloe Tan` and `SAMPLE Marcus Lim`
-`filter sch/victoria` | `SAMPLE Daniel Lee`
-`filter n/lim sch/secondary` | `SAMPLE Marcus Lim`
-`filter lvl/s2` | `SAMPLE Chloe Tan` and `SAMPLE Ethan Kumar`
-`filter sch/bedok lvl/S2` | `SAMPLE Chloe Tan`
-`filter sub/mathematics band/G2` | `SAMPLE Marcus Lim` and `SAMPLE Daniel Lee`
-`filter sub/chemistry` | `SAMPLE Aisha Rahman` and `SAMPLE Natalie Goh`
-`filter p/9123 4567` | `SAMPLE Chloe Tan`
-`filter e/example.com` | `SAMPLE Chloe Tan`, `SAMPLE Marcus Lim`, and `SAMPLE Natalie Goh`
-`filter a/tampines` | `SAMPLE Marcus Lim` and `SAMPLE Ethan Kumar`
-`filter gp/98765432` | `SAMPLE Marcus Lim`, whose guardian is Grace Lim
-`filter gn/goh` | `SAMPLE Natalie Goh`, whose guardian is Michelle Goh
-`filter t/unpaid` | `SAMPLE Marcus Lim`
-`filter note/algebra` | `SAMPLE Chloe Tan`
-`filter lvl/S1 note/next lesson` | `SAMPLE Daniel Lee`
+`filter n/c` | `Chloe Tan` and `Marcus Lim`
+`filter sch/victoria` | `Daniel Lee`
+`filter n/lim sch/secondary` | `Marcus Lim`
+`filter lvl/s2` | `Chloe Tan` and `Ethan Kumar`
+`filter sch/bedok lvl/S2` | `Chloe Tan`
+`filter sub/mathematics band/G2` | `Marcus Lim` and `Daniel Lee`
+`filter sub/chemistry` | `Aisha Rahman` and `Natalie Goh`
+`filter p/9123 4567` | `Chloe Tan`
+`filter e/example.com` | `Chloe Tan`, `Marcus Lim`, and `Natalie Goh`
+`filter a/tampines` | `Marcus Lim` and `Ethan Kumar`
+`filter gp/98765432` | `Marcus Lim`, whose guardian is Grace Lim
+`filter gn/goh` | `Natalie Goh`, whose guardian is Michelle Goh
+`filter t/unpaid` | `Marcus Lim`
+`filter t/sample` | All six sample students
+`filter note/algebra` | `Chloe Tan`
+`filter lvl/S1 note/next lesson` | `Daniel Lee`
 
 The result of `filter n/c`:
 
-![Results for filter c](images/findChloeMarcusResult.png)
+![Results for filter c](images/filterChloeMarcusResult.png)
 
 ##### Errors in `filter`
 
@@ -724,12 +725,12 @@ A student's tags are stored in a `tags` array, for example `"tags" : [ "exams", 
 Phone numbers in the data file, for both students and guardians, follow the same rules as `PHONE`. They are cleaned up the same way when the app loads the file, so `+65 9123-4567` is loaded as `91234567`. The cleaned number is written back to the file the next time TuteeBook3 saves.
 
 <div markdown="span" class="alert alert-warning">:exclamation: **Caution:**
-If any part of the data file is invalid, such as one wrong value or a missing comma, TuteeBook3 cannot load any of it and starts with no students. The next command that runs successfully, even `list` or `exit`, replaces the file with the app's current data, so every student in the old file is lost for good. If the app starts with no students after you edit the file, close the window without running any command, then fix the file or restore your backup.<br>
-TuteeBook3 skips any field name it does not recognize, such as `"phnoe"`.<br>
-If the skipped field is `name`, `level`, or `subjects`, or is inside a `guardian` object or a subject-band object, the file is invalid.<br>
-If the skipped field is `school`, the school becomes `Unknown`, and the next save deletes the old school from the file.<br>
-If the skipped field is any other field, the student loads without that value, and the next save deletes the value from the file.<br>
-Back up the file before you edit it. Furthermore, certain edits can cause TuteeBook3 to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
+If any part of the data file is invalid, such as one wrong value or a missing comma, TuteeBook3 cannot load any of it and starts with no students. The next command that runs successfully, even `list` or `exit`, replaces the file with the app's current data, so every student in the old file is lost for good.<br>
+If the app starts with no students after you edit the file, close the window without running any command, then fix the file or restore your backup.<br>
+TuteeBook3 treats a field name it does not recognize, such as `"phnoe"`, as missing, and the next save deletes it from the file.<br>
+A missing required field (`name`, `school`, `level`, `subjects`, or any field inside a `guardian` or subject-band object) makes the file invalid.<br>
+A missing optional field (`phone`, `email`, `address`, `guardian`, `tags`, or `notes`) only leaves the student without that value.<br>
+Back up the file before you edit it, and edit it only if you are confident you can update it correctly.
 </div>
 
 --------------------------------------------------------------------------------------------------------------------

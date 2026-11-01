@@ -1382,7 +1382,7 @@ testers are expected to do more *exploratory* testing.
 
 1. Editing a student so they no longer match the search
 
-   1. Prerequisites: Start with the sample data. Enter `filter n/an`, which lists `SAMPLE Chloe Tan`, `SAMPLE Aisha Rahman`, `SAMPLE Daniel Lee`, and `SAMPLE Ethan Kumar`, then `view 1`. Run the test cases in order.
+   1. Prerequisites: Start with the sample data. Enter `filter n/an`, which lists `Chloe Tan`, `Aisha Rahman`, `Daniel Lee`, and `Ethan Kumar`, then `view 1`. Run the test cases in order.
 
    1. Test case: `edit 1 n/Chloe Lim`<br>
       Expected: The student record stays open and shows Chloe Lim. The status message says that she no longer matches the last search but remains in the list until the next `list` or `filter` command.
@@ -1394,7 +1394,7 @@ testers are expected to do more *exploratory* testing.
 
 The rules for `INDEX`, `NID`, and `TEXT` are in the User Guide's [Managing notes](UserGuide.md#managing-notes) section.
 
-Prerequisites: Start with the sample data. Enter `filter n/Marcus` so that `SAMPLE Marcus Lim` is first in the list, then `view 1`. Marcus Lim has one note. Run the test cases in order.
+Prerequisites: Start with the sample data. Enter `filter n/Marcus` so that `Marcus Lim` is first in the list, then `view 1`. Marcus Lim has one note. Run the test cases in order.
 
 1. Adding a note
 
