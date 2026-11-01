@@ -10,6 +10,10 @@ title: Developer Guide
 ## **Acknowledgements**
 
 * This project is based on the AddressBook-Level3 project created by the [SE-EDU initiative](https://se-education.org).
+* The GUI uses [JavaFX](https://openjfx.io/).
+* The data file is read and written with [Jackson](https://github.com/FasterXML/jackson).
+* Tests use [JUnit 5](https://junit.org/junit5/), and GUI tests use [TestFX](https://github.com/TestFX/TestFX).
+* The diagrams in this guide are made with [PlantUML](https://plantuml.com/).
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -729,7 +733,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 | `* * *` | tutor | record the band each subject is taken at (G1, G2, or G3) | pitch the material at the right difficulty                                  |
 | `* *` | tutor receiving unknown calls | find students by their guardian's phone number | identify the caller and see their children's records                        |
 | `* *` | tutor planning lessons | filter students by school, level, or subject | prepare lessons for students at the same school, level, or subject together |
-| `* *` | careless typist | confirm before a student is deleted | avoid erasing the wrong student's history after mistyping an ID             |
+| `* *` | careless typist | confirm before a student is deleted | avoid erasing the wrong student's history after mistyping an index          |
 | `* *` | forgetful tutor | be stopped from adding a student with the same name, school, and level as an existing student | avoid duplicate records                                                     |
 | `* *` | tutor | edit a note | update a student's progress without deleting and retyping it                |
 | `* *` | careless typist | undo my last command | recover from a mistyped delete                                              |
@@ -744,7 +748,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 ### Use cases
 
-(For all use cases below, the **System** is the `AddressBook` and the **Actor** is the `user`, unless specified otherwise)
+(For all use cases below, the **System** is `TuteeBook3` and the **Actor** is the tutor, unless specified otherwise)
 
 **Use case: UC1 - Add a student**
 
