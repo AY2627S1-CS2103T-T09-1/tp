@@ -49,9 +49,13 @@ StudentDetailPanel --|> UiPart
 StatusBarFooter --|> UiPart
 
 PersonCard ..> Model
+MainWindow ..> Model
+PersonListPanel ..> Model
 StudentDetailPanel ..> Model
 UiManager -right-> Logic
 MainWindow -left-> Logic
+CommandBox ..> Logic
+StudentDetailPanel ..> Logic
 
 PersonListPanel -[hidden]left- CommandBox
 CommandBox -[hidden]left- ResultDisplay
