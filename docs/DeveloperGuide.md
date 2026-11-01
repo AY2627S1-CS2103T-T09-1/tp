@@ -1619,7 +1619,7 @@ Prerequisites: Start with the sample data. Enter `filter n/Marcus` so that `Marc
    1. Prerequisites: Delete the `data` folder next to the JAR file, if there is one.
 
    1. Test case: Launch the app.<br>
-      Expected: The list shows the sample students, whose names start with `SAMPLE`. The status message is empty.
+      Expected: The list shows the six sample students, each tagged `sample`. The status message is empty.
 
    1. Test case: Enter `list`, then close the window.<br>
       Expected: `data/addressbook.json` now exists and holds the sample students.
