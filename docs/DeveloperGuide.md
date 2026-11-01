@@ -1537,6 +1537,77 @@ Prerequisites: Start with the sample data. Enter `filter n/Marcus` so that `Marc
    1. Test case: `edit 1 p/12`<br>
       Expected: Ravi Kumar is unchanged. The status message says that a phone number must have 3 to 15 digits.
 
+### Filtering students
+
+Prerequisites for every case: start with the sample data. Enter `list` between cases to show all 6 sample students again.
+
+When students match, the status message says `N student(s) listed!`, where `N` is the number of students listed. When none match, it starts with `No students match your search.`
+
+1. Filters with partial matching
+
+   1. Test case: `filter n/chl`<br>
+      Expected: Only `Chloe Tan` is listed.
+
+   1. Test case: `filter sch/tampines`<br>
+      Expected: Only `Marcus Lim` is listed.
+
+   1. Test case: `filter e/example.com`<br>
+      Expected: `Chloe Tan`, `Marcus Lim`, and `Natalie Goh` are listed.
+
+   1. Test case: `filter a/tampines street`<br>
+      Expected: `Marcus Lim` and `Ethan Kumar` are listed.
+
+   1. Test case: `filter gn/goh`<br>
+      Expected: Only `Natalie Goh` is listed, because her guardian is Michelle Goh.
+
+   1. Test case: `filter note/BEFORE the   next lesson`<br>
+      Expected: `Marcus Lim` and `Daniel Lee` are listed, ignoring case and extra spaces.
+
+1. Filters with exact matching
+
+   1. Test case: `filter lvl/s2`<br>
+      Expected: `Chloe Tan` and `Ethan Kumar` are listed.
+
+   1. Test case: `filter sub/chemistry`<br>
+      Expected: `Aisha Rahman` and `Natalie Goh` are listed.
+
+   1. Test case: `filter sub/math`<br>
+      Expected: No students are listed.
+
+   1. Test case: `filter sub/mathematics band/G2`<br>
+      Expected: `Marcus Lim` and `Daniel Lee` are listed.
+
+   1. Test case: `filter p/91234567`<br>
+      Expected: Only `Chloe Tan` is listed.
+
+   1. Test case: `filter p/9123`<br>
+      Expected: No students are listed.
+
+   1. Test case: `filter gp/98765432`<br>
+      Expected: Only `Marcus Lim` is listed.
+
+   1. Test case: `filter t/paid`<br>
+      Expected: Only `Chloe Tan` is listed. `Marcus Lim`, tagged `unpaid`, is not.
+
+1. Combining filters
+
+   1. Test case: `filter lvl/S2 sub/english`<br>
+      Expected: Only `Ethan Kumar` is listed.
+
+   1. Test case: `filter note/algebra lvl/S3`<br>
+      Expected: No students are listed, because `lvl/S3` is read as part of the note text.
+
+1. Invalid filters
+
+   1. Test case: `filter band/G2`<br>
+      Expected: The list doesn't change. The error starts with `band/ must come right after sub/`.
+
+   1. Test case: `filter lvl/S2 lvl/S3`<br>
+      Expected: The list doesn't change. The error starts with `Each filter can be given only once, but you repeated: lvl/.`
+
+   1. Test case: `filter n/chloe lv/S2`<br>
+      Expected: The list doesn't change. The error starts with `lv/ is not a filter prefix.`
+
 ### Editing a student in search results
 
 1. Editing a student so they no longer match the search
