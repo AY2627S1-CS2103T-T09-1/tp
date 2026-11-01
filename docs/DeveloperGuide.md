@@ -1377,7 +1377,7 @@ testers are expected to do more *exploratory* testing.
 
 ### Clearing all students
 
-1. Clearing with confirmation, cancellation, and the force flag
+1. Clearing with confirmation, cancellation, and `-f`
 
    1. Prerequisites: Close TuteeBook3 and copy `data/addressbook.json` to a backup outside the `data` folder. Before each test case, restore the backup and relaunch TuteeBook3 so that the student list is not empty.
 
