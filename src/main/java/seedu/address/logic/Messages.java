@@ -59,6 +59,11 @@ public class Messages {
             + "so an ending such as \".com\" may be missing. Use edit to fix it if it's wrong.";
     public static final String WARNING_LABEL_PHONE = "phone ";
     public static final String WARNING_LABEL_GUARDIAN_PHONE = "guardian phone ";
+    public static final String MESSAGE_DATA_FILE_NOT_LOADED =
+            "The data file %1$s could not be loaded, so TuteeBook3 started with no students.\n"
+            + "Close the window or use File > Exit, not the \"exit\" command. "
+            + "Then fix the file or restore your backup.\n"
+            + "Any command that succeeds permanently replaces the file and deletes every student in it.";
 
     /**
      * Returns an error message indicating the duplicate prefixes.

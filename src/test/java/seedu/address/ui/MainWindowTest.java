@@ -1,6 +1,7 @@
 package seedu.address.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.commands.HelpCommand.SHOWING_HELP_MESSAGE;
@@ -33,6 +34,7 @@ import seedu.address.model.person.Person;
 @ExtendWith(ApplicationExtension.class)
 public class MainWindowTest {
 
+    private static final String ERROR_MESSAGE = "The data file could not be loaded.\nClose the window now.";
     private static final double MINIMUM_WINDOW_WIDTH = 600;
     private static final double MINIMUM_WINDOW_HEIGHT = 400;
     private static final double[][] SUPPORTED_WINDOW_SIZES = {
@@ -136,6 +138,18 @@ public class MainWindowTest {
         assertEquals(MINIMUM_WINDOW_HEIGHT, mainWindow.getRoot().getHeight());
     }
 
+    @Test
+    public void showError_multiLineMessage_showsWholeMessageAsErrorInFeedbackBox(FxRobot robot) {
+        robot.interact(() -> {
+            mainWindow.showError(ERROR_MESSAGE);
+            TextArea resultDisplay = (TextArea) mainWindow.getRoot().getScene()
+                    .lookup(".result-display");
+            assertEquals(ERROR_MESSAGE.lines().toList(), resultDisplay.getText().lines().toList());
+            assertTrue(resultDisplay.getStyleClass().contains(ResultDisplay.ERROR_STYLE_CLASS));
+            assertFalse(resultDisplay.getStyleClass().contains(ResultDisplay.WARNING_STYLE_CLASS));
+        });
+    }
+
     private void assertVisible(String selector) {
         Node node = mainWindow.getRoot().getScene().lookup(selector);
         Bounds nodeBounds = node.localToScene(node.getBoundsInLocal());
@@ -150,7 +164,10 @@ public class MainWindowTest {
         assertTrue(nodeBounds.getMaxY() <= sceneBounds.getMaxY());
     }
 
-    private static class LogicStub implements Logic {
+    /**
+     * A {@code Logic} stub with an empty student list that rejects every command.
+     */
+    static class LogicStub implements Logic {
 
         @Override
         public CommandResult execute(String commandText) throws CommandException, ParseException {
