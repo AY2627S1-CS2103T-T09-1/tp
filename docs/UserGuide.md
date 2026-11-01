@@ -132,15 +132,17 @@ These are the values you type in commands. The table below covers the student de
 
 Parameters can be given in any order, except that each `sub/SUBJECT` must be immediately followed by its `band/BAND`. For example, `sub/Mathematics band/G1 lvl/S3` is valid, but `sub/Mathematics lvl/S3 band/G1` is not.
 
+The rules below use the terms **English letter**, **digit**, and **keyboard symbol**, as defined in the [Glossary](#glossary).
+
 Parameter | Prefix | Required in `add` | Rules | Examples
 ----------|--------|-------------------|-------|--------
-`NAME` | `n/` | Yes | ASCII English letters (`A`–`Z`, `a`–`z`), digits (`0`–`9`), and spaces only. Accented letters and punctuation aren't supported. | ✓ `Rajesh so Kumar`<br>✗ `Zoë Lim`<br>✗ `Rajesh s/o Kumar`
+`NAME` | `n/` | Yes | English letters, digits, and spaces only. Accented letters and punctuation aren't supported. | ✓ `Rajesh so Kumar`<br>✗ `Zoë Lim`<br>✗ `Rajesh s/o Kumar`
 `PHONE` | `p/` | No | 3 to 15 digits, with an optional `+` at the start. See [Phone numbers](#phone-numbers). | ✓ `9123 4567`<br>✗ `12`
-`SCHOOL` | `sch/` | Yes | 1 to 100 characters, with at least one ASCII English letter (`A`–`Z`, `a`–`z`). Also allows digits (`0`–`9`), spaces, periods (`.`), apostrophes (`'` or `’`), ampersands (`&`), parentheses, commas, and hyphens (`-`). Accented letters and other punctuation aren't supported. | ✓ `Victoria School`<br>✓ `St. Joseph's Institution`<br>✓ `Anglo-Chinese School (Independent)`<br>✓ `School of Science and Technology, Singapore`<br>✗ `École Française`<br>✗ `School/Name`
-`ADDRESS` | `a/` | No | Up to 200 characters, using the same characters as a note's `TEXT`: English letters without accents, digits, spaces, the symbols on a standard keyboard, such as `# / , - ( ) '`, and the curly apostrophe `’`. | ✓ `Blk 123 Bedok North Avenue 2, #04-111`<br>✗ `Rue de l'Église 5`<br>✗ more than 200 characters
+`SCHOOL` | `sch/` | Yes | 1 to 100 characters, with at least one English letter. Also allows digits, spaces, periods (`.`), apostrophes (`'` or `’`), ampersands (`&`), parentheses, commas, and hyphens (`-`). Accented letters and other punctuation aren't supported. | ✓ `Victoria School`<br>✓ `St. Joseph's Institution`<br>✓ `Anglo-Chinese School (Independent)`<br>✓ `School of Science and Technology, Singapore`<br>✗ `École Française`<br>✗ `School/Name`
+`ADDRESS` | `a/` | No | Up to 200 characters, using the same characters as a note's `TEXT`: English letters, digits, spaces, keyboard symbols such as `# / , - ( ) '`, and the curly apostrophe `’`. | ✓ `Blk 123 Bedok North Avenue 2, #04-111`<br>✗ `Rue de l'Église 5`<br>✗ more than 200 characters
 `EMAIL` | `e/` | No | Up to 254 characters, in the form `local-part@domain`. See [Emails](#emails). | ✓ `chloe.tan@example.com`<br>✗ `chloe.tan@`
 `LEVEL` | `lvl/` | Yes | `S1` to `S5`. Uppercase or lowercase both work. | ✓ `S3`, `s3`<br>✗ `S6`
-`SUBJECT` | `sub/` | Yes, 1 to 8 | 1 to 40 characters: English letters without accents, spaces, hyphens, parentheses, commas, and ampersands, with at least one letter. A subject can't appear twice, ignoring case and extra spaces. See [Subjects and bands](#subjects-and-bands). | ✓ `Mathematics`<br>✓ `Science (Physics, Chemistry)`<br>✓ `Design & Technology`<br>✗ `Maths 2`<br>✗ `Français`
+`SUBJECT` | `sub/` | Yes, 1 to 8 | 1 to 40 characters: English letters, spaces, hyphens, parentheses, commas, and ampersands, with at least one letter. A subject can't appear twice, ignoring case and extra spaces. See [Subjects and bands](#subjects-and-bands). | ✓ `Mathematics`<br>✓ `Science (Physics, Chemistry)`<br>✓ `Design & Technology`<br>✗ `Maths 2`<br>✗ `Français`
 `BAND` | `band/` | Yes, after each `sub/` | `G1`, `G2`, or `G3`. Uppercase or lowercase both work, and it is shown in uppercase. Must come right after its `sub/`. | ✓ `G1`, `g1`<br>✗ `G4`
 `GUARDIAN_NAME` | `gn/` | No, but give both `gn/` and `gp/` or neither | Same rules as `NAME`. | ✓ `Mary Tan`<br>✗ `Zoë Tan`<br>✗ `Mary-Ann Tan`
 `GUARDIAN_PHONE` | `gp/` | No, but give both `gn/` and `gp/` or neither | Same rules as `PHONE`. | ✓ `91234567`<br>✗ `12`
@@ -155,7 +157,7 @@ Parameter | Prefix | Required in `add` | Rules | Examples
 
 </div>
 
-Names accept ASCII letters, digits, and spaces only. School names also accept periods, apostrophes, ampersands, parentheses, commas, and hyphens, but must contain at least one ASCII letter. Both fields reject accented and other non-ASCII letters. Before upgrading, use the previous version to change saved names or school names that contain non-ASCII letters. Otherwise, those records fail validation when the data file is loaded.
+Names accept English letters, digits, and spaces only. School names also accept periods, apostrophes, ampersands, parentheses, commas, and hyphens, but must contain at least one English letter. Both fields reject accented letters and letters from other alphabets. Before upgrading, use the previous version to change saved names or school names that contain such letters. Otherwise, those records fail validation when the data file is loaded.
 
 Addresses accept the same characters as notes. Before upgrading, use the previous version to change saved addresses that contain other characters, such as accented letters or emoji. Otherwise, those records fail validation when the data file is loaded.
 
@@ -183,7 +185,7 @@ Each student and guardian has one phone number, which is the number you use to r
 
 #### Subjects and bands
 
-Each student takes 1 to 8 subjects. A subject name can contain English letters without accents (`A` to `Z` and `a` to `z`), spaces, hyphens, parentheses, commas, and ampersands. It must be 1 to 40 characters long and contain at least one letter. For example, `Science (Physics, Chemistry)`, `Design & Technology`, and `Food & Consumer Education` are valid names. Digits, slashes, and other symbols are not allowed. Like names and school names, subject names reject accented and other non-ASCII letters, so type `French` rather than `Français`. Before upgrading, use the previous version to change saved subject names that contain non-ASCII letters. Otherwise, those records fail validation when the data file is loaded.
+Each student takes 1 to 8 subjects. A subject name can contain English letters, spaces, hyphens, parentheses, commas, and ampersands. It must be 1 to 40 characters long and contain at least one letter. For example, `Science (Physics, Chemistry)`, `Design & Technology`, and `Food & Consumer Education` are valid names. Digits, slashes, and other symbols are not allowed. Like names and school names, subject names reject accented letters and letters from other alphabets, so type `French` rather than `Français`. Before upgrading, use the previous version to change saved subject names that contain such letters. Otherwise, those records fail validation when the data file is loaded.
 
 Give each subject with `sub/`, followed immediately by its band with `band/`, such as `sub/Science (Physics, Chemistry) band/G3 sub/English band/G3`.
 
@@ -198,7 +200,7 @@ If the subjects or bands are wrong, `add` and `edit` show one of these messages:
 | `band/` but no `sub/` anywhere in `add`, or `band/` supplied alone in `edit` | `Missing required parameter: sub/.` |
 | Missing, misplaced, or repeated `band/` within a pair | `Each sub/ must be immediately followed by one band/.` |
 | Empty band or a value other than G1, G2, or G3 | `Band must be one of G1, G2, G3.` |
-| Invalid subject name | `Subjects must be 1-40 characters using only English letters without accents, spaces, hyphens, parentheses, commas and ampersands, with at least one letter.` |
+| Invalid subject name | `Subjects must be 1-40 characters, contain at least one English letter (A-Z), and use only English letters, spaces, hyphens (-), parentheses, commas, and ampersands (&).` |
 | More than eight subject-band pairs | `A student may have at most 8 subjects.` |
 | Repeated subject name | `Subject is repeated: SUBJECT.` |
 
@@ -220,7 +222,7 @@ Parameter | Prefix | Used in | Rules | Example
 ----------|--------|---------|-------|--------
 `INDEX` | none, comes straight after the command word | `view`, `edit`, `delete`, `addnote`, `editnote`, `deletenote` | The number shown beside the student in the student list, or at the top of the student detail view. A positive integer no greater than the largest index in the student list. For example, if the list shows 1 to 3, you can use 1, 2, or 3. | `2`
 `NID` | `nid/` | `editnote`, `deletenote` | The number shown before the note in the student detail view. A positive integer. Use `view INDEX` to see a student's notes and their NIDs. | `1`
-`TEXT` | `note/` | `addnote`, `editnote`, `filter` | 1 to 500 characters, counting spaces between words. Use English letters without accents, digits, spaces, and the symbols on a standard keyboard, such as `/ % : ( ) - ' " ^ +`. The curly apostrophe `’` is also allowed, as in school names. Other characters, such as accented letters and emoji, are not allowed. Spaces before and after the text are removed. Pasted line breaks and tabs become spaces, as described in [Reading a command format](#reading-a-command-format). | `WA2 Math: 36/50`
+`TEXT` | `note/` | `addnote`, `editnote`, `filter` | 1 to 500 characters, counting spaces between words. Use English letters, digits, spaces, and keyboard symbols, such as `/ % : ( ) - ' " ^ +`. The curly apostrophe `’` is also allowed, as in school names. Other characters, such as accented letters and emoji, are not allowed. Spaces before and after the text are removed. Pasted line breaks and tabs become spaces, as described in [Reading a command format](#reading-a-command-format). | `WA2 Math: 36/50`
 
 * `INDEX` and `NID` can change. An index changes when the list changes, such as after `filter` or `delete`. After a note is deleted, the notes after it move up one number. Check the list or the student detail view before you use them.
 * After `view`, the student's `INDEX` is also shown at the top of the student detail view, so you can use it in `edit`, `delete`, `addnote`, `editnote`, and `deletenote` without looking for the student in the list.
@@ -271,12 +273,12 @@ Problem | Message
 There are no parameters, or there is text before the first one, such as `add John Doe sch/Victoria School ...` | `Invalid command format!` followed by how to use `add`
 `n/`, `sch/`, `lvl/`, or `sub/` is missing, or has no space before it | `Missing required parameters: sch/, lvl/.`, naming every missing one. A missing `sub/` is named together with `band/`, as in `Missing required parameters: sub/, band/.`
 `n/`, `p/`, `sch/`, `a/`, `e/`, `lvl/`, `gn/`, or `gp/` is given more than once | `Multiple values specified for the following single-valued field(s): p/`
-`NAME` is invalid | `Names must start with an ASCII letter or digit and contain only ASCII letters, digits, and spaces.`
+`NAME` is invalid | `Names must start with an English letter (A-Z) or digit (0-9) and use only English letters, digits, and spaces.`
 `PHONE` or `GUARDIAN_PHONE` is invalid | A message saying why. See [Phone numbers](#phone-numbers).
 `sch/` has no value or only spaces | `School name cannot be blank.`
 `SCHOOL` is longer than 100 characters | `School name must be at most 100 characters; this value has 101.`, with the actual character count
-`SCHOOL` contains an unsupported character | A message naming the school and first unsupported character, and listing the allowed characters. For example, `School name "School#1" contains "#", which isn't allowed. Use ASCII letters (A-Z, a-z), digits (0-9), spaces, periods (.), apostrophes (' or ’), ampersands (&), parentheses, commas, and hyphens (-).`
-`SCHOOL` contains only digits and allowed punctuation | `School name "123" must contain at least one ASCII letter.`
+`SCHOOL` contains an unsupported character | A message naming the school and first unsupported character, and listing the allowed characters. For example, `School name "School#1" contains "#", which isn't allowed. Use English letters, digits, spaces, periods (.), apostrophes (' or ’), ampersands (&), parentheses, commas, and hyphens (-).`
+`SCHOOL` contains only digits and allowed punctuation | `School name "123" must contain at least one English letter (A-Z).`
 `ADDRESS` is blank or longer than 200 characters | `Addresses must not be blank and must be at most 200 characters.`
 `ADDRESS` contains a character that isn't allowed, such as `É` or an emoji | `Address contains "É", which isn't allowed. Use only English letters, digits, spaces, and keyboard symbols.`, with the first such character in `ADDRESS`
 `EMAIL` is invalid or longer than 254 characters | A message saying what is wrong, such as `Email "john@" has no domain after the "@", such as example.com.`
@@ -284,7 +286,7 @@ There are no parameters, or there is text before the first one, such as `add Joh
 A subject or band is wrong | See [Subjects and bands](#subjects-and-bands)
 Only one of `gn/` and `gp/` is given | `Guardian name (gn/) and guardian phone (gp/) must be given together.`
 `TAG` contains a space, such as `t/exam prep` | A message starting with `Tag "exam prep" contains a space.`
-`TAG` is blank, too long, or has a symbol other than a single hyphen | A message starting with `Tags must be one word of 1-30 English letters or digits.`
+`TAG` is blank, too long, or has a symbol other than a single hyphen | A message starting with `Tags must be one word of 1-30 English letters (A-Z) or digits (0-9).`
 The same tag is given twice, ignoring case, such as `t/Paid t/paid` | `Tag "paid" is given more than once.`
 
 ##### Duplicate students
@@ -778,13 +780,15 @@ Term | Meaning
 
 Term | Meaning
 -----|--------
-**Alphanumeric** | Made up of only ASCII letters A to Z and digits 0 to 9. Names also allow spaces. School names allow spaces and the punctuation listed under [Parameter details](#parameter-details). For example, the name `Rajesh so Kumar` is allowed, but `Zoë Lim` and `Rajesh s/o Kumar` are not.
 **CLI** | Command-line interface. A way of using an app by typing commands instead of clicking.
 **Data file** | The file `data/addressbook.json` in the home folder, where TuteeBook3 automatically saves all your students and notes. To change it by hand, see [Editing the data file](#editing-the-data-file).
+**Digit** | One of `0` to `9`. Digits from other writing systems, such as the full-width `１`, are not digits.
+**English letter** | One of `A` to `Z` or `a` to `z`. Accented letters, such as `é`, and letters from other alphabets are not English letters.
 **GUI** | Graphical user interface. The windows, lists, and boxes that you see and click.
 **Home folder** | The folder that holds the TuteeBook3 JAR file. Run TuteeBook3 from this folder, as described in [Quick start](#quick-start), so that it saves your data there.
 **JAR** | Java Archive. The single file that contains the whole app, which you run with Java.
 **JSON** | JavaScript Object Notation. The text format that TuteeBook3 uses to save data in a file that can be read and edited by hand.
+**Keyboard symbol** | One of these 32 symbols: `` ! " # $ % & ' ( ) * + , - . / : ; < = > ? @ [ \ ] ^ _ ` { | } ~ ``. Other symbols, such as `£` and `°`, curly quotes, such as `“` and `’`, long dashes, such as `–`, and emoji are not keyboard symbols.
 **Terminal** | An app where you type commands for your computer to run, such as **Terminal** on macOS or **Command Prompt** on Windows. You use it to start TuteeBook3, as described in [Quick start](#quick-start).
 
 --------------------------------------------------------------------------------------------------------------------
