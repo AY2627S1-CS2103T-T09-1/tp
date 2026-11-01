@@ -833,7 +833,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 **MSS**
 
-1.  Tutor requests to list students, or filters them by name (UC4)
+1.  Tutor requests to list students, or filters them (UC4)
 2.  TuteeBook3 shows a list of students
 3.  Tutor requests to edit a specific student by index, giving the new values for the details to change
 4.  TuteeBook3 validates and updates the student
@@ -952,18 +952,18 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 ---
 
-**Use case: UC4 - Find students by name**
+**Use case: UC4 - Filter students by their details**
 
 **MSS**
 
-1.  Tutor requests to find students, giving part of a student's name
-2.  TuteeBook3 shows the list of students whose names contain that part of a name, ignoring case.
+1.  Tutor requests to filter students, giving one or more details: name, school, level, subject, band, phone, email, address, guardian name, guardian phone, tag, or text in their notes
+2.  TuteeBook3 shows the students who match every detail given
 
     Use case ends.
 
 **Extensions**
 
-* 1a. The name is missing or invalid.
+* 1a. No detail is given, or a detail is invalid or given more than once.
 
     * 1a1. TuteeBook3 shows an error message.
     * 1a2. Tutor enters the corrected command.
@@ -972,9 +972,11 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case resumes at step 2.
 
-* 2a. No students match the name.
+* 2a. No students match.
 
-  Use case ends.
+    * 2a1. TuteeBook3 informs Tutor that no students match.
+
+      Use case ends.
 
 ---
 
@@ -1001,43 +1003,7 @@ Use case ends.
 
 ---
 
-**Use case: UC6 - Find students by text in their notes**
-
-**MSS**
-
-1. Tutor requests to find students who have a note containing some text.
-2. TuteeBook3 shows the list of students who have at least one note containing that text, ignoring case and extra spaces.
-3. Tutor requests to view one of them by index.
-4. TuteeBook3 shows the student's full record, including all of their notes.
-
-Use case ends.
-
-**Extensions**
-
-* 1a. The text is blank or longer than 500 characters.
-  * 1a1. TuteeBook3 shows an error message.
-  * 1a2. Tutor enters corrected text.
-
-  Steps 1a1-1a2 are repeated until the text is valid. Use case resumes at step 2.
-
-* 1b. Tutor also narrows the search by other details, such as level or school.
-  * 1b1. TuteeBook3 shows only the students who match all of them.
-
-  Use case resumes at step 3.
-
-* 2a. No student has a note containing the text.
-  * 2a1. TuteeBook3 informs Tutor that no students match.
-
-  Use case ends.
-
-* 3a. The given index is invalid.
-  * 3a1. TuteeBook3 shows an error message.
-
-  Use case resumes at step 2.
-
----
-
-**Use case: UC7 - Add a note to a student**
+**Use case: UC6 - Add a note to a student**
 
 **MSS**
 
@@ -1073,7 +1039,7 @@ Use case ends.
 
 ---
 
-**Use case: UC8 - Edit a note**
+**Use case: UC7 - Edit a note**
 
 **MSS**
 
@@ -1119,7 +1085,7 @@ Use case ends.
 
 ---
 
-**Use case: UC9 - Delete a note from a student**
+**Use case: UC8 - Delete a note from a student**
 
 **MSS**
 
@@ -1157,7 +1123,7 @@ Use case ends.
 
 ---
 
-**Use case: UC10 - View help**
+**Use case: UC9 - View help**
 
 **MSS**
 
@@ -1184,7 +1150,7 @@ Use case ends.
 
 ---
 
-**Use case: UC11 - Clear all students**
+**Use case: UC10 - Clear all students**
 
 **MSS**
 
