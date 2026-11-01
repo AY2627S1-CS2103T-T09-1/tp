@@ -331,12 +331,11 @@ The note commands work like `edit`. Each command takes the student at the given 
 
 <img src="images/DeleteNoteSequenceDiagram.png" width="691" />
 
-The diagram starts when `LogicManager` calls `execute`. It leaves out parsing, which works as in the [Logic component](#logic-component) diagram, the confirmation check (see [Command confirmations](#command-confirmations)), finding the student in the filtered list, and the save to storage.
+The diagram starts when `LogicManager` calls `execute`. It leaves out parsing, which works as in the [Logic component](#logic-component) diagram, the confirmation check (see [Command confirmations](#command-confirmations)), and the save to storage. It also leaves out how `DeleteNoteCommand` finds the student: it takes the student `p` at index 1 of the filtered list, and `NoteCommandUtil#verifyNoteExists` rejects an NID larger than the number of notes `p` has.
 
-1. `DeleteNoteCommand` gets the filtered list from the `Model` and takes the student `p` at index 1. `NoteCommandUtil#verifyNoteExists` rejects an NID larger than the number of notes `p` has.
-1. It builds `ep`, a copy of `p` without note 2. The notes after note 2 move up one place, so their NIDs go down by one.
+1. `DeleteNoteCommand` builds `ep`, a copy of `p` without note 2. The notes after note 2 move up one place, so their NIDs go down by one.
 1. `NoteCommandUtil#setPersonKeepingIndex` calls `Model#keepPersonInFilteredList`, then `Model#setPerson`, so `ep` stays at index 1 even if they no longer match the last `filter`. It returns `feedback`: the success message, plus a line saying the student no longer matches the search if that is the case. See [Keeping the list after an edit](#keeping-the-list-after-an-edit).
-1. `DeleteNoteCommand` returns `CommandResult.showStudent`, which opens `ep`'s record in the detail panel.
+1. `DeleteNoteCommand` returns `CommandResult.showStudent`, which opens `ep`'s record in the student detail view.
 
 `addnote` and `editnote` follow the same steps, with these differences:
 
@@ -363,7 +362,7 @@ The rules for note text are in [Student names and schools](#student-names-and-sc
 **Aspect: How to identify a note**
 
 * **Alternative 1 (current choice):** By its position in the student's list of notes (NID).
-  * Pros: NIDs are small numbers with no gaps, and they match the numbers in the detail panel. The data file stores no extra field.
+  * Pros: NIDs are small numbers with no gaps, and they match the numbers in the student detail view. The data file stores no extra field.
   * Cons: Deleting a note renumbers the notes after it, so an NID the tutor remembers may now point to a different note. Each note command opens the student's record afterwards, so the tutor sees the new numbers.
 
 * **Alternative 2:** By a fixed ID stored with each note.
