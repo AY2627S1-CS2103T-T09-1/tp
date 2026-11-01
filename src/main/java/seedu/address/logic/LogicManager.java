@@ -94,9 +94,8 @@ public class LogicManager implements Logic {
      * so it replaces the pending request instead of cancelling it.
      */
     private static boolean isRepeatOf(ConfirmationCommand pendingCommand, Command command) {
-        return pendingCommand.equals(command)
-                || (command instanceof ConfirmationCommand newCommand && newCommand.isForced()
-                        && newCommand.getCommandWord().equals(pendingCommand.getCommandWord()));
+        return command instanceof ConfirmationCommand newCommand
+                && pendingCommand.equals(newCommand.withoutForce());
     }
 
     private CommandResult executeAndSave(CommandResult commandResult) throws CommandException {

@@ -411,6 +411,58 @@ public class LogicManagerTest {
     }
 
     @Test
+    public void execute_forcedDeleteSameIndexWhilePending_deletesWithoutNotice() throws Exception {
+        model.addPerson(AMY);
+        model.addPerson(new PersonBuilder(AMY).withName("Other Student").build());
+        Person secondPerson = model.getFilteredPersonList().get(1);
+        logic.execute("delete 1");
+
+        CommandResult result = logic.execute("delete -f 1");
+        assertTrue(result.getCancellationNotice().isEmpty());
+        assertEquals(List.of(secondPerson), model.getAddressBook().getPersonList());
+        assertParseException("CONFIRM", ConfirmationManager.MESSAGE_NOTHING_TO_CONFIRM);
+    }
+
+    @Test
+    public void execute_forcedDeleteDifferentIndexWhilePending_deletesWithNotice() throws Exception {
+        model.addPerson(AMY);
+        model.addPerson(new PersonBuilder(AMY).withName("Other Student").build());
+        Person firstPerson = model.getFilteredPersonList().get(0);
+        logic.execute("delete 1");
+
+        CommandResult result = logic.execute("delete -f 2");
+        assertEquals(String.format(ConfirmationManager.MESSAGE_CANCELLED_FORMAT, DeleteCommand.COMMAND_WORD),
+                result.getCancellationNotice().orElseThrow());
+        assertEquals(List.of(firstPerson), model.getAddressBook().getPersonList());
+        assertParseException("CONFIRM", ConfirmationManager.MESSAGE_NOTHING_TO_CONFIRM);
+    }
+
+    @Test
+    public void execute_forcedDeleteNoteSameNoteWhilePending_deletesWithoutNotice() throws Exception {
+        model.addPerson(new PersonBuilder(AMY).withNotes("Review algebra", "Practise geometry").build());
+        logic.execute("deletenote 1 nid/1");
+
+        CommandResult result = logic.execute("deletenote -f 1 nid/1");
+        assertTrue(result.getCancellationNotice().isEmpty());
+        assertEquals(new PersonBuilder(AMY).withNotes("Practise geometry").build(),
+                model.getAddressBook().getPersonList().get(0));
+        assertParseException("CONFIRM", ConfirmationManager.MESSAGE_NOTHING_TO_CONFIRM);
+    }
+
+    @Test
+    public void execute_forcedDeleteNoteDifferentNoteWhilePending_deletesWithNotice() throws Exception {
+        model.addPerson(new PersonBuilder(AMY).withNotes("Review algebra", "Practise geometry").build());
+        logic.execute("deletenote 1 nid/1");
+
+        CommandResult result = logic.execute("deletenote -f 1 nid/2");
+        assertEquals(String.format(ConfirmationManager.MESSAGE_CANCELLED_FORMAT, DeleteNoteCommand.COMMAND_WORD),
+                result.getCancellationNotice().orElseThrow());
+        assertEquals(new PersonBuilder(AMY).withNotes("Review algebra").build(),
+                model.getAddressBook().getPersonList().get(0));
+        assertParseException("CONFIRM", ConfirmationManager.MESSAGE_NOTHING_TO_CONFIRM);
+    }
+
+    @Test
     public void execute_repeatedDuplicateAdd_promptsAgainAndAddsOnce() throws Exception {
         model.addPerson(TypicalPersons.ALICE);
         String addInput = "add n/Alice Pauline sch/Victoria School lvl/S2 sub/Mathematics band/G1";
