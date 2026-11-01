@@ -97,7 +97,8 @@ Some commands ask you to confirm before they go ahead:
 The command shows a confirmation prompt that says what will happen. The next line tells you how to go ahead, such as `Type CONFIRM (uppercase) to delete this student and all their notes.`
 
 * To go ahead, type `CONFIRM` in uppercase and press Enter. Spaces before or after it are ignored.
-* Anything else, including `confirm`, cancels the request. TuteeBook3 then runs what you typed as a normal command, with the red notice `The 'delete' command has been cancelled.` (or the name of the command you cancelled) above its result.
+* Anything else, including `confirm`, cancels the request. TuteeBook3 then runs what you typed as a normal command, with the red notice `The earlier 'delete' command has been cancelled.` (or the name of the command you cancelled) above its result.
+* Only one command waits for confirmation at a time. If you type the same command again with the same values, it replaces the waiting one and no notice appears. If you type that same command with `-f` (only `clear`, `delete`, and `deletenote` accept `-f`), it runs right away and no notice appears. For example, while `delete 1` is waiting, `delete -f 1` deletes the 1st student immediately, but `delete -f 2` shows the notice.
 * Until you confirm, nothing changes. The student list and the student record on the right stay as they are.
 * If no command is waiting for confirmation, for example because you already cancelled it, `CONFIRM` shows `There is no command waiting for confirmation. Nothing was changed.`
 
