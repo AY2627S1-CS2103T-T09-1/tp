@@ -1349,6 +1349,71 @@ testers are expected to do more *exploratory* testing.
    1. Check every edge of the window.<br>
       Expected: The restored window is fully inside the smaller screen's usable area, excluding its taskbar, dock, or menu bar.
 
+### Adding a student
+
+1. Adding a student with valid details
+
+   1. Prerequisites: Start with the sample data.
+
+   1. Test case: `add n/Ali Hassan sch/Victoria School lvl/S2 sub/Mathematics band/G1 sub/English band/g2`<br>
+      Expected: Ali Hassan is added. The full list is shown, and the student detail view shows him with the subjects `Mathematics (G1)` and `English (G2)`.
+
+   1. Test case: `add n/Wei Ming sch/Victoria School lvl/S3 sub/Mathematics band/G3 e/weiming@gmail`<br>
+      Expected: Wei Ming is added. The status message is shown in amber, with a warning that the email has no `.` after the `@`.
+
+1. Adding a student with missing or invalid details
+
+   1. Test case: `add n/Ken Ho`<br>
+      Expected: No student is added. The status message says `Missing required parameters: sch/, lvl/, sub/, band/.`
+
+   1. Test case: `add n/Ken Ho sch/Victoria School sub/Mathematics lvl/S2 band/G1`<br>
+      Expected: No student is added. The status message says that each `sub/` must be immediately followed by one `band/`.
+
+   1. Test case: `add n/Ken Ho sch/Victoria School lvl/S2 sub/Mathematics band/G1 sub/mathematics band/G2`<br>
+      Expected: No student is added. The status message says `Subject is repeated: mathematics.`
+
+   1. Test case: `add n/Ken Ho sch/Victoria School lvl/S6 sub/Mathematics band/G4`<br>
+      Expected: No student is added. The status message says that the level must be one of `S1` to `S5`.
+
+1. Adding a student who may already be recorded
+
+   1. Prerequisites: Start with the sample data, which has `Chloe Tan` at Bedok Green Secondary School, level S2.
+
+   1. Test case: `add n/Chloe Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1`<br>
+      Expected: No student is added yet. A confirmation prompt says that Chloe Tan is also recorded at Bedok Green Secondary School (S2) and asks you to type `CONFIRM`. Enter `CONFIRM`, and the new Chloe Tan is added.
+
+   1. Test case: `add n/chloe  tan sch/bedok green secondary school lvl/S2 sub/Mathematics band/G1`<br>
+      Expected: No student is added, and no prompt is shown. The status message says that a student with this name, school, and level already exists.
+
+### Editing a student
+
+Prerequisites: Start with the sample data. Enter `filter n/Marcus` so that `Marcus Lim` is first in the list. Run the test cases in order.
+
+1. Editing a student's details
+
+   1. Test case: `edit 1 sub/Science (Physics, Chemistry) band/G3 sub/English band/G2`<br>
+      Expected: Marcus Lim's subjects are replaced. The student detail view shows only `Science (Physics, Chemistry) (G3)` and `English (G2)`.
+
+   1. Test case: the same command again<br>
+      Expected: Nothing changes. The status message is shown in amber and says `No changes made`.
+
+   1. Test case: `edit 1 e/`<br>
+      Expected: The email is removed, and the student detail view shows `—` for the email.
+
+1. Editing with missing or invalid details
+
+   1. Test case: `edit 1`<br>
+      Expected: Marcus Lim is unchanged. The status message says that at least one field to edit must be provided.
+
+   1. Test case: `edit 1 sch/`<br>
+      Expected: Marcus Lim is unchanged. The status message says that the school name cannot be blank.
+
+   1. Test case: `edit 1 band/G1`<br>
+      Expected: Marcus Lim is unchanged. The status message says `Missing required parameter: sub/.`
+
+   1. Test case: `edit 1 n/Chloe Tan`, then `list`<br>
+      Expected: The first input shows a confirmation prompt, because Chloe Tan is also recorded at Bedok Green Secondary School (S2). `list` cancels the edit: a red notice says that the `edit` command has been cancelled, followed by `Listed all students.` Marcus Lim's name is unchanged.
+
 ### Viewing a student
 
 1. Viewing a student from the full or filtered list
@@ -1395,6 +1460,31 @@ testers are expected to do more *exploratory* testing.
       Expected: All students are deleted without a confirmation prompt.
 
    1. After testing, close TuteeBook3 and restore `data/addressbook.json` from the backup.
+
+### Confirming a command
+
+1. Confirming, cancelling, and replacing a request
+
+   1. Prerequisites: Start with the sample data. Run the test cases in order.
+
+   1. Test case: `CONFIRM`<br>
+      Expected: Nothing changes. The status message says that no command is waiting for confirmation.
+
+   1. Test case: Enter `delete 1`, then `CONFIRM` with spaces before and after it.<br>
+      Expected: Chloe Tan is deleted. Spaces around `CONFIRM` are ignored.
+
+   1. Test case: Enter `delete 1`, then `deletenote 1 nid/1`.<br>
+      Expected: Marcus Lim is not deleted. A red notice says that the `delete` command has been cancelled, and a new confirmation prompt asks you to confirm deleting note 1 of Marcus Lim. Enter `CONFIRM`, and only the note is deleted.
+
+### Viewing help
+
+1. Showing the command summary
+
+   1. Test case: `help`<br>
+      Expected: The status message shows the User Guide URL as plain text, followed by each command with an example. Pressing F1 or choosing **Help** from the menu shows the same text.
+
+   1. Test case: `help me`<br>
+      Expected: The status message says `Invalid command format!`, followed by how to use `help`.
 
 ### Adding and editing a guardian
 
