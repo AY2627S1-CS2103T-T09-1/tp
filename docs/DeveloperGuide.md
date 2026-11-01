@@ -1353,10 +1353,10 @@ testers are expected to do more *exploratory* testing.
    1. Prerequisites: Start with the sample data.
 
    1. Test case: Enter `list`, then enter `view 2`.<br>
-      Expected: The full record of `SAMPLE Marcus Lim`, the second student in the full list, is shown.
+      Expected: The full record of `Marcus Lim`, the second student in the full list, is shown.
 
    1. Test case: Enter `filter lvl/S2`, then enter `view 2`.<br>
-      Expected: The filtered list shows `SAMPLE Chloe Tan` followed by `SAMPLE Ethan Kumar`, and the full record of `SAMPLE Ethan Kumar` is shown.
+      Expected: The filtered list shows `Chloe Tan` followed by `Ethan Kumar`, and the full record of `Ethan Kumar` is shown.
 
    1. Test case: `view 99`<br>
       Expected: The displayed student record does not change. The status message reports that the index is invalid.
@@ -1483,53 +1483,53 @@ When students match, the status message says `N student(s) listed!`, where `N` i
 1. Filters with partial matching
 
    1. Test case: `filter n/chl`<br>
-      Expected: Only `SAMPLE Chloe Tan` is listed.
+      Expected: Only `Chloe Tan` is listed.
 
    1. Test case: `filter sch/tampines`<br>
-      Expected: Only `SAMPLE Marcus Lim` is listed.
+      Expected: Only `Marcus Lim` is listed.
 
    1. Test case: `filter e/example.com`<br>
-      Expected: `SAMPLE Chloe Tan`, `SAMPLE Marcus Lim`, and `SAMPLE Natalie Goh` are listed.
+      Expected: `Chloe Tan`, `Marcus Lim`, and `Natalie Goh` are listed.
 
    1. Test case: `filter a/tampines street`<br>
-      Expected: `SAMPLE Marcus Lim` and `SAMPLE Ethan Kumar` are listed.
+      Expected: `Marcus Lim` and `Ethan Kumar` are listed.
 
    1. Test case: `filter gn/goh`<br>
-      Expected: Only `SAMPLE Natalie Goh` is listed, because her guardian is Michelle Goh.
+      Expected: Only `Natalie Goh` is listed, because her guardian is Michelle Goh.
 
    1. Test case: `filter note/BEFORE the   next lesson`<br>
-      Expected: `SAMPLE Marcus Lim` and `SAMPLE Daniel Lee` are listed, ignoring case and extra spaces.
+      Expected: `Marcus Lim` and `Daniel Lee` are listed, ignoring case and extra spaces.
 
 1. Filters with exact matching
 
    1. Test case: `filter lvl/s2`<br>
-      Expected: `SAMPLE Chloe Tan` and `SAMPLE Ethan Kumar` are listed.
+      Expected: `Chloe Tan` and `Ethan Kumar` are listed.
 
    1. Test case: `filter sub/chemistry`<br>
-      Expected: `SAMPLE Aisha Rahman` and `SAMPLE Natalie Goh` are listed.
+      Expected: `Aisha Rahman` and `Natalie Goh` are listed.
 
    1. Test case: `filter sub/math`<br>
       Expected: No students are listed.
 
    1. Test case: `filter sub/mathematics band/G2`<br>
-      Expected: `SAMPLE Marcus Lim` and `SAMPLE Daniel Lee` are listed.
+      Expected: `Marcus Lim` and `Daniel Lee` are listed.
 
    1. Test case: `filter p/91234567`<br>
-      Expected: Only `SAMPLE Chloe Tan` is listed.
+      Expected: Only `Chloe Tan` is listed.
 
    1. Test case: `filter p/9123`<br>
       Expected: No students are listed.
 
    1. Test case: `filter gp/98765432`<br>
-      Expected: Only `SAMPLE Marcus Lim` is listed.
+      Expected: Only `Marcus Lim` is listed.
 
    1. Test case: `filter t/paid`<br>
-      Expected: Only `SAMPLE Chloe Tan` is listed. `SAMPLE Marcus Lim`, tagged `unpaid`, is not.
+      Expected: Only `Chloe Tan` is listed. `Marcus Lim`, tagged `unpaid`, is not.
 
 1. Combining filters
 
    1. Test case: `filter lvl/S2 sub/english`<br>
-      Expected: Only `SAMPLE Ethan Kumar` is listed.
+      Expected: Only `Ethan Kumar` is listed.
 
    1. Test case: `filter note/algebra lvl/S3`<br>
       Expected: No students are listed, because `lvl/S3` is read as part of the note text.
