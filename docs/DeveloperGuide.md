@@ -10,6 +10,10 @@ title: Developer Guide
 ## **Acknowledgements**
 
 * This project is based on the AddressBook-Level3 project created by the [SE-EDU initiative](https://se-education.org).
+* The GUI uses [JavaFX](https://openjfx.io/).
+* The data file is read and written with [Jackson](https://github.com/FasterXML/jackson).
+* Tests use [JUnit 5](https://junit.org/junit5/), and GUI tests use [TestFX](https://github.com/TestFX/TestFX).
+* The diagrams in this guide are made with [PlantUML](https://plantuml.com/).
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -51,7 +55,7 @@ The bulk of the app's work is done by the following four components:
 
 **How the architecture components interact with each other**
 
-The *Sequence Diagram* below shows how the components interact with each other for the scenario where the user issues the command `delete 1`.
+The *Sequence Diagram* below shows how the components interact with each other for the scenario where the user issues the command `delete -f 1`, which deletes the first student without asking for confirmation.
 
 <img src="images/ArchitectureSequenceDiagram.png" width="574" />
 
@@ -72,7 +76,7 @@ The **API** of this component is specified in [`Ui.java`](https://github.com/AY2
 
 ![Structure of the UI Component](images/UiClassDiagram.png)
 
-The UI consists of a `MainWindow` and its parts, such as `CommandBox`, `ResultDisplay`, `PersonListPanel`, `StudentDetailPanel`, and `StatusBarFooter`. `MainWindow` replaces the list panel with a student detail panel when a `view` command succeeds, so only one main content panel is visible at a time. All of these classes inherit from the abstract `UiPart` class, which captures common behavior among classes that represent visible GUI parts.
+The UI consists of a `MainWindow` and its parts, such as `CommandBox`, `ResultDisplay`, `PersonListPanel`, `StudentDetailPanel`, and `StatusBarFooter`. `MainWindow` always shows the `PersonListPanel` on the left and the student detail view on the right. When a command result asks to show a student, such as after `view`, `MainWindow` places a new `StudentDetailPanel` on the right and highlights that student in the list. When it asks to show the list, such as after `list` or `filter`, the right side shows `View a student to see details.` instead. All of these classes inherit from the abstract `UiPart` class, which captures common behavior among classes that represent visible GUI parts.
 
 The `UI` component uses the JavaFX UI framework. The layouts of these UI parts are defined in matching `.fxml` files in `src/main/resources/view`. For example, [`MainWindow.fxml`](https://github.com/AY2627S1-CS2103T-T09-1/tp/tree/master/src/main/resources/view/MainWindow.fxml) specifies the layout of [`MainWindow`](https://github.com/AY2627S1-CS2103T-T09-1/tp/tree/master/src/main/java/seedu/address/ui/MainWindow.java).
 
@@ -163,7 +167,7 @@ This section describes some noteworthy details on how certain features are imple
 
 ### Viewing student details
 
-The `view INDEX` command passes the selected student from `Logic` to the detail panel without storing UI state in the `Model`.
+The `view INDEX` command passes the selected student from `Logic` to the student detail view without storing UI state in the `Model`.
 
 <img src="images/ViewStudentDetailSequenceDiagram.png" width="1000" />
 
@@ -173,11 +177,11 @@ The `view INDEX` command passes the selected student from `Logic` to the detail 
 The diagram omits the routine `Storage#saveAddressBook` call that `LogicManager` makes after command execution. The `view` command does not change the data being saved.
 
 1. `AddressBookParser` delegates the index argument to `ViewCommandParser`, which creates a `ViewCommand`.
-1. `ViewCommand#execute` reads the current filtered student list from the `Model`. It validates the displayed index and obtains the student at that position. An out-of-range index throws a `CommandException`, so `MainWindow` does not replace the current detail panel.
+1. `ViewCommand#execute` reads the current filtered student list from the `Model`. It validates the displayed index and obtains the student at that position. An out-of-range index throws a `CommandException`, so `MainWindow` does not replace the current student detail view.
 1. For a valid index, `ViewCommand` returns a `CommandResult` containing `DisplayMode.SHOW_STUDENT`, the selected `Person`, and the displayed index. The command does not modify the `Model`.
 1. `MainWindow#updateMainContent` handles `SHOW_STUDENT` by creating a `StudentDetailPanel` with the selected student, index, and current filtered list. It replaces the content of the detail placeholder with the new panel and asks `PersonListPanel` to highlight and scroll to the same student.
 
-The `StudentDetailPanel` places the student's details and notes in one vertical scroll pane. It listens to the filtered list and refreshes the record at the displayed index when that list changes. This allows edits to update an open detail panel while keeping the command's displayed index consistent with the list.
+The `StudentDetailPanel` places the student's details and notes in one vertical scroll pane. It listens to the filtered list and refreshes the record at the displayed index when that list changes. This allows edits to update an open student detail view while keeping the command's displayed index consistent with the list.
 
 ### Student duplicate handling
 
@@ -200,7 +204,7 @@ The model enforces the strict key through `UniquePersonList` for adds, replaceme
   * Cons: A repeated command can silently create indistinguishable records. Tutors can select or edit the wrong student, and the app offers no protection against accidental duplicate records.
 
 * **Alternative 3 (chosen): Allow same-name records only when school or level differs; reject a repeated normalized name, school, and level.**
-  * Pros: Supports real students who share a name while blocking the most likely accidental repeat. An amber prompt handles uncertain same-name matches, and the hard model rule prevents an exact key duplicate through add, edit, or data loading. The three fields are required for every student and together distinguish a student's current school-level record better than name alone.
+  * Pros: Supports real students who share a name while blocking the most likely accidental repeat. A confirmation prompt handles uncertain same-name matches, and the hard model rule prevents an exact key duplicate through add, edit, or data loading. The three fields are required for every student and together distinguish a student's current school-level record better than name alone.
   * Cons: Two different students with the same name at the same school and level cannot both be entered under identical details, because TuteeBook would display them as indistinguishable records and the tutor could select or change the wrong one. The red add/edit error recommends assigning one a distinguishing saved name, such as `Chloe Tan 2`. A student moving to another school or level can be represented by an updated record, but the app does not retain two concurrent records with the same key. Name-only matching can also prompt for unrelated students.
 
 The required subject and band are deliberately excluded from the key. A student can take several subjects and bands, and that list changes as lessons and courses change; using it would allow the same student to be added again merely by changing a subject or band. Subject-band details describe the student's studies, not who the student is. The phone is also excluded because it is optional, can change, and may be shared or unavailable.
@@ -255,7 +259,7 @@ Each student has 1 to 8 subjects. Every subject has a name and one band: `G1`, `
 1. `ParserUtil#parseSubjects` checks that the subject-name and band lists have the same number of values and that there are no more than eight pairs. It creates each `Subject` from the name and band at the same position, then calls `Person#validateSubjects` to reject repeated names.
 1. `Band#fromString` converts the supplied value to the matching enum, ignoring case and surrounding spaces. `Subject` validates its name and requires a non-null band. These checks also apply when a subject is constructed outside the command parsers.
 1. `JsonAdaptedSubject` stores a subject as a JSON object with `name` and `band` fields. During loading, it validates both fields and converts the band back to the enum. `Person` then validates the full subject list, so missing, invalid, or repeated subject data is rejected.
-1. The detail panel and command result display each subject with its band, such as `Mathematics (G1)`. `filter sub/Mathematics band/G1` matches a student only when that student has Mathematics at G1; omitting `band/` matches the subject at any band.
+1. The student detail view and the result display show each subject with its band, such as `Mathematics (G1)`. `filter sub/Mathematics band/G1` matches a student only when that student has Mathematics at G1; omitting `band/` matches the subject at any band.
 
 #### Design considerations
 
@@ -293,7 +297,7 @@ The app uses the second option because it resolves the reported real-name cases 
 
 ### Student addresses
 
-`Address` is an optional value object. It accepts any nonblank value up to 200 characters and collapses repeated ordinary spaces. The add parser accepts optional `a/ADDRESS`; the edit parser replaces an address, and a blank `a/` removes it. `JsonAdaptedPerson` saves supplied addresses and accepts older JSON records without an address. The student list card shows an address when one is present; the detail panel and command result show an em dash (`—`) when it is absent. Addresses do not contribute to duplicate detection.
+`Address` is an optional value object. It accepts any nonblank value up to 200 characters and collapses repeated ordinary spaces. The add parser accepts optional `a/ADDRESS`; the edit parser replaces an address, and a blank `a/` removes it. `JsonAdaptedPerson` saves supplied addresses and accepts older JSON records without an address. The student list card shows an address when one is present; the student detail view and the result display show an em dash (`—`) when it is absent. Addresses do not contribute to duplicate detection.
 
 ### Student emails
 
@@ -374,7 +378,7 @@ The rules for note text are in [Student names and schools](#student-names-and-sc
 
 ### Command confirmations
 
-`ClearCommand`, `DeleteCommand`, and `DeleteNoteCommand` implement `ConfirmationCommand`. Before running one of these commands, `LogicManager` asks it whether a prompt is needed. `ConfirmationManager` stores the command and returns a warning `CommandResult`, which the UI displays in amber. The prompt states that the action is pending, puts the action-specific confirmation instruction on a new line, and displays shared cancellation guidance on another line. The next input confirms the stored command only when trimming leading and trailing spaces produces the exact uppercase word `CONFIRM`. Every other input first clears the pending command, then follows normal command parsing and execution. A red cancellation notice is displayed above the new command's unchanged output; if parsing or execution fails, the cancellation notice and error are both red. If the new command needs confirmation, it replaces the old request. When no command is pending, `LogicManager` rejects the exact word `CONFIRM` before parsing, with `MESSAGE_NOTHING_TO_CONFIRM`, so a user who confirms after a request was cancelled learns that nothing changed instead of seeing `Unknown command.` These destructive commands accept `-f` to execute without prompting.
+`ClearCommand`, `DeleteCommand`, and `DeleteNoteCommand` implement `ConfirmationCommand`. Before running one of these commands, `LogicManager` asks it whether a prompt is needed. `ConfirmationManager` stores the command and returns a warning `CommandResult`, which the UI displays in amber. The prompt states that the action is pending, puts the action-specific confirmation instruction on a new line, and displays shared cancellation guidance on another line. The next input confirms the stored command only when trimming leading and trailing spaces produces the exact uppercase word `CONFIRM`. Every other non-blank input first clears the pending command, then follows normal command parsing and execution. `CommandBox` ignores input that is empty or only spaces, so it never reaches `LogicManager` and the pending command stays in place. If the new command repeats the pending one, or is the same command with `-f` and the same target, no cancellation notice is shown, because the user has not abandoned the request. `LogicManager` detects this by comparing the pending command with the new command's `withoutForce()` form. Otherwise, a red cancellation notice is displayed above the new command's unchanged output; if parsing or execution fails, the cancellation notice and error are both red. If the new command needs confirmation, it replaces the old request. When no command is pending, `LogicManager` rejects the exact word `CONFIRM` before parsing, with `MESSAGE_NOTHING_TO_CONFIRM`, so a user who confirms after a request was cancelled learns that nothing changed instead of seeing `Unknown command.` These destructive commands accept `-f` to execute without prompting.
 
 The `delete`, `deletenote`, and `clear` prompts state the consequence directly (for example, `This will delete ...`). The `add` and `edit` prompts instead say that the record has not yet been added or saved, so it is clear that a name-match warning has not already carried out the action.
 
@@ -391,10 +395,10 @@ The `delete`, `deletenote`, and `clear` prompts state the consequence directly (
   * Cons: Accepting both `y`/`n` and `yes`/`no` adds four confirmation spellings to remember and test. Accepting only `yes`/`no` still reserves those inputs while a prompt is pending.
 
 * **Alternative 3 (current choice):** Ask the user to type the exact uppercase word `CONFIRM`; trim leading and trailing spaces before comparing.
-  * Pros: The word makes the destructive intent explicit and is less likely to be entered accidentally. Lowercase `confirm`, `CONFIRM extra`, and `y` do not confirm. Any other input cancels the pending action and follows normal command handling, so the user can run `list` or another command immediately. A new destructive command starts its own confirmation prompt and replaces the old pending action.
+  * Pros: The word makes the destructive intent explicit and is less likely to be entered accidentally. Lowercase `confirm`, `CONFIRM extra`, and `y` do not confirm. Any other non-blank input cancels the pending action and follows normal command handling, so the user can run `list` or another command immediately. A new destructive command starts its own confirmation prompt and replaces the old pending action. Repeating the pending command, or adding `-f` to it, shows no cancellation notice.
   * Cons: It takes longer to type than `y`, requires uppercase, and a mistyped response cancels the pending action before being handled as a command.
 
-The current prompt names the action and tells the user to type uppercase `CONFIRM`; it also says that any other input cancels the request and runs as a command. Prompts use the existing amber warning style. The cancellation notice uses the red error style; successful command output keeps its usual white style beneath it, and an invalid command is shown in red. The design does not accept `yes`/`no` aliases.
+The current prompt names the action and tells the user to type uppercase `CONFIRM`; it also says that any other non-blank input cancels the request and runs as a command. Prompts use the existing amber warning style. The cancellation notice uses the red error style; successful command output keeps its usual white style beneath it, and an invalid command is shown in red. The design does not accept `yes`/`no` aliases.
 
 ### Phone number validation
 
@@ -533,7 +537,7 @@ Each edit wraps the current filter, so after several edits in a row, every edite
 
 * **Alternative 3 (current choice):** Keep the filter, plus the edited student.
   * Pros: Every student keeps their index number, and an open student record stays on the same student.
-  * Cons: A student who no longer matches the search stays in the list until the next `filter` or `list`. The result box and the User Guide both say so, so the tutor is not left wondering why they are there.
+  * Cons: A student who no longer matches the search stays in the list until the next `filter` or `list`. The result display and the User Guide both say so, so the tutor is not left wondering why they are there.
 
 ### Filtering students
 
@@ -729,7 +733,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 | `* * *` | tutor | record the band each subject is taken at (G1, G2, or G3) | pitch the material at the right difficulty                                  |
 | `* *` | tutor receiving unknown calls | find students by their guardian's phone number | identify the caller and see their children's records                        |
 | `* *` | tutor planning lessons | filter students by school, level, or subject | prepare lessons for students at the same school, level, or subject together |
-| `* *` | careless typist | confirm before a student is deleted | avoid erasing the wrong student's history after mistyping an ID             |
+| `* *` | careless typist | confirm before a student is deleted | avoid erasing the wrong student's history after mistyping an index          |
 | `* *` | forgetful tutor | be stopped from adding a student with the same name, school, and level as an existing student | avoid duplicate records                                                     |
 | `* *` | tutor | edit a note | update a student's progress without deleting and retyping it                |
 | `* *` | careless typist | undo my last command | recover from a mistyped delete                                              |
@@ -744,7 +748,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 ### Use cases
 
-(For all use cases below, the **System** is the `AddressBook` and the **Actor** is the `user`, unless specified otherwise)
+(For all use cases below, the **System** is `TuteeBook3` and the **Actor** is the tutor, unless specified otherwise)
 
 **Use case: UC1 - Add a student**
 
@@ -807,13 +811,13 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 * 2f. Another student has the same normalized name, but a different school or level.
 
-    * 2f1. TuteeBook3 shows an amber prompt with the existing student's school and level.
+    * 2f1. TuteeBook3 shows a confirmation prompt with the existing student's school and level.
 
     * 2f2. Tutor confirms the addition by entering `CONFIRM`.
 
       Use case resumes at step 3.
 
-    * 2f3. Tutor enters any other input.
+    * 2f3. Tutor enters any other non-blank input.
 
       The pending add is cancelled, and TuteeBook3 processes the input as a command.
 
@@ -867,13 +871,13 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 * 3d. The edited name matches another student, but the school or level is different.
 
-    * 3d1. TuteeBook3 shows an amber prompt with the matching student's school and level.
+    * 3d1. TuteeBook3 shows a confirmation prompt with the matching student's school and level.
 
     * 3d2. Tutor confirms the edit by entering `CONFIRM`.
 
       Use case resumes at step 4.
 
-    * 3d3. Tutor enters any other input.
+    * 3d3. Tutor enters any other non-blank input.
 
       The pending edit is cancelled, and TuteeBook3 processes the input as a command.
 
@@ -928,7 +932,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
       Use case resumes at step 2.
 
-* 5a. Tutor enters anything other than the exact uppercase word `CONFIRM` after trimming leading and trailing spaces.
+* 5a. Tutor enters non-blank input other than the exact uppercase word `CONFIRM` after trimming leading and trailing spaces.
 
     * 5a1. TuteeBook3 cancels the pending deletion, displays a red cancellation notice, and processes the input as a command.
 
@@ -1187,7 +1191,7 @@ Use case ends.
 1.  Tutor requests to list students
 2.  TuteeBook3 shows the students, including the sample students
 3.  Tutor requests to clear all students
-4.  TuteeBook3 shows an amber warning that all students and notes will be deleted, and asks Tutor to enter `CONFIRM`; any other input cancels the request and runs as a command
+4.  TuteeBook3 shows an amber warning that all students and notes will be deleted, and asks Tutor to enter `CONFIRM`; any other non-blank input cancels the request and runs as a command
 5.  Tutor enters `CONFIRM`
 6.  TuteeBook3 removes all students and their notes
 7.  TuteeBook3 shows an empty roster
@@ -1209,7 +1213,7 @@ Use case ends.
 
       Use case ends.
 
-* 5a. Tutor enters anything other than the exact uppercase word `CONFIRM` after trimming leading and trailing spaces.
+* 5a. Tutor enters non-blank input other than the exact uppercase word `CONFIRM` after trimming leading and trailing spaces.
 
     * 5a1. TuteeBook3 cancels the pending `clear` request, displays a red cancellation notice, and processes the input as a command.
 
@@ -1241,6 +1245,7 @@ Term | Meaning
 -----|--------
 **AB3** | AddressBook-Level3, the sample project that TuteeBook3 is built on.
 **CLI** | Command-line interface. A way of using an app by typing commands instead of clicking.
+**Data file** | The file `data/addressbook.json`, where TuteeBook3 saves all students and notes as JSON after every change.
 **DBMS** | Database management system. Software, such as MySQL, that stores data in a database. TuteeBook3 does not use one.
 **Digit** | One of the ASCII digits `0` to `9`. Digits from other writing systems, such as the full-width `１`, are not digits.
 **English letter** | One of the ASCII letters `A` to `Z` or `a` to `z`. Accented letters, such as `é`, and letters from other alphabets are not English letters.
@@ -1248,7 +1253,7 @@ Term | Meaning
 **JAR** | Java Archive. The single file that contains the whole app, which you run with Java.
 **JSON** | JavaScript Object Notation. The text format that TuteeBook3 uses to save data in a file that can be read and edited by hand.
 **Keyboard symbol** | One of the 32 printable ASCII symbols, which are the characters in `\x21` to `\x7E` other than English letters and digits: `` ! " # $ % & ' ( ) * + , - . / : ; < = > ? @ [ \ ] ^ _ ` { | } ~ ``. Other symbols, such as `£` and `°`, curly quotes, such as `“` and `’`, long dashes, such as `–`, and emoji are not keyboard symbols.
-**Mainstream OS** | Windows, Linux, Unix, macOS.
+**Mainstream OS** | Windows, Linux, and macOS.
 
 #### Tutoring terms
 
@@ -1266,12 +1271,12 @@ Term | Meaning
 
 Term | Meaning
 -----|--------
-**Confirmation prompt** | An amber message that asks you to confirm a command before it runs. `delete`, `deletenote`, and `clear` show one before they delete anything, and `add` and `edit` show one when another student already has the same name. Type `CONFIRM` in uppercase to go ahead. Any other input, including `confirm`, cancels the command and runs as a normal command.
+**Confirmation prompt** | An amber message that asks you to confirm a command before it runs. `delete`, `deletenote`, and `clear` show one before they delete anything, and `add` and `edit` show one when another student already has the same name. Type `CONFIRM` in uppercase to go ahead. Any other non-blank input, including `confirm`, cancels the request and runs as a command.
 **Exact matching** | The way the `lvl/`, `sub/`, `band/`, `p/`, `gp/`, and `t/` filters of `filter` compare values. The whole value must match, ignoring case and extra spaces. For example, `lvl/S3` matches only students in S3, and `sub/math` does not match `Mathematics`.
 **Filter** | A prefix and value given to the `filter` command, such as `n/Tan`, that narrows down the student list.
-**Force flag** | The `-f` option of `delete`, `deletenote`, and `clear`, such as `delete -f 1`. It skips the confirmation prompt, so the command runs immediately. `add` and `edit` have no force flag.
 **Index** | The number shown next to a student in the list currently on screen. Commands such as `view`, `edit`, and `delete` use it to pick a student. It is not permanent: it can change when the list changes, such as after `add`, `delete`, `filter`, or `list`.
 **NID** | The number shown before a note in the student detail view. Notes are numbered 1, 2, 3 in the order they were added. After a note is deleted, the notes after it move up one number, so an NID is not permanent.
+**Normalized** | Compared after removing spaces at the start and end, treating repeated spaces as one, and ignoring capitalization. For example, `John  Doe` and `john doe` have the same normalized name.
 **Partial matching** | The way the `n/`, `sch/`, `e/`, `a/`, `gn/`, and `note/` filters of `filter` compare values. The value only needs to contain what you typed, even part of a word, ignoring case. For example, `sch/vic` matches `Victoria School`.
 **Prefix** | A short marker ending in `/`, such as `n/` or `sch/`, that labels the value after it in a command.
 **Warning** | An amber message that flags something that might be a mistake, without stopping the command. For example, TuteeBook3 saves a phone number that doesn't look like a Singapore number, but shows a warning so that you can check it.
@@ -1280,10 +1285,8 @@ Term | Meaning
 
 Term | Meaning
 -----|--------
-**Command box** | The text field at the top of the window where you type commands.
-**Detail view** | The panel on the right of the window that shows everything about one student, including all their notes. It is also called the "detail panel" or "student detail view". `view` shows a student there, and `list` and `filter` clear it.
-**Result display** | The area below the command box that tells you whether your last command worked, and why not if it failed. It is also called the "feedback box" or "result box".
-**Student card** | One student's entry in the student list.
+**Result display** | The area below the command box that tells you whether your last command worked, and why not if it failed.
+**Student detail view** | The panel on the right of the window that shows everything about one student, including all their notes. `view` shows a student there, and `list` and `filter` clear it.
 **Student list** | The panel on the left of the window that lists students with their main details. It shows all students, or the results of your last `filter`.
 
 #### Code
@@ -1346,6 +1349,71 @@ testers are expected to do more *exploratory* testing.
    1. Check every edge of the window.<br>
       Expected: The restored window is fully inside the smaller screen's usable area, excluding its taskbar, dock, or menu bar.
 
+### Adding a student
+
+1. Adding a student with valid details
+
+   1. Prerequisites: Start with the sample data.
+
+   1. Test case: `add n/Ali Hassan sch/Victoria School lvl/S2 sub/Mathematics band/G1 sub/English band/g2`<br>
+      Expected: Ali Hassan is added. The full list is shown, and the student detail view shows him with the subjects `Mathematics (G1)` and `English (G2)`.
+
+   1. Test case: `add n/Wei Ming sch/Victoria School lvl/S3 sub/Mathematics band/G3 e/weiming@gmail`<br>
+      Expected: Wei Ming is added. The status message is shown in amber, with a warning that the email has no `.` after the `@`.
+
+1. Adding a student with missing or invalid details
+
+   1. Test case: `add n/Ken Ho`<br>
+      Expected: No student is added. The status message says `Missing required parameters: sch/, lvl/, sub/, band/.`
+
+   1. Test case: `add n/Ken Ho sch/Victoria School sub/Mathematics lvl/S2 band/G1`<br>
+      Expected: No student is added. The status message says that each `sub/` must be immediately followed by one `band/`.
+
+   1. Test case: `add n/Ken Ho sch/Victoria School lvl/S2 sub/Mathematics band/G1 sub/mathematics band/G2`<br>
+      Expected: No student is added. The status message says `Subject is repeated: mathematics.`
+
+   1. Test case: `add n/Ken Ho sch/Victoria School lvl/S6 sub/Mathematics band/G4`<br>
+      Expected: No student is added. The status message says that the level must be one of `S1` to `S5`.
+
+1. Adding a student who may already be recorded
+
+   1. Prerequisites: Start with the sample data, which has `Chloe Tan` at Bedok Green Secondary School, level S2.
+
+   1. Test case: `add n/Chloe Tan sch/Victoria School lvl/S2 sub/Mathematics band/G1`<br>
+      Expected: No student is added yet. A confirmation prompt says that Chloe Tan is also recorded at Bedok Green Secondary School (S2) and asks you to type `CONFIRM`. Enter `CONFIRM`, and the new Chloe Tan is added.
+
+   1. Test case: `add n/chloe  tan sch/bedok green secondary school lvl/S2 sub/Mathematics band/G1`<br>
+      Expected: No student is added, and no prompt is shown. The status message says that a student with this name, school, and level already exists.
+
+### Editing a student
+
+Prerequisites: Start with the sample data. Enter `filter n/Marcus` so that `Marcus Lim` is first in the list. Run the test cases in order.
+
+1. Editing a student's details
+
+   1. Test case: `edit 1 sub/Science (Physics, Chemistry) band/G3 sub/English band/G2`<br>
+      Expected: Marcus Lim's subjects are replaced. The student detail view shows only `Science (Physics, Chemistry) (G3)` and `English (G2)`.
+
+   1. Test case: the same command again<br>
+      Expected: Nothing changes. The status message is shown in amber and says `No changes made`.
+
+   1. Test case: `edit 1 e/`<br>
+      Expected: The email is removed, and the student detail view shows `—` for the email.
+
+1. Editing with missing or invalid details
+
+   1. Test case: `edit 1`<br>
+      Expected: Marcus Lim is unchanged. The status message says that at least one field to edit must be provided.
+
+   1. Test case: `edit 1 sch/`<br>
+      Expected: Marcus Lim is unchanged. The status message says that the school name cannot be blank.
+
+   1. Test case: `edit 1 band/G1`<br>
+      Expected: Marcus Lim is unchanged. The status message says `Missing required parameter: sub/.`
+
+   1. Test case: `edit 1 n/Chloe Tan`, then `list`<br>
+      Expected: The first input shows a confirmation prompt, because Chloe Tan is also recorded at Bedok Green Secondary School (S2). `list` cancels the edit: a red notice says that the `edit` command has been cancelled, followed by `Listed all students.` Marcus Lim's name is unchanged.
+
 ### Viewing a student
 
 1. Viewing a student from the full or filtered list
@@ -1353,10 +1421,10 @@ testers are expected to do more *exploratory* testing.
    1. Prerequisites: Start with the sample data.
 
    1. Test case: Enter `list`, then enter `view 2`.<br>
-      Expected: The full record of `SAMPLE Marcus Lim`, the second student in the full list, is shown.
+      Expected: The full record of `Marcus Lim`, the second student in the full list, is shown.
 
    1. Test case: Enter `filter lvl/S2`, then enter `view 2`.<br>
-      Expected: The filtered list shows `SAMPLE Chloe Tan` followed by `SAMPLE Ethan Kumar`, and the full record of `SAMPLE Ethan Kumar` is shown.
+      Expected: The filtered list shows `Chloe Tan` followed by `Ethan Kumar`, and the full record of `Ethan Kumar` is shown.
 
    1. Test case: `view 99`<br>
       Expected: The displayed student record does not change. The status message reports that the index is invalid.
@@ -1378,7 +1446,7 @@ testers are expected to do more *exploratory* testing.
 
 ### Clearing all students
 
-1. Clearing with confirmation, cancellation, and the force flag
+1. Clearing with confirmation, cancellation, and `-f`
 
    1. Prerequisites: Close TuteeBook3 and copy `data/addressbook.json` to a backup outside the `data` folder. Before each test case, restore the backup and relaunch TuteeBook3 so that the student list is not empty.
 
@@ -1392,6 +1460,31 @@ testers are expected to do more *exploratory* testing.
       Expected: All students are deleted without a confirmation prompt.
 
    1. After testing, close TuteeBook3 and restore `data/addressbook.json` from the backup.
+
+### Confirming a command
+
+1. Confirming, cancelling, and replacing a request
+
+   1. Prerequisites: Start with the sample data. Run the test cases in order.
+
+   1. Test case: `CONFIRM`<br>
+      Expected: Nothing changes. The status message says that no command is waiting for confirmation.
+
+   1. Test case: Enter `delete 1`, then `CONFIRM` with spaces before and after it.<br>
+      Expected: Chloe Tan is deleted. Spaces around `CONFIRM` are ignored.
+
+   1. Test case: Enter `delete 1`, then `deletenote 1 nid/1`.<br>
+      Expected: Marcus Lim is not deleted. A red notice says that the `delete` command has been cancelled, and a new confirmation prompt asks you to confirm deleting note 1 of Marcus Lim. Enter `CONFIRM`, and only the note is deleted.
+
+### Viewing help
+
+1. Showing the command summary
+
+   1. Test case: `help`<br>
+      Expected: The status message shows the User Guide URL as plain text, followed by each command with an example. Pressing F1 or choosing **Help** from the menu shows the same text.
+
+   1. Test case: `help me`<br>
+      Expected: The status message says `Invalid command format!`, followed by how to use `help`.
 
 ### Adding and editing a guardian
 
@@ -1511,7 +1604,7 @@ Prerequisites: Start with the sample data. Enter `filter n/Marcus` so that `Marc
 1. Deleting a note
 
    1. Test case: `deletenote 1 nid/1`<br>
-      Expected: No note is deleted yet. An amber prompt names note 1 of Marcus Lim and asks you to type `CONFIRM`.
+      Expected: No note is deleted yet. A confirmation prompt names note 1 of Marcus Lim and asks you to type `CONFIRM`.
 
    1. Test case: `CONFIRM`, right after the previous test case<br>
       Expected: Note 1 is deleted. `WA2 Math: 42/50` moves up to become note 1.
@@ -1560,7 +1653,7 @@ Each part below needed changes across the parser, model, storage, and UI, and th
 
 * **Fixing flaws inherited from AB3.** Before adding features, the team audited AB3 and logged 37 problems. Several needed code fixes, such as an index overflow in `delete 2147483648` and a stack overflow on a very long email.
 * **Duplicate detection.** A normalized name, school, and level key had to hold in `add`, `edit`, confirmed commands, `UniquePersonList`, and JSON loading, while a name-only match asks for confirmation instead of failing. This blocks records the tutor cannot tell apart without blocking real students who share a name ([#194](https://github.com/AY2627S1-CS2103T-T09-1/tp/issues/194), [#209](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/209)).
-* **Two-step commands.** AB3's `Logic` runs each command and forgets it. TuteeBook3 adds a pending-command state, shared through `ConfirmationManager` and `ConfirmationCommand` by `clear`, `delete`, `deletenote`, and name-match warnings in `add` and `edit`. Any input other than `CONFIRM` must cancel the request and still run as a normal command ([#174](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/174), [#196](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/196)).
+* **Two-step commands.** AB3's `Logic` runs each command and forgets it. TuteeBook3 adds a pending-command state, shared through `ConfirmationManager` and `ConfirmationCommand` by `clear`, `delete`, `deletenote`, and name-match warnings in `add` and `edit`. Any non-blank input other than `CONFIRM` must cancel the request and still run as a normal command ([#174](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/174), [#196](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/196)).
 * **Multi-field search.** `filter` replaces AB3's `find` with 11 filters, each its own predicate class combined by `StudentMatchesAllPredicate`. The parser mixes partial matching for free text with exact matching for fixed values, rejects text that only looks like a prefix, and gives a specific error for each malformed filter ([#198](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/198), [#253](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/253), [#217](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/217)).
 * **Warning instead of blocking.** To accept an overseas phone number while still catching typos, the team accepts 3 to 15 digits and warns when a number is not a Singapore number. This needed a warning path in `CommandResult`, an amber result style, and the same normalization when the data file loads ([#175](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/175)). A missing space before a prefix gets a hint, which `AddressPrefixChecker` extends to addresses, where `/` can be ordinary text ([#279](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/279)).
 * **Stable indexes after an edit.** AB3 shows the full list after an edit, so a follow-up `edit 2` can change a different student. `Model#keepPersonInFilteredList` keeps the current filter plus the edited student ([#193](https://github.com/AY2627S1-CS2103T-T09-1/tp/pull/193)).
@@ -1583,7 +1676,7 @@ RepoSense does not count lines kept from AB3, so the team wrote about as much fu
 * 5 commands with their parsers: `view`, `filter`, `addnote`, `editnote`, and `deletenote`.
 * 6 field classes (`School`, `Level`, `Subject`, `Band`, `Guardian`, and `Note`) and 3 JSON adapters.
 * 12 search predicate classes for `filter`.
-* A student detail panel beside the list.
+* A student detail view beside the list.
 
 ### Achievements
 
