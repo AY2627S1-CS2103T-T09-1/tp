@@ -97,7 +97,7 @@ Some commands ask you to confirm before they go ahead:
 The command shows an amber prompt that says what will happen. The next line tells you how to go ahead, such as `Type CONFIRM (uppercase) to delete this student and all their notes.`
 
 * To go ahead, type `CONFIRM` in uppercase and press Enter. Spaces before or after it are ignored.
-* Any other command, including `confirm`, cancels the request. TuteeBook3 then runs what you typed as a normal command, with the red notice `The 'delete' command has been cancelled.` (or the name of the command you cancelled) above its result.
+* Any other non-blank input, including `confirm` or a mistyped command, cancels the request. TuteeBook3 then runs what you typed as a normal command, with the red notice `The 'delete' command has been cancelled.` (or the name of the command you cancelled) above its result.
 * Pressing Enter when the command box is empty or holds only spaces does nothing. The request stays open.
 * Until you confirm, nothing changes. The student list and the student record on the right stay as they are.
 * If no command is waiting for confirmation, for example because you already cancelled it, `CONFIRM` shows `There is no command waiting for confirmation. Nothing was changed.`

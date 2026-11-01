@@ -344,7 +344,7 @@ The `delete`, `deletenote`, and `clear` prompts state the consequence directly (
   * Pros: The word makes the destructive intent explicit and is less likely to be entered accidentally. Lowercase `confirm`, `CONFIRM extra`, and `y` do not confirm. Any other non-blank input cancels the pending action and follows normal command handling, so the user can run `list` or another command immediately. A new destructive command starts its own confirmation prompt and replaces the old pending action.
   * Cons: It takes longer to type than `y`, requires uppercase, and a mistyped response cancels the pending action before being handled as a command.
 
-The current prompt names the action and tells the user to type uppercase `CONFIRM`; it also says that any other command cancels the request and runs as usual. Prompts use the existing amber warning style. The cancellation notice uses the red error style; successful command output keeps its usual white style beneath it, and an invalid command is shown in red. The design does not accept `yes`/`no` aliases.
+The current prompt names the action and tells the user to type uppercase `CONFIRM`; it also says that any other non-blank input cancels the request and runs as usual. Prompts use the existing amber warning style. The cancellation notice uses the red error style; successful command output keeps its usual white style beneath it, and an invalid command is shown in red. The design does not accept `yes`/`no` aliases.
 
 ### Phone number validation
 
