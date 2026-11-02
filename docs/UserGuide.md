@@ -20,7 +20,7 @@ TuteeBook3 is a **desktop app for private tutors who teach secondary school stud
 1. Copy the file to the folder you want to use as the _home folder_ for TuteeBook3.
 
 1. Open a terminal, `cd` to the folder containing the JAR file, and run `java -jar TuteeBook3.jar`.<br>
-   A GUI similar to the one below should appear in a few seconds. Note how the app contains some sample data.<br>
+   The terminal should show `Starting TuteeBook3 v1.6`. A GUI similar to the one below should appear in a few seconds. Note how the app contains some sample data.<br>
    ![Ui](images/Ui.png)
 
 1. Familiarize yourself with TuteeBook3 by trying its commands using the sample data. Type a command in the command box and press Enter to execute it. For example, type **`help`** and press Enter to show the available commands in the result display.<br>
@@ -705,6 +705,8 @@ The command does not accept additional arguments.
 ### Saving the data
 
 TuteeBook3 automatically saves its current data after every successfully executed command. You do not need to save manually.
+
+TuteeBook3 writes logs to `tuteebook3.log.0` in the [home folder](#glossary) and may keep up to five numbered log files as older logs rotate. The logs include commands as typed, so they may contain student and guardian details. Keep them private with the data file.
 
 ### Editing the data file
 
