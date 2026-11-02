@@ -33,7 +33,7 @@ import seedu.address.ui.UiManager;
  */
 public class MainApp extends Application {
 
-    public static final String VERSION = "v1.5";
+    public static final String VERSION = "v1.6";
     static final String APP_NAME = "TuteeBook3";
 
     private static final Logger logger = LogsCenter.getLogger(MainApp.class);

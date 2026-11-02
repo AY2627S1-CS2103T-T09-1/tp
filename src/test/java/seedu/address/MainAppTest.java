@@ -9,6 +9,6 @@ public class MainAppTest {
     @Test
     public void appMetadata_currentRelease_usesTuteeBook3Branding() {
         assertEquals("TuteeBook3", MainApp.APP_NAME);
-        assertEquals("v1.5", MainApp.VERSION);
+        assertEquals("v1.6", MainApp.VERSION);
     }
 }
