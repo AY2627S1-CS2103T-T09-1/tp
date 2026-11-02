@@ -171,11 +171,11 @@ The `view INDEX` command passes the selected student from `Logic` to the student
 
 <img src="images/ViewStudentDetailSequenceDiagram.png" width="1000" />
 
-The diagram expands only the `UI` component. It treats `Logic` and `Model` as black boxes: only calls at their boundaries, including `CommandResult` API calls and `LogicManager` delegation to `Model`, are shown. It omits parsing and command execution inside `Logic`, routine logging, the `Storage#saveAddressBook` call after command execution, and rendering within each UI part. The `view` command does not change the data being saved.
+The diagram expands only the `UI` component and treats `Logic` as a black box. To keep the main flow readable, it omits `CommandResult` getter calls, routine logging, JavaFX calls that replace the detail placeholder, `LogicManager` delegation to `Model`, parsing and command execution inside `Logic`, the `Storage#saveAddressBook` call after command execution, and rendering within each UI part. The `view` command does not change the data being saved.
 
-1. `LogicManager#execute` returns a `CommandResult` containing `DisplayMode.SHOW_STUDENT`, the selected `Person`, and the displayed index. An out-of-range index throws a `CommandException` instead, so `MainWindow` does not replace the current student detail view.
+1. `Logic#execute` returns a `CommandResult` containing `DisplayMode.SHOW_STUDENT`, the selected `Person`, and the displayed index. An out-of-range index throws a `CommandException` instead, so `MainWindow` does not replace the current student detail view.
 1. `MainWindow` reads the feedback, warning state, and cancellation notice from the result, then updates `ResultDisplay`.
-1. `MainWindow#updateMainContent` reads the display mode, displayed index, and selected student from the result. It asks `LogicManager` for the current filtered list, which `LogicManager` obtains from `Model`.
+1. `MainWindow#updateMainContent` reads the display mode, displayed index, and selected student from the result. It asks `Logic` for the current filtered list, which `LogicManager` obtains from `Model`.
 1. `MainWindow` creates a `StudentDetailPanel` with the selected student, index, and current filtered list. It replaces the content of the detail placeholder with the new panel and asks `PersonListPanel` to highlight and scroll to the same student.
 
 The `StudentDetailPanel` places the student's details and notes in one vertical scroll pane. It listens to the filtered list and refreshes the record at the displayed index when that list changes. This allows edits to update an open student detail view while keeping the command's displayed index consistent with the list.

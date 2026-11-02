@@ -6,77 +6,38 @@ box UI UI_COLOR_T1
 participant ":MainWindow" as MainWindow UI_COLOR
 participant ":ResultDisplay" as ResultDisplay UI_COLOR
 participant ":StudentDetailPanel" as StudentDetailPanel UI_COLOR
-participant "studentDetailPanelPlaceholder:\nStackPane" as StudentDetailPanelPlaceholder UI_COLOR
 participant ":PersonListPanel" as PersonListPanel UI_COLOR
 end box
 
-box "Logic (black box)" LOGIC_COLOR_T1
-participant ":LogicManager" as LogicManager LOGIC_COLOR
-participant "r:CommandResult" as CommandResult LOGIC_COLOR
+box Logic LOGIC_COLOR_T1
+participant ":Logic" as Logic LOGIC_COLOR
 end box
-
-box "Model (black box)" MODEL_COLOR_T1
-participant "m:Model" as Model MODEL_COLOR
-end box
-
-note over MainWindow, PersonListPanel
-Only the internals of the UI component are shown.
-end note
 
 [-> MainWindow : executeCommand("view 1")
 activate MainWindow
 
-MainWindow -> LogicManager : execute("view 1")
-activate LogicManager
-LogicManager --> MainWindow : r
-deactivate LogicManager
+MainWindow -> Logic : execute("view 1")
+activate Logic
+Logic --> MainWindow : result
+deactivate Logic
 
-MainWindow -> CommandResult : getFeedbackToUser()
-activate CommandResult
-CommandResult --> MainWindow : feedback
-deactivate CommandResult
-
-MainWindow -> CommandResult : isWarning()
-activate CommandResult
-CommandResult --> MainWindow : false
-deactivate CommandResult
-
-MainWindow -> CommandResult : getCancellationNotice()
-activate CommandResult
-CommandResult --> MainWindow : empty
-deactivate CommandResult
-
-MainWindow -> ResultDisplay : setFeedbackToUser(feedback, false, null, false)
+MainWindow -> ResultDisplay : setFeedbackToUser(...)
 activate ResultDisplay
 ResultDisplay --> MainWindow
 deactivate ResultDisplay
 
-MainWindow -> MainWindow : updateMainContent(r)
+MainWindow -> MainWindow : updateMainContent(result)
 activate MainWindow
 
-MainWindow -> CommandResult : getDisplayMode()
-activate CommandResult
-CommandResult --> MainWindow : SHOW_STUDENT
-deactivate CommandResult
+note right of MainWindow
+person and index are
+read from result.
+end note
 
-MainWindow -> CommandResult : getDisplayedIndex()
-activate CommandResult
-CommandResult --> MainWindow : index
-deactivate CommandResult
-
-MainWindow -> CommandResult : getPersonToDisplay()
-activate CommandResult
-CommandResult --> MainWindow : person
-deactivate CommandResult
-
-MainWindow -> LogicManager : getFilteredPersonList()
-activate LogicManager
-LogicManager -> Model : getFilteredPersonList()
-activate Model
-Model --> LogicManager : persons
-deactivate Model
-LogicManager --> MainWindow : persons
-deactivate LogicManager
+MainWindow -> Logic : getFilteredPersonList()
+activate Logic
+Logic --> MainWindow : persons
+deactivate Logic
 
 create StudentDetailPanel
 MainWindow -> StudentDetailPanel : StudentDetailPanel(person, index, persons)
@@ -84,15 +45,10 @@ activate StudentDetailPanel
 StudentDetailPanel --> MainWindow
 deactivate StudentDetailPanel
 
-MainWindow -> StudentDetailPanel : getRoot()
-activate StudentDetailPanel
-StudentDetailPanel --> MainWindow : root
-deactivate StudentDetailPanel
-
-MainWindow -> StudentDetailPanelPlaceholder : getChildren().setAll(root)
-activate StudentDetailPanelPlaceholder
-StudentDetailPanelPlaceholder --> MainWindow
-deactivate StudentDetailPanelPlaceholder
+MainWindow -> MainWindow : show panel in detail area
+activate MainWindow
+MainWindow --> MainWindow
+deactivate MainWindow
 
 MainWindow -> PersonListPanel : highlightPerson(person)
 activate PersonListPanel
@@ -102,11 +58,6 @@ deactivate PersonListPanel
 MainWindow --> MainWindow
 deactivate MainWindow
 
-MainWindow -> CommandResult : isExit()
-activate CommandResult
-CommandResult --> MainWindow : false
-deactivate CommandResult
-
-[<-- MainWindow : r
+[<-- MainWindow : result
 deactivate MainWindow
 @enduml
