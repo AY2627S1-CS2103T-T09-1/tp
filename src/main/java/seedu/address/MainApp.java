@@ -127,7 +127,7 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        logger.info("Starting " + APP_NAME + " " + VERSION);
+        logger.info("Starting " + APP_NAME + " " + MainApp.VERSION);
         ui.start(primaryStage);
     }
 
